@@ -35,7 +35,7 @@ on:
       target-environment:
         required: false
         type: choice
-        options: [DEV, UAT, PROD]
+        options: [dev, UAT, PROD]
 
 # concurrency:
 #   group: digital-sauda-backend-${{ github.ref }}
@@ -63,11 +63,11 @@ jobs:
               echo "environment=${{ inputs.target-environment }}" >> "$GITHUB_OUTPUT"; exit 0
             fi
             case "${GITHUB_REF_NAME}" in
-              develop)   echo "environment=DEV" >> "$GITHUB_OUTPUT" ;;
+              develop)   echo "environment=dev" >> "$GITHUB_OUTPUT" ;;
               uat)       echo "environment=UAT" >> "$GITHUB_OUTPUT" ;;
               release/*) echo "environment=STAGING" >> "$GITHUB_OUTPUT" ;;
               main)      echo "environment=PROD" >> "$GITHUB_OUTPUT" ;;
-              *)          echo "environment=DEV" >> "$GITHUB_OUTPUT" ;;
+              *)          echo "environment=dev" >> "$GITHUB_OUTPUT" ;;
             esac
 
   validate:
@@ -76,7 +76,7 @@ jobs:
     if: always() && !failure()
     uses: devops-futuretech/dhargun-ghactions-reusable-workflows/.github/workflows/awl-common-validation.yml@main
     with:
-      environment: ${{ needs.determine-environment.outputs.environment || 'DEV' }}
+      environment: ${{ needs.determine-environment.outputs.environment || 'dev' }}
       runner-label: windows-build       # override if the default label targets Linux
 
   # ------------------------------------------------------------------------------------
@@ -170,7 +170,7 @@ jobs:
     uses: devops-futuretech/dhargun-ghactions-reusable-workflows/.github/workflows/reusable-build-dotnet-framework-iis.yml@main
 
     with:
-      environment: ${{ needs.determine-environment.outputs.environment || 'DEV' }}
+      environment: ${{ needs.determine-environment.outputs.environment || 'dev' }}
       # ------------------------------------------------------------------------------------
       # [APPLICATION REPO PATH]
       # This path is inside THIS application repository.
@@ -202,7 +202,7 @@ jobs:
     needs: [determine-environment, validate, security-scan]
     uses: devops-futuretech/dhargun-ghactions-reusable-workflows/.github/workflows/reusable-build-dotnet-framework-iis.yml@main
     with:
-      environment: ${{ needs.determine-environment.outputs.environment || 'DEV' }}
+      environment: ${{ needs.determine-environment.outputs.environment || 'dev' }}
         # ------------------------------------------------------------------------------------
       # [APPLICATION REPO PATH]
       # This path is inside THIS application repository.
@@ -278,7 +278,8 @@ jobs:
     if: github.event_name == 'push'
     uses: devops-futuretech/dhargun-ghactions-reusable-workflows/.github/workflows/awl-reusable-deploy-iis.yml@main
     with:
-      environment: ${{ needs.determine-environment.outputs.environment }}
+      environment: ${{ needs.determine-environment.outputs.environment || 'dev' }}
+      # artifact-path: publish
       artifact-name: digital-sauda-web-${{ github.run_number }}
       site-name: ${{ vars.IIS_SITE_NAME }}   # [ENV var] Target IIS website name on the Windows deploy runner
       app-pool: ${{ vars.IIS_APP_POOL }}   # [ENV var] IIS application pool name
