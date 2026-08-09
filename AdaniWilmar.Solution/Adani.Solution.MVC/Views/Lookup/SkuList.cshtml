@@ -1,0 +1,138 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@{
+    ViewBag.Title = "Sku";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="masterSku" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_Skus")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Masters</a><span class="icon-right"></span></li>
+        <li class="active"> @Helper.GetResourceString("lbl_Skus") <span class="icon-right"></span></li>
+    </ol>
+    @*<div id="dateFilter" class="col-xs-9">
+            <div class="period-wrapper">
+                @if (Helper.CheckClaims(Claims.ManageMaster) && !ConfigHelper.IsSapDataUpdate)
+                {
+                    <a href="@Url.Action("SkuEditRedirect", "Lookup")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateSku")</a>
+                }
+            </div>
+        </div> *@
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        @*<div class="panel-heading">
+            </div>*@
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvSkus">
+                <div class="col-md-12">
+                    <div class="text-right right-buttons">
+                        <div class="export_as">
+                            <span>Export as</span>
+                            <div class="export-btns">
+                                <span class="export-link" onclick="location.href = '@Url.Action("GenerateExcelSKUAsync", "Lookup")'" type="button">Excel</span>
+                            </div>
+                        </div>
+                        @*<button class="k-button k-button-icontext k-grid-excel" onclick="location.href = '@Url.Action("GenerateExcelSKUAsync", "Lookup")'" type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;*@
+
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+
+                        <div class="period-wrapper">
+                            @if (Helper.CheckClaims(Claims.ManageMaster) && !ConfigHelper.IsSapDataUpdate)
+                            {
+                                <a href="@Url.Action("SERedirect", "Lookup")" class="k-primary k-button"><b><i class="icon-plus"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateSku")</a>
+                            }
+                        </div>
+
+                    </div>
+                    
+                    @(Html.Kendo().Grid<SkuDto>()
+                          .Name("ViewSkus")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.Id).Visible(false);
+                              columns.Bound(c => c.SkuName).Title(@Helper.GetResourceString("lbl_SkuName")).ClientTemplate(@"<div> <a style='text-decoration: underline;' title='#=SkuName#' href='" + Url.Action("SERedirect", "Lookup", new { EncryptedId = "#=EncryptedId#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=SkuName#</a> </div>").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(c => c.DepotName).Title(@Helper.GetResourceString("lbl_DepotName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.OilPackingType).Title(@Helper.GetResourceString("lbl_OilPackingType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(c => c.OilPackingBPCPTypeId).Title(@Helper.GetResourceString("lbl_BP/CPType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250).ClientTemplate("#= OilPackingBPCPTypeId == 1 ? 'BP' : (OilPackingBPCPTypeId == 2 ? 'CP' : '') #");
+                              columns.Bound(c => c.OilPackingBPCPType).Title(@Helper.GetResourceString("lbl_BP/CPType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.OilType).Title(@Helper.GetResourceString("lbl_OilType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              //columns.Bound(c => c.OilTypeCode).Title("OilType Code").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.SalesOrganization).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Sales Organisation").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.DistributionChannel).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Distribution Channel").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.Vertical).Title(@Helper.GetResourceString("lbl_Vertical")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(c => c.SalesDocumentType).Title("Sales DocumentType").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.NewlyAdded).Title(@Helper.GetResourceString("lbl_IsUpdateRequired")).HtmlAttributes(new { @title = "#=NewlyAdded#" }).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(c => c.BusinessLine).Title(@Helper.GetResourceString("lbl_BusinessLine")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.ParentMaterialCode).Title(@Helper.GetResourceString("lbl_ParentMaterialCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(c => c.BaseUOM).Title(@Helper.GetResourceString("lbl_BaseUOM")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(c => c.UOM1).Title(@Helper.GetResourceString("lbl_UOM1")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(c => c.UOM2).Title(@Helper.GetResourceString("lbl_UOM2")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(c => c.UOM3).Title(@Helper.GetResourceString("lbl_UOM3")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(c => c.Conversion1).Title(@Helper.GetResourceString("lbl_Conversion1")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(c => c.Conversion2).Title(@Helper.GetResourceString("lbl_Conversion2")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(c => c.TDAndPacktype).Title(@Helper.GetResourceString("lbl_TDAndPacktype")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(c => c.MaterialTypeName).Title(@Helper.GetResourceString("lbl_MaterialType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(t => t.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Active")).ClientTemplate(@"<div style='text-align: center;'>#if(IsActive){#<i class='icon-green_ckbox_tick faicon-green'><span class='path1'></span><span class='path2'></span></i>#}else{#<i class='icon-red_ckbox_tick faicon-red'><span class='path1'></span><span class='path2'></span></i>#}#</div>").Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(t => t.IsBaseSku).HeaderTemplate("").Title("IsBaseSku").ClientTemplate(@"<div style='text-align: center;'> #if(IsBaseSku == false) { #"
+                              //                                       + " <a  title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(t => t.IsRequiredToAttachTT).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_IsRequiredToAttachtt")).ClientTemplate(@"<div style='text-align: center;'> #if(IsRequiredToAttachTT == false) { #"
+                              //                                      + " <a  title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Width(Settings.GridColumnMaxWidth);
+                          })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Selectable(selectable => selectable
+                          .Mode(GridSelectionMode.Multiple)
+                          .Type(GridSelectionType.Row))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Resizable(resize => resize.Columns(true))
+                          .Events(events => events.DataBound("onSkuListDataBound"))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Model(model => model.Id(m => m.Id))
+                          .ServerOperation(true)
+                          .Read(read => read.Action("GetSkuListAsync", "Lookup", new { isToReturnInactiveData = true }))))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();
+
+
+
+         if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+		}
+    });
+
+    //Method to data bound event for dealer List
+    function onSkuListDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+</script>
+
+
+
+
+
+
+
+

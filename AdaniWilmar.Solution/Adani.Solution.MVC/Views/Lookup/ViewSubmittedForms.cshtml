@@ -1,0 +1,344 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Models
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO
+@model Adani.Solution.DTO.SubmittedFormsInputDto
+@{
+    ViewBag.Title = "ViewSubmittedForms";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="cmssubmittedform" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_SubmittedForms")</h2>
+    <div class="period-wrapper">
+        <ol class="breadcrumb custom_breadcrumb">
+            <li><a href="#">@Helper.GetResourceString("lbl_cms")</a><span class="icon-right"></span></li>
+            <li class="active">@Helper.GetResourceString("lbl_SubmittedForms")<span class="icon-right"></span></li>
+        </ol>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;" id="pageLoader">
+            <div class="row" id="dvSecondaryFreights">
+                <div class="row form-group">
+                    <div class="col-lg-2 col-sm-4 mb-3">
+                        <label class="custom_label">@Helper.GetResourceString("lbl_FromDate")</label>
+                        @(Html.Kendo().DatePickerFor(m => m.FromDate)
+                                                        .Name("FromDate")
+                                                        .Value(DateTime.Now)
+                                                        //.Value(Settings.DefaultDashboardFromDate)
+                                                        .Format(Settings.DateFormat)
+                                                        .Events(e => e.Change("fromDateChange"))
+                                                        .HtmlAttributes(new { id = "dpFromDate", onkeydown = "return isFocus(event);", style = "width: 100%", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_FromDate"), @class = "form-control" }))
+                    </div>
+                    <div class="col-lg-2 col-sm-4 mb-3">
+                        <label class="custom_label">@Helper.GetResourceString("lbl_ToDate")</label>
+                        @(Html.Kendo().DatePickerFor(m => m.ToDate)
+                                                        .Name("ToDate")
+                                                        .Value(DateTime.Now)
+                                                        //.Max(DateTime.Now.Date)
+                                                        .Format(Settings.DateFormat)
+                                                        .HtmlAttributes(new { id = "dpToDate", onkeydown = "return isFocus(event);", style = "width: 100%", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_ToDate"), @class = "form-control" }))
+
+                    </div>
+                    <div class="col-lg-3 col-sm-6 mb-3" id="zoneContainer">
+                        <label class="custom_label">@Helper.GetResourceString("plho_SelectUserRoleType") </label>
+                        @(Html.Kendo().MultiSelect().Name("RoleIds")
+                        .Events(events => events.Change("onRolesChange"))
+                        //.OptionLabel(@Helper.GetResourceString("plho_SelectZone"))
+                        .Placeholder("Select RoleType")
+                        .DataTextField("Name")
+                        .DataValueField("Id")
+                        .AutoClose(false)
+                        .TagMode(TagMode.Single)
+                        //.MaxSelectedItems(ConfigHelper.MaxSelectedOneItemForMultiselect)
+                        .DataSource(source => source.Read(read => read.Action("GetUserRoleListddl", "Lookup", new { isToReturnInactiveData = false }))
+                        .ServerFiltering(false))
+                        .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='roleSelectAll'> Select All</label>")
+                        .HtmlAttributes(new { id = "ddlRoles", @class = "", tabindex = "3", data_msg_required = Helper.GetSelectMsgRequired("lbl_UsersType"), @style = "width:100%" }))
+                    </div>
+
+                    
+                        <div class="col-lg-3 col-sm-6 mb-3" style="bottom: -15px">
+                            <button type="button" tabindex="7" onclick="SearchIssue()" class="k-primary k-button">Search</button>
+                        </div>
+                    
+                </div>
+
+                <div class="col-md-12">
+                    <div class="text-right right-buttons">
+                        <div class="export_as">
+                            <span>Export as</span>
+                            <div class="export-btns">
+                                <span class="export-link" onclick='ExportToExcel()' type="button">Excel</span>
+                            </div>
+                        </div>
+                        @* <button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ViewIssueList")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;*@
+                        @*<button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel()' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;*@
+
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    </div>
+                    @(Html.Kendo().Grid<FormInputDto>()
+                    .Name("GridVertical")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(c => c.Id).Visible(false);
+                        columns.Bound(c => c.FormName).Title(@Helper.GetResourceString("lbl_FormName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                        columns.Bound(c => c.CustomerName).Title(@Helper.GetResourceString("lbl_UsersName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                        columns.Bound(c => c.UserRoleType).Title(@Helper.GetResourceString("plho_SelectUserRoleType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                        columns.Bound(c => c.CreatedDate).Title(@Helper.GetResourceString("lbl_submitteddate")).Format("{0:dd-MM-yyyy}").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                        columns.Bound(c => c.Id) // Add a column for child grid action
+                            .ClientTemplate("<a href='\\#' onclick='showChildGrid(#=Id#)'>View Details</a>")
+                            .Title("Details")
+                            .Width(Settings.GridColumnMaxWidth250).Visible(false);
+                    })
+                    .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                    .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                    .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                    .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                    .Scrollable(s => s.Enabled(true).Height("auto"))
+                    .Resizable(resize => resize.Columns(true))
+                    .Reorderable(reorder => reorder.Columns(true))
+                    .Excel(excel => excel.AllPages(true).FileName(@Helper.GetResourceString("lbl_FormName") + " " + DateTime.Now + ".xlsx").Filterable(true))
+                    .ClientDetailTemplateId("template")
+                    .Events(events => events.DataBound("onVerticleDataBound"))
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Model(model => model.Id(p => p.Id))
+                        .ServerOperation(true)
+                        .Read(read => read.Action("GetSubmittedDetails", "Lookup").Data("additionalParams"))
+                    ))
+
+                <script id="template" type="text/kendo-tmpl">
+                        <div style="min-width: 600px; width: 100%; overflow-x:auto;">
+                        @(Html.Kendo().Grid<QuestionAnswerInput>()
+
+                            .Name("grid_#=Id#")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(c => c.Query).Title(@Helper.GetResourceString("lbl_Query")).Width(350);
+                                columns.Bound(c => c.QuestionTypeName).Title(@Helper.GetResourceString("lbl_QuestionTypeName")).Width(350);
+                                columns.Bound(c => c.Answer).Title(@Helper.GetResourceString("lbl_Answer")).Width(1000);
+                            })
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Read(read => read.Action("GetSubmittedFormDetailsbyId", "Lookup", new { FormId = "#=Id#" }))
+                            )
+                             .Pageable(pageable => pageable
+ .Refresh(true)
+ .PageSizes(new[] { 5, 10, 15 }).ButtonCount(5))
+ .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+ .Scrollable(s => s.Enabled(true).Height(400))
+                            //.Pageable()
+                            //.Scrollable(s => s.Enabled(true).Height("auto"))
+                            .Scrollable(s => s.Enabled(true).Height(200))
+                            .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                            //.Sortable()
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .ToClientTemplate()
+
+                        )
+                        </div>
+                </script>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+         if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+        // kendo grid filter contains
+        FilterContains();
+
+        //To set default Date.
+        if ('@Model.ToDate.Year' == 1) {
+            var todate = new Date();
+            todate.setDate(todate.getDate());
+			var fromdate = new Date();
+            fromdate.setDate(fromdate.getDate() - 7);
+			$("#dpFromDate").val(kendo.toString(kendo.parseDate(fromdate), emamiGlobal.constant.DateFormat));
+			$("#dpToDate").val(kendo.toString(kendo.parseDate(todate), emamiGlobal.constant.DateFormat));
+			//$("#ViewSubmittedForms").data("kendoGrid").dataSource.read();
+        }
+		$("#btnSearchSubmittedForms").click(function () {
+			if (Date.parse($("#dpFromDate").val()) > Date.parse($("#dpToDate").val())) {
+				ShowErrorMessage('@Helper.GetResourceString("msg_InvalidFromDate")')
+			}
+            //$("#ViewSubmittedForms").data("kendoGrid").dataSource.read();
+        });
+
+        $('#zoneContainer').click(function () {
+            $("#multiselectDescription_head").text("Selected Zones");
+            $("#multiselectDescription").modal("show");
+            var selectedItems = $("#ddlRoles").data('kendoMultiSelect').dataItems();
+            var listContainer = $("#multiselectDescription_ul");
+            listContainer.empty();
+
+            selectedItems.forEach(function (item) {
+                var listItem = $("<li>").text(item.Name);
+                listContainer.append(listItem);
+            });
+        });
+        $("#roleSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlRoles", "roleSelectAll");
+        });
+        fillDefaultDate();
+        SearchIssue();
+    });
+
+    function additionalParams() {
+        //var checkedVal = Number($('input[name=BookingType]:checked').val());
+        //var statusId = Number($("#ddlIssueStatus").val());
+        return {
+            FromDate: $("#dpFromDate").val(),
+            Todate: $("#dpToDate").val(),
+            RoleIds: $("#ddlRoles").val(),
+        };
+    }
+
+    function fillDefaultDate() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+        $("#dpToDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        $("#dpFromDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+
+        FromDateRange();
+    }
+
+    function fromChange() {
+        var endPicker = $("#dpToDate").data("kendoDatePicker"),
+            FromDate = this.value();
+
+        if (FromDate) {
+            FromDate = new Date(FromDate);
+            $("#dpToDate").val(kendo.toString(kendo.parseDate(FromDate), emamiGlobal.constant.DateFormat));
+            endPicker.min(FromDate);
+        }
+    }
+
+    function FromDateRange() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+
+        $("#dpFromDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        $("#dpToDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+
+        var endPicker = $("#dpToDate").data("kendoDatePicker");
+        endPicker.min(dates);
+    }
+    function onRolesChange() {
+        //$("#ddlState").data("kendoMultiSelect").dataSource.read();
+        MultiSelectEvents("ddlRoles", "roleSelectAll");
+    }
+
+    function showChildGrid(formId) {
+        // Function to display child grid based on formId
+        var grid = $("#GridVertical").data("kendoGrid");
+        var row = grid.tbody.find("tr[data-uid='" + formId + "']");
+        var detailRow = grid.detailRow(row);
+        if (detailRow.is(":visible")) {
+            grid.collapseRow(row);
+        } else {
+            grid.expandRow(row);
+        }
+    }
+
+    function SearchIssue() {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $("#GridVertical").data("kendoGrid").dataSource.read();
+        window.kendo.ui.progress($("#div_Progress"), false);
+    }
+
+    function refreshGrid() {
+        var orderGrid = $("#GridVertical").data("kendoGrid");
+        orderGrid.dataSource.read();
+    }
+
+    function onVerticleDataBound(e) {
+        SetEmptyRow(e);
+    }
+	function fromDateChange() {
+        var endPicker = $("#dpToDate").data("kendoDatePicker"),
+            FromDate = this.value();
+
+        if (FromDate) {
+            FromDate = new Date(FromDate);
+            endPicker.min(FromDate);
+        }
+
+        var todayDate = kendo.toString(kendo.parseDate(FromDate), emamiGlobal.constant.DateFormat);
+        if ($("#dpFromDate").val() > $("#dpToDate").val()) {
+            $("#dpToDate").val(todayDate);
+        }
+    }
+
+    function OnSubmittedFormListDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+
+    function OnSubmittedFormsErrorHandling(e)
+    {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+			});
+            ShowErrorMessage(message);
+        }
+    }
+
+    function additionalGridDataInfo() {
+        return {
+            FromDate: $("#dpFromDate").val(),
+            ToDate: $("#dpToDate").val()
+        }
+    }
+	    function ExportToExcel() {
+
+        window.kendo.ui.progress($("#div_Progress"), true);
+        var data = {
+            IsToReturnInactiveData: true,
+            FromDate: $("#dpFromDate").val(),
+            ToDate: $("#dpToDate").val(),
+            RoleIds: $("#ddlRoles").val(),
+            //QueryFrom: $("#ddlQueryFrom").val(),
+            //RaisedBy: $("#ddlRaisedBy").val()
+        };
+        $.ajax({
+            type: 'Post',
+            url: '@Url.Action("ExportFromSubmitList", "Lookup")',
+            data: { inputDto: data },
+            success: function (responce) {
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Base")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+</script>

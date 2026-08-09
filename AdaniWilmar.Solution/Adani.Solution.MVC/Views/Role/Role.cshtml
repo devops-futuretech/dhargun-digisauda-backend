@@ -1,0 +1,159 @@
+﻿@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Helpers;
+@using Kendo.Mvc.UI
+@model Adani.Solution.MVC.Models.RoleViewModel
+
+@{
+    ViewBag.Title = "Role";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="roleType" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_Role")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#"> Organizations </a><span class="icon-right"></span></li>
+        <li><a href="UpdateRole"> UpdateRole </a><span class="icon-right"></span></li>
+        <li class="active"> Role <span class="icon-right"></span></li>
+    </ol>
+    @*<div id="dateFilter" class="col-xs-9">
+
+            <div class="period-wrapper">
+                <a onclick="roleList('@Url.Action("UpdateRole","Role")')" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_RoleList")</a>
+
+            </div>
+        </div>*@
+    <div style="clear:both;"></div>
+</div>
+
+
+
+<div id="Role" class="content main-section-content row">
+
+    <div class="panel panel-flat">
+        
+        <div class="panel-body" style="display: block;">
+
+            @using (Html.BeginForm("Role", "Role", FormMethod.Post, new { id = "frmRoleType", @class = "form-validate-jquery" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="text-right right-buttons">
+                    <div class="period-wrapper">
+                        <a onclick="roleList('@Url.Action("UpdateRole","Role")')" class="k-primary k-button custom-btns"><b><i class="icon-plus"></i></b>&ensp;@Helper.GetResourceString("lbl_RoleList")</a>
+
+                    </div>
+                </div>
+                    <fieldset class="content-group">
+
+                        <div class="row form-group">
+                            <div class="col-sm-4 mb-3 col-sm-offset-2">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_Role")</label>
+                                
+                                    @Html.TextBoxFor(m => m.Name, new { id = "txtRole", required = "required", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_Role"), @maxlength = (int)InputMaxLength.String })
+
+                               
+                            </div>
+                            <div class="col-sm-4 mb-3 ">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_RoleType")</label>
+                                
+                                    @(Html.Kendo().DropDownListFor(m => m.RoleType)
+                                  .OptionLabel(@Helper.GetSelectMsgRequired("lbl_RoleType"))
+                                  .DataTextField("Name")
+                                  .DataValueField("Id")
+                                  .Events(e => e.Change("OnRoleChange"))
+                                  .DataSource(source => source.Read(read => read.Action("GetRoleTypesExceptAdminAsync", "Role"))
+                                  .ServerFiltering(true))
+                                  .HtmlAttributes(new { id = "ddlRole", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_RoleType") }))
+                                </div>
+                            </div>
+</fieldset>
+                    <div class="table-responsive">
+                        @{
+                            var j = 0;
+                            for (int i = 0; i < Model.ClaimDto.Count(); i += 3)
+                            {
+                                <div class="row form-group">
+                                    @foreach (var item in Model.ClaimDto.Skip(i).Take(3))
+                                    {
+                                        var chkClaims = "chkClaims" + Model.ClaimDto[j].ClaimId;
+                                        <div class="col-lg-3 col-md-push-2">
+                                            @Html.HiddenFor(m => m.ClaimDto[j].ClaimId)
+                                            @Html.HiddenFor(m => m.ClaimDto[j].Name)
+                                            @if (Model.ClaimDto[j].IsClaim)
+                                            {
+                                                @(Html.Kendo().CheckBoxFor(m => m.ClaimDto[j].IsClaim).Label(item.Name).HtmlAttributes(new { id = @chkClaims, @class = "chkAll", onclick = "onSelectClickEvent('chkAll','chkAllClaims')" }))
+                                            }
+                                            else
+                                            {
+                                                @(Html.Kendo().CheckBoxFor(m => m.ClaimDto[j].IsClaim).Label(item.Name).HtmlAttributes(new { id = @chkClaims, @class = "chkAll", onclick = "onSelectClickEvent('chkAll','chkAllClaims')" }).Enable(false))
+                                            }
+                                        </div>
+                                        j++;
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                    <div class="text-right marginT20">
+                        <button type="submit" id="btnAddRoleType" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Save") </button>
+                    </div>
+                    }
+                </div>
+            </div>
+</div>
+
+<script>
+	$(document).ready(function () {
+		//ProgressLoader(false);
+		 if ('@Model.PostMessage' !== ""){
+			   if ('@Model.PostStatus' === '@true') {
+					ShowSuccessMessage('@Model.PostMessage');
+			   } else {
+					ShowErrorMessage('@Model.PostMessage');
+				}
+		}
+		 $("#btnAddRoleType").click(function (e) {
+			RoleTypeSubmit();
+        });
+
+        $("form :input").change(function () {
+            isFormChanged('isChanged');
+        });
+	});
+
+	function RoleTypeSubmit() {
+		$('#frmRoleType').submit();
+		var isValid = $("#frmRoleType").valid();
+		if (isValid) {
+			// Animate loader
+			ProgressLoader(true);
+		}
+	}
+
+	//Method to type change event
+	function OnRoleChange(e) {
+		var roleTypeId = Number($("#ddlRole").data("kendoDropDownList").value());
+		$(".chkAll").prop('checked', false);
+		$(".chkAll").prop('disabled', true);
+		moduleCommon.Common.AjaxCall({
+			url: '@Url.Action("GetRoleTypeClaimsDetails", "Role")',
+			type: 'Get',
+			data: { roleTypeId: roleTypeId },
+			contentType: 'application/json; charset=utf-8',
+			success: function (result) {
+				if (result != null) {
+					for (var i = 0; i < result.length; i++) {
+						var chkBoxName = "chkClaims" + result[i].ClaimId;
+						$("#" + chkBoxName).prop('checked', true);
+						$("#" + chkBoxName).attr("disabled", false);
+					}
+				}
+			}
+		});
+    }
+
+    function roleList(url) {
+        isFormChangeOrNot(url);
+    }
+
+</script>

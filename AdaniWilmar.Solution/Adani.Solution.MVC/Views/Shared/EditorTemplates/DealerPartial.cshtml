@@ -1,0 +1,16 @@
+﻿
+@*@{
+    ViewBag.Title = "DealerPartial";
+}
+
+<h2>DealerPartial</h2>*@
+
+@using Kendo.Mvc.UI
+
+@(Html.Kendo().DropDownList()
+      .Name("ToDealerId")
+      .DataSource(d => d.Read(r => r.Action
+      ("GetDealerListAsync", "SalesTourPlan").Data("getDealerId()")))
+      .DataValueField("Id")
+      .DataTextField("Dealer")
+      .AutoBind(true))

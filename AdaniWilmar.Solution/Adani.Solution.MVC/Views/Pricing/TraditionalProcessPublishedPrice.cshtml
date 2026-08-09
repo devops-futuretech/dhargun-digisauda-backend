@@ -1,0 +1,239 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model  TradeTicketViewDto
+@{
+    ViewBag.Title = "Traditional Process Published Price";
+}
+
+<style>
+
+    .k-confirm .k-window-titlebar::before {
+        content: 'Confirmation';
+    }
+
+    .k-confirm .k-window-titlebar .k-dialog-title {
+        visibility: collapse;
+    }
+</style>
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="publishTPPublishedPrice" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Traditional Process Price Publish</h2>
+    @*<div id="dateFilter" class="col-xs-9">
+            <div class="period-wrapper">
+                <b><i class="icon-plus-circle2"></i></b>
+            </div>
+        </div>*@
+    <div style="clear:both;"></div>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvSecondaryFreights">
+                <div class="row form-group">
+                    <div class="col-md-4 text-right">
+                        Search Date
+                    </div>
+                    <div class="col-md-4">
+                        @(Html.Kendo().DatePicker().Name("SearchDate")
+                                                                                    .Format(Settings.DateFormat)
+                                                                                    .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-md-12 text-center">
+                        <button type="button" onclick="getTPGeneratedPrice()" class="k-primary k-button">Search</button>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="row form-group">
+                        <div class="col-md-12">
+                            <div class="text-right">
+                                @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                            </div>
+
+                            @(Html.Kendo().Grid<PricePublishesDto>()
+                               .Name("TPFinalPriceGrid")
+                               .Columns(columns =>
+                               {
+                                   columns.Bound(c => c.Id).Visible(false);
+                                   columns.Bound(c => c.SaudaBookingTypeId).Visible(false);
+                                   columns.Bound(c => c.StatusId).Visible(false);
+                                   columns.Bound(c => c.StartDate).Format(Settings.GridDateTimeFormat).Title("Start Date Time").Width(170);
+                                   columns.Bound(c => c.EndDate).Format(Settings.GridDateTimeFormat).Title("End Date Time").Width(170);                                   
+                                   columns.Bound(c => c.Plant).Title("Plant").Width(Settings.GridColumnMaxWidth);
+                                   columns.Bound(c => c.OilType).Title("OilType").Width(Settings.GridColumnMaxWidth);
+                                   columns.Bound(c => c.PublishDate).Format(Settings.GridDateTimeFormat).Title("Publish Date Time").Width(170);
+                                   columns.Bound(c => c.FinalPriceRecordCount).Title("Completed Record").Width(110);
+                                   columns.Bound(c => c.Status).Title("Status").Width(Settings.GridOtherColumnWidth);
+                                   columns.Template(c => c.IsPublish).HeaderTemplate("").Title("Is Publish").ClientTemplate(@"<div style='text-align: center;'>#if(IsPublish){#<i class='icon-checkbox-checked2 faicon-green'></i>#}else{#<i class='icon-cancel-square2 faicon-red'></i>#}#</div>").Width(Settings.GridOtherColumnWidth);
+                                   columns.Template(c => c.SaudaBookingTypeId).Title("Success Data").ClientTemplate(@"<div style='text-align: center;'><i onclick='downloadSuccessData(#=Id#,#=FinalPriceRecordCount#)' style='cursor: pointer;' class='icon-download4'></i></div>").Width(Settings.GridOtherColumnWidth);
+                                   columns.Template(c => c.SaudaBookingTypeId).Title("Error Data").ClientTemplate(@"<div style='text-align: center;'><i onclick='downloadErrorData(this)' style='cursor: pointer;' class='icon-download4'></i></div>").Width(Settings.GridOtherColumnWidth);
+                                   columns.Template(c => c.SaudaBookingTypeId).Title("Publish").ClientTemplate(@"#if(StatusId == 2){#<div style='text-align: center;'>#if(!IsPublish){#<button style='width: 80px;' type='button' onclick='tpFinalPricePublish(#=Id#,#=FinalPriceRecordCount#)' class='k-primary k-button'>Publish</button>#}else{#<div style='cursor: no-drop;'><button type='button' class='k-primary k-button' disabled>Published</button></div>#}#</div>#}#").Width(Settings.GridOtherColumnWidth);
+                               })
+                               .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                               .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                               .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                               .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                               .Selectable(selectable => selectable
+                               .Mode(GridSelectionMode.Multiple)
+                               .Type(GridSelectionType.Row))
+                               .Scrollable(s => s.Enabled(true).Height("auto"))
+                               .Reorderable(reorder => reorder.Columns(true))
+                               .Resizable(resize => resize.Columns(true))
+                               .DataSource(dataSource => dataSource
+                               .Ajax()
+                               .Read(read => read.Action("GetPublishedPriceDetailsAsync", "Pricing").Data("additionalParam"))
+                               .Model(model => model.Id(m => m.Id))
+                               .ServerOperation(true)))
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header" style="font-size:16px;color:#fff;">
+                    <button type="button" class="close" data-dismiss="modal" style="font-size: 26px;color:#fff;">&times;</button>
+                    <h4 class="modal-title">Notes:</h4>
+                </div>
+                <div class="modal-body" style="font-size: 14px;line-break: normal;line-height: 2.5;">
+                    <p> 1. Trade ticket is mandatory for Sauda(HBC) creation in SAP.</p>
+                    <p> 2. Total proportion value should be hundred(100).</p>
+                    <p> 3. After creation of trade ticket in the DS portal, Trade ticket number will come from SAP.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        // kendo grid filter contains
+        FilterContains();
+
+        //Set default date
+        setDefaultDate();
+
+    });
+
+    //Set default date
+    function setDefaultDate() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+        $("#SearchDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+    }
+
+    //Grid data load param
+    function additionalParam() {
+        return {
+            searchDate: ($("#SearchDate").val() === "" ? new Date().toDateString() : $("#SearchDate").val()),
+            bookingTypeId: '@((Int64)Adani.Solution.DTO.Enums.SaudaBookingTypes.TraditionalProcess)'
+        }
+    }
+
+    function getTPGeneratedPrice() { 
+        $("#TPFinalPriceGrid").data("kendoGrid").dataSource.read();        
+    }    
+
+    //(function () {
+    //    setInterval(function () { getTPGeneratedPrice(); }, 60000);
+    //})();
+
+    function tpFinalPricePublish(Id, FinalPriceRecordCount) {
+        var confirmText = "Traditional Process Total Final Price Count : <strong>" + FinalPriceRecordCount + ".</strong><br><br> Are you sure you want to <strong>Publish</strong> this price?";
+        kendo.confirm(confirmText).then(function () {
+            TraditionalProcessFinalPricePublish(Id);
+         }, function () {
+         });
+    }
+
+    function TraditionalProcessFinalPricePublish(Id) {
+        var inputParam = {
+            PublishId: Id,
+            BookingTypeId:'@((Int64)Adani.Solution.DTO.Enums.SaudaBookingTypes.TraditionalProcess)',
+            BiddingDate: $("#SearchDate").val()
+        };
+
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("PublishFinalPrice", "Pricing")',
+            data: { inputDto: inputParam },
+            success: function (responce) {
+                if (responce.PostStatus) {
+                    ShowSuccessMessage(responce.PostMessage);
+                    $("#TPFinalPriceGrid").data("kendoGrid").dataSource.read();
+                } else {
+                    ShowErrorMessage("Traditional Process Final price publish error");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("Traditional Process Final price publish error");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+    function downloadSuccessData(Id, FinalPriceRecordCount) {        
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetPublishedFinalPriceList", "Pricing")',
+            data: { publishId: Id, FinalPriceRecordCount: FinalPriceRecordCount },
+            success: function (responce) {
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Pricing")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+    function downloadErrorData(e) {
+        
+        var grid = $("#TPFinalPriceGrid").data("kendoGrid");
+        var selectedRow = grid.dataItem($(e).closest("tr"));
+
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetPriceGenerateErrorList", "Pricing")',
+            data: { inputDto: JSON.parse(JSON.stringify(selectedRow)) },
+            success: function (responce) {
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Pricing")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+</script>

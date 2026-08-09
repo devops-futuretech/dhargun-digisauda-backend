@@ -1,0 +1,544 @@
+﻿@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.DTO;
+@model Adani.Solution.MVC.Models.SaudaConversionUnitAndDiffRateModel
+@{
+    ViewBag.Title = "SaudaConversionUnitAndBaseRate";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="transactionsaudaconversionunitandbaserate" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title"> @Helper.GetResourceString("lbl_SaudaConversionUnitAndBaseRate")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Transaction</a><span class="icon-right"></span></li>
+        <li><a href="SaudaConversionAndBaseRateList">@Helper.GetResourceString("lbl_SaudaConversionUnitAndBaseRate")</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_SaudaConversionUnitAndBaseRate")<span class="icon-right"></span></li>
+    </ol>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            @using (Html.BeginForm("AddSaudaConversionUnitandDiffRate", "Sauda", FormMethod.Post, new { id = "frmSaudaConversionUnitAndDiffRate", @class = "form-validate-jquery" }))
+            {
+                @Html.AntiForgeryToken()
+                <!--From SKU-->
+                <div class="row form-group">
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <label class="custom_label"> @Helper.GetResourceString("lbl_OilType") <span class="text-danger">*</span> </label>
+                        @(Html.Kendo().DropDownListFor(m => m.OilTypeId)
+                                          .OptionLabel(@Helper.GetResourceString("plho_SelectOilType"))
+                                          .Events(events => events.Change("onOilChange"))
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .DataSource(source => source.Read(read => read.Action("GetOilTypesBasedOnVertical", "Lookup" , new { verticalId = Model.VerticalId }))
+                                          .ServerFiltering(false))
+                                          .HtmlAttributes(new { id = "ddlOilType", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilType"), @style = "width:100%" }))
+                    </div>
+
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <label class="custom_label"> @Helper.GetResourceString("lbl_PlantDepot") <span class="text-danger">*</span> </label>
+                        @(Html.Kendo().MultiSelectFor(m => m.SourceIds)
+                                      .Placeholder(@Helper.GetResourceString("plho_SelectPlantDepot"))
+                                      .Events(events => events.Change("onSourceChange").DataBound("onSourceDataBound"))
+                                      .DataTextField("Name")
+                                      .DataValueField("Id")
+                                      .AutoClose(false)
+                                      .TagMode(TagMode.Single)
+                                      .DataSource(source => source.Custom()
+                                      .Group(g => g.Add("StorageType", typeof(string)))
+                                      .Transport(t => t.Read(r => r.Action("GetDepotPlantddList", "Lookup", new { isToReturnInactiveData = false })))
+                                      .ServerFiltering(false))
+                                      .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='sourceSelectAll'> Select All</label>")
+                                      .HtmlAttributes(new { id = "ddlDepot", @class = "", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_PlantDepot"), @style = "width:100%" })
+                                      .ItemTemplate("<h4 class=\"quarryTitle colorBlk\">" +
+                                          "<div class=\"pull-right\">" +
+                                          //"<span class=\"drpWaiting\">Waiting days</span>" +
+                                          "<label class=\"label label-primary\">#: data.StorageType #</label>" +
+                                          "</div>" +
+                                          "<span class=\"quarrySmText colorBlk\">#: data.Name #</span>" +
+                                          "</h4>")
+                                      )
+                    </div>
+
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <label class="custom_label"> @Helper.GetResourceString("lbl_State") <span class="text-danger">*</span> </label>
+                        @(Html.Kendo().MultiSelectFor(m => m.StateIds)
+                                      .Placeholder(@Helper.GetResourceString("plho_SelectState"))
+                                      .Events(events => events.Change("onStateChange").DataBound("onStateDataBound"))
+                                      .DataTextField("Name")
+                                      .DataValueField("Id")
+                                      .AutoClose(false)
+                                      .TagMode(TagMode.Single)
+                                      .DataSource(source => source.Read(read => read.Action("GetStateddListAsync", "Lookup"))
+                                      .ServerFiltering(false))
+                                      .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='stateSelectAll'> Select All</label>")
+                                      .HtmlAttributes(new { id = "ddlState", @class = "", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_State"), @style = "width:100%" }))
+                    </div>
+                </div>
+
+                <div class="row" id="FromFilterOption">
+                    <div class="col-md-12 text-left">
+                        <b>@Helper.GetResourceString("lbl_FromSKU")</b>
+                    </div>
+                    <div class="row form-group">
+                        <!-- Pack Group-->
+                        <div class="col-lg-3 col-sm-6 mb-3">
+                            <label class="custom_label"> @Helper.GetResourceString("lbl_PackGroup")<span class="text-danger">*</span> </label>
+                            @(Html.Kendo().DropDownListFor(m => m.FromPackGroupId)
+                                  .OptionLabel(@Helper.GetResourceString("plho_SelectPackGroup"))
+                                  .DataTextField("Name")
+                                  .DataValueField("Id")
+                                  .Events(e => e.Change("fromPackGroupChanged"))
+                                  .DataSource(source => source.Read(resd => resd.Action("GetPackGroupList", "Sauda"))
+                                  .ServerFiltering(false))
+                                  .HtmlAttributes(new { id = "ddlFromPackGroup", @class = "form-control", tabindex = "1", @style = "width:100%", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_PackGroup") }))
+                        </div>
+                        <!-- From Skus-->
+                        <div class="col-lg-3 col-sm-6 mb-3">
+                            <label class="custom_label"> @Helper.GetResourceString("lbl_Sku")<span class="text-danger">*</span> </label>
+                            @(Html.Kendo().AutoCompleteFor(m => m.FromSkuName)
+                                           .Filter("contains")
+                                           //.Placeholder(@Helper.GetResourceString("plho_SelectEquipment"))
+                                           .Placeholder(@Helper.GetResourceString("plho_SelectSku"))
+                                          .DataTextField("Name")
+                                           .Events(e => e.Select("onFromSkuSelect").DataBound("onFromSkuDataBound"))
+                            .DataSource(source => source.Read(read => read.Action("GetSkuListByPackGroupId", "Sauda").Data("FromSkuadditionalParam"))
+                                           .ServerFiltering(true))
+                                           // .HeaderTemplate("<table width='100%'><tr class='kacheaderRow' ><td width='60%'>Name </td><td width='40%'>Code</td></tr></table>")
+                                           //.Template("<table width='100%'><tr><td width='60%'> #if(data.EquipmentName!=null){#<p>#=data.EquipmentName#</p>#}# </td><td width='40%'> #if(data.Code!=null){#<p>#=data.Code#</p>#}#</span></td></tr></table>")
+                                           .HtmlAttributes(new { id = "ddlFromSku", @class = "form-control", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Sku"), @style = "width:100%" }))
+                            @Html.HiddenFor(m => m.FromSkuId, new { id = "hdnFromSkuId" })
+                            @*@(Html.Kendo().DropDownListFor(m => m.FromSkuId)
+            .OptionLabel(@Helper.GetResourceString("plho_SelectSku"))
+            .DataTextField("Name")
+            .DataValueField("Id")
+            .DataSource(source => source.Read(read => read.Action("GetSkuListByPackGroupId", "Sauda").Data("FromSkuadditionalParam"))
+            .ServerFiltering(false))
+            .HtmlAttributes(new { id = "ddlFromSku", @class = "form-control", tabindex = "2", @style = "width:100%", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Sku") }))*@
+                        </div>
+
+                        <!--SKU unit-->
+                        <div class="col-lg-3 col-sm-6 mb-3">
+                            <label class="custom_label"> @Helper.GetResourceString("lbl_Unit") <span class="text-danger">*</span> </label>
+                            @Html.TextBoxFor(m => m.FromUnit, new { @id = "txtFromUnit", tabindex = "3", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Unit"), @onkeydown = "return isNumericWithSubtractAndCopyAndPaste(event)" })
+                        </div>
+                    </div>
+                        <div class="row form-group">
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">  @Helper.GetResourceString("lbl_FromDate") </label>
+                                @(Html.Kendo().DatePickerFor(m => m.FromDate)
+                                  .Events(e => e.Change("fromChange"))
+                                  .Format(Settings.DateFormat)
+                                  .HtmlAttributes(new { id = "dpFromDate", onkeydown = "return isFocus(event);", tabindex = "4", style = "width: 100%" }))
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_ToDate") </label>
+                                @(Html.Kendo().DatePickerFor(m => m.ToDate)
+                                    .Format(Settings.DateFormat)
+                                  .HtmlAttributes(new { id = "dpToDate", onkeydown = "return isFocus(event);", tabindex = "5", style = "width: 100%" }))
+                            </div>
+                        </div>
+                </div>
+                <!--To SKU-->
+                <div class="row" id="ToFilterOption">
+                    <div class="col-md-12 text-left">
+                        <b>@Helper.GetResourceString("lbl_ToSKU")</b>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="row form-group">
+                            <!-- Pack Group-->
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_PackGroup") </label>
+                                @(Html.Kendo().DropDownListFor(m => m.ToPackGroupId)
+                                  .OptionLabel(@Helper.GetResourceString("plho_SelectPackGroup"))
+                                  .DataTextField("Name")
+                                  .DataValueField("Id")
+                                  .Events(e => e.Change("ToPackGroupChanged"))
+                                  .DataSource(source => source.Read(read => read.Action("GetPackGroupList", "Sauda"))
+                                  .ServerFiltering(false))
+                                  .HtmlAttributes(new { id = "ddlToPackGroup", @class = "form-control", tabindex = "6", @style = "width:100%" }))
+                            </div>
+                            <!-- From Skus-->
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_Sku") </label>
+                                @*@(Html.Kendo().DropDownListFor(m => m.ToSkuId)
+        .OptionLabel(@Helper.GetResourceString("plho_SelectSku"))
+        .DataTextField("Name")
+        .DataValueField("Id")
+        .DataSource(source => source.Read(resd => resd.Action("GetSkuListByPackGroupId", "Sauda").Data("ToSkuadditionalParam"))
+        .ServerFiltering(false))
+        .HtmlAttributes(new { id = "ddlToSku", @class = "form-control", tabindex = "7", @style = "width:100%" }))*@
+
+                                @(Html.Kendo().AutoCompleteFor(m => m.ToSkuName)
+                                                   .Filter("contains")
+                                                   //.Placeholder(@Helper.GetResourceString("plho_SelectEquipment"))
+                                                   .Placeholder(@Helper.GetResourceString("plho_SelectSku"))
+                                                  .DataTextField("Name")
+                                                   .Events(e => e.Select("onToSkuSelect").DataBound("onToSkuDataBound"))
+                                    .DataSource(source => source.Read(read => read.Action("GetSkuListByPackGroupId", "Sauda").Data("ToSkuadditionalParam"))
+                                                   .ServerFiltering(true))
+                                                   // .HeaderTemplate("<table width='100%'><tr class='kacheaderRow' ><td width='60%'>Name </td><td width='40%'>Code</td></tr></table>")
+                                                   //.Template("<table width='100%'><tr><td width='60%'> #if(data.EquipmentName!=null){#<p>#=data.EquipmentName#</p>#}# </td><td width='40%'> #if(data.Code!=null){#<p>#=data.Code#</p>#}#</span></td></tr></table>")
+                                                   .HtmlAttributes(new { id = "ddlToSku", @class = "form-control", tabindex = "7", @style = "width:100%" }))
+                                @Html.HiddenFor(m => m.ToSkuId, new { id = "hdnToSkuId" })
+                            </div>
+                        
+                            <!--SKU unit-->
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_Unit") </label>
+                                @Html.TextBoxFor(m => m.ToUnit, new { @id = "txtToUnit", tabindex = "8", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Unit"), @onkeydown = "return isNumericWithSubtractAndCopyAndPaste(event)" })
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_BaseRateDiff") </label>
+                                @Html.TextBoxFor(m => m.BasicRate, new { @id = "txtToBaseRateDiff", tabindex = "9", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_BaseRateDiff"), @onkeydown = "return isNumericWithSubtractAndCopyAndPaste(event)" })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-right">
+                                <button type="button" id="btnAdd" tabindex="10" class="k-primary k-button custom-btns">@Helper.GetResourceString("lbl_AddToSku")</button>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div>
+                                @(Html.Kendo().Grid<SaudaConversionUnitAndDifferenceRateDetailsDto>()
+                                  .Name("ViewSaudaConversionUnitandDiff")
+                                  .Columns(columns =>
+                                  {
+                                      columns.Bound(c => c.ToPackGroupId).Visible(false);
+                                      columns.Bound(c => c.ToSkuId).Visible(false);
+                                      columns.Bound(c => c.ToPackGroupName).Title(Helper.GetResourceString("lbl_PackGroup")).Width(Settings.GridOtherColumnWidth);
+                                      columns.Bound(c => c.ToSkuName).Title(Helper.GetResourceString("lbl_Sku")).Width(Settings.GridOtherColumnWidth);
+                                      columns.Bound(c => c.ToUnit).Title(Helper.GetResourceString("lbl_Unit")).Width(Settings.GridOtherColumnWidth);
+                                      columns.Bound(c => c.BasicRate).Title(Helper.GetResourceString("lbl_BaseRateDiff")).Width(Settings.GridOtherColumnWidth);
+                                      columns.Template(c => c.ToPackGroupId).Title(@Helper.GetResourceString("lbl_CancelDistributionLine")).ClientTemplate(@"<div style='text-align: center;'><i onclick='deleteconversionrow(this)' class='glyphicon glyphicon-remove'></i></div>").Width(Settings.GridFilterColumnWidth);
+                                  })
+                                    .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                    .BindTo(Model.SaudaConversionUnitAndDifferenceRateDetailsList)
+                                    .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                    .Selectable(selectable => selectable
+                                        .Mode(GridSelectionMode.Multiple)
+                                        .Type(GridSelectionType.Row))
+                                    .Scrollable(s => s.Enabled(true).Height("auto"))
+                                    .Events(events => events.DataBound("onToSkuListDataBound"))
+                                    .Reorderable(reorder => reorder.Columns(true))
+                                    .DataSource(dataSource => dataSource
+                                    .Ajax()
+                                    .PageSize(Settings.DefaultPageSize)
+                                    .Model(model => model.Id(m => m.ToSkuId))
+                                    ))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-right">
+                                @Html.CheckBoxFor(m => m.SaveAnother, new { id = "SaveAnother" })
+                                <b>@Helper.GetResourceString("lbl_SaveAnother")</b>
+                                <button type="button" tabindex="12" id="btnCancel" onclick="location.href = '@Url.Action("SaudaConversionAndBaseRateList", "Sauda")'" class="k-cancel k-button custom-btns">@Helper.GetResourceString("btn_Cancel")</button>
+                                <button type="button" id="btnSave" tabindex="11" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Save")</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function ()
+    {
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        $("#btnAdd").click(function () {
+            AddSkuToList();
+        });
+
+        $("#btnSave").click(function () {
+            AddSaudaConversionUnitAndDiffRate();
+        });
+
+        StartDateRange();
+
+        $("#stateSelectAll").click(function () {
+            MultiSelectSelectAll("ddlState", "stateSelectAll");
+        });
+
+        $("#sourceSelectAll").click(function () {
+            MultiSelectSelectAll("ddlDepot", "sourceSelectAll");
+        });
+    });
+    function FromSkuadditionalParam() {
+        var FromPackGroupId = $("#ddlFromPackGroup").data("kendoDropDownList").value();
+        var OilTypeId = $("#ddlOilType").data("kendoDropDownList").value();
+
+        return {
+            PackGroupId: Number(FromPackGroupId),
+            OilTypeId: Number(OilTypeId),
+            SearchText: $("#ddlFromSku").val()
+        };
+    }
+    var selectedFromSkuId = 0;
+    var selectedToSkuId = 0;
+    var selectedFromSkuName = "";
+    var selectedToSkuName = "";
+    var isFromSkuSelected = false;
+    var isToSkuSelected = false;
+
+    function onFromSkuSelect(e) {
+        var dataItem = this.dataItem(e.item.index());
+        selectedFromSkuId = dataItem.Id;
+        isFromSkuSelected = true;
+        $("#hdnFromSkuId").val(selectedFromSkuId);
+    }
+
+    function onFromSkuDataBound() {
+        if (isFromSkuSelected == true && selectedFromSkuId > 0) {
+            var ddlFromSkuList = $("#ddlFromSku").data("kendoAutoComplete");
+            ddlFromSkuList.value(selectedFromSkuName);
+            $("#hdnFromSkuId").val(selectedFromSkuId);
+        }
+    }
+
+    function onToSkuSelect(e) {
+        var dataItem = this.dataItem(e.item.index());
+        selectedToSkuId = dataItem.Id;
+        isToSkuSelected = true;
+        $("#hdnToSkuId").val(selectedToSkuId);
+    }
+
+    function onToSkuDataBound() {
+        if (isToSkuSelected == true && selectedToSkuId > 0) {
+            var ddlToSkuList = $("#ddlToSku").data("kendoAutoComplete");
+            ddlToSkuList.value(selectedToSkuName);
+            $("#hdnToSkuId").val(selectedToSkuId);
+        }
+    }
+
+    function ToSkuadditionalParam() {
+        var ToPackGroupId = $("#ddlToPackGroup").data("kendoDropDownList").value();
+        var OilTypeId = $("#ddlOilType").data("kendoDropDownList").value();
+
+        return {
+            PackGroupId: Number(ToPackGroupId),
+            OilTypeId: Number(OilTypeId),
+            SearchText: $("#ddlToSku").val()
+        };
+    }
+    function fromPackGroupChanged(e)
+    {
+        var OilTypeId = $("#ddlOilType").data("kendoDropDownList").value();
+        if ($("#ddlOilType").val() == "")
+        {
+            ShowErrorMessage('@Helper.GetResourceString("plho_SelectOilType")');
+            return false;
+        }
+
+        $("#ddlFromSku").data("kendoAutoComplete").value("");
+        $("#hdnFromSkuId").val("0");
+        $("#ddlFromSku").data("kendoAutoComplete").dataSource.read();
+    }
+    function ToPackGroupChanged(e)
+    {
+        var OilTypeId = $("#ddlOilType").data("kendoDropDownList").value();
+        if ($("#ddlOilType").val() == "")
+        {
+            ShowErrorMessage('@Helper.GetResourceString("plho_SelectOilType")');
+            return false;
+        }
+        $("#ddlToSku").data("kendoAutoComplete").value("");
+        $("#hdnToSkuId").val("0");
+        $("#ddlToSku").data("kendoAutoComplete").dataSource.read();
+    }
+    function onOilChange(e) {
+
+        $("#ddlFromSku").data("kendoAutoComplete").value("");
+        $("#hdnFromSkuId").val("0");
+        $("#ddlToSku").data("kendoAutoComplete").value("");
+        $("#hdnToSkuId").val("0");
+        $("#ddlFromSku").data("kendoAutoComplete").dataSource.read();
+        $("#ddlToSku").data("kendoAutoComplete").dataSource.read();
+        $("#ViewSaudaConversionUnitandDiff").data("kendoGrid").dataSource.data([]);
+    }
+
+    //Method to data bound event for to Sku List List
+    function onToSkuListDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+    function AddSkuToList()
+    {
+        if (isNaN($("#txtFromUnit").val())) {
+            ShowErrorMessage('@Helper.GetResourceString("msg_EnterValidNumber")'+' ( From Unit)');
+        }
+        else if ($("#txtToUnit").val() == 0) {
+            ShowErrorMessage('@Helper.GetResourceString("msg_UnitMissing")');
+        }
+        else if (isNaN($("#txtToUnit").val()))
+        {
+            ShowErrorMessage('@Helper.GetResourceString("msg_EnterValidNumber")'+' ( To Unit)');
+        }
+        else if ($("#txtToBaseRateDiff").val() == 0) {
+			ShowErrorMessage('@Helper.GetResourceString("msg_BasicRateMissing")');
+        }
+        else if (isNaN($("#txtToBaseRateDiff").val()))
+        {
+            ShowErrorMessage('@Helper.GetResourceString("msg_EnterValidNumber")'+'(Basic price)');
+        }
+        else if ($("#ddlToPackGroup").val() == "")
+        {
+            ShowErrorMessage('@Helper.GetResourceString("plho_SelectPackGroup")');
+        }
+        else if ($("#ddlToSku").val() == "")
+        {
+            ShowErrorMessage('@Helper.GetResourceString("plho_SelectSku")');
+        }
+        else
+        {
+            window.kendo.ui.progress($("#ViewSaudaConversionUnitandDiff"), true);
+            var grid = $("#ViewSaudaConversionUnitandDiff").data("kendoGrid");
+
+            var datasource = grid.dataSource;
+            var total = datasource.data().length;
+
+            var PGId = $("#ddlToPackGroup").val();
+            var PGName = $("#ddlToPackGroup").data("kendoDropDownList").text();
+            var SkuId = $("#hdnToSkuId").val();
+            var SkuName = $("#ddlToSku").data("kendoAutoComplete").value();
+            var Unit = $("#txtToUnit").val();
+            var baseRate = $("#txtToBaseRateDiff").val();
+            //Insertion
+            var isDuplicate = false;
+            for (var i = 0; i < datasource.data().length; i += 1) {
+                if (datasource.data()[i].ToPackGroupId == PGId && datasource.data()[i].ToSkuId == SkuId) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+            if (!isDuplicate) {
+                datasource.insert(total, {
+                    ToPackGroupId: PGId,
+                    ToSkuId: SkuId,
+                    ToPackGroupName: PGName,
+                    ToSkuName: SkuName,
+                    ToUnit: Unit,
+                    BasicRate: baseRate,
+                });
+                total = datasource.data().length;
+            }
+            else {
+                ShowErrorMessage('@Helper.GetResourceString("msg_SkuExists")');
+            }
+			window.kendo.ui.progress($("#ViewSaudaConversionUnitandDiff"), false);
+
+		}
+    }
+    function AddSaudaConversionUnitAndDiffRate()
+    {
+        var SaveAnotherCheckboxValue;
+        if ($("#SaveAnother").prop("checked") == true) {
+            SaveAnotherCheckboxValue = true;
+        }
+        else {
+            SaveAnotherCheckboxValue = false;
+        }
+       
+        var isValidForm = $("#frmSaudaConversionUnitAndDiffRate").valid();
+        if (isValidForm) {
+
+            if ($("#ViewSaudaConversionUnitandDiff").data("kendoGrid").dataSource.data().length > 0) {
+                window.kendo.ui.progress($("#frmSaudaConversionUnitAndDiffRate"), true);
+                $.ajax(
+                    {
+                        url: "/Sauda/AddSaudaConversionUnitandDiffRate",
+                        type: 'POST',
+                        data: {
+                            FromPackGroupId: $("#ddlFromPackGroup").val(),
+                            FromSkuId: $("#hdnFromSkuId").val(),
+                            FromUnit: $("#txtFromUnit").val(),
+                            FromDate: $("#dpFromDate").val(),
+                            ToDate: $("#dpToDate").val(),
+                            SourceIdsInString: $("#ddlDepot").val() ? $("#ddlDepot").val().join() : "",
+                            StateIdsInString: $("#ddlState").val() ? $("#ddlState").val().join() : "",
+                            SaudaConversionUnitAndDifferenceRateDetailsList: JSON.parse(JSON.stringify($("#ViewSaudaConversionUnitandDiff").data("kendoGrid").dataSource.data()))
+                        },
+                        success: function (data) {
+                            if (data.PostStatus) {
+                                if (SaveAnotherCheckboxValue) {
+                                    var url = '@Url.Action("SaudaConversionUnitAndBaseRate", "Sauda")';
+					                window.location.href = url;
+                                }
+                                else {
+                                    var url = '@Url.Action("SaudaConversionAndBaseRateList", "Sauda")';
+					                window.location.href = url;
+                                }
+                             ShowSuccessMessage('@Helper.GetResourceString("msg_SaveSuccess")');
+                            }
+                            else
+                                if (data.Message != "")
+                                    ShowErrorMessage(data.PostMessage);
+                                else
+                                    ShowErrorMessage('@Helper.GetResourceString("msg_ConversionError")');
+                            window.kendo.ui.progress($("#frmSaudaConversionUnitAndDiffRate"), false);
+                        }
+                    });
+            }
+            else {
+                ShowErrorMessage('@Helper.GetResourceString("msg_ToSkuError")');
+            }
+        }
+    }
+
+    function fromChange() {
+        var endPicker = $("#dpToDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            $("#dpToDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+            endPicker.min(startDate);
+        }
+    }
+
+    function StartDateRange() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+
+        $("#dpFromDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        $("#dpToDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+
+        var startPicker = $("#dpFromDate").data("kendoDatePicker");
+        startPicker.min(dates);
+
+        var endPicker = $("#dpToDate").data("kendoDatePicker");
+        endPicker.min(dates);
+    }
+
+    function deleteconversionrow(arg) {
+        if ($("#ViewSaudaConversionUnitandDiff").data("kendoGrid").dataSource)
+            $("#ViewSaudaConversionUnitandDiff").data("kendoGrid").removeRow($(arg).closest("tr"));
+    }
+
+    function onStateChange(e) {
+        MultiSelectIndividualSelect("ddlState", "stateSelectAll");
+    }
+
+    function onStateDataBound(e) {
+        MultiSelectIndividualSelect("ddlState", "stateSelectAll");
+    }
+
+    function onSourceChange(e) {
+        MultiSelectIndividualSelect("ddlDepot", "sourceSelectAll");
+    }
+
+    function onSourceDataBound(e) {
+        MultiSelectIndividualSelect("ddlDepot", "sourceSelectAll");
+    }
+</script>

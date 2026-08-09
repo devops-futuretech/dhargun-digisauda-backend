@@ -1,0 +1,548 @@
+﻿@model dynamic
+@using Kendo.Mvc.UI;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.MVC.Helpers;
+@{
+    ViewBag.Title = "DataUpload";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="configurationImportData" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title"> @Helper.GetResourceString("lbl_ImportData")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Configurations</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_ImportData")<span class="icon-right"></span></li>
+    </ol>
+    <div style="clear:both;"></div>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row form-group">
+                <div class="col-lg-3 col-sm-6 mb-3 ">
+                    <label class="custom_label">
+                        @Helper.GetResourceString("lbl_Entity") <span class="text-danger">*</span>
+                    </label>
+                    @(Html.Kendo().DropDownList()
+                          .Name("Enity")
+                          .OptionLabel("Select Entity")
+                          .DataTextField("Name")
+                          .DataValueField("EntityTypeId")
+                          .OptionLabel("Select Entity")
+                          .Events(e => e.DataBound("OnEntityDataBound").Change("OnEntityChange"))
+                          .DataSource(source => source.Read(read => read.Action("GetEnityList", "Import"))
+                          .ServerFiltering(false))
+                          .HtmlAttributes(new { id = "ddlEntity", @class = "", @style = "width:100%" }))
+                </div>
+                <div class="col-lg-9 col-sm-6 mb-3 text-left">
+                    <label class="custom_label">Download Template</label>
+                    <div class="s-data control-link">
+                        @*<a href="~/Files/State.xlsx" id="templateLinkId">Download Excel Template</a>*@
+                        <a href="#" id="templateLinkId">Download Excel Template With Sample Data</a>
+                    </div>
+                </div>
+            </div>
+            <div class="row form-group">
+                <form id="frm_upload" method="post" action='@Url.Action("Submit")'>
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <label class="custom_label">Select File</label>
+                        @(Html.Kendo().Upload()
+                              .Name("files").Events(events => events.Select("onSelect"))
+                              .Multiple(false)
+                              .HtmlAttributes(new { aria_label = "files", accept = Settings.AcceptedImportFileFormat }))
+                    </div>
+
+                    <div class="col-lg-3 col-sm-6 mt-3 mb-3">
+                        @if (Helper.CheckClaims(Claims.ImportData))
+                        {
+                            <button type="button" id="btnUpload" class="k-primary k-button custom-btns" onclick="uploadSubmit()">Upload </button>
+                        }
+                    </div>
+
+                </form>
+            </div>
+            <div class="row form-group">
+                <div class="col-lg-12">
+                    <div class="text-right right-buttons">
+                        <div class="export_as">
+                            <span>Export as</span>
+                            <div class="export-btns">
+                                <span class="export-link" onclick='ExportToExcel("ImportExcelGrid")' type="button">Excel</span>
+                            </div>
+                        </div>
+                        @*<button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ImportExcelGrid")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;*@
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    </div>
+                    @(Html.Kendo().Grid<dynamic>()
+                          .Name("ImportExcelGrid")
+                          .Columns(columns =>
+                          {
+                              if (Model != null)
+
+                                  foreach (System.Data.DataColumn column in Model.Columns)
+                                  {
+
+                                      if (column.DataType == typeof(DateTime))
+                                          columns.Bound(column.ColumnName).Format("{0:dd/MM/yyyy h:mm tt}").Width(Settings.GridOtherColumnWidth);
+                                      else if (column.ColumnName == "ConsentImage")
+                                          columns.Bound(column.ColumnName).ClientTemplate("<img src='#=ConsentImage#'  width='200px' />");
+                                      else if (column.ColumnName == "Message")
+                                      {
+                                          columns.Bound(column.ColumnName).Width(Settings.GridColumnMaxWidth250);
+                                      }
+                                      else
+                                          columns.Bound(column.ColumnName).Width("50px");
+                                  }
+                          })
+                          //.HtmlAttributes(new { style = "height: 550px;" })
+                          .Resizable(resize => resize.Columns(true))
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Excel(excel => excel.FileName("ImportReport" + DateTime.Now + ".xlsx").AllPages(true))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .Resizable(resize => resize.Columns(true))
+                          .Events(events => events.DataBound("onListDataBound"))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .PageSize(Settings.DefaultPageSize)
+                          .ServerOperation(false)
+                          .Events(events => events.Error("error_handler"))
+                          .Model(model =>
+                          {
+                              if (Model != null)
+                              {
+                                  //var id = Model.PrimaryKey[0].ColumnName;
+                                  //model.Id("id");
+                                  foreach (System.Data.DataColumn column in Model.Columns)
+                                  {
+                                      model.Field(column.ColumnName, column.DataType);
+                                  }
+                              }
+                          })
+                          .Read(read => read.Action("Products_Read", "Import"))))
+                </div>
+            </div>
+            <div class="text-right marginT20">
+                @if (Helper.CheckClaims(Claims.ImportData))
+                {
+                    <button type="button" id="btnSaveAssignBatch" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Save") </button>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+<style>
+    .k-grid th, .k-grid td {
+        width: 200px;
+    }
+</style>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+
+        //$('input[type="file"]').change(function (e) {
+            //
+            //var fileName = e.target.files[0].name;
+            //var filename1 = fileName.replace(/.*(\/|\\)/, '');
+            //alert(filename1);
+            //alert(filename1);
+            //if (fileName.split('.').slice(0, -1).join('.').toLowerCase() !== $("#ddlEntity").data("kendoDropDownList").text().toLowerCase().trim()) {
+            //    var upload = $("#files").data("kendoUpload");
+            //    upload.removeAllFiles();
+            //    ShowErrorMessage("File name doesn't match with selected entity");
+            //    //$("#btnSaveAssignBatch").attr("disabled", true);
+            //}
+            //else {
+            //    //$("#btnSaveAssignBatch").attr("disabled", false);
+            //}
+        //});
+
+        $('#btnSaveAssignBatch').on('click', function () {
+            window.kendo.ui.progress($("#div_Progress"), true);
+            var postUrl;
+            var paramValue;
+            var gridData = $("#ImportExcelGrid").data("kendoGrid").dataSource.data();
+            postUrl = '@Url.Content("~/Import/Products_Update")';
+            //paramValue = btoa(JSON.stringify(gridData));
+            paramValue = btoa(unescape(encodeURIComponent(JSON.stringify(gridData))));
+
+            $.ajax({
+                url: postUrl,
+                type: 'POST',
+                dataType: 'json',
+                data: { 'items': paramValue, dynamicList: JSON.parse(JSON.stringify($("#ImportExcelGrid").data("kendoGrid").dataSource.data())) },
+                success: function (result) {
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                    $.each(result.Data, function (index, value) {
+                        if (value.ValidFrom !== undefined && value.ValidFrom !== null && value.ValidFrom.length > 0) {
+                            var convertedValidFromDate = new Date(parseInt(value.ValidFrom.substr(6)));
+                            value.ValidFrom = kendo.toString(convertedValidFromDate, emamiGlobal.constant.DateTimeFormat);
+                        }
+                        if (value.ValidTo !== undefined && value.ValidTo !== null && value.ValidTo.length > 0) {
+                            //value.ValidTo = new Date(parseInt(value.ValidTo.substr(6))).toLocaleDateString('en-us');
+
+                            var convertedValidToDate = new Date(parseInt(value.ValidTo.substr(6)));
+                            value.ValidTo = kendo.toString(convertedValidToDate, emamiGlobal.constant.DateTimeFormat);
+                        }
+                        if (value.SaudaDate !== undefined && value.SaudaDate !== null && value.SaudaDate.length > 0) {
+                            var convertedSaudaDate = new Date(parseInt(value.SaudaDate.substr(6)));
+                            value.SaudaDate = kendo.toString(convertedSaudaDate, emamiGlobal.constant.DateTimeFormat);
+                        }
+                        if (value.ContractDate !== undefined && value.ContractDate !== null && value.ContractDate.length > 0) {
+                            var convertedContractDate = new Date(parseInt(value.ContractDate.substr(6)));
+                            value.ContractDate = kendo.toString(convertedContractDate, emamiGlobal.constant.DateTimeFormat);
+                        }
+                    });
+
+                    var myresult = JSON.stringify(result['Data']);
+
+                    var dataSource = new kendo.data.DataSource({
+                        data: JSON.parse(myresult),
+                        pageSize: 10
+                    });
+
+                    $("#ImportExcelGrid").data("kendoGrid").setDataSource(dataSource);
+                    ShowSuccessMessage("Import data process completed successfully, check the message in the grid");
+                    $("#btnSaveAssignBatch").prop("disabled", true);
+                },
+                error: function (objAjaxRequest, strError) {
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                    var respText = objAjaxRequest.responseText;
+                }
+            });
+
+            if (sessionStorage.getItem("entityId") === '@((int)Entity.GeographyDiscount)') {
+                setTimeout(function (e) {
+                    ReloadGeographyDiscountStatus();
+                    //startGeographyDiscountRefresh();
+                 },5000)
+             }
+        });
+
+
+        $("#chkKendoFilterShowHide").prop("checked", true);
+        FilterContains();
+    });
+
+    function ReloadGeographyDiscountStatus()
+    {
+        $.ajax({
+            url: '@Url.Action("GetGeographyDiscountStatus", "Import")',
+            type: 'GET',
+            dataType: 'json',
+            success: function (result) {
+                window.kendo.ui.progress($("#div_Progress"), false);
+
+                $.each(result, function (index, value) {
+                    if (value.ValidFrom !== undefined && value.ValidFrom !== null) {
+                        var convertedValidFromDate = new Date(parseInt(value.ValidFrom.substr(6)));
+                        value.ValidFrom = kendo.toString(convertedValidFromDate, emamiGlobal.constant.DateTimeFormat);
+                    }
+                    if (value.ValidTo !== undefined && value.ValidTo !== null) {
+                        var convertedValidToDate = new Date(parseInt(value.ValidTo.substr(6)));
+                        value.ValidTo = kendo.toString(convertedValidToDate, emamiGlobal.constant.DateTimeFormat);
+                    }
+                });
+
+                var myresult = JSON.stringify(result);
+                var dataSource = new kendo.data.DataSource({
+                    data: JSON.parse(myresult),
+                    pageSize: 10
+                });
+
+                $("#ImportExcelGrid").data("kendoGrid").setDataSource(dataSource);
+            },
+            error: function (objAjaxRequest, strError) {
+                window.kendo.ui.progress($("#div_Progress"), false);
+                var respText = objAjaxRequest.responseText;
+            }
+        });
+
+        startGeographyDiscountRefresh();
+    }
+
+    let geoDiscountRefreshCount = 1;
+    function startGeographyDiscountRefresh() {
+        if (geoDiscountRefreshCount <= 15) {
+            setTimeout(function () {
+                geoDiscountRefreshCount++;
+                ReloadGeographyDiscountStatus();
+            }, geoDiscountRefreshCount * 10000);
+        }
+    }
+
+    function onListDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+    function onSelect(e) {
+        var name = e.files[0].name;
+        //var fileUidToRemove = e.files[0].uid;
+        var fileName = name.split('.').slice(0, -1).join('.').toLowerCase();
+        fileName = fileName.replace(/ /g, "");
+        //fileName = fileName.replace(' ', '').replace(' ', '').replace(' ', '').replace(' ', '');
+        var entityName = $("#ddlEntity").data("kendoDropDownList").text().toLowerCase().trim();
+        entityName = entityName.replace(/ /g, "");
+        //entityName = entityName.replace(' ', '').replace(' ', '').replace(' ', '').replace(' ', '');
+        var saudaConditionalEntityName = '@Entity.SaudaConditionalBookingConfiguration.ToString().ToLower()';
+
+        if (fileName.indexOf(entityName) !== -1 /*|| saudaConditionalEntityName === fileName*/) {
+            //$("#btnSaveAssignBatch").attr("disabled", false);
+            $('#btnUpload').attr('disabled', false);
+        }
+        else {
+            ShowErrorMessage("File name doesn't match with selected entity");
+            $('#btnUpload').attr('disabled', true);
+            //var upload = $("#files").data("kendoUpload");
+            //upload.removeAllFiles();
+            //$("#files").data("kendoUpload").removeFileByUid(fileUidToRemove);
+             //$("#btnSaveAssignBatch").attr("disabled", true);
+            //$("#files").parents(".t-upload").find(".t-upload-files").remove();
+        }
+    }
+
+    function refreshGrid() {
+        $("#ImportExcelGrid").data("kendoGrid").dataSource.read();
+    }
+
+    $(window).load(function () {
+        $("#grid").on('focusin', function (e) {
+            // get the grid position
+            var offset = $(this).offset();
+            // crete a textarea element which will act as a clipboard
+            var textarea = $("<textarea>");
+            // position the textarea on top of the grid and make it transparent
+            textarea.css({
+                position: 'absolute',
+                opacity: 0,
+                top: offset.top,
+                left: offset.left,
+                border: 'none',
+                width: $(this).width(),
+                height: $(this).height()
+            })
+            .appendTo('body')
+            .on('paste', function () {
+                // handle the paste event
+                setTimeout(function () {
+                    // the the pasted content
+                    var value = $.trim(textarea.val());
+                    // get instance to the grid
+                    var grid = $("#grid").data("kendoGrid");
+                    // get the pasted rows - split the text by new line
+                    var rows = value.split('\n');
+
+                    var data = [];
+
+                    for (var i = 0; i < rows.length; i++) {
+                        // get the cells - split by tab
+                        var cells = rows[i].split('\t');
+                        // add a new item in the grid
+                        grid.dataSource.add({
+                            ProductName: cells[0],
+                            UnitsInStock: cells[1]
+                        });
+                    }
+                });
+            }).on('focusout', function () {
+                    // remove the textarea when it loses focus
+                    $(this).remove();
+                });
+            // focus the textarea
+            setTimeout(function () {
+                textarea.focus();
+            });
+        });
+    });
+    function onUpload(e) {
+        var files = e.files;
+        $.each(files, function () {
+            if (this.extension.toLowerCase() != ".xlsx") {
+                alert("Only .doc files can be uploaded!")
+                e.preventDefault();
+            }
+            if (this.size / 1024 / 1024 > 5) {
+                alert("Max 5Mb file size is allowed!")
+                e.preventDefault();
+            }
+        });
+    }
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Error:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            ShowErrorMessage(message);
+        }
+    }
+
+    function OnEntityDataBound(e) {
+        if ($("#ddlEntity").data("kendoDropDownList").value() == '@((int)Entity.OilType)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/OilType.xlsx")');
+    }
+
+    function OnEntityChange(e) {
+        @*if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.District)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/District.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.State)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/State.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.Territory)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/Territory.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.TerritoryDistrictMapping)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/TerritoryDistrictMapping.xlsx")');*@
+        @*if ($("#ddlEntity").data("kendoDropDownList").value() == '@((int)Entity.MaterialCost)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/MaterialCost.xlsx")');*@
+        @*else if ($("#ddlEntity").data("kendoDropDownList").value() == '@((int)Entity.City)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/City.xlsx")')*@
+        if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.Sku)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/Material.xlsx")');
+        @*<!--else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.PackingCost)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/PackingCost.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.PrimaryFreight)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/PrimaryFreight.xlsx")');-->*@
+        @*else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.SecondaryFreight)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/SecondaryFreight.xlsx")');*@
+        @*else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.DepotCost)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/DepotCost.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.DetentionCost)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/DetentionCost.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.HoneyCombCost)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/HoneyCombCost.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.ProfitMargin)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/ProfitMargin.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.CushionMargin)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/CushionMargin.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.RAMargin)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/RAMargin.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.SchemeCost)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/SchemeCost.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.LoadCapacity)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/LoadCapacity.xlsx")');*@
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.Plant)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/Plant.xlsx")');
+        @*else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.Depot)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/Depot.xlsx")');*@
+         @*else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.PlantDepotMapping)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/PlantDepotMapping.xlsx")');*@
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.UserCustomerSalesTarget)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/UserCustomerSalesTarget.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.UserCustomerSaudaTarget)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/UserCustomerSaudaTarget.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.Broker)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/Broker.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.UserDivisionMapping)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/UserDivisionMapping.xlsx")');
+        @*else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.Customer)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/Customer.xlsx")');*@
+        @*else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.FreightZone)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/FreightZone.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.FreightRoute)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/FreightRoute.xlsx")');*@
+        @*else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.UserDepotMapping)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/UserDepotMapping.xlsx")');*@
+         else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.UserCustomerMapping)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/UserCustomerMapping.xlsx")');
+         else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.User)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/User.xlsx")');
+         else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.OilType)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/OilType.xlsx")');
+         @*else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.Ingredient)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/Ingredient.xlsx")');
+         else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.IngredientCost)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/IngredientCost.xlsx")');*@
+        @*else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.Retailer)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/Retailer.xlsx")');*@
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.PendingSauda)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/PendingSauda.xlsx")');
+        @*else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.SkuIngredient)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/SkuIngredient.xlsx")');*@
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.Geography)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/Geography.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.CustomerMaster)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/CustomerMaster.xlsx")');
+        @*else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.SecondaryFreightMaster)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/SecondaryFreightMaster.xlsx")');*@
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.UserCustomerTarget)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/UserCustomerTarget.xlsx")');
+        @*else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.Rake)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/Rake.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.TradeTicket)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/TradeTicket.xlsx")');*@
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.ShipToParty)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/ShipToParty.xlsx")');
+        @*else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.CustomerGroup)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/CustomerGroup.xlsx")');*@
+        @*else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.PercentileNumbers)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/PercentileNumbers.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.GST)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/GST.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.VehicleLoadability)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/VehicleLoadability.xlsx")');*@
+        @*else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.SaudaConversionUnitAndBaseRateDifference)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/SaudaConversionUnitAndBaseRateDifference.xlsx")');*@
+    @*else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.CustomerGroupOne)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/CustomerGroupOne.xlsx")');*@
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.CustomerGroupFive)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/CustomerGroupFive.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.SalesOrganization)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/SalesOrganization.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.DistributionChannel)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/DistributionChannel.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.Division)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/Division.xlsx")');
+        @*else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.CustomerGroupTwo)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/CustomerGroupTwo.xlsx")');*@
+         @*else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.CMSUser)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/CMSUser.xlsx")');*@
+         else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.DealerSaudaValidity)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/DealerSaudaValidity.xlsx")');
+        @*else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.RAMaterialCost)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/RAMaterialCost.xlsx")');*@
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.DealerSaudaLimit)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/DealerSaudaLimit.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.DealerCallRecordingDetails)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/DealerCallRecordingDetails.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.BrokerCallRecordingDetails)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/BrokerCallRecordingDetails.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.UserDiscount)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/UserDiscount.xlsx")');
+        else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.GeographyDiscount)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/GeographyDiscount.xlsx")');
+        @*else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.MaterialType)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/MaterialType.xlsx")');*@
+        @*else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.VolumeLoadability)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/VolumeLoadability.xlsx")');*@
+         else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.Line)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/Line.xlsx")');
+         else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.QPSDiscount)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/QPSDiscount.xlsx")');
+         else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.SKUBPCPMapping)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/SKUBPCPMapping.xlsx")');
+         else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.GamificationDashboard)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/GamificationDashboard.xlsx")');
+         else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.QuantityLimit)')
+            $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/QuantityLimit.xlsx")');
+         else if ($("#ddlEntity").data("kendoDropDownList").value() === '@((int)Entity.SaudaConditionalBookingConfiguration)')
+             $("#templateLinkId").attr("href", '@Url.Content("~/Excel_Templates/SaudaConditionalBookingConfiguration.xlsx")');
+    }
+
+    function uploadSubmit() {
+        sessionStorage.setItem("entityId",$("#ddlEntity").data("kendoDropDownList").value());
+        $("#frm_upload").submit();
+    }
+</script>
+

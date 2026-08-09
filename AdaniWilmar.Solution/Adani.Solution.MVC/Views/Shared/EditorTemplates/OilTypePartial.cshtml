@@ -1,0 +1,11 @@
+﻿@using Kendo.Mvc.UI
+@model Adani.Solution.DTO.OilTypesDto
+
+
+@(Html.Kendo().DropDownListFor(m => m)
+            .OptionLabel("Select Oil Type")
+            .DataValueField("OilTypeId")
+            .DataTextField("OilName")
+            .DataSource(source => source.Read(read => read.Action("GetOilTypes", "Lookup", new { isToReturnInactiveData = false }))
+            .ServerFiltering(true))
+)

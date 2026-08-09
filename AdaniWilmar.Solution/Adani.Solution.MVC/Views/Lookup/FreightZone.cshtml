@@ -1,0 +1,158 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@model Adani.Solution.DTO.FreightZoneDto
+@{
+    ViewBag.Title = "FreightZone";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="masterFreightZone" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_AddOrUpdateFreightZone")</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="dvAddFreightZone">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("AddOrUpdateFreightZone", "Lookup", FormMethod.Post, new { id = "frmFreightZone", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.Id)
+                        @*<div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_Depot") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-4">
+                                    @(Html.Kendo().DropDownListFor(m => m.DepotId)
+                                                  .OptionLabel(@Helper.GetResourceString("plho_SelectDepot"))
+                                                  .DataTextField("Name")
+                                                  .DataValueField("Id")
+                                                  .DataSource(source => source.Read(read => read.Action("GetDepotListAsync", "Lookup", new { isToReturnInactiveData = true }))
+                                                  .ServerFiltering(false))
+                                                  .HtmlAttributes(new { id = "ddlDepot", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Depot"), @style = "width:100%" }))
+                                </div>
+                            </div>*@
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Zone") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownListFor(m => m.ZoneId)
+                                      .OptionLabel(@Helper.GetResourceString("plho_SelectZone"))
+                                      .DataTextField("Name")
+                                      .DataValueField("Id")
+                                      .Events(e => e.Change("onZoneChange"))
+                                      .DataSource(source => source.Read(read => read.Action("GetZoneListddl", "Lookup", new { isToReturnInactiveData = false }))
+                                      .ServerFiltering(false))
+                                      .HtmlAttributes(new { id = "ddlZone", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Zone"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_State") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownListFor(m => m.StateId)
+                                      .OptionLabel(@Helper.GetResourceString("plho_SelectState"))
+                                      .DataTextField("StateName")
+                                      .DataValueField("StateId")
+                                      .DataSource(source => source.Read(read => read.Action("GetZoneMappedStatesddl", "Lookup").Data("stateAdditionalInfo"))
+                                      .ServerFiltering(false))
+                                      .HtmlAttributes(new { id = "ddlState", @class = "", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_State"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Name") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @*@onkeydown = "return AllowOnlyAlphaNumeric(event);"*@
+                                @Html.TextBoxFor(m => m.Name, new { id = "txtName", tabindex = "3", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Name"), @maxlength = (int)InputMaxLength.String })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Active")
+                            </div>
+                            <div class="col-md-4">
+                                @Html.CheckBoxFor(m => m.IsActive, new { id = "cbActiveInactive", tabindex = "4" })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+                                <button type="button" tabindex="6" id="btnCancel" onclick="location.href = '@Url.Action("FreightZoneList", "Lookup")'" class="k-button">Cancel</button>
+                                @if (Helper.CheckClaims(Claims.ManageMaster))
+                                {
+                                    <button type="button" tabindex="5" id="btnSave" class="k-primary k-button">@(Model != null && Model.Id == 0 ? @Helper.GetResourceString("btn_SaveFreightZone") : @Helper.GetResourceString("btn_UpdateFreightZone"))<i class="icon-arrow-right14 position-right"></i></button>
+                                }
+                            </div>
+                        </div>
+                    }
+                    <!---end of form input-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        $('input[type="text"]').keypress(function (e) {
+            var code = e.keyCode || e.which;
+            if (code === 13) {
+                e.preventDefault();
+            }
+        });
+
+        $('#btnSave').on('click', function (e) {
+            var isValid = $('#frmFreightZone').valid();
+            if (isValid) {
+                window.kendo.ui.progress($("#dvFreightZone"), true);
+                $('#frmFreightZone').submit();
+                window.kendo.ui.progress($("#dvFreightZone"), false);
+            }
+        });
+    });
+
+    function onZoneChange() {
+        $("#ddlState").data("kendoDropDownList").dataSource.read();
+    }
+
+    function stateAdditionalInfo() {
+        var zoneId = $("#ddlZone").data("kendoDropDownList").value();
+        return {
+            zoneId: zoneId
+        };
+    }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

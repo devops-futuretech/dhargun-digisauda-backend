@@ -1,0 +1,117 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@model Adani.Solution.DTO.FreightRouteDto
+@{
+    ViewBag.Title = "FreightRoute";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="masterFreightRoute" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_AddOrUpdateFreightRoute")</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="dvAddFreightRoute">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("AddOrUpdateFreightRoute", "Lookup", FormMethod.Post, new { id = "frmFreightRoute", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.Id)
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_FreightZone") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownListFor(m => m.FreightZoneId)
+                                              .OptionLabel(@Helper.GetResourceString("plho_SelectFreightZone"))
+                                              .DataTextField("Name")
+                                              .DataValueField("Id")
+                                              .DataSource(source => source.Read(read => read.Action("GetFreightZoneListddlAsync", "Lookup", new { isToReturnInactiveData = false }))
+                                              .ServerFiltering(false))
+                                              .HtmlAttributes(new { id = "ddlFreightZone", tabindex = "1", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_FreightZone"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Name") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(m => m.Name, new { id = "txtName", tabindex = "2", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Name"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Active")
+                            </div>
+                            <div class="col-md-4">
+                                @Html.CheckBoxFor(m => m.IsActive, new { id = "cbActiveInactive", tabindex = "3" })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+                                <button type="button" tabindex = "5" id="btnCancel" onclick="location.href = '@Url.Action("FreightRouteList", "Lookup")'" class="k-button">Cancel</button>
+                                @if (Helper.CheckClaims(Claims.ManageMaster))
+                                {
+                                    <button type="button" tabindex = "4" id="btnSave" class="k-primary k-button">@(Model != null && Model.Id == 0 ? @Helper.GetResourceString("btn_SaveFreightRoute") : @Helper.GetResourceString("btn_UpdateFreightRoute"))<i class="icon-arrow-right14 position-right"></i></button>
+                                }
+                            </div>
+                        </div>
+                    }
+                    <!---end of form input-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        $('input[type="text"]').keypress(function (e) {
+            var code = e.keyCode || e.which;
+            if (code === 13) {
+                e.preventDefault();
+            }
+        });
+
+        $('#btnSave').on('click', function (e) {
+            var isValid = $('#frmFreightRoute').valid();
+            if (isValid) {
+                window.kendo.ui.progress($("#dvFreightRoute"), true);
+                $('#frmFreightRoute').submit();
+                window.kendo.ui.progress($("#dvFreightRoute"), false);
+            }
+        });
+    });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

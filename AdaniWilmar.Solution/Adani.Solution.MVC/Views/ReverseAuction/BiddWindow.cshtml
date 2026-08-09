@@ -1,0 +1,659 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.MVC.Common;
+@model Adani.Solution.DTO.BidWindowDto
+
+@{
+    ViewBag.Title = "BiddingWindow";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .k-grid {
+        width: 60%;
+    }
+
+    .text-box single-line {
+        width: 90% !important;
+    }
+</style>
+
+
+<input type="hidden" class="currentMenu" value="RA2BiddingWindowList" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_AddUpdateBiddingWindow")</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="divLoader">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("AddUpdateBiddingWindow", "ReverseAuction", FormMethod.Post, new { id = "frmBiddingWindow", @class = "form-validate-jquery" }))
+                    {
+                        @*@Html.AntiForgeryToken()*@
+
+                        @Html.HiddenFor(m => m.Id, new { id = "hdnId" })
+
+                        <div class="row form-group">
+
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_WindowName") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-4">
+                                    @Html.TextBoxFor(m => m.Name, new { id = "txtWindowName", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_WindowName"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                                </div>
+                                @*<div class="col-md-4">
+                                        <p style="display:inline">06/11/2019-1-<span id="windowName"></span></p>
+                                    </div>*@
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_CustomerGroup") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-4">
+                                    @(Html.Kendo().MultiSelectFor(m => m.CustomerGroupIds)
+                                                .DataTextField("Name")
+                                                .DataValueField("Id")
+                                                .AutoClose(false)
+                                                .TagMode(TagMode.Single)
+                                                .Events(e => e.Change("onCustomergroupChange").DataBound("onCustomergroupDataBound"))
+                                                .DataSource(source => source.Read(resd => resd.Action("GetCustomerGroupddl", "RALookup"))
+                                                .ServerFiltering(false))
+                                                .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='customerSelectAll'> Select All</label>")
+                                                .HtmlAttributes(new { id = "ddlCustomerGroup", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_CustomerGroup"), @style = "width:100%" }))
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_BidWindowDate") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-4">
+                                    @(Html.Kendo().DatePickerFor(s => s.BiddingDate)
+                                               .Min(DateTime.Now)
+                                               .Format(Settings.DateFormat)
+                                               .Value(DateTime.Now)
+                                               .HtmlAttributes(new { id = "dpWindowDate", tabindex = "1", style = "width: 100%", onkeydown = "return isFocus(event);" }))
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_StartandEndTime") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-2">
+                                    @(Html.Kendo().TimePickerFor(f => f.StartTime)
+                                              .Events(e => e.Change("startTimeChange"))
+                                              .Interval(Settings.WindowTimeIntervalBiddingWindow)
+                                              .Format("HH:mm")
+                                              .HtmlAttributes(new { style = "width: 100%", title = "timepicker" }))
+                                </div>
+                                <div class="col-md-2">
+                                    @(Html.Kendo().TimePickerFor(f => f.EndTime)
+                                                .Interval(Settings.WindowTimeIntervalBiddingWindow)
+                                                .Format("HH:mm")
+                                                .HtmlAttributes(new { style = "width: 100%", title = "timepicker" }))
+                                </div>
+                            </div>
+
+                            @*<div class="row form-group">
+                                    <div class="col-md-4 text-right">
+                                        Sauda Allocation Time <span class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        @(Html.Kendo().TimePickerFor(f => f.SaudaAllocationStartTime)
+                                           .Events(e => e.Change("saudaStartTimeChange"))
+                                           .Interval(Settings.WindowTimeIntervalBiddingWindow)
+                                           .Format("HH:mm")
+                                           .HtmlAttributes(new { style = "width: 100%", title = "timepicker" }))
+                                    </div>
+                                    <div class="col-md-2">
+                                        @(Html.Kendo().TimePickerFor(f => f.SaudaAllocationEndTime)
+                                          .Interval(Settings.WindowTimeIntervalBiddingWindow)
+                                          .Format("HH:mm")
+                                          .HtmlAttributes(new { style = "width: 100%", title = "timepicker" }))
+                                    </div>
+                                </div>*@
+
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_NoOfAttemptsForBidding") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-4">
+                                    @Html.TextBoxFor(m => m.NoOfAttemptsForBidding, new { id = "txtNoOfAttemptsForBidding", required = "required", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_NoOfAttemptsForBidding"), @onkeypress = "return isNumber(event);", @maxlength = (int)InputMaxLength.Price })
+                                </div>
+                            </div>
+
+                            @*<div class="row form-group">
+                                    <div class="col-md-4 text-right">
+                                        @Helper.GetResourceString("lbl_Active")
+                                    </div>
+                                    <div class="col-md-4">
+                                        @(Html.Kendo().CheckBoxFor(m => m.IsActive).Name("IsActive").HtmlAttributes(new { id = "cbIsActive", tabindex = "5" }))
+                                    </div>
+                                </div>*@
+
+                            <div class="row form-group">
+                                <div class="col-md-12 text-center">
+                                    <button type="button" tabindex="4" id="btnAddVolumeCapacity" class="k-primary k-button">Add Volume Capacity<i class="icon-arrow-right14 position-right"></i></button>
+                                </div>
+                            </div>
+
+                            <div class="row" align="center">
+                                <div class="col-md-12">
+                                    <div class="text-right">
+                                    </div>
+
+                                    @(Html.Kendo().Grid<Adani.Solution.DTO.BidWindowVolumeCapacityListDto>()
+                                                          .Name("GridOilVolumeCapacity")
+                                                          .Columns(columns =>
+                                                          {
+                                                              columns.Bound(c => c.Id).Visible(false);
+                                                              columns.Bound(c => c.VerticalId).Visible(false);
+                                                              columns.Bound(c => c.OilTypeId).Visible(false);
+                                                              columns.Template(t => t.Id).Title(@Helper.GetResourceString("lbl_Action")).ClientTemplate(@"<div style='text-align: center;'><i style='padding - left:25px;' onclick='editVolumeCapacity(this)' class='glyphicon glyphicon-pencil pointer' ></i><i onclick='deleteVolumeCapacity(this)' class='glyphicon glyphicon-remove'></i></div>").Width(Settings.GridFilterColumnWidth);
+                                                              columns.Bound(c => c.VerticalName).Title(@Helper.GetResourceString("lbl_Vertical"));
+                                                              columns.Bound(c => c.OilTypeName).Title(@Helper.GetResourceString("lbl_OilType"));
+                                                              columns.Bound(c => c.VolumeCapacity).Title(@Helper.GetResourceString("lbl_VolumeCapacity"));
+                                                          })
+                                                          .NoRecords(@Helper.GetResourceString("lbl_Norecordsfound"))
+                                                          //.HtmlAttributes(new { style = "height: 400px;" })
+                                                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                                                          .Resizable(resize => resize.Columns(true))
+                                                          .DataSource(dataSource => dataSource
+                                                          .Ajax()
+                                                          .Read(read => read.Action("GetBiddingWindowVolumeDetails", "ReverseAuction", new { biddWindowId = Model.Id }))))
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+                                <button type="button" tabindex="5" onclick="location.href = '@Url.Action("BiddWindowList", "ReverseAuction")'" class="k-button">@Helper.GetResourceString("btn_Cancel")</button>
+                                @if (Helper.CheckClaims(Claims.ManageRABiddingWindow))
+                                {
+                                    <button type="button" tabindex="4" id="btnSaveBiddWindow" class="k-primary k-button">@(Model != null && Model.Id == 0 ? @Helper.GetResourceString("btn_Save") : @Helper.GetResourceString("btn_Update"))<i class="icon-arrow-right14 position-right"></i></button>
+                                }
+                            </div>
+                        </div>
+                    }
+                    <!---end of form input-->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="addAddVolumeCapacityPopup" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            @using (Html.BeginForm("AddUpdateBiddingWindow", "ReverseAuction", FormMethod.Post, new { id = "frmVolumeCapacity", @class = "form-validate-jquery" }))
+            {
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close model-header-color" data-dismiss="modal">&times;</button>
+                        <h6 class="panel-title model-header-color"><span class="text-semibold">Add Volume Capacity</span></h6>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Vertical") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownList().Name("VerticalId")
+                                                      .OptionLabel(@Helper.GetResourceString("plho_SelectVertical"))
+                                                      .DataTextField("Name")
+                                                      .DataValueField("Id")
+                                                      .Events(e => e.Change("onVerticalTypeChange").DataBound("onVerticleDataBound"))
+                                                      .DataSource(source => source.Read(read => read.Action("GetVerticalListAsync", "Lookup", new { isToReturnInactiveData = false }))
+                                                      .ServerFiltering(false))
+                                                      .HtmlAttributes(new { id = "ddlVertical", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Vertical"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_OilType") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().MultiSelect().Name("OilTypeIds")
+                                                      .DataTextField("Name")
+                                                      .DataValueField("Id")
+                                                      .AutoClose(false)
+                                                      .TagMode(TagMode.Multiple)
+                                                      .Events(e => e.Change("onOilTypeChange").DataBound("OnOilTypeDataBound"))
+                                                      .DataSource(source => source.Read(read => read.Action("GetOilTypesByVerticalId", "Lookup").Data("oilTypeAdditionalInfo"))
+                                                      .ServerFiltering(false))
+                                                      .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='oilTypeSelectAll'> Select All</label>")
+                                                      .HtmlAttributes(new { id = "ddlOilType", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilType"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_OilVolumeCapacity")
+                            </div>
+                            <div class="col-md-4">
+                                @Html.TextBox("OilVolumeCapacity", "", new { id = "txtOilVolumeCapacity", @class = "form-control decimalValueThreeDecimalDigits", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilVolumeCapacity"), @maxlength = (int)InputMaxLength.Price })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+                                <button id="btnDirtyCancel" type="button" tabindex="5" onclick="popupClose();" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Cancel")</button>
+                                @if (Helper.CheckClaims(Claims.ManageRABiddingWindow))
+                                {
+                                    <button id="btnSaveVolumeCapacity" type="button" tabindex="4" class="k-primary k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Save")</button>
+                                }
+                            </div>
+                        </div>
+                        <input type="hidden" id="gridUid" />
+                        <input type="hidden" id="oilTypeidhdn" />
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<input type="hidden" id="windowTimeInterval" />
+<div id="kWindow">
+    <h2>@Helper.GetResourceString("msg_DeleteVolumeCapactiyOfBiddingWindow")</h2>
+    <div class="col-md-12 text-center">
+        <button id="yes" class="k-primary k-button">Yes</button>
+        <button id="no" class="k-primary k-button">No</button>
+    </div>
+</div>
+<script>
+    var windowDelete;
+    var windowTimeInterval = 0;
+    $(document).ready(function () {
+
+        $("#windowTimeInterval").val('@Model.WindowTimeInterval');
+
+        windowDelete = $("#kWindow").kendoWindow({
+            title: "Delete confirmation",
+            modal: true,
+            visible: false,
+            resizable: false,
+            width: 300
+        }).data("kendoWindow");
+
+
+        // kendo grid filter contains
+        FilterContains();
+        $("#gridUid").val('');
+        $("#oilTypeidhdn").val('');
+
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        if ('@Model.Id' === '0') {
+            $("#ddlVertical").data("kendoDropDownList").value('@Convert.ToInt32(Vertical.Hbc)');
+            $("#txtNoOfAttemptsForBidding").val('');
+            setDefaultTime();
+        }
+        else {
+            startTimeOnUpdate();
+            editSetDefaultTime();
+            //saudaAllocationStartTimeOnUpdate();
+        }
+
+
+        //Save Volume capacity
+        $("#btnSaveBiddWindow").click(function () {
+
+            var isValidWindow = $("#frmBiddingWindow").valid();
+            if (isValidWindow) {
+                var volumeList = JSON.parse(JSON.stringify($("#GridOilVolumeCapacity").data("kendoGrid").dataSource.data()));
+                if (volumeList.length == 0) {
+                    ShowErrorMessage("Please add volume capacity");
+                    return false;
+                }
+
+                var model = {
+                    Name: $("#txtWindowName").val(),
+                    Id: $("#hdnId").val(),
+                    CustomerGroupIds: $("#ddlCustomerGroup").data("kendoMultiSelect").value(),
+                    BiddingDate: $("#dpWindowDate").val(),
+                    StartTime: $("#StartTime").val(),
+                    EndTime: $("#EndTime").val(),
+                    NoOfAttemptsForBidding: $("#txtNoOfAttemptsForBidding").val(),
+                    IsActive: true,
+                    //SaudaAllocationStartTime: $("#SaudaAllocationStartTime").val(),
+                    //SaudaAllocationEndTime: $("#SaudaAllocationEndTime").val(),
+                    BidWindowVolumeCapacity: volumeList
+                };
+
+                window.kendo.ui.progress($("#divLoader"), true);
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaveBiddingWindow", "ReverseAuction")',
+                    data: { inputDto: model },
+                    success: function (responce) {
+                        if (responce.PostStatus == true) {
+                            ShowSuccessMessage(responce.PostMessage);
+                            setTimeout(function () {
+                                window.kendo.ui.progress($("#divLoader"), false);
+                                window.location.href = '@Url.Action("BiddWindowList", "ReverseAuction")';
+                            }, 1500);
+                        } else {
+                            ShowErrorMessage(responce.PostMessage);
+                            window.kendo.ui.progress($("#divLoader"), false);
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        ShowErrorMessage("Error.");
+                        window.kendo.ui.progress($("#divLoader"), false);
+                    }
+                });
+            }
+        });
+
+        $("#btnAddVolumeCapacity").click(function () {
+            clearVolumeData();
+            $("#addAddVolumeCapacityPopup").modal("show");
+        });
+
+        //Add Volume capacity
+        $("#btnSaveVolumeCapacity").click(function () {
+
+
+            if ($("#txtOilVolumeCapacity").val() <= 0) {
+                ShowErrorMessage("Volume Capacity should be greater than zero");
+            }
+            else {
+                var isValidVolumeCapacity = $("#frmVolumeCapacity").valid();
+                if (isValidVolumeCapacity) {
+                    var existOiltypes = [];
+                    var isExists = false;
+                    var volumeCapacityGrid = $("#GridOilVolumeCapacity").data("kendoGrid");
+                    if (volumeCapacityGrid) {
+                        var vertical = $("#ddlVertical").data("kendoDropDownList");
+                        var oiltypes = $("#ddlOilType").data("kendoMultiSelect");
+                        var volume = $("#txtOilVolumeCapacity").val();
+                        if (oiltypes) {
+                            $.each(oiltypes.value(), function (index, selectItem) {
+                                var selectedOil = oiltypes.dataSource.data().find(f => f.Id == selectItem);
+                                if (selectedOil) {
+                                    isExists = false;
+                                    var uid = $("#gridUid").val();
+
+                                    if (uid) {
+                                        //Update based on uid
+                                        if (volumeCapacityGrid && volumeCapacityGrid.dataSource.data().length > 0) {
+                                            var row = volumeCapacityGrid.tbody.find("tr[data-uid='" + uid + "']");
+                                            var dataItem = volumeCapacityGrid.dataItem(row);
+                                            dataItem.set("VolumeCapacity", volume);
+                                        }
+                                    } else {
+                                        //Add, Check : Oil already added or not
+                                        if (volumeCapacityGrid && volumeCapacityGrid.dataSource.data().length > 0) {
+                                            isExists = volumeCapacityGrid.dataSource.data().some(f => f.OilTypeId == selectedOil.Id);
+                                        }
+                                        if (isExists) {
+                                            existOiltypes.push(selectedOil.Name);
+                                        } else {
+                                            volumeCapacityGrid.dataSource.add({
+                                                VerticalId: vertical.value(),
+                                                VerticalName: vertical.text(),
+                                                OilTypeId: selectedOil.Id,
+                                                OilTypeName: selectedOil.Name,
+                                                VolumeCapacity: volume
+                                            });
+                                        }
+                                    }
+                                }
+                            });
+                            if (existOiltypes && existOiltypes.length > 0) {
+                                ShowErrorMessage(existOiltypes.join(",") + " already added.");
+                            }
+                        }
+                    }
+                } else {
+                    return false;
+                }
+            }
+        });
+
+
+        $("#oilTypeSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlOilType", "oilTypeSelectAll");
+        });
+
+        $("#customerSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlCustomerGroup", "customerSelectAll");
+        });
+
+        $("#txtWindowName").keypress(function () {
+            $("#windowName").text($(this).val());
+        });
+
+        $("#txtWindowName").change(function () {
+            $("#windowName").text($(this).val());
+        });
+
+    });
+
+     function onCustomergroupChange(e) {
+        MultiSelectEvents("ddlCustomerGroup", "customerSelectAll");
+    }
+
+     function onCustomergroupDataBound(e) {
+        MultiSelectEvents("ddlCustomerGroup", "customerSelectAll");
+    }
+
+    //Edit Volume capacity
+    function editVolumeCapacity(arg) {
+
+        $("#oilTypeidhdn").val('');
+        var dataItem = $("#GridOilVolumeCapacity").data("kendoGrid").dataItem($(arg).closest("tr"));
+        if (dataItem) {
+            //Vertical
+            var vertical = $("#ddlVertical").data("kendoDropDownList");
+            vertical.value(dataItem.VerticalId);
+            $("#oilTypeidhdn").val(dataItem.OilTypeId);
+            vertical.readonly(true);
+            $("#ddlOilType").data("kendoMultiSelect").dataSource.read();
+
+            //Oiltype
+            var oiltype = $("#ddlOilType").data("kendoMultiSelect");
+            oiltype.value([dataItem.OilTypeId]);
+            oiltype.readonly(true);
+
+            $("#txtOilVolumeCapacity").val(dataItem.VolumeCapacity);
+            $("#gridUid").val(dataItem.uid);
+
+            $("#addAddVolumeCapacityPopup").modal("show");
+        }
+    }
+
+    //Remove row from grid
+    function deleteVolumeCapacity(e) {
+
+        var grid = $("#GridOilVolumeCapacity").data("kendoGrid");
+         var row = $(e).closest("tr");
+
+         windowDelete.center().open();
+         $("#yes").click(function () {
+            grid.removeRow(row);
+            windowDelete.close();
+         });
+
+         $("#no").click(function () {
+            windowDelete.close();
+         });
+
+    }
+
+    //Clear form data's
+    function clearVolumeData() {
+        //var vertical = $("#ddlVertical").data("kendoDropDownList");
+        //vertical.value('');
+        //vertical.readonly(false);
+
+        //var oiltype = $("#ddlOilType").data("kendoMultiSelect");
+        //oiltype.value([]);
+        //oiltype.readonly(false);
+
+        $("#txtOilVolumeCapacity").val('');
+        $("#gridUid").val('');
+        $("#oilTypeidhdn").val('');
+
+        $("#ddlVertical").data("kendoDropDownList").value('@Convert.ToInt32(Vertical.Hbc)');
+    }
+
+    // ----------------------Vertical ------------------------------
+
+    function onVerticalTypeChange() {
+        $("#ddlOilType").data("kendoMultiSelect").dataSource.read();
+    }
+
+    // ----------------------OilType---------------------------------
+
+    function onOilTypeChange(e) {
+        MultiSelectEvents("ddlOilType", "oilTypeSelectAll");
+    }
+
+    function OnOilTypeDataBound(e) {
+        $("#ddlOilType").data("kendoMultiSelect").value($("#oilTypeidhdn").val());
+        MultiSelectEvents("ddlOilType", "oilTypeSelectAll");
+    }
+
+    function oilTypeAdditionalInfo() {
+        var verticalId = $("#ddlVertical").val();
+        return {
+            verticalId: Number(verticalId)
+        };
+    }
+
+    //DateTime
+    function startTimeChange() {
+        var windowTimeInterval = Number($("#windowTimeInterval").val());
+        var startTime = this.value(),
+            endTime = $("#EndTime").data("kendoTimePicker");
+
+        if (startTime) {
+            startTime = new Date(startTime);
+            startTime.setMinutes(startTime.getMinutes() + windowTimeInterval);
+            endTime.min(startTime);
+            endTime.value(startTime);
+        }
+    }
+
+    function startTimeOnUpdate() {
+
+        var startPicker = $("#StartTime").data("kendoTimePicker");
+        var endPicker = $("#EndTime").data("kendoTimePicker");
+
+        var startTime = $("#StartTime").data("kendoTimePicker").value();
+        var endTime = $("#EndTime").data("kendoTimePicker").value();
+
+        startPicker.value(startTime);
+        //startPicker.min(startTime);
+
+        endPicker.value(endTime);
+        endPicker.min(endTime);
+    }
+
+    //function saudaAllocationStartTimeOnUpdate() {
+
+    //    var startPicker = $("#SaudaAllocationStartTime").data("kendoTimePicker");
+    //    var endPicker = $("#SaudaAllocationEndTime").data("kendoTimePicker");
+
+    //    var startTime = $("#SaudaAllocationStartTime").data("kendoTimePicker").value();
+    //    var endTime = $("#SaudaAllocationEndTime").data("kendoTimePicker").value();
+
+    //    startPicker.value(startTime);
+    //    //startPicker.min(startTime);
+
+    //    endPicker.value(endTime);
+    //    endPicker.min(endTime);
+    //}
+
+    function setDefaultTime() {
+        var windowTimeInterval = Number($("#windowTimeInterval").val());
+        var startTime = new Date();
+        var startPicker = $("#StartTime").data("kendoTimePicker");
+        startTime.setMinutes(startTime.getMinutes() + windowTimeInterval);
+        startPicker.value(startTime);
+        startPicker.min(startTime);
+
+        startTime.setMinutes(startTime.getMinutes() + windowTimeInterval);
+        var endPicker = $("#EndTime").data("kendoTimePicker");
+        endPicker.value(startTime);
+        endPicker.min(startTime);
+
+        //var saudaStartPicker = $("#SaudaAllocationStartTime").data("kendoTimePicker");
+        //saudaStartPicker.value(startTime);
+        //saudaStartPicker.min(startTime);
+
+        //startTime.setMinutes(startTime.getMinutes() + windowTimeInterval);
+        //var endPicker = $("#EndTime").data("kendoTimePicker");
+        //endPicker.value(startTime);
+        //endPicker.min(startTime);
+
+        //var saudaEndPicker = $("#SaudaAllocationEndTime").data("kendoTimePicker");
+        //saudaEndPicker.value(startTime);
+        //saudaEndPicker.min(startTime);
+    }
+
+    function editSetDefaultTime() {
+        //Window StartTime
+        var startPicker = $("#StartTime").data("kendoTimePicker");
+        var startTime = new Date(startPicker.value());
+        startTime.setMinutes(startTime.getMinutes());
+        startPicker.value(startTime);
+        startPicker.min(startTime);
+
+        //SaudaAllocation StartTime
+        //var startPicker = $("#SaudaAllocationStartTime").data("kendoTimePicker");
+        //var startTime = new Date(startPicker.value());
+        //startTime.setMinutes(startTime.getMinutes());
+        //startPicker.value(startTime);
+        //startPicker.min(startTime);
+    }
+
+    //function saudaStartTimeChange() {
+    //    var windowTimeInterval = Number($("#windowTimeInterval").val());
+
+    //    var saudaStartTime = this.value(),
+    //        saudaEndTime = $("#SaudaAllocationEndTime").data("kendoTimePicker");
+
+    //    if (saudaStartTime) {
+    //        saudaStartTime = new Date(saudaStartTime);
+    //        saudaStartTime.setMinutes(saudaStartTime.getMinutes() + windowTimeInterval);
+    //        saudaEndTime.min(saudaStartTime);
+    //        saudaEndTime.value(saudaStartTime);
+    //    }
+    //}
+
+    function onVerticleDataBound() {
+        if ('@Model.Id' > 0 || $("#ddlVertical").data("kendoDropDownList").value() > 0) {
+            $("#ddlOilType").data("kendoMultiSelect").dataSource.read();
+        }
+    }
+
+    //function endTimeChange() {
+    //    var endTime = this.value(),
+    //        startTimeSaudaAllocation =  $("#SaudaAllocationStartTime").data("kendoTimePicker");;
+    //        endTimeSaudaAllocation = $("#SaudaAllocationEndTime").data("kendoTimePicker");
+    //    if (endTime) {
+    //        endTime = new Date(endTime);
+    //        endTime.setMinutes(endTime.getMinutes() + emamiGlobal.constant.TimeInterval);
+    //        startTimeSaudaAllocation.min(endTime);
+    //        startTimeSaudaAllocation.value(endTime);
+    //        endTimeSaudaAllocation.min(endTime);
+    //        endTimeSaudaAllocation.value(endTime);
+    //    }
+    //}
+
+
+</script>
+
+

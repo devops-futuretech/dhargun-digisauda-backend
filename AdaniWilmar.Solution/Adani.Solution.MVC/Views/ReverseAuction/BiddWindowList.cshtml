@@ -1,0 +1,248 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using System.Security.Claims
+
+@{
+    ViewBag.Title = "BiddWindowList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .k-confirm .k-window-titlebar::before {
+        content: 'Confirmation';
+    }
+
+    .k-confirm .k-window-titlebar .k-dialog-title {
+        visibility: collapse;
+    }
+</style>
+
+<input type="hidden" class="currentMenu" value="RA2BiddingWindowList" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_BiddWindowList")</h2>
+    <div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            @if (Helper.CheckClaims(Claims.ManageRABiddingWindow))
+            {
+                <a href="@Url.Action("BiddWindowEditRedirect", "ReverseAuction")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateBiddWindow")</a>
+            }
+            </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row form-group">
+                <div class="col-md-2 text-right">
+                    Search Date
+                </div>
+                <div class="col-md-3">
+                    @(Html.Kendo().DatePicker().Name("SearchDate")
+                                   .Format(Settings.DateFormat)
+                                   .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                </div>
+                <div class="col-md-2 text-right">
+                    Status
+                </div>
+                <div class="col-md-3">
+                    @(Html.Kendo().DropDownList()
+                             .Name("WindowStatus")
+                             .OptionLabel(@Helper.GetResourceString("plho_All"))
+                             .DataTextField("Name")
+                             .DataValueField("Id")
+                             .DataSource(source => source.Read(read => read.Action("GetAllBidWindowStatus", "ReverseAuction"))
+                             .ServerFiltering(false))
+                             .HtmlAttributes(new { id = "ddlBidWindowStatus", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_SaudaBookingType"), @style = "width:100%" }))
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-md-12 text-center">
+                    <button type="button" onclick="searchWindow()" class="k-primary k-button">Search</button>
+                </div>
+            </div>
+            <div class="row" id="dvDealers">
+                <div class="col-md-12">
+                    <div class="text-right">
+                        @*<button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("BiddingWindowList")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;*@
+                        <button class="k-button k-button-icontext k-grid-excel" onclick='excelExport()' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    </div>
+                    @(Html.Kendo().Grid<BidWindowListDto>()
+                               .Name("BiddingWindowList")
+                               .Columns(columns =>
+                               {
+                                   columns.Bound(c => c.Id).Visible(false);
+                                   columns.Bound(c => c.Name).ClientTemplate(@"#if(IsEdit && IsActive ){#<div> <a style='text-decoration: underline;' href='" + Url.Action("BiddWindowEditRedirect", "ReverseAuction", new { biddWindowId = "#=Id#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=Name#</a></div>#}else{#<span>#=Name#</span>#}#").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_WindowName")).Width(Settings.GridColumnMaxWidth);
+                                   columns.Bound(c => c.CustomerGroupName).Title(@Helper.GetResourceString("lbl_CustomerGroup")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                   columns.Bound(c => c.BiddingDate).Format(Settings.GridDateFormat).Title(@Helper.GetResourceString("lbl_BiddingDate")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                   columns.Bound(c => c.StartTime).Format(Settings.GridTimeFormat24).Title(@Helper.GetResourceString("lbl_StartTime"))/*.Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion)))*/.Width(Settings.GridOtherColumnWidth);
+                                   columns.Bound(c => c.EndTime).Format(Settings.GridTimeFormat24).Title(@Helper.GetResourceString("lbl_EndTime"))/*.Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion)))*/.Width(Settings.GridOtherColumnWidth);
+                                   //columns.Bound(c => c.SaudaAllocationStartTime).Format(Settings.GridTimeFormat24).Title("Allocation StartTime").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                   //columns.Bound(c => c.SaudaAllocationEndTime).Format(Settings.GridTimeFormat24).Title("Allocation EndTime").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                   columns.Bound(c => c.NoOfAttemptsForBidding).Title(@Helper.GetResourceString("lbl_NoOfAttemptsForBidding")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                   columns.Bound(c => c.Status).Title(@Helper.GetResourceString("lbl_BiddWindowStatus")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                   columns.Bound(c => c.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_IsActive")).ClientTemplate(@"<div style='text-align: center;'> #if(IsActive == false) { #"
+                                                                                          + " <a  title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Width(Settings.GridOtherColumnWidth);
+                                   columns.Template(c => c.StatusId).Title(@Helper.GetResourceString("lbl_Action"))
+                                                 .ClientTemplate(@"#=checkWindowStatus(StatusId,Id)#").Width(Settings.GridOtherColumnWidth);
+                               })
+                               .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                               .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                               .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                               .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                               .Scrollable(s => s.Enabled(true).Height("auto"))
+                               .Reorderable(reorder => reorder.Columns(true))
+                               .Resizable(resize => resize.Columns(true))
+                               .Events(events => events.DataBound("onBiddingWindowDataBound"))
+                               .ClientDetailTemplateId("volumeCapacityTemplate")
+                               .DataSource(dataSource => dataSource
+                               .Ajax()
+                               .Sort(sort => sort.Add("Id").Descending())
+                               .Model(model => { model.Id(p => p.Id); })
+                               .ServerOperation(true)
+                               .Read(read => read.Action("GetBiddingWindowListAsync", "ReverseAuction", new { isToReturnInactiveData = true }).Data("additionalParams"))))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="volumeCapacityTemplate" type="text/kendo-tmpl">
+
+    @(Html.Kendo().Grid<Adani.Solution.DTO.BidWindowVolumeCapacityListDto>()
+                 .Name("grid_#=Id#")
+                 .Columns(columns =>
+                 {
+                     columns.Bound(c => c.VerticalName).Title(@Helper.GetResourceString("lbl_Vertical")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                     columns.Bound(c => c.OilTypeName).Title(@Helper.GetResourceString("lbl_OilType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                     columns.Bound(c => c.VolumeCapacity).Title(@Helper.GetResourceString("lbl_VolumeCapacity")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                 })
+                 .DataSource(dataSource => dataSource
+                     .Ajax()                     
+                     .Read(read => read.Action("GetBiddingWindowVolumeDetails", "ReverseAuction", new { biddWindowId = "#=Id#" }))
+                 )
+                 .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                 .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                 .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                 .Scrollable(s => s.Enabled(true).Height("auto"))
+                 .Reorderable(reorder => reorder.Columns(true))
+                 .Resizable(resize => resize.Columns(true))
+                 .ToClientTemplate())
+</script>
+
+<script>
+
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();
+        setDefaultDate();
+
+        if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+    });
+
+    //Method to data bound event for owner
+    function onBiddingWindowDataBound(e) {
+        SetEmptyRow(e);
+        //this.expandRow(this.tbody.find("tr.k-master-row").first());
+    }
+
+    function checkWindowStatus(statusId,Id) {
+        
+        if (statusId === @((int)Adani.Solution.DTO.Enums.BiddWindowStatus.Pending)) {            
+            return '<div style="text-align: center;"><div style="cursor: no-drop;"><button type="button" class="k-primary k-button" disabled>Pending</button></div></div>';
+        } else if (statusId === @((int)Adani.Solution.DTO.Enums.BiddWindowStatus.Processing)) {
+            return '<div style="text-align: center;"><button onclick="stopBidWindowConfirmation(' + Id + ')" type="button" class="k-primary k-button">Stop Window</button></div>';
+        } else if (statusId === @((int)Adani.Solution.DTO.Enums.BiddWindowStatus.Stopped)) {
+            return '<div style="text-align: center;"><div style="cursor: no-drop;"><button type="button" class="k-primary k-button" disabled>Stopped</button></div></div>';
+        } else if (statusId === @((int)Adani.Solution.DTO.Enums.BiddWindowStatus.Completed)) {
+            return '<div style="text-align: center;"><div style="cursor: no-drop;"><button type="button" class="k-primary k-button" disabled>Completed</button></div></div>';
+        }                                      
+    }
+
+    function stopBidWindowConfirmation(bidWindowId) {
+        var confirmText = "Are you sure if you want to stop the bidding window?";
+        kendo.confirm(confirmText).then(function () {
+            stopBidWindow(bidWindowId);
+        }, function () {
+        });
+    }
+
+    function stopBidWindow(bidWindowId) {        
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("StopBidWindow", "ReverseAuction")',
+            data: { bidWindowId: bidWindowId },
+            success: function (responce) {
+                if (responce.PostStatus == true) {
+                    ShowSuccessMessage(responce.PostMessage);
+                    $("#BiddingWindowList").data("kendoGrid").dataSource.read();
+                } else {
+                    ShowErrorMessage(responce.PostMessage);
+                }
+                window.kendo.ui.progress($("#divLoader"), false);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                ShowErrorMessage("Error.");
+                window.kendo.ui.progress($("#divLoader"), false);
+            }
+        });
+    }
+
+    function searchWindow() {
+        $("#BiddingWindowList").data("kendoGrid").dataSource.read();
+    }
+
+    function additionalParams() {        
+        return {
+            searchDate: ($("#SearchDate").val() === "" ? new Date().toDateString() : $("#SearchDate").val()),
+            statusId: Number($("#ddlBidWindowStatus").val())
+        }
+    }
+
+    //Set default date
+    function setDefaultDate() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+        $("#SearchDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+    }
+
+    function excelExport() {
+        window.kendo.ui.progress($("#div_Progress"), true);   
+        searchDate: ($("#SearchDate").val() === "" ? new Date().toDateString() : $("#SearchDate").val());
+        statusId: Number($("#ddlBidWindowStatus").val());
+        $.ajax({
+            type: 'Post',
+            url: '@Url.Action("ExportBidWindow", "ReverseAuction")',
+            data: {
+                isToReturnInactiveData: true,
+                searchDate: ($("#SearchDate").val() === "" ? new Date().toDateString() : $("#SearchDate").val()),
+                statusId:Number($("#ddlBidWindowStatus").val())
+            },
+            success: function (responce) {               
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Pricing")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });        
+    }
+
+</script>
+
+

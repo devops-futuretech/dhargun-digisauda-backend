@@ -1,0 +1,144 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@{
+    ViewBag.Title = "Retailer";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="masterRetailer" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_Retailers")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Masters</a><span class="icon-right"></span></li>
+        <li class="active"> @Helper.GetResourceString("lbl_Retailers") <span class="icon-right"></span></li>
+    </ol>
+    @*<div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            @if (Helper.CheckClaims(Claims.ManageMaster))
+            {
+                <a href="@Url.Action("RetailerEditRedirect", "Lookup")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateRetailer")</a>
+            }
+        </div>
+    </div>*@
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        @*<div class="panel-heading">
+        </div>*@
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvRetailers">
+                <div class="col-md-12">
+                    <div class="text-right right-buttons">
+                        <div class="export_as">
+                            <span>Export as</span>
+                            <div class="export-btns">
+
+                                <span class="export-link" onclick='excelExport()' type="button">Excel</span>
+                            </div>
+                        </div>
+
+                        @*<button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ViewRetailers")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;*@
+
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+
+                        <div class="period-wrapper">
+                            @if (Helper.CheckClaims(Claims.ManageMaster))
+                            {
+                                <a href="@Url.Action("RetailerEditRedirect", "Lookup")" class="k-primary k-button"><b><i class="icon-plus"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateRetailer")</a>
+                            }
+                        </div>
+
+                    </div>
+                    @(Html.Kendo().Grid<RetailerDto>()
+                          .Name("ViewRetailers")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.Id).Visible(false);
+                              columns.Bound(c => c.Name).Title(@Helper.GetResourceString("lbl_AccountName")).ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("RetailerEditRedirect", "Lookup", new { retailerId = "#=Id#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=Name#</a> </div>").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.Code).Title(@Helper.GetResourceString("lbl_RetailerCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.MobileNumber).Title(@Helper.GetResourceString("lbl_MobileNumber")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.Email).Title(@Helper.GetResourceString("lbl_Email")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.Address).Title(@Helper.GetResourceString("lbl_Address")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.State).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(Helper.GetResourceString("lbl_State")).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.TerritoryName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(Helper.GetResourceString("lbl_Territory")).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.District).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(Helper.GetResourceString("lbl_District")).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.City).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(Helper.GetResourceString("lbl_City")).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(t => t.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Active")).ClientTemplate(@"<div style='text-align: center;'>#if(IsActive){#<i class='icon-green_ckbox_tick faicon-green'><span class='path1'></span><span class='path2'></span></i>#}else{#<i class='icon-red_ckbox_tick faicon-red'><span class='path1'></span><span class='path2'></span></i>#}#</div>").Width(Settings.GridColumnMaxWidth);
+                          })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Selectable(selectable => selectable
+                          .Mode(GridSelectionMode.Multiple)
+                          .Type(GridSelectionType.Row))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Resizable(resize => resize.Columns(true))
+                          .Excel(excel => excel.AllPages(true).FileName(@Helper.GetResourceString("lbl_Retailers") + " " + DateTime.Now + ".xlsx").Filterable(true))
+                          .Events(events => events.DataBound("onRetailerListDataBound"))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Model(model => { model.Id(p => p.Id); })
+                          .ServerOperation(true)
+                          .Read(read => read.Action("GetRetailerListAsync", "Lookup", new { isToReturnInactiveData = true }))))
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();
+
+         if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+		}
+    });
+
+    //Method to data bound event for dealer List
+    function onRetailerListDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+    function excelExport() {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        //
+        var data = { IsToReturnInactiveData: true };
+        $.ajax({
+            type: 'Post',
+            url: '@Url.Action("ExportRetailerListAsync", "Lookup")',
+            data: { inputDto: data },
+            success: function (responce) {
+                //
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Base")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+        
+    }
+
+</script>
+
+
+
+
+
+

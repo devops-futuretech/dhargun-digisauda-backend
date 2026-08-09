@@ -1,0 +1,1124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.Net.Compilers.4.2.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.4.2.0\build\Microsoft.Net.Compilers.props')" />
+  <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.8\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.8\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{8BC7B589-E761-4E73-8061-4E92BECBF28D}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Adani.Solution.MVC</RootNamespace>
+    <AssemblyName>Adani.Solution.MVC</AssemblyName>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <MvcBuildViews>false</MvcBuildViews>
+    <UseIISExpress>true</UseIISExpress>
+    <Use64BitIISExpress />
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CaptchaMvc, Version=2.5.0.0, Culture=neutral, PublicKeyToken=fe46ad421dd3b0e6, processorArchitecture=MSIL">
+      <HintPath>..\packages\CaptchaMvc.Mvc5.1.5.0\lib\net45-full\CaptchaMvc.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Castle.Core.4.0.0\lib\net45\Castle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Windsor, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Castle.Windsor.4.0.0\lib\net45\Castle.Windsor.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapper, Version=1.50.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.1.50.5\lib\net451\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="EPPlus, Version=4.5.2.1, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
+      <HintPath>..\packages\EPPlus.4.5.2.1\lib\net40\EPPlus.dll</HintPath>
+    </Reference>
+    <Reference Include="GMCore.Authenticate, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\GMCoreComponents\GMCore.Authenticate.dll</HintPath>
+    </Reference>
+    <Reference Include="GMCore.Helper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\GMCoreComponents\GMCore.Helper.dll</HintPath>
+    </Reference>
+    <Reference Include="GMCore.Logger, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\GMCoreComponents\GMCore.Logger.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis, Version=1.68.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.1.68.0\lib\net462\Google.Apis.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.AnalyticsData.v1beta, Version=1.68.0.3421, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.AnalyticsData.v1beta.1.68.0.3421\lib\net462\Google.Apis.AnalyticsData.v1beta.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Auth, Version=1.68.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.Auth.1.68.0\lib\net462\Google.Apis.Auth.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Core, Version=1.68.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.Core.1.68.0\lib\net462\Google.Apis.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="HtmlSanitizationLibrary, Version=4.0.0.0, Culture=neutral, PublicKeyToken=d127efab8a9c114f, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlSanitizationLibrary.1.0.0\lib\HtmlSanitizationLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="Kendo.Mvc, Version=2015.3.1111.545, Culture=neutral, PublicKeyToken=121fae78165ba3d4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\GMCoreComponents\Kendo.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Azure.KeyVault.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Azure.KeyVault.Core.1.0.0\lib\net40\Microsoft.Azure.KeyVault.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=1.0.8.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.8\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Data.Edm, Version=5.8.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Data.Edm.5.8.2\lib\net40\Microsoft.Data.Edm.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Data.OData, Version=5.8.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Data.OData.5.8.2\lib\net40\Microsoft.Data.OData.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Data.Services.Client, Version=5.8.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Data.Services.Client.5.8.2\lib\net40\Microsoft.Data.Services.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Office.Interop.Excel.15.0.4795.1000\lib\net20\Microsoft.Office.Interop.Excel.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.5.6\lib\net45\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="Sandboxable.Microsoft.WindowsAzure.Storage, Version=8.7.0.0, Culture=neutral, PublicKeyToken=dd461fa2f43d8736, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sandboxable.Microsoft.WindowsAzure.Storage.1.1.9\lib\net452\Sandboxable.Microsoft.WindowsAzure.Storage.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.CodeDom, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.CodeDom.7.0.0\lib\net462\System.CodeDom.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Diagnostics.DiagnosticSource, Version=4.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Diagnostics.DiagnosticSource.4.0.0\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.4.3.0\lib\net462\System.IO.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Net.Http, Version=4.1.1.3, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.4.3.4\lib\net46\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Extensions, Version=2.2.29.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.Formatting.Extension.5.2.3.0\lib\System.Net.Http.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.Formatting.Extension.5.2.3.0\lib\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Primitives, Version=4.2.29.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.Formatting.Extension.5.2.3.0\lib\System.Net.Http.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.4.3.0\lib\net462\System.Runtime.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.Remoting" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Security.Cryptography.Algorithms, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Algorithms.4.3.0\lib\net463\System.Security.Cryptography.Algorithms.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Encoding, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Encoding.4.3.0\lib\net46\System.Security.Cryptography.Encoding.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Primitives, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Primitives.4.3.0\lib\net46\System.Security.Cryptography.Primitives.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.X509Certificates, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.X509Certificates.4.3.0\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Spatial, Version=5.8.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Spatial.5.8.2\lib\net40\System.Spatial.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Abstractions" />
+    <Reference Include="System.Web.Http, Version=5.2.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.6\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=5.2.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.6\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest">
+    </Reference>
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Optimization">
+      <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.1.3\lib\net40\System.Web.Optimization.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.3\lib\net45\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="WebGrease">
+      <Private>True</Private>
+      <HintPath>..\packages\WebGrease.1.5.2\lib\WebGrease.dll</HintPath>
+    </Reference>
+    <Reference Include="Antlr3.Runtime">
+      <Private>True</Private>
+      <HintPath>..\packages\Antlr.3.4.1.9004\lib\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.ApplicationInsights">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.2.2.0\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.Agent.Intercept">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.Agent.Intercept.2.0.6\lib\net45\Microsoft.AI.Agent.Intercept.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.DependencyCollector">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.2.0\lib\net45\Microsoft.AI.DependencyCollector.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.PerfCounterCollector">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.2.0\lib\net45\Microsoft.AI.PerfCounterCollector.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.ServerTelemetryChannel">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.2.0\lib\net45\Microsoft.AI.ServerTelemetryChannel.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.WindowsServer">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.2.2.0\lib\net45\Microsoft.AI.WindowsServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.Web">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.Web.2.2.0\lib\net45\Microsoft.AI.Web.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\BundleConfig.cs" />
+    <Compile Include="App_Start\FilterConfig.cs" />
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Attributes\TokenAuthorizeAttribute.cs" />
+    <Compile Include="Attributes\UserTokenAuthorize.cs" />
+    <Compile Include="Common\ApiUrl.cs" />
+    <Compile Include="Common\ConfigHelper.cs" />
+    <Compile Include="Common\Settings.cs" />
+    <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="Controllers\CrossAndUpsellController.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\ImportController.cs" />
+    <Compile Include="Controllers\LookupController.cs" />
+    <Compile Include="Controllers\MailRedirectController.cs" />
+    <Compile Include="Controllers\PricingController.cs" />
+    <Compile Include="Controllers\QPSDiscountController.cs" />
+    <Compile Include="Controllers\RAVersionTwoController.cs" />
+    <Compile Include="Controllers\ReportController.cs" />
+    <Compile Include="Controllers\ReverseAuctionController.cs" />
+    <Compile Include="Controllers\RoleController.cs" />
+    <Compile Include="Controllers\SalesTourPlanController.cs" />
+    <Compile Include="Controllers\SaudaController.cs" />
+    <Compile Include="Controllers\SharedController.cs" />
+    <Compile Include="Controllers\SupportController.cs" />
+    <Compile Include="Controllers\SurveyUpdatesController.cs" />
+    <Compile Include="Controllers\TargetController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="Controllers\VehicleController.cs" />
+    <Compile Include="CustomRedirect.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="HandleCustomError.cs" />
+    <Compile Include="Helpers\Helper.cs" />
+    <Compile Include="Infrastructure\Installer.cs" />
+    <Compile Include="Infrastructure\WindsorControllerFactory.cs" />
+    <Compile Include="Models\CMSQuestionModel.cs" />
+    <Compile Include="Models\ComplaintApprovalModel.cs" />
+    <Compile Include="Models\ConfigurationViewModel.cs" />
+    <Compile Include="Models\CorporateData.cs" />
+    <Compile Include="Models\DynamicFormQuestionDetailsViewModel.cs" />
+    <Compile Include="Models\EnumModel.cs" />
+    <Compile Include="Models\FinancialYearViewModel.cs" />
+    <Compile Include="Models\ForgotPasswordViewModel.cs" />
+    <Compile Include="Models\HeadQuartersViewModel.cs" />
+    <Compile Include="Models\LoginViewModel.cs" />
+    <Compile Include="Models\MediaModel.cs" />
+    <Compile Include="Models\MonthlyPlanDeviationViewModel.cs" />
+    <Compile Include="Models\MonthlyTourPlanViewModel.cs" />
+    <Compile Include="Models\MonthViewModel.cs" />
+    <Compile Include="Models\PermanentJouneyPlanViewModel.cs" />
+    <Compile Include="Models\PermanentJourneyPlanListViewModel.cs" />
+    <Compile Include="Models\PJPApprovalFlowViewModel.cs" />
+    <Compile Include="Models\PJPMonthValueMapping.cs" />
+    <Compile Include="Models\PJPMonthValueUpdateViewModel.cs" />
+    <Compile Include="Models\ReasonsViewModel.cs" />
+    <Compile Include="Models\ResultModel.cs" />
+    <Compile Include="Models\ResultViewModel.cs" />
+    <Compile Include="Models\RoleClaimUpdateViewModel.cs" />
+    <Compile Include="Models\RoleHierarchyViewModel.cs" />
+    <Compile Include="Models\RoleTypeClaimUpdateViewModel.cs" />
+    <Compile Include="Models\RoleTypeClaimViewModel.cs" />
+    <Compile Include="Models\RoleTypeHierarchyViewModel.cs" />
+    <Compile Include="Models\RoleTypeUpdateViewModel.cs" />
+    <Compile Include="Models\RoleTypeViewModel.cs" />
+    <Compile Include="Models\RoleViewModel.cs" />
+    <Compile Include="Models\SaudaApprovalViewModel.cs" />
+    <Compile Include="Models\SaudaConversionDetailViewModel.cs" />
+    <Compile Include="Models\SaudaConversionSKUStatusListModel.cs" />
+    <Compile Include="Models\SaudaConversionTypeViewModel.cs" />
+    <Compile Include="Models\SaudaConversionUnitAndDiffRateModel.cs" />
+    <Compile Include="Models\SectionModel.cs" />
+    <Compile Include="Models\SpecialRateViewModel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Resource\Resources.en.Designer.cs">
+      <DependentUpon>Resources.en.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Resource\Resources.en1.Designer.cs" />
+    <Compile Include="Resource\Resources.en2.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.en.resx</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceClient\BaseClient.cs" />
+    <Compile Include="ServiceClient\CrossAndUpsellClient.cs" />
+    <Compile Include="ServiceClient\ImportClient.cs" />
+    <Compile Include="ServiceClient\LookupClient.cs" />
+    <Compile Include="ServiceClient\MailRedirectClient.cs" />
+    <Compile Include="ServiceClient\MasterClient.cs" />
+    <Compile Include="ServiceClient\MediaClient.cs" />
+    <Compile Include="ServiceClient\PricingClient.cs" />
+    <Compile Include="ServiceClient\QPSSchemeDiscountClient.cs" />
+    <Compile Include="ServiceClient\RALookupClient.cs" />
+    <Compile Include="ServiceClient\RAVersionTwoClient.cs" />
+    <Compile Include="ServiceClient\ReportClient.cs" />
+    <Compile Include="ServiceClient\ReverseAuctionClient.cs" />
+    <Compile Include="ServiceClient\RoleClient.cs" />
+    <Compile Include="ServiceClient\SalesTourPlanClient.cs" />
+    <Compile Include="ServiceClient\SaudaClient.cs" />
+    <Compile Include="ServiceClient\ServiceClient.cs" />
+    <Compile Include="ServiceClient\SupportClient.cs" />
+    <Compile Include="ServiceClient\SurveyUpdatesClient.cs" />
+    <Compile Include="ServiceClient\TargetClient.cs" />
+    <Compile Include="ServiceClient\UserClient.cs" />
+    <Compile Include="ServiceClient\VehicleClient.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_Data\Emami.txt" />
+    <Content Include="Content\bootstrap.css" />
+    <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\icons\icomoon\fonts\icomoon.svg" />
+    <Content Include="Content\icons\icomoon\styles.css" />
+    <Content Include="Content\kendo\bootstrap\editor.png" />
+    <Content Include="Content\kendo\bootstrap\imagebrowser.png" />
+    <Content Include="Content\kendo\bootstrap\indeterminate.gif" />
+    <Content Include="Content\kendo\bootstrap\loading-image.gif" />
+    <Content Include="Content\kendo\bootstrap\loading-image1.gif" />
+    <Content Include="Content\kendo\bootstrap\loading_2x.gif" />
+    <Content Include="Content\kendo\bootstrap\markers.png" />
+    <Content Include="Content\kendo\bootstrap\markers_2x.png" />
+    <Content Include="Content\kendo\bootstrap\slider-h.gif" />
+    <Content Include="Content\kendo\bootstrap\slider-v.gif" />
+    <Content Include="Content\kendo\bootstrap\sprite.png" />
+    <Content Include="Content\kendo\bootstrap\sprite_2x.png" />
+    <Content Include="Content\kendo\bootstrap\sprite_kpi.png" />
+    <Content Include="Content\kendo\bootstrap\sprite_kpi_2x.png" />
+    <Content Include="Content\kendo\kendo.all.css" />
+    <Content Include="Content\Menu.css" />
+    <Content Include="Content\new-icons\fonts\icomoon.svg" />
+    <Content Include="Content\new-icons\new_icomoon.css" />
+    <Content Include="Content\Style.css" />
+    <Content Include="favicon.ico" />
+    <Content Include="fonts\Agane55.svg" />
+    <Content Include="fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Global.asax" />
+    <Content Include="Content\Site.css" />
+    <Content Include="images\adani_logo.png" />
+    <Content Include="images\adani_logo_previous.png" />
+    <Content Include="images\adobe-acrobat-pdf-logo.png" />
+    <Content Include="images\bloom.png" />
+    <Content Include="images\bloom.svg" />
+    <Content Include="images\dashboard_logo_with_bg.png" />
+    <Content Include="images\DefaultUserProfile.png" />
+    <Content Include="images\depot.svg" />
+    <Content Include="images\emamilogo.png" />
+    <Content Include="images\favicon.ico" />
+    <Content Include="images\loginlogo.png" />
+    <Content Include="images\login_logo.png" />
+    <Content Include="images\logo.png" />
+    <Content Include="images\logo.svg" />
+    <Content Include="images\logo1.png" />
+    <Content Include="images\logo2.png" />
+    <Content Include="images\mail_bg.png" />
+    <Content Include="images\ratings.svg" />
+    <Content Include="images\SalesOFF.svg" />
+    <Content Include="images\SaudaOFF.svg" />
+    <Content Include="images\tab_bar_icon.png" />
+    <Content Include="images\user-image.png" />
+    <Content Include="Scripts\bootstrap.js" />
+    <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="ApplicationInsights.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\icons\icomoon\fonts\icomoon.eot" />
+    <Content Include="Content\icons\icomoon\fonts\icomoon.ttf" />
+    <Content Include="Content\icons\icomoon\fonts\icomoon.woff" />
+    <Content Include="Content\kendo\fonts\Dejavu\DejaVuSans.ttf" />
+    <Content Include="Content\kendo\fonts\glyphs\KendoUIGlyphs.ttf" />
+    <Content Include="Content\kendo\fonts\glyphs\KendoUIGlyphs.woff" />
+    <Content Include="Content\kendo\fonts\glyphs\WebComponentsIcons.ttf" />
+    <Content Include="Content\kendo\fonts\glyphs\WebComponentsIcons.woff" />
+    <Content Include="Content\kendo\images\kendoui.ttf" />
+    <Content Include="Content\kendo\images\kendoui.woff" />
+    <Content Include="Files\District.xlsx" />
+    <Content Include="Files\State.xlsx" />
+    <Content Include="Files\Territory.xlsx" />
+    <Content Include="Files\Sku.xlsx" />
+    <Content Include="Excel_Templates\District.xlsx" />
+    <Content Include="Excel_Templates\State.xlsx" />
+    <Content Include="Excel_Templates\Territory.xlsx" />
+    <Content Include="Excel_Templates\TerritoryDistrictMapping.xlsx" />
+    <Content Include="Files\TerritoryDistrictMapping.xlsx" />
+    <Content Include="Excel_Templates\City.xlsx" />
+    <Content Include="Files\City.xlsx" />
+    <Content Include="Files\Customer.xlsx" />
+    <Content Include="Files\Broker.xlsx" />
+    <Content Include="Excel_Templates\Broker.xlsx" />
+    <Content Include="Files\UserCustomerSalesTarget.xlsx" />
+    <Content Include="Excel_Templates\UserCustomerSalesTarget.xlsx" />
+    <Content Include="Files\UserCustomerSaudaTarget.xlsx" />
+    <Content Include="Excel_Templates\UserCustomerSaudaTarget.xlsx" />
+    <Content Include="Excel_Templates\Sku.xlsx" />
+    <Content Include="Files\UserOilTypeTarget.xlsx" />
+    <Content Include="Files\UserSalesSaudaTarget.xlsx" />
+    <Content Include="Excel_Templates\Depot.xlsx" />
+    <Content Include="Excel_Templates\Plant.xlsx" />
+    <Content Include="Excel_Templates\PlantDepotMapping.xlsx" />
+    <Content Include="Files\Depot.xlsx" />
+    <Content Include="Files\Plant.xlsx" />
+    <Content Include="Files\PlantDepotMapping.xlsx" />
+    <Content Include="Excel_Templates\OilType.xlsx" />
+    <Content Include="Excel_Templates\User.xlsx" />
+    <Content Include="Excel_Templates\UserCustomerMapping.xlsx" />
+    <Content Include="Excel_Templates\UserDepotMapping.xlsx" />
+    <Content Include="Files\OilType.xlsx" />
+    <Content Include="Files\User.xlsx" />
+    <Content Include="Excel_Templates\Geography.xlsx" />
+    <Content Include="Excel_Templates\PendingSauda.xlsx" />
+    <Content Include="Excel_Templates\UserCustomerTarget.xlsx" />
+    <Content Include="Excel_Templates\CustomerMaster.xlsx" />
+    <Content Include="Excel_Templates\TradeTicket.xlsx" />
+    <Content Include="Excel_Templates\ShipToParty.xlsx" />
+    <Content Include="Excel_Templates\CustomerGroup.xlsx" />
+    <Content Include="Excel_Templates\GST.xlsx" />
+    <Content Include="Excel_Templates\PercentileNumbers.xlsx" />
+    <Content Include="FinalPriceDownload\FinalPriceTemplate.xlsx" />
+    <Content Include="FinalPriceDownload\FinalPriceTemplateForAllRecords.xlsx" />
+    <Content Include="Content\new-icons\fonts\icomoon.eot" />
+    <Content Include="Content\new-icons\fonts\icomoon.ttf" />
+    <Content Include="Content\new-icons\fonts\icomoon.woff" />
+    <Content Include="Excel_Templates\CustomerGroupFive.xlsx" />
+    <Content Include="Excel_Templates\BrokerCallRecordingDetails.xlsx" />
+    <Content Include="Excel_Templates\ConversionFormulas.xlsx" />
+    <Content Include="Excel_Templates\DealerCallRecordingDetails.xlsx" />
+    <Content Include="Excel_Templates\DealerSaudaLimit.xlsx" />
+    <Content Include="Excel_Templates\DealerSaudaValidity.xlsx" />
+    <Content Include="Excel_Templates\DistributionChannel.xlsx" />
+    <Content Include="Excel_Templates\Division.xlsx" />
+    <Content Include="Excel_Templates\MaterialType.xlsx" />
+    <Content Include="Excel_Templates\SalesOrganization.xlsx" />
+    <Content Include="Excel_Templates\SaudaConversionUnitAndBaseRateDifference.xlsx" />
+    <Content Include="Excel_Templates\VehicleLoadability.xlsx" />
+    <Content Include="Excel_Templates\VolumeLoadability.xlsx" />
+    <Content Include="fonts\Agane55.eot" />
+    <Content Include="fonts\Agane55.ttf" />
+    <Content Include="fonts\Agane55.woff" />
+    <Content Include="fonts\Agane55.woff2" />
+    <Content Include="Excel_Templates\SaudaConditionalBookingConfiguration.xlsx" />
+    <Content Include="Excel_Templates\UserDivisionMapping.xlsx" />
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <None Include="Scripts\jquery-1.10.2.intellisense.js" />
+    <Content Include="Scripts\emamiCommon.js" />
+    <Content Include="Scripts\form.validation.js" />
+    <Content Include="Scripts\globalSettings.js" />
+    <None Include="Scripts\jquery-3.7.1.intellisense.js" />
+    <Content Include="Scripts\jquery-3.7.1.js" />
+    <Content Include="Scripts\jquery-3.7.1.min.js" />
+    <Content Include="Scripts\jquery-3.7.1.slim.js" />
+    <Content Include="Scripts\jquery-3.7.1.slim.min.js" />
+    <Content Include="Scripts\jquery-3.7.1.slim.min.map" />
+    <Content Include="Scripts\jquery-3.7.1.min.map" />
+    <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery-migrate-3.5.2.js" />
+    <Content Include="Scripts\jquery-migrate-3.5.2.min.js" />
+    <Content Include="Scripts\jquery.validate.js" />
+    <Content Include="Scripts\jquery.validate.min.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
+    <Content Include="Scripts\kendo\jszip.js" />
+    <Content Include="Scripts\kendo\kendo.all.min.js" />
+    <Content Include="Scripts\kendo\kendo.aspnetmvc.min.js" />
+    <Content Include="Scripts\menu.js" />
+    <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\moduleCommon.js" />
+    <Content Include="Scripts\respond.js" />
+    <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\saudaBookingConfig.js" />
+    <Content Include="Scripts\validate.min.js" />
+    <Content Include="StoredProcedures\Script_DistributorStockReportClaim.sql" />
+    <Content Include="StoredProcedures\BiddingWindowCautionNotification.sql" />
+    <Content Include="StoredProcedures\BiddingWindowCautionNotificationForCounterBidDetails.sql" />
+    <Content Include="StoredProcedures\BiddingWindowDashboard.sql" />
+    <Content Include="StoredProcedures\BiddingWindowDashBoardDetails.sql" />
+    <Content Include="StoredProcedures\BiddingWindowDashboardDetailsInGrid.sql" />
+    <Content Include="StoredProcedures\BiddingWindowDashboardOverAllReport.sql" />
+    <Content Include="StoredProcedures\BiddingWindowDashBoardReport.sql" />
+    <Content Include="StoredProcedures\BiddingWindowDashBoardVolumeCapacitiesChart.sql" />
+    <Content Include="StoredProcedures\BiddingWindowOilWiseStatusCount.sql" />
+    <Content Include="StoredProcedures\BiddingWindowStateWiseAcceptedDetails.sql" />
+    <Content Include="StoredProcedures\BiddingWindowStatusStateWiseCount.sql" />
+    <Content Include="StoredProcedures\BiddingWindowStatusWiseCount.sql" />
+    <Content Include="StoredProcedures\BiddingWindowWithOilTypes.sql" />
+    <Content Include="StoredProcedures\ExpriyDateNotification.sql" />
+    <Content Include="StoredProcedures\AdditionalCostExport.sql" />
+    <Content Include="StoredProcedures\Fn_Emami_GetPROO.sql" />
+    <Content Include="StoredProcedures\Fn_Tbl_Emami_GetOilTypePROO.sql" />
+    <Content Include="StoredProcedures\GetBiddingWindowTotalAndRemainingCapacities.sql" />
+    <Content Include="StoredProcedures\GetDealerExport.sql" />
+    <Content Include="StoredProcedures\GetFinalPriceDataExportForAllRecords.sql" />
+    <Content Include="StoredProcedures\GetInvoiceDataExport.sql" />
+    <Content Include="StoredProcedures\GetLiftingRequestDataExport.sql" />
+    <Content Include="StoredProcedures\GetNewSaudaReport.sql" />
+    <Content Include="StoredProcedures\GetQpsDiscountDetailForSku.sql" />
+    <Content Include="StoredProcedures\GetSaudaDataExport.sql" />
+    <Content Include="StoredProcedures\BackupAndCleanupPricings.sql" />
+    <Content Include="StoredProcedures\GetSaudaModificationReport.sql" />
+    <Content Include="StoredProcedures\GetTodayPricingsCountStateBased.js" />
+    <Content Include="StoredProcedures\GetWindowCautionNotificationDetails.sql" />
+    <Content Include="StoredProcedures\Get_NHSalesTargetChartsDealerWise.sql" />
+    <Content Include="StoredProcedures\GetSalesRegisterComparisionList.sql" />
+    <Content Include="StoredProcedures\GetFinalPriceDataExport.sql" />
+    <Content Include="StoredProcedures\GetReverseAuctionFinalPriceDatas.sql" />
+    <Content Include="StoredProcedures\GetVolumeCapacityDetails.sql" />
+    <Content Include="StoredProcedures\IsActiveStatusUpdate.sql" />
+    <Content Include="StoredProcedures\Notification.sql" />
+    <Content Include="StoredProcedures\RA2ZoneBasedDownload.sql" />
+    <Content Include="StoredProcedures\RABiddingWindowNotification.sql" />
+    <Content Include="StoredProcedures\RAMaterialCostExport.sql" />
+    <Content Include="StoredProcedures\SaudaOrderExport.sql" />
+    <Content Include="StoredProcedures\SetGeographyDiscount.sql" />
+    <Content Include="StoredProcedures\SetQpsDiscountUpload.sql" />
+    <Content Include="StoredProcedures\SetSku.sql" />
+    <Content Include="StoredProcedures\SetUserDiscount.sql" />
+    <Content Include="StoredProcedures\SetUserDivisionMapping.sql" />
+    <Content Include="StoredProcedures\SP_AddOpenCreditMasters.sql" />
+    <Content Include="StoredProcedures\SP_AddPendingContracts.sql" />
+    <Content Include="StoredProcedures\SP_CustomerLedgers.sql" />
+    <Content Include="StoredProcedures\SP_Emami_SKUWisePremiumAmountReport.sql" />
+    <Content Include="StoredProcedures\SP_KEINTO_CompetitorRateReport.sql" />
+    <Content Include="StoredProcedures\SP_KEINTO_PCPVsMTPDeviationReport.sql" />
+    <Content Include="StoredProcedures\SP_MTPVsDSRDeviationReport.sql" />
+    <Content Include="StoredProcedures\SP_OverDueNotification.sql" />
+    <Content Include="StoredProcedures\Sp_Report_SaudaExecutionAudit.sql" />
+    <Content Include="StoredProcedures\SP_Report_TargetVsAcheivement.sql" />
+    <Content Include="StoredProcedures\SP_SaudaExpiredNotification.sql" />
+    <Content Include="StoredProcedures\SetGstNew.sql" />
+    <Content Include="StoredProcedures\GetPendingContractComparisionList.sql" />
+    <Content Include="StoredProcedures\Get_NHSalesTargetChartsOilTypeWise.sql" />
+    <Content Include="StoredProcedures\GetSalesRegisterList.sql" />
+    <Content Include="StoredProcedures\ImportCMSUser.sql" />
+    <Content Include="StoredProcedures\OilTransferCostExport.sql" />
+    <Content Include="StoredProcedures\SetPricingsDataBackup.sql" />
+    <Content Include="StoredProcedures\SP_ Pricing and Location.sql" />
+    <Content Include="StoredProcedures\SP_All.sql" />
+    <Content Include="StoredProcedures\SP_Broker.sql" />
+    <Content Include="StoredProcedures\SP_Customer.sql" />
+    <Content Include="StoredProcedures\SP_Emami_DepotCostReport.sql" />
+    <Content Include="StoredProcedures\SP_Emami_DetentionCostReport.sql" />
+    <Content Include="StoredProcedures\SP_Emami_DSRReport.sql" />
+    <Content Include="StoredProcedures\Sp_Emami_IndentReport.sql" />
+    <Content Include="StoredProcedures\SP_Emami_PendingContractReport.sql" />
+    <Content Include="StoredProcedures\SP_Emami_PendingContracts.sql" />
+    <Content Include="StoredProcedures\SP_Emami_ProspectiveDealerReport.sql" />
+    <Content Include="StoredProcedures\Sp_Emami_ReportBusinessMargin.sql" />
+    <Content Include="StoredProcedures\Sp_Emami_ReportPlantwiseSauda.sql" />
+    <Content Include="StoredProcedures\Sp_Emami_ReportStateAndOilMargin.sql" />
+    <Content Include="StoredProcedures\SP_GetRaSaudaOrderReport.sql" />
+    <Content Include="StoredProcedures\SP_GetSurpriseBenefitAppliedCustomersWithSauda.sql" />
+    <Content Include="StoredProcedures\SP_Emami_WholeSellerVisitReport.sql" />
+    <Content Include="StoredProcedures\SP_ImportConfig.sql" />
+    <Content Include="StoredProcedures\SP_ImportForSaudaConversionUnitAndBaseRateDifference.sql" />
+    <Content Include="StoredProcedures\sp_MissingEntries.sql" />
+    <Content Include="StoredProcedures\SP_PricingExcelExport.sql" />
+    <Content Include="StoredProcedures\SP_Sku.sql" />
+    <Content Include="StoredProcedures\SP_UpdateDealerSaudaValidity.sql" />
+    <Content Include="StoredProcedures\SP_UserCustomerSalesTarget.sql" />
+    <Content Include="StoredProcedures\SP_UserCustomerSaudaTarget.sql" />
+    <Content Include="StoredProcedures\SP_UserOilTypeTarget.sql" />
+    <Content Include="StoredProcedures\SP_UserSalesSaudaTarget.sql" />
+    <Content Include="StoredProcedures\SP_WindowCompletedNotificationDetails.sql" />
+    <Content Include="StoredProcedures\TPStateBasedDownload.sql" />
+    <Content Include="StoredProcedures\Trigger_LiftingRequests_update.sql" />
+    <Content Include="StoredProcedures\Trigger_LiftingRequset_Insert.sql" />
+    <Content Include="StoredProcedures\Trigger_SaudaConversion_update.sql" />
+    <Content Include="StoredProcedures\Trigger_SaudaLimits_update.sql" />
+    <Content Include="StoredProcedures\Trigger_SaudaOrders_update.sql" />
+    <Content Include="StoredProcedures\Trigger_SpecialRates_update.sql" />
+    <Content Include="UploadMedias\emami.txt" />
+    <Content Include="UserTypeData\UDTT_CustomerLedgers.sql" />
+    <Content Include="UserTypeData\UDTT_OpenCreditMaster.sql" />
+    <Content Include="UserTypeData\UDTT_PendingContracts.sql" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Views\Web.config" />
+    <Content Include="Views\_ViewStart.cshtml" />
+    <Content Include="Views\Shared\Error.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Home\About.cshtml" />
+    <Content Include="Views\Home\Contact.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\User\Login.cshtml" />
+    <Content Include="Views\User\Footer.cshtml" />
+    <Content Include="Views\User\ForgotPassword.cshtml" />
+    <Content Include="Views\User\ForgotPasswordOtp.cshtml" />
+    <Content Include="Views\User\SuccessMessage.cshtml" />
+    <Content Include="Scripts\kendo\kendo.all.min.js.map" />
+    <Content Include="Scripts\kendo\kendo.aspnetmvc.min.js.map" />
+    <Content Include="Views\Shared\LogoView.cshtml" />
+    <Content Include="Views\Shared\_UserLayout.cshtml" />
+    <Content Include="Views\Lookup\Dashboard.cshtml" />
+    <Content Include="Views\Lookup\Master.cshtml" />
+    <Content Include="Views\Lookup\Broker.cshtml" />
+    <Content Include="Views\Lookup\BrokerList.cshtml" />
+    <Content Include="Views\Lookup\DealerList.cshtml" />
+    <Content Include="Views\Lookup\Dealer.cshtml" />
+    <Content Include="Views\Lookup\Retailer.cshtml" />
+    <Content Include="Views\Lookup\RetailerList.cshtml" />
+    <Content Include="Views\Lookup\UserList.cshtml" />
+    <Content Include="Views\Lookup\CreateUser.cshtml" />
+    <Content Include="Views\Lookup\DepotMaster.cshtml" />
+    <Content Include="Views\Lookup\DepotMasterList.cshtml" />
+    <Content Include="Views\Lookup\OilType.cshtml" />
+    <Content Include="Views\Lookup\PlantMaster.cshtml" />
+    <Content Include="Views\Lookup\PlantMasterList.cshtml" />
+    <Content Include="Views\Shared\_ValidFromToDate.cshtml" />
+    <Content Include="Views\Lookup\SkuList.cshtml" />
+    <Content Include="Views\Lookup\Sku.cshtml" />
+    <Content Include="Views\Role\Role.cshtml" />
+    <Content Include="Views\Role\RoleType.cshtml" />
+    <Content Include="Views\Role\UpdateRole.cshtml" />
+    <Content Include="Views\Role\UpdateRoleType.cshtml" />
+    <Content Include="Views\Lookup\Vertical.cshtml" />
+    <Content Include="Views\Lookup\ContractType.cshtml" />
+    <Content Include="Views\Lookup\DeliveryType.cshtml" />
+    <Content Include="Views\Pricing\RoleDiscount.cshtml" />
+    <Content Include="Views\Pricing\RoleDiscountList.cshtml" />
+    <Content Include="Views\Pricing\CustomerDiscount.cshtml" />
+    <Content Include="Views\Pricing\CustomerDiscountList.cshtml" />
+    <Content Include="Views\SalesTourPlan\PermanentJourneyPlan.cshtml" />
+    <Content Include="Views\SalesTourPlan\PermanentJourneyPlans.cshtml" />
+    <Content Include="Views\SalesTourPlan\MonthlyTourPlans.cshtml" />
+    <Content Include="Views\SalesTourPlan\MonthlyTourPlan.cshtml" />
+    <Content Include="Views\SalesTourPlan\FinancialYear.cshtml" />
+    <Content Include="Views\SalesTourPlan\FinancialYears.cshtml" />
+    <Content Include="Views\SalesTourPlan\Headquarter.cshtml" />
+    <Content Include="Views\SalesTourPlan\Headquarters.cshtml" />
+    <Content Include="Views\SalesTourPlan\Reason.cshtml" />
+    <Content Include="Views\SalesTourPlan\Reasons.cshtml" />
+    <Content Include="Views\SalesTourPlan\PendingPermanentJourneyPlans.cshtml" />
+    <Content Include="Views\SalesTourPlan\PendingMonthlyTourPlans.cshtml" />
+    <Content Include="Views\ReverseAuction\BiddingWindowTiming.cshtml" />
+    <Content Include="Views\ReverseAuction\BiddingWindowTimingList.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\IngredientNamePartial.cshtml" />
+    <Content Include="Views\ReverseAuction\BiddingWindow.cshtml" />
+    <Content Include="Views\Pricing\RoleDiscountsList.cshtml" />
+    <Content Include="Views\Pricing\RoleDiscounts.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\SkuDropDownPartial.cshtml" />
+    <Content Include="Views\Lookup\ZoneList.cshtml" />
+    <Content Include="Views\Lookup\Zone.cshtml" />
+    <Content Include="Views\Pricing\RequestDiscountList.cshtml" />
+    <Content Include="Views\Pricing\RequestDiscount.cshtml" />
+    <Content Include="Views\Pricing\ApproveDiscount.cshtml" />
+    <Content Include="Views\Lookup\AddDealerLocationPopup.cshtml" />
+    <Content Include="Views\Shared\_dealerBrokerPartial.cshtml" />
+    <Content Include="Views\Role\OrganizationHierarchy.cshtml" />
+    <Content Include="Views\Pricing\FinalPricing.cshtml" />
+    <Content Include="Views\Pricing\TraditionalFinalPricing.cshtml" />
+    <Content Include="Views\Pricing\ReverseAuactionFinalPricing.cshtml" />
+    <Content Include="Views\ReverseAuction\SaudaList.cshtml" />
+    <Content Include="Views\ReverseAuction\SaudhaDetails.cshtml" />
+    <Content Include="Views\ReverseAuction\LiftingList.cshtml" />
+    <Content Include="Views\ReverseAuction\LiftingDetails.cshtml" />
+    <Content Include="Views\ReverseAuction\TradeTicketDetails.cshtml" />
+    <Content Include="Views\Pricing\CustomerPremiumDiscountList.cshtml" />
+    <Content Include="Views\Pricing\CustomerPremiumDiscount.cshtml" />
+    <Content Include="Views\Role\HierarchyChart.cshtml" />
+    <Content Include="Views\Role\HierarchyChartPop.cshtml" />
+    <Content Include="Views\Lookup\DealerBrokerGridPartial.cshtml" />
+    <Content Include="Views\Lookup\DepotGridPartial.cshtml" />
+    <Content Include="Views\SalesTourPlan\MonthlyTourPlanDeviation.cshtml" />
+    <Content Include="Views\Lookup\RouteAreaMaster.cshtml" />
+    <Content Include="Views\Lookup\CompetitorMaster.cshtml" />
+    <Content Include="Views\SalesTourPlan\TodayActivities.cshtml" />
+    <Content Include="Views\SalesTourPlan\ActivityDetails.cshtml" />
+    <Content Include="Views\SalesTourPlan\MonthlyTourPlanDeviationApproval.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\MonthlyPlanDeviationApproveValues.cshtml" />
+    <Content Include="Views\ReverseAuction\AddOrUpdateTradeTciket.cshtml" />
+    <Content Include="Views\ReverseAuction\ComparativeAnalysis.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\XMarginCostEditorFor.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\OilTypePartial.cshtml" />
+    <Content Include="Views\ReverseAuction\AddTradeTicketDetail.cshtml" />
+    <Content Include="Views\ReverseAuction\TradeTicketList.cshtml" />
+    <Content Include="Views\Lookup\CompetitorList.cshtml" />
+    <Content Include="Views\Lookup\Competitor.cshtml" />
+    <Content Include="Views\Lookup\CompetitorSkuGridPartial.cshtml" />
+    <Content Include="Views\Lookup\Ingredient.cshtml" />
+    <Content Include="Views\ReverseAuction\SaudaMapping.cshtml" />
+    <Content Include="Views\Lookup\States.cshtml" />
+    <Content Include="Views\Lookup\State.cshtml" />
+    <Content Include="Views\Lookup\Districts.cshtml" />
+    <Content Include="Views\Lookup\District.cshtml" />
+    <Content Include="Views\Lookup\Cities.cshtml" />
+    <Content Include="Views\Lookup\City.cshtml" />
+    <Content Include="Views\SalesTourPlan\Target.cshtml" />
+    <Content Include="Views\SalesTourPlan\Targets.cshtml" />
+    <Content Include="Views\Lookup\SurpriseDiscount.cshtml" />
+    <Content Include="Views\Lookup\SurpriseDiscounts.cshtml" />
+    <Content Include="Views\Lookup\FreightZoneList.cshtml" />
+    <Content Include="Views\Lookup\FreightZone.cshtml" />
+    <Content Include="Views\Lookup\FreightRouteList.cshtml" />
+    <Content Include="Views\Lookup\FreightRoute.cshtml" />
+    <Content Include="Views\Role\RoleHierarchy.cshtml" />
+    <Content Include="Views\Lookup\Territories.cshtml" />
+    <Content Include="Views\Lookup\Territory.cshtml" />
+    <Content Include="Views\Lookup\DealerGridPartial.cshtml" />
+    <Content Include="Views\SalesTourPlan\UserSalesSaudaTarget.cshtml" />
+    <Content Include="Views\SalesTourPlan\UserSaleTargetDetail.cshtml" />
+    <Content Include="Views\SalesTourPlan\UserSalesSaudaTargets.cshtml" />
+    <Content Include="Views\ReverseAuction\TickerList.cshtml" />
+    <Content Include="Views\ReverseAuction\AddorUpdateTicker.cshtml" />
+    <Content Include="Views\Sauda\SaudaLimit.cshtml" />
+    <Content Include="Views\Sauda\SpecialRateApproval.cshtml" />
+    <Content Include="Views\Pricing\GeographyDiscount.cshtml" />
+    <Content Include="Views\Pricing\GeographyDiscountList.cshtml" />
+    <Content Include="Views\Pricing\DiscountUserList.cshtml" />
+    <Content Include="Views\Pricing\DiscountUser.cshtml" />
+    <Content Include="Views\Sauda\CompetitorAnalysisList.cshtml" />
+    <Content Include="Views\Sauda\SaveCompetitorAnalysis.cshtml" />
+    <Content Include="Views\Sauda\ApproveCompetitorAnalysis.cshtml" />
+    <Content Include="Views\Lookup\DistrictListPartial.cshtml" />
+    <Content Include="Views\Pricing\EmployeeUserDiscountList.cshtml" />
+    <Content Include="Views\Pricing\PriceNotifyConfiguration.cshtml" />
+    <Content Include="Views\Pricing\PriceNotifyConfigurationList.cshtml" />
+    <Content Include="Views\Pricing\EmployeeUserDiscount.cshtml" />
+    <Content Include="Views\Import\DataUpload.cshtml" />
+    <Content Include="Views\ReverseAuction\SaudhaBrokerApproval.cshtml" />
+    <Content Include="Views\Sauda\SaudaConversionList.cshtml" />
+    <Content Include="Views\Sauda\SaudaConversionDetail.cshtml" />
+    <Content Include="Views\Lookup\Configuration.cshtml" />
+    <Content Include="Views\Shared\_userSalesTargetPartial.cshtml" />
+    <Content Include="Views\Sauda\TraditionalProcessPricingList.cshtml" />
+    <Content Include="Views\Sauda\ReverseAuctionPricingList.cshtml" />
+    <Content Include="Views\Lookup\KeyPerformanceIndicatorList.cshtml" />
+    <Content Include="Views\Lookup\KeyPerformanceIndicator.cshtml" />
+    <Content Include="Views\SalesTourPlan\UserOiltypeTarget.cshtml" />
+    <Content Include="Views\SalesTourPlan\UserOiltypeTargetList.cshtml" />
+    <Content Include="Views\Shared\_userOilTypeTargetPartial.cshtml" />
+    <Content Include="Views\Shared\_userCustomerSaudaTargetPartial.cshtml" />
+    <Content Include="Views\Shared\_userCustomerSalesTargetPartial.cshtml" />
+    <Content Include="Views\SalesTourPlan\TodayActivity.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\ReasonPartial.cshtml" />
+    <Content Include="Views\SurveyUpdates\QuestionList.cshtml" />
+    <Content Include="Views\SurveyUpdates\Question.cshtml" />
+    <Content Include="Views\Sauda\SaudaExtensionList.cshtml" />
+    <Content Include="Views\Sauda\SaudaExtensionDetail.cshtml" />
+    <Content Include="Views\SurveyUpdates\QuestionSurvey.cshtml" />
+    <Content Include="Views\Sauda\SpecialRateApprovalList.cshtml" />
+    <Content Include="Views\SurveyUpdates\BulletinList.cshtml" />
+    <Content Include="Views\SurveyUpdates\Bulletin.cshtml" />
+    <Content Include="Views\SurveyUpdates\Feedback.cshtml" />
+    <Content Include="Views\Shared\_MailRedirectLayout.cshtml" />
+    <Content Include="Views\MailRedirect\ApproveSaudaCounterBid.cshtml" />
+    <Content Include="Views\Target\UserCustomerSalesTargetList.cshtml" />
+    <Content Include="Views\Target\UserAssignedSalesTargetList.cshtml" />
+    <Content Include="Views\Target\UserCustomerSalesTarget.cshtml" />
+    <Content Include="Views\Target\UserCustomerSaudaTargetList.cshtml" />
+    <Content Include="Views\Target\UserAssignedSaudaTargetList.cshtml" />
+    <Content Include="Views\Target\UpdateUserCustomerSalesTarget.cshtml" />
+    <Content Include="Views\Target\UserCustomerSaudaTarget.cshtml" />
+    <Content Include="Views\Target\UpdateUserCustomerSaudaTarget.cshtml" />
+    <Content Include="Views\Home\SyncSauda.cshtml" />
+    <Content Include="Views\SalesTourPlan\UserAttendence.cshtml" />
+    <Content Include="Views\SalesTourPlan\GetUserAttendence.cshtml" />
+    <Content Include="Views\Report\OilPriceReport.cshtml" />
+    <Content Include="Views\SalesTourPlan\CompetitorAttachments.cshtml" />
+    <Content Include="Views\Report\GetOilPriceReport.cshtml" />
+    <Content Include="Views\Report\CostChangeReport.cshtml" />
+    <Content Include="Views\Report\GetCostChangeReport.cshtml" />
+    <Content Include="Views\Pricing\SpecialityFatGeographyDiscountList.cshtml" />
+    <Content Include="Views\Pricing\SpecialityFatGeographyDiscount.cshtml" />
+    <Content Include="Views\Pricing\SpecialityFatDiscountUserList.cshtml" />
+    <Content Include="Views\Pricing\SpecialityFatDiscountUser.cshtml" />
+    <Content Include="Views\Pricing\SpecialityFatEmployeeDiscountList.cshtml" />
+    <Content Include="Views\Pricing\SpecialityFatEmployeeDiscount.cshtml" />
+    <Content Include="Views\Lookup\SubCategory.cshtml" />
+    <Content Include="Views\Lookup\SubCategoryList.cshtml" />
+    <Content Include="Views\Pricing\SpecalityFatQuantityRequestList.cshtml" />
+    <Content Include="Views\Pricing\AutoAllocation.cshtml" />
+    <Content Include="Views\Pricing\SpecialtyFatQuantityRequestStatus.cshtml" />
+    <Content Include="Views\Target\UserCustomerTarget.cshtml" />
+    <Content Include="Views\Target\UserCustomerTargetList.cshtml" />
+    <Content Include="Views\Target\UserAssignedTargetList.cshtml" />
+    <Content Include="Views\Shared\_userCustomerTargetPartial.cshtml" />
+    <Content Include="Views\Pricing\TraditionalProcessPublishedPrice.cshtml" />
+    <Content Include="Views\Pricing\ReverseAuctionPublishedPrice.cshtml" />
+    <Content Include="Views\Pricing\ReverseAuactionFinalPriceGenerate.cshtml" />
+    <Content Include="Views\Pricing\TraditionalProcessFinalPriceGenerate.cshtml" />
+    <Content Include="Views\Report\SaudaOrderReport.cshtml" />
+    <Content Include="Views\Report\DistributorStockReport.cshtml" />
+    <Content Include="Views\Lookup\RakeList.cshtml" />
+    <Content Include="Views\Lookup\Rake.cshtml" />
+    <Content Include="Views\Report\SaudaLimitReport.cshtml" />
+    <Content Include="Views\SalesTourPlan\SalesTourPlanPcpHistory.cshtml" />
+    <Content Include="Views\SalesTourPlan\SalesTourPlanMtpHistory.cshtml" />
+    <Content Include="Views\Lookup\DealersBasedOnStateGridPartial.cshtml" />
+    <Content Include="Views\Report\SalesReport.cshtml" />
+    <Content Include="Views\Report\SaudaReport.cshtml" />
+    <Content Include="Views\Report\MarginReport.cshtml" />
+    <Content Include="Views\Report\MaterialCostReport.cshtml" />
+    <Content Include="Views\Report\DepotCostReport.cshtml" />
+    <Content Include="Views\Report\DetentionCostReport.cshtml" />
+    <Content Include="Views\Pricing\TraditionalProcessPriceGenerate.cshtml" />
+    <Content Include="Views\Pricing\TraditionalProcessPublishedPriceDetails.cshtml" />
+    <Content Include="Views\Report\TargetVsAchievementReport.cshtml" />
+    <Content Include="Views\Report\PCPVsMTPDeviationReport.cshtml" />
+    <Content Include="Views\Report\MTPVsDSRDeviationReport.cshtml" />
+    <Content Include="Views\Report\IndentReport.cshtml" />
+    <Content Include="Views\Support\IssueRegister.cshtml" />
+    <Content Include="Views\Support\IssueList.cshtml" />
+    <Content Include="Views\Support\IssueDetails.cshtml" />
+    <Content Include="Views\ReverseAuction\SAPDataSync.cshtml" />
+    <Content Include="Views\Report\DailyStatusReport.cshtml" />
+    <Content Include="Views\Report\CompetitorSaleReport.cshtml" />
+    <Content Include="Views\Lookup\ShipToPartyList.cshtml" />
+    <Content Include="Views\Lookup\ShipToParty.cshtml" />
+    <Content Include="Views\Lookup\ShipToPartyGridPartial.cshtml" />
+    <Content Include="Views\Report\PriceReleaseAuditReport.cshtml" />
+    <Content Include="Views\Report\SaudaExecutionAuditReport.cshtml" />
+    <Content Include="Views\Lookup\ShipToPartyGridPartial.cshtml" />
+    <Content Include="Views\RAVersionTwo\_customerGroupDetailsPartial.cshtml" />
+    <Content Include="Views\RAVersionTwo\CustomerGroupList.cshtml" />
+    <Content Include="Views\RAVersionTwo\CustomerGroup.cshtml" />
+    <Content Include="Views\RAVersionTwo\UpdateCustomerGroup.cshtml" />
+    <Content Include="Views\ReverseAuction\BiddWindowList.cshtml" />
+    <Content Include="Views\ReverseAuction\BiddWindow.cshtml" />
+    <Content Include="Views\RAVersionTwo\VolumeDiscountUserList.cshtml" />
+    <Content Include="Views\RAVersionTwo\VolumeDiscountUser.cshtml" />
+    <Content Include="Views\RAVersionTwo\VolumeDiscountUserUpdate.cshtml" />
+    <Content Include="Views\RAVersionTwo\VolumeDiscountGeographyList.cshtml" />
+    <Content Include="Views\RAVersionTwo\VolumeDiscountGeography.cshtml" />
+    <Content Include="Views\RAVersionTwo\VolumeDiscountGeographyUpdate.cshtml" />
+    <Content Include="Views\RAVersionTwo\SchemeDiscountGeographyList.cshtml" />
+    <Content Include="Views\RAVersionTwo\SchemeDiscountGeography.cshtml" />
+    <Content Include="Views\RAVersionTwo\SchemeDiscountUserList.cshtml" />
+    <Content Include="Views\RAVersionTwo\SchemeDiscountUser.cshtml" />
+    <Content Include="Views\ReverseAuction\ConversionFormulaList.cshtml" />
+    <Content Include="Views\ReverseAuction\ConversionFormula.cshtml" />
+    <Content Include="Views\ReverseAuction\_ConversionFormulaDetail.cshtml" />
+    <Content Include="Views\RAVersionTwo\SkuDiscountUserList.cshtml" />
+    <Content Include="Views\RAVersionTwo\SkuDiscountUser.cshtml" />
+    <Content Include="Views\RAVersionTwo\SkuDiscountGeographyList.cshtml" />
+    <Content Include="Views\RAVersionTwo\SkuDiscountGeography.cshtml" />
+    <Content Include="Views\Pricing\ReverseAuctionPriceGenerate.cshtml" />
+    <Content Include="Views\Pricing\ReverseAuctionPublishedPriceDetails.cshtml" />
+    <Content Include="Views\RAVersionTwo\GST.cshtml" />
+    <Content Include="Views\RAVersionTwo\GSTList.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\DealerPartial.cshtml" />
+    <Content Include="Views\ReverseAuction\AddOrUpdateTradeTciketRA.cshtml" />
+    <Content Include="Views\ReverseAuction\TradeTicketListRA.cshtml" />
+    <Content Include="Views\Lookup\CustomerGroupOneList.cshtml" />
+    <Content Include="Views\Lookup\CustomerGroupOne.cshtml" />
+    <Content Include="Views\Lookup\CustomerGroupTwoList.cshtml" />
+    <Content Include="Views\Lookup\CustomerGroupTwo.cshtml" />
+    <Content Include="Views\Shared\RAmenus.cshtml" />
+    <Content Include="Views\Shared\CommonMenus.cshtml" />
+    <Content Include="Views\Shared\TPmenus.cshtml" />
+    <Content Include="Views\RAVersionTwo\CustomerGroupMappings.cshtml" />
+    <Content Include="Views\RAVersionTwo\CustomerGroupMappingList.cshtml" />
+    <Content Include="Views\Report\MonthlyTourPlan.cshtml" />
+    <Content Include="Views\Report\PermanentCoveragePlan.cshtml" />
+    <Content Include="Views\Lookup\VehicleLoadabilitiesList.cshtml" />
+    <Content Include="Views\Lookup\VehicleLoadabilities.cshtml" />
+    <Content Include="Views\Report\MonthlyReport.cshtml" />
+    <Content Include="Views\ReverseAuction\AddOrUpdateTradeTciketRA.cshtml" />
+    <Content Include="Views\ReverseAuction\TradeTicketListRA.cshtml" />
+    <Content Include="Views\Report\PendingContractReport.cshtml" />
+    <Content Include="Views\Lookup\Notification.cshtml" />
+    <Content Include="Views\Lookup\NotificationPopup.cshtml" />
+    <Content Include="Views\Lookup\NotificationList.cshtml" />
+    <Content Include="Views\Report\RaSaudaOrderReport.cshtml" />
+    <Content Include="Views\ReverseAuction\BiddingWindowDashBoardDetails.cshtml" />
+    <Content Include="Views\ReverseAuction\BiddingWindowDashboard.cshtml" />
+    <Content Include="Views\ReverseAuction\_BiddingWindowDashboardPartial.cshtml" />
+    <Content Include="Views\RAVersionTwo\_volumeDiscountDetail.cshtml" />
+    <Content Include="Views\RAVersionTwo\RA2Notification.cshtml" />
+    <Content Include="Views\RAVersionTwo\RA2NotificationList.cshtml" />
+    <Content Include="Views\RAVersionTwo\DiscountEditPartial.cshtml" />
+    <Content Include="Views\RAVersionTwo\GSTold.cshtml" />
+    <Content Include="StoredProcedures\approval_sp_run.bat" />
+    <Content Include="Views\Report\DSRReport.cshtml" />
+    <Content Include="Views\Report\PendingContracts.cshtml" />
+    <Content Include="Views\Report\SalesRegister.cshtml" />
+    <Content Include="Views\Report\PendingContractComparision.cshtml" />
+    <Content Include="Views\Lookup\SmsSend.cshtml" />
+    <Content Include="Views\Report\SalesRegisterComparison.cshtml" />
+    <Content Include="Views\Lookup\SaudaConversionType.cshtml" />
+    <Content Include="Views\Lookup\ExtensionPolicy.cshtml" />
+    <Content Include="Views\Lookup\SaudaConversionDetail.cshtml" />
+    <Content Include="Views\Lookup\SaudaConversionDetailView.cshtml" />
+    <Content Include="Views\Lookup\SaudaExtensionDetail.cshtml" />
+    <Content Include="Views\Sauda\SaudaConversionUnitAndBaseRate.cshtml" />
+    <Content Include="Views\Sauda\SaudaConversionAndBaseRateList.cshtml" />
+    <Content Include="Views\RAVersionTwo\SkuDiscountHistory.cshtml" />
+    <Content Include="Views\RAVersionTwo\SchemeDiscountHistory.cshtml" />
+    <Content Include="Views\RAVersionTwo\VolumeDiscountHistory.cshtml" />
+    <Content Include="Views\Lookup\DeleteListCreation.cshtml" />
+    <Content Include="Views\Report\SaudaConversionReport.cshtml" />
+    <Content Include="Views\Lookup\CMSUserList.cshtml" />
+    <Content Include="Views\Lookup\CreateCMSUser.cshtml" />
+    <Content Include="Views\Lookup\CreateSection.cshtml" />
+    <Content Include="Views\Lookup\CreateQuestion.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\ComplaintApproval.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\ComplaintStatusPartial.cshtml" />
+    <Content Include="Views\Lookup\CreateDemoScheduler.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\TextAreaPartial.cshtml" />
+    <Content Include="Views\Shared\_AttachmentDetailsPartial.cshtml" />
+    <Content Include="Views\Lookup\TabStripFormPartialView.cshtml" />
+    <Content Include="Views\Pricing\RAMaterialCostList.cshtml" />
+    <Content Include="Views\Pricing\RAMaterialCost.cshtml" />
+    <Content Include="Views\Lookup\SaudaValidityAndSaudaReportMailConfiguration.cshtml" />
+    <Content Include="Views\Report\NewSaudaReport.cshtml" />
+    <Content Include="Views\Report\CallRecordingReport.cshtml" />
+    <Content Include="Views\Report\SaudaCallRecordMappingReport.cshtml" />
+    <Content Include="Views\Shared\_CallRecordingAttachmentDetails.cshtml" />
+    <Content Include="Views\ReverseAuction\TradeTicketListLoose.cshtml" />
+    <Content Include="Views\ReverseAuction\AddOrUpdateTradeTciketLoose.cshtml" />
+    <Content Include="Views\Lookup\MaterialTypeList.cshtml" />
+    <Content Include="Views\Lookup\MaterialType.cshtml" />
+    <Content Include="Views\Report\CreditLimtReport.cshtml" />
+    <Content Include="Views\Lookup\VolumeLoadabilityList.cshtml" />
+    <Content Include="Views\Lookup\VolumeLoadability.cshtml" />
+    <Content Include="Views\Report\FillerSkuReport.cshtml" />
+    <Content Include="Views\Report\SKUPremiumAmountReport.cshtml" />
+    <Content Include="Views\Report\TruckPlacementTrackerReport.cshtml" />
+    <Content Include="Views\Report\DailyBookingReport.cshtml" />
+    <Content Include="Views\Report\SchemeGeographyReport.cshtml" />
+    <Content Include="Views\Lookup\OilTypeAddOrUpdate.cshtml" />
+    <Content Include="Views\Lookup\VerticalAddOrUpdate.cshtml" />
+    <Content Include="Views\Lookup\CustomerGroupFive.cshtml" />
+    <Content Include="Views\Lookup\CustomerGroupFiveList.cshtml" />
+    <Content Include="Views\Lookup\DistributionChannel.cshtml" />
+    <Content Include="Views\Lookup\DistributionChannelList.cshtml" />
+    <Content Include="Views\Lookup\SalesOrganization.cshtml" />
+    <Content Include="Views\Lookup\SalesOrganizationList.cshtml" />
+    <Content Include="Views\Report\DemandPlanBillingReport.cshtml" />
+    <Content Include="Views\Report\StockReport.cshtml" />
+    <Content Include="Views\Report\GPSTrackingReport.cshtml" />
+    <Content Include="Views\Report\SaudaAgingReport.cshtml" />
+    <Content Include="Views\Report\PendingContractTrigger.cshtml" />
+    <Content Include="Views\Pricing\TodayPricingDetails.cshtml" />
+    <Content Include="Views\Lookup\DateRangeAdd.cshtml" />
+    <Content Include="Views\Lookup\SaudaBookingConfiguration.cshtml" />
+    <Content Include="Views\Lookup\Line.cshtml" />
+    <Content Include="Views\Lookup\LineList.cshtml" />
+    <Content Include="Views\Vehicle\VehicleTrackingList.cshtml" />
+    <Content Include="Views\Vehicle\VehicleTrackingView.cshtml" />
+    <Content Include="Views\Vehicle\VehicleTrackViewData.cshtml" />
+    <Content Include="Views\Report\UserLoginHistory.cshtml" />
+    <Content Include="Views\QPSDiscount\QPSDiscountAddorUpdate.cshtml" />
+    <Content Include="Views\QPSDiscount\QPSDiscountList.cshtml" />
+    <Content Include="Views\Lookup\GamificationDashboard.cshtml" />
+    <Content Include="Views\Lookup\GamificationDashboardAddOrUpdate.cshtml" />
+    <Content Include="Views\Lookup\SectionList.cshtml" />
+    <Content Include="Views\Lookup\QuestionList.cshtml" />
+    <Content Include="Views\Lookup\DynamicForm.cshtml" />
+    <Content Include="Views\Lookup\DynamicFormList.cshtml" />
+    <Content Include="Views\Lookup\ViewSubmittedForms.cshtml" />
+    <Content Include="Views\Sauda\SaudaBookingConfigurationList.cshtml" />
+    <Content Include="Views\CrossAndUpsell\CrossAndUpsellList.cshtml" />
+    <Content Include="Views\CrossAndUpsell\AddCrossAndUpsell.cshtml" />
+    <Content Include="Views\Report\CrossAndUpsellSaudaOrderReport.cshtml" />
+    <Content Include="Views\Sauda\SaudaSalesAreaRestrictionList.cshtml" />
+    <Content Include="Views\Lookup\SaudaSalesAreaRestrictionConfiguration.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\UserDivisionPlantIds.cshtml" />
+    <Content Include="Views\Lookup\SaudaModificationList.cshtml" />
+    <Content Include="Views\Lookup\SaudhaModificationDetails.cshtml" />
+    <Content Include="Views\Report\SaudaModificationReport.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Views\Base\" />
+    <Folder Include="Views\QPSSchemeDiscount\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="fonts\glyphicons-halflings-regular.woff" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="fonts\glyphicons-halflings-regular.eot" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resource\Resources.en.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.en2.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Adani.Solution.DTO\Adani.Solution.DTO.csproj">
+      <Project>{D64CBBE6-FCD5-401A-B313-AC7ADCB00F03}</Project>
+      <Name>Adani.Solution.DTO</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
+    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>59592</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:60004/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.8\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.8\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.4.2.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.4.2.0\build\Microsoft.Net.Compilers.props'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target> -->
+</Project>

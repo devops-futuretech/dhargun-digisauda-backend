@@ -1,0 +1,216 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model Adani.Solution.DTO.OilTypeDto
+@{
+    ViewBag.Title = "OilTypeAddOrUpdate";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="masterOilType" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">Oil Type</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Masters</a><span class="icon-right"></span></li>
+        <li><a href="OilType">Oil Type List</a><span class="icon-right"></span></li>
+        <li class="active">Add Or Update Oil Type<span class="icon-right"></span></li>
+    </ol>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;" id="divLoader">
+            <div class="row" id="dvMaterialType">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("frmOilType", "Lookup", FormMethod.Post, new { id = "frmOilType", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(s => s.EncryptedId, new { id = "txtId" })
+
+                        <div class="row form-group">
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_SalesOrganization") <span class="text-danger">*</span></label>
+                                @(Html.Kendo().DropDownListFor(m => m.SalesOrganizationId)
+                    .Name("ddlSalesOrganization")
+                    .OptionLabel(@Helper.GetResourceString("plho-SelectSales"))
+                    .DataTextField("SalesOrganizationName")
+                    .Events(e => e.Select("onSaleChange"))
+                    .DataValueField("Id")
+                    .DataSource(source => source.Read(read => read.Action("GetSalesOrganizationddl", "Lookup"))
+                    ).HtmlAttributes(new { tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_SalesOrganization"), @style = "width:100%" })
+                )
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_DistributionChannel") <span class="text-danger">*</span></label>
+
+                                @(Html.Kendo().DropDownListFor(m => m.DistributionChannelId)
+                           .Name("ddlDistributionChannel")
+                          .OptionLabel(@Helper.GetResourceString("plho-SelectDistChannel"))
+                          .Events(events => events.Select("onDistributionChange").DataBound("OnDistributionDataBound"))
+                          .DataTextField("DistributionChannelName")
+                          .DataValueField("Id")
+                          .DataSource(source => source.Read(read => read.Action("GetDistributionChannelddl", "Lookup").Data("distParam"))
+                          .ServerFiltering(true))
+                          .HtmlAttributes(new { @class = "", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_DistributionChannel"), @style = "width:100%" }))
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_VerticleType") <span class="text-danger">*</span> </label>
+                                @(Html.Kendo().DropDownListFor(m => m.VerticalId)
+                           .Name("ddVerticalType")
+                          .OptionLabel(@Helper.GetResourceString("plho_SelectVertical"))
+                          .DataTextField("Name")
+                          .DataValueField("Id")
+                          .DataSource(source => source.Read(read => read.Action("GetVerticalDetailsdd", "Lookup").Data("verticalParam"))
+                          .ServerFiltering(true))
+                          .HtmlAttributes(new { @class = "", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_VerticleType"), @style = "width:100%" }))
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_Name") <span class="text-danger">*</span></label>
+                                @Html.TextBoxFor(m => m.Name, new { id = "txtName", tabindex = "4", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Name"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            @*<div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_Code") <span class="text-danger">*</span></label>
+                                @Html.TextBoxFor(m => m.Code, new { id = "txtCode", tabindex = "4", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Code"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>*@
+                            @*<div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_LitreConversion") <span class="text-danger">*</span></label>
+                                @Html.TextBoxFor(m => m.LitreConversion, new { id = "txtLitreConversion", tabindex = "5", @class = "form-control decimalValue", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_LitreConversion"), @maxlength = (int)InputMaxLength.Price })
+                            </div>*@
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">Status</label>
+                                <div class="custom_checkbox_main">
+                                    <label class="custom_checkbox">
+                                        @Html.CheckBoxFor(m => m.IsActive, new { id = "cbActiveInactive", tabindex = "7" })
+                                        <span class="checkmark check_tick"></span>
+                                        <span class="label-title"> @Helper.GetResourceString("lbl_ActiveInactive")</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-right buttons-align">
+
+                                <button type="button" tabindex="7" id="btnCancel" onclick="location.href = '@Url.Action("OilType", "Lookup")'" class="k-button k-cancel custom-btns">@Helper.GetResourceString("btn_Cancel")</button>
+                                <button type="button" tabindex="6" id="btnsave" class="k-primary k-button custom-btns">
+                                    @if (Model.Id > 0)
+                                    {@Helper.GetResourceString("btn_Update")}
+                                else
+                                { @Helper.GetResourceString("lbl_Save")}
+                                </button>
+
+
+                            </div>
+
+                        </div>
+
+                    }
+
+                </div>
+                    </div>
+        </div>
+        
+    </div>
+</div>
+<script>
+            $(document).ready(function () {
+
+
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        @*if (('@Model.Id' > 0)) {
+            /*$("#ddVerticalType").data("kendoDropDownList").readonly();*/
+            $("#txtCode").attr('disabled','true');
+        }*@
+
+        $("#btnsave").click(function () {
+            addOilTypetoDatabase();
+            //$('#frmMaterialType').submit();
+        });
+    });
+
+            function onSaleChange() {
+                $("#ddlDistributionChannel").data("kendoDropDownList").dataSource.read();
+            }
+            function onDistributionChange(e) {
+                $("#ddVerticalType").data("kendoDropDownList").dataSource.read();
+
+            }
+
+            function OnDistributionDataBound(e) {
+                var distId = $("#ddlDistributionChannel").data("kendoDropDownList").value();
+                if (distId > 0) {
+                    $("#ddVerticalType").data("kendoDropDownList").dataSource.read();
+                }
+            }
+
+            function verticalParam() {
+                var distId = $("#ddlDistributionChannel").data("kendoDropDownList").value();
+                return {
+                    distId: Number(distId)
+                };
+            }
+
+            function distParam() {
+                var saleId = $("#ddlSalesOrganization").data("kendoDropDownList").value();
+                return {
+                    saleId: Number(saleId)
+                };
+            }
+            function addOilTypetoDatabase() {
+                var isValidForm = $("#frmOilType").valid();
+                var token = '@Html.AntiForgeryToken()';
+                token = $(token).val();
+                if (isValidForm) {
+                    window.kendo.ui.progress($("#frmOilType"), true);
+                    var selectedType = $("#ddVerticalType").data("kendoDropDownList");
+                    var selectedsalesType = $("#ddlSalesOrganization").data("kendoDropDownList");
+                    var selectedDistType = $("#ddlDistributionChannel").data("kendoDropDownList");
+                    var data = {
+                        EncryptedId: $("#txtId").val(),
+                        Name: $("#txtName").val(),
+                        VerticalId: selectedType.value(),
+                        Code: "",
+                        VerticalName: selectedType.text(),
+                        SalesOrganizationId: selectedsalesType.value(),
+                        DistributionChannelId: selectedDistType.value(),
+                        LitreConversion: $("#txtLitreConversion").val(),
+                        IsActive: $("#cbActiveInactive").is(":checked"),
+                        //IsRasoi: $("#cbIsRasoi").is(":checked")
+                    };
+
+                    $.ajax({
+                        type: "Post",
+                        url: '@Url.Action("AddOrUpdateOilTypeDetails", "Lookup")',
+                        data: { __RequestVerificationToken: token, oilTypeDto: data },
+                        success: function (responce) {
+                            if ((responce) && (responce.PostStatus)) {
+                                var url = '@Url.Action("OilType", "Lookup")';
+					                window.location.href = url;
+                                ShowSuccessMessage(responce.PostMessage);
+                            } else {
+                                ShowErrorMessage(responce.PostMessage);
+                            }
+                            window.kendo.ui.progress($("#frmOilType"), false);
+                        }
+                    })
+                } else { return false; }
+            }
+
+
+</script>
+

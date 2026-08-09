@@ -1,0 +1,374 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@{
+    ViewBag.Title = "SpecialRateApproval";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="transactionSpecialRate" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_SpecialRate")</h2>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvSpecialRate">
+                <div class="row form-group">
+                    <div class="col-md-2 text-right control-label">
+                        @Helper.GetResourceString("lbl_FromDate")
+                    </div>
+                    <div class="col-md-3">
+                        @(Html.Kendo().DatePicker()
+                                              .Name("StartDate")
+                                              .Value(Settings.DefaultDashboardStartDate)
+                                              .Format(Settings.DateFormat)
+                                              .HtmlAttributes(new { id = "StartDate", onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                    </div>
+                    <div class="col-md-2 text-right control-label">
+                        @Helper.GetResourceString("lbl_ToDate")
+                    </div>
+                    <div class="col-md-3">
+                        @(Html.Kendo().DatePicker()
+                                              .Name("EndDate")
+                                              .Value(Settings.DefaultDashboardEndDate)
+                                              .Format(Settings.DateFormat)
+                                              .HtmlAttributes(new { id = "EndDate", onkeydown = "return isFocus(event);", tabindex = "2", style = "width: 100%" }))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-2 text-right control-label">
+                        @Helper.GetResourceString("lbl_Status")
+                    </div>
+                    <div class="col-md-3">
+                        @(Html.Kendo().DropDownList()
+                                              .Name("Status")
+                                              .OptionLabel("Select status")
+                                              .DataTextField("Name")
+                                              .DataValueField("Id")
+                                              .DataSource(source => source.Read(resd => resd.Action("GetSelectiveStatus", "Lookup"))
+                                              .ServerFiltering(false))
+                                              .HtmlAttributes(new { id = "ddlStatus", @class = "form-control", tabindex = "3", @style = "width:100%" }))
+                    </div>
+                    <div class="col-md-2 text-right">
+
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" tabindex = "4" id="btnGenerateSpecialRate" class="k-primary k-button">@Helper.GetResourceString("btn_Search") <i class="icon-arrow-right14 position-right"></i></button>
+                    </div>
+
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-12">
+                        <div class="text-right">
+                            @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                        </div>
+                        @(Html.Kendo().Grid<SpecialRateApprovalOutputDto>()
+                                                .Name("ViewSpecialRateRequest")
+                                                .Columns(columns =>
+                                                {
+                                                    columns.Template(c => c.StatusId)
+                                                                              .ClientTemplate("#if(StatusId == 1){#<div class='text-center'><input type='checkbox' class='chkbxApproveOrReject' value=#=Id# onclick=\"CheckedLimitRequest(this,'#=Id#');\" /></div>#}#")
+                                                                              .HeaderTemplate("<div class='text-center'><input type='checkbox' id='masterCBAllLimit' onclick=\"LimitSelectAll(this)\"/></div>").Width("40px");
+                                                    columns.Bound(c => c.Id).Visible(false);
+                                                    columns.Bound(c => c.OilTypeName).Title(@Helper.GetResourceString("lbl_OilTypeName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                    columns.Bound(c => c.SkuName).Title(@Helper.GetResourceString("lbl_SkuName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                    columns.Bound(c => c.FreightRoute).Title(@Helper.GetResourceString("lbl_OilTypeName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                    columns.Bound(c => c.IncoTerms).Title(@Helper.GetResourceString("lbl_FreightRoute")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                    columns.Bound(c => c.Quantity).Title("IncoTerms").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                    columns.Bound(c => c.FinalPrice).Title(@Helper.GetResourceString("lbl_FinalPrice") + " (Rs/Case)").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                    columns.Bound(c => c.SpecialPrice).Title(@Helper.GetResourceString("lbl_SpecialPrice") + " (Rs/Case)").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                    columns.Bound(c => c.DealerName).Title(@Helper.GetResourceString("lbl_DealerName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                    columns.Bound(c => c.Status).Title(@Helper.GetResourceString("lbl_Status")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                    columns.Bound(c => c.Remarks).Title(@Helper.GetResourceString("lbl_Remarks")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                    columns.Bound(c => c.CreatedBy).Title(@Helper.GetResourceString("lbl_CreatedBy")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+
+                                                })
+                                                .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                                .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                                .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                                .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                                .Selectable(selectable => selectable
+                                                .Mode(GridSelectionMode.Multiple)
+                                                .Type(GridSelectionType.Row))
+                                                .Scrollable(s => s.Enabled(true).Height("auto"))
+                                                .Events(events => events.Change("onSpecialRateRequestChange").DataBound("onSpecialRateRequestDataBound"))
+                                                .Reorderable(reorder => reorder.Columns(true))
+                                                .DataSource(dataSource => dataSource
+                                                .Ajax()
+                                                .Model(model => model.Id(m => m.Id))
+                                                .Events(events => events.Error("OnSpecialRateErrorHandling"))
+                                                .ServerOperation(true)
+                                                .Read(read => read.Action("GetSpecialRateApprovalListAsync", "Sauda").Data("AdditionalInfo"))))
+                    </div>
+                </div>
+
+                <div class="text-right marginT20">
+                    <button type="submit" tabindex = "5" id="btnApproveSpecialRate" class="k-primary k-button">@Helper.GetResourceString("btn_Approve") <i class="icon-arrow-right14 position-right"></i></button>
+                    <button type="submit" tabindex = "6" id="btnRejectSpecialRate" class="k-primary k-button">@Helper.GetResourceString("btn_Reject") <i class="icon-arrow-right14 position-right"></i></button>
+                </div>
+
+                <div id="addRemarkPopoup" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+                        <!-- Modal content-->
+
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close model-header-color" data-dismiss="modal">&times;</button>
+                                <h6 class="panel-title model-header-color"><span class="text-semibold">Remark</span></h6>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row form-group">
+                                    <div class="col-md-2 text-right">
+                                        @Helper.GetResourceString("lbl_Remark")
+                                    </div>
+                                    <div class="col-md-8">
+                                        @Html.TextArea("Remarks", null, new { @class = "form-control", @rows = 5, @cols = 80, id = "txtRemark", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Remark"), @maxlength = (int)InputMaxLength.String })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button id="btnSave" type="button" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Save")</button>
+                                <button id="btnDirtyCancel" type="button" onclick="popupClose();" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Cancel")</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var checkedLimitRequestIds = [];
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();
+
+         if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+
+        $("#btnApproveSpecialRate").click(function (e) {
+            if (checkedLimitRequestIds != '') {
+                ApproveSaudaRequestSpecialRate();
+            }
+            else {
+                ShowErrorMessage("Please select any record");
+            }
+         });
+        $("#btnRejectSpecialRate").click(function (e) {
+            if (checkedLimitRequestIds != '') {
+                RejectSaudaRequestSpecialRate();
+            }
+            else {
+                ShowErrorMessage("Please select any record");
+            }
+         });
+        $("#btnSave").click(function (e) {
+             SaveSaudaRequestSpecialRate();
+        });
+
+        $("#btnGenerateSpecialRate").on('click', function () {
+            onDateChange();
+        });
+
+    });
+
+    //Method to data bound event for dealer List
+    function onSpecialRateRequestDataBound(e) {
+        SetEmptyRow(e);
+        $("#masterCBAllLimit").prop('checked', false);
+        $('input:checkbox.' + 'chkbxApproveOrReject').each(function () {
+            if ($.inArray(this.value, checkedLimitRequestIds) > -1) {
+                this.checked = true;
+            }
+            else {
+                this.checked = false;
+            }
+        });
+        //checkAllMaster('masterCBAllLimit', 'chkbxApproveOrReject');
+    }
+
+
+    function LimitSelectAll(ele) {
+        onSelectAllClickEvent('chkbxApproveOrReject', 'masterCBAllLimit');
+        var masterCheckBox = $(ele).is(':checked');
+        $('input:checkbox.' + 'chkbxApproveOrReject').each(function () {
+            var rValue = this.value;
+            if (masterCheckBox) {
+                if ($.inArray(rValue, checkedLimitRequestIds) > -1) {
+
+                } else {
+                    checkedLimitRequestIds.push(rValue);
+                }
+            }
+            else {
+                if ($.inArray(rValue, checkedLimitRequestIds) > -1) {
+                    checkedLimitRequestIds = jQuery.grep(checkedLimitRequestIds, function (cVaule) {
+                        return cVaule != rValue;
+                    });
+                }
+            }
+        });
+    }
+
+    function onDateChange() {
+        var SpecialRateRequest = $("#ViewSpecialRateRequest").data("kendoGrid");
+        SpecialRateRequest.dataSource.read();
+        if (SpecialRateRequest.dataSource.page() != 1) {
+            $('#ViewSpecialRateRequest').data('kendoGrid').dataSource.page(1);
+        }
+    }
+
+    function AdditionalInfo()
+    {
+        var fromDate = new Date();
+        var toDate = new Date();
+        var departmentId = 0;
+
+        if ($("#StartDate").val().length > 0)
+            fromDate = $("#StartDate").val()
+
+        if ($("#EndDate").val().length > 0)
+            toDate = $("#EndDate").val()
+
+        return {
+            FromDate: fromDate,
+            ToDate: toDate,
+            StatusId: Number($("#ddlStatus").val())
+        }
+    }
+
+    function CheckedLimitRequest(ele, Id)
+    {
+        if ($(ele).is(':checked'))
+            checkedLimitRequestIds.push(Id);
+        else {
+            checkedLimitRequestIds = jQuery.grep(checkedLimitRequestIds, function (cVaule) {
+                return cVaule != Id;
+            });
+        }
+    }
+
+    function ApproveSaudaRequestSpecialRate() {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $.ajax({
+            url: '/Sauda/ApproveorRejectSpecialRate',
+            type: 'POST',
+            data: { checkedSpecialRateRequestIds: checkedLimitRequestIds.join(", "), status : '@((int)Status.Approved)' },
+            success: function (result) {
+                window.kendo.ui.progress($("#div_Progress"), false);
+
+                if (!result.PostStatus) {
+                    checkedLimitRequestIds=[];
+                    var SpecialRateRequest = $("#ViewSpecialRateRequest").data("kendoGrid");
+                    SpecialRateRequest.dataSource.read();
+                    $("#masterCBAllLimit").prop('checked', false);
+                    ShowErrorMessage(result.PostMessage);
+                    return false;
+                }
+                else {
+                    checkedLimitRequestIds = [];
+                    var SpecialRateRequest = $("#ViewSpecialRateRequest").data("kendoGrid");
+                    SpecialRateRequest.dataSource.read();
+                    $("#masterCBAllLimit").prop('checked', false);
+                    ShowSuccessMessage(result.PostMessage);
+                }
+            }
+        });
+    }
+
+    function onSpecialRateRequestChange(e) {
+        var selected = this.select()[0],
+            item = this.dataItem(selected);
+    }
+
+    function RejectSaudaRequestSpecialRate()
+    {
+        var remark = '';
+        if (checkedLimitRequestIds != '')
+        {
+            $('#addRemarkPopoup').modal('show');
+        }
+        else {
+            window.kendo.ui.progress($("#div_Progress"), true);
+            $.ajax({
+                url: '/Sauda/ApproveorRejectSpecialRate',
+                type: 'POST',
+                data: { checkedSpecialRateRequestIds: checkedLimitRequestIds.join(", "), status: '@((int)Status.Rejected)', remark: $('#txtRemark').val() },
+                success: function (result) {
+                    window.kendo.ui.progress($("#div_Progress"), false);
+
+                    if (!result.PostStatus) {
+                        checkedLimitRequestIds = [];
+                        var SpecialRateRequest = $("#ViewSpecialRateRequest").data("kendoGrid");
+                        SpecialRateRequest.dataSource.read();
+                        $("#masterCBAllLimit").prop('checked', false);
+                        ShowErrorMessage(result.PostMessage);
+                        return false;
+                    }
+                    else {
+                        checkedLimitRequestIds = [];
+                        var SpecialRateRequest = $("#ViewSpecialRateRequest").data("kendoGrid");
+                        SpecialRateRequest.dataSource.read();
+                        $("#masterCBAllLimit").prop('checked', false);
+                        ShowSuccessMessage(result.PostMessage);
+                    }
+                }
+            });
+        }
+    }
+
+    function SaveSaudaRequestSpecialRate()
+    {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $.ajax({
+            url: '/Sauda/ApproveorRejectSpecialRate',
+            type: 'POST',
+            data: { checkedSpecialRateRequestIds: checkedLimitRequestIds.join(", "), status: '@((int)Status.Rejected)', remark: $('#txtRemark').val()},
+            success: function (result) {
+                window.kendo.ui.progress($("#div_Progress"), false);
+
+                if (!result.PostStatus) {
+                    checkedLimitRequestIds = [];
+                    var SpecialRateRequest = $("#ViewSpecialRateRequest").data("kendoGrid");
+                    SpecialRateRequest.dataSource.read();
+                    $("#masterCBAllLimit").prop('checked', false);
+                    ShowErrorMessage(result.PostMessage);
+                    return false;
+                }
+                else {
+                    checkedLimitRequestIds = [];
+                    var SpecialRateRequest = $("#ViewSpecialRateRequest").data("kendoGrid");
+                    SpecialRateRequest.dataSource.read();
+                    $("#masterCBAllLimit").prop('checked', false);
+                    ShowSuccessMessage(result.PostMessage);
+                }
+            }
+        });
+    }
+
+
+    function OnSpecialRateErrorHandling(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            ShowErrorMessage(message);
+        }
+    }
+</script>
+

@@ -1,0 +1,224 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model Adani.Solution.DTO.GamificationDashboardDto
+@{
+    ViewBag.Title = "GamificationDashboardAddOrUpdate";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="ConfigurationGamificationDashboard" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">Gamification Dashboard</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Configurations</a><span class="icon-right"></span></li>
+        <li><a href="GamificationDashboard">Gamification Dashboard List</a><span class="icon-right"></span></li>
+        <li class="active">Add Or Update Gamification Dashboard<span class="icon-right"></span></li>
+    </ol>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;" id="divLoader">
+            <div class="row" id="dvMaterialType">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("frmGamificationDashboard", "Lookup", FormMethod.Post, new { id = "frmGamificationDashboard", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(s => s.Id, new { id = "txtId" })
+
+                        <div class="row form-group">
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> Distributor Name <span class="text-danger"></span></label>
+                                @Html.TextBoxFor(m => m.DistributorCode, new { id = "txtDistributorCode", tabindex = "4", @class = "form-control", @readonly = "readonly" })
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> Target (MT) <span class="text-danger"></span></label>
+                                @Html.TextBoxFor(m => m.DistributorTargetMT, new { id = "txtDistributorTargetMT", tabindex = "4", @class = "form-control", @readonly = "readonly" })
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> Achievement (MT) <span class="text-danger"></span></label>
+                                @Html.TextBoxFor(m => m.DistributorAchievementTillN1MT, new { id = "txtDistributorAchievementTillN1MT", tabindex = "4", @class = "form-control", @readonly = "readonly" })
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> Balance Target (MT) <span class="text-danger"></span></label>
+                                @Html.TextBoxFor(m => m.RemainingTargetToAchieveMT, new { id = "txtRemainingTargetToAchieveMT", tabindex = "4", @class = "form-control", @readonly = "readonly" })
+                            </div>
+
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> Points Earned <span class="text-danger"></span></label>
+                                @Html.TextBoxFor(m => m.EarnedPoints, new { id = "txtEarnedPoints", tabindex = "4", @class = "form-control", @readonly = "readonly" })
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> Current Slab <span class="text-danger"></span></label>
+                                @Html.TextBoxFor(m => m.CurrentSlab, new { id = "txtCurrentSlab", tabindex = "4", @class = "form-control", @readonly = "readonly" })
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> Next Slab <span class="text-danger"></span></label>
+                                @Html.TextBoxFor(m => m.NextHigherSlab, new { id = "txtNextHigherSlab", tabindex = "4", @class = "form-control", @readonly = "readonly" })
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> Balance Point for next slab <span class="text-danger"></span></label>
+                                @Html.TextBoxFor(m => m.PointsToBeEarnedToReachNextHigherSlab, new { id = "txtPointsToBeEarnedToReachNextHigherSlab", tabindex = "4", @class = "form-control", @readonly = "readonly" })
+                            </div>
+
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> Total Earning (Rs.) <span class="text-danger"></span></label>
+                                @Html.TextBoxFor(m => m.TotalEarningsInRs, new { id = "txtTotalEarningsInRs", tabindex = "4", @class = "form-control", @readonly = "readonly" })
+                            </div>
+                            @*<div class="col-lg-3 col-sm-6 mb-3">
+                    <label class="custom_label"> Message <span class="text-danger"></span></label>
+                    @Html.TextBoxFor(m => m.SpecialBonusMessage, new { id = "txtSpecialBonusMessage", tabindex = "4", @class = "form-control", @readonly = "readonly" })
+                </div>*@
+                            @*<div class="col-lg-3 col-sm-6 mb-3">
+                    <label class="custom_label"> Whole PointsStructure <span class="text-danger"></span></label>
+                    @Html.TextBoxFor(m => m.WholePointsStructure, new { id = "txtWholePointsStructure", tabindex = "4", @class = "form-control", @readonly = "readonly" })
+                </div>*@
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">Status</label>
+                                <div class="custom_checkbox_main">
+                                    <label class="custom_checkbox">
+                                        @Html.CheckBoxFor(m => m.IsActive, new { id = "cbActiveInactive", tabindex = "7" })
+                                        <span class="checkmark check_tick"></span>
+                                        <span class="label-title"> @Helper.GetResourceString("lbl_ActiveInactive")</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">Status</label>
+                                <div class="custom_checkbox_main">
+                                    <label class="custom_checkbox">
+                                        @Html.CheckBoxFor(m => m.IsDiamond, new { id = "cbActiveIndiamond", tabindex = "7" })
+                                        <span class="checkmark check_tick"></span>
+                                        <span class="label-title"> @Helper.GetResourceString("lbl_ActiveInDiamond")</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-sm-12 mb-3">
+                                <label class="custom_label">  Message <span class="text-danger"></span> </label>
+                                @Html.TextAreaFor(m => m.SpecialBonusMessage, new { @id = "txtSpecialBonusMessage", tabindex = "4", @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        
+                        <div class="row form-group">
+                            <div class="col-md-12 text-right buttons-align">
+
+                                <button type="button" tabindex="7" id="btnCancel" onclick="location.href = '@Url.Action("GamificationDashboard", "Lookup")'" class="k-button k-cancel custom-btns">@Helper.GetResourceString("btn_Cancel")</button>
+                                <button type="button" tabindex="6" id="btnsave" class="k-primary k-button custom-btns">
+                                    @if (Model.Id > 0)
+                                    {@Helper.GetResourceString("btn_Update")}
+                                else
+                                { @Helper.GetResourceString("lbl_Save")}
+                                </button>
+
+
+                            </div>
+
+                        </div>
+
+                    }
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+            $(document).ready(function () {
+                // Call the function on page load
+                window.onload = function () {
+                    formatNumber();
+                };
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+        if ('@Model.EncryptedId'!=null && '@Model.EncryptedId'!="")
+        {
+            $('#txtDistributorCode').attr('readonly', 'true');
+            $('#txtDistributorTargetMT').attr('readonly', 'true');
+            $('#txtDistributorAchievementTillN1MT').attr('readonly', 'true');
+            $('#txtRemainingTargetToAchieveMT').attr('readonly', 'true');
+            $('#txtEarnedPoints').attr('readonly', 'true');
+            $('#txtCurrentSlab').attr('readonly', 'true');
+            $('#txtNextHigherSlab').attr('readonly', 'true');
+            $('#txtPointsToBeEarnedToReachNextHigherSlab').attr('readonly', 'true');
+            $('#txtTotalEarningsInRs').attr('readonly', 'true');
+            $('#txtSpecialBonusMessage').attr('readonly', 'true');
+            //$('#txtWholePointsStructure').attr('readonly', 'true');
+        }
+        $("#btnsave").click(function () {
+            addGamificationDashboardtoDatabase();
+        });
+    });
+    function formatNumber() {
+        var fields = ['txtDistributorAchievementTillN1MT', 'txtDistributorTargetMT', 'txtRemainingTargetToAchieveMT'];
+
+        fields.forEach(function (fieldId) {
+            var input = document.getElementById(fieldId);
+            if (input) {
+                var value = parseFloat(input.value);
+                if (!isNaN(value)) {
+                    input.value = value.toFixed(3);
+                }
+            }
+        });
+    }
+
+    // Call the function on page load
+    window.onload = function () {
+        formatNumber();
+    };
+
+        
+    function addGamificationDashboardtoDatabase() {
+                var isValidForm = $("#frmGamificationDashboard").valid();
+                var token = '@Html.AntiForgeryToken()';
+                token = $(token).val();
+                if (isValidForm) {
+                    window.kendo.ui.progress($("#frmGamificationDashboard"), true);
+                    //var selectedType = $("#ddVerticalType").data("kendoDropDownList");
+                    //var selectedsalesType = $("#ddlSalesOrganization").data("kendoDropDownList");
+                    //var selectedDistType = $("#ddlDistributionChannel").data("kendoDropDownList");
+                    var data = {
+                        Id: $("#txtId").val(),
+                        IsActive: $("#cbActiveInactive").is(":checked"),
+                        IsDiamond: $("#cbActiveIndiamond").is(":checked"),
+                    };
+
+                    $.ajax({
+                        type: "Post",
+                        url: '@Url.Action("AddOrUpdateGamificationDashboardDetails", "Lookup")',
+                        data: { __RequestVerificationToken: token, gamificationDashboardDto: data },
+                        success: function (responce) {
+                            if ((responce) && (responce.PostStatus)) {
+                                var url = '@Url.Action("GamificationDashboard", "Lookup")';
+					                window.location.href = url;
+                                ShowSuccessMessage(responce.PostMessage);
+                            } else {
+                                ShowErrorMessage(responce.PostMessage);
+                            }
+                            window.kendo.ui.progress($("#frmGamificationDashboard"), false);
+                        }
+                    })
+                } else { return false; }
+            }
+
+
+</script>
+

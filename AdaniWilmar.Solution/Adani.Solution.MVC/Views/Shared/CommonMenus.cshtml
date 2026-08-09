@@ -1,0 +1,159 @@
+﻿
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.DTO.Enums;
+
+    <ul class="navigation navigation-main navigation-accordion">
+        <!-- Main -->
+        @if (true)
+        {
+            <li class="home"><a href="@Url.Action("Index", "Home")"><i class="icon-home"></i> <span>Home</span></a></li>
+
+            if (Helper.CheckClaims(Claims.ManageRoles))
+            {
+                <li id="role">
+                    <a href="#" data-toggle="collapse" class="collapsed"><i class="icon-organizations"></i> <span>Organizations</span><i class="icon-submenu lnr lnr-chevron-left"></i></a>
+                    <ul class="nav">
+                        <li class="roleType"><a href="@Url.Action("UpdateRoleType", "Role")"><span class="nav-label">@Helper.GetResourceString("lbl_RoleTypes")</span></a></li>
+                        <li class="role"><a href="@Url.Action("UpdateRole", "Role")"><span class="nav-label">@Helper.GetResourceString("lbl_EALRoles")</span></a></li>
+                        @*
+                        <li class="roleOrganizationHierarchy"><a href="@Url.Action("OrganizationHierarchy", "Role" )"><i class="icon-tree7"></i>@Helper.GetResourceString("lbl_OrganizationHierarchy")</a></li>*@
+                        <li class="roleRoleHierarchy"><a href="@Url.Action("RoleHierarchy", "Role")"><span class="nav-label">@Helper.GetResourceString("lbl_RoleHierarchy")</span></a></li>
+                    </ul>
+                </li>
+            }
+
+            if (Helper.CheckClaims(Claims.ManageUser) || Helper.CheckClaims(Claims.ViewUser) ||
+            Helper.CheckClaims(Claims.ManageDealer) || Helper.CheckClaims(Claims.ViewDealer) ||
+            Helper.CheckClaims(Claims.ManageBroker) || Helper.CheckClaims(Claims.ViewBroker))
+            {
+                <li id="manageuser">
+                    <a href="#" data-toggle="collapse" class="collapsed"><i class="icon-user_mang"></i> <span >Manage Users</span><i class="icon-submenu lnr lnr-chevron-left"></i></a>
+                    <ul class="nav">
+                        @if (Helper.CheckClaims(Claims.ManageUser) || Helper.CheckClaims(Claims.ViewUser))
+                        {
+                            <li class="manageuser"><a href="@Url.Action("UserList", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_Users")</span></a></li>
+                            @*<li class="manageusercomplaintssystem"><a href="@Url.Action("CMSUserList", "Lookup" )"><span>@Helper.GetResourceString("lbl_CMSUsers")</span></a></li>*@
+                        }
+                        @if (Helper.CheckClaims(Claims.ManageDealer) || Helper.CheckClaims(Claims.ViewDealer))
+                        {
+                            <li class="manageuserDealer"><a href="@Url.Action("DealerList", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_Dealer")</span></a></li>
+                        }
+                        @if (Helper.CheckClaims(Claims.ManageBroker) || Helper.CheckClaims(Claims.ViewBroker))
+                        {
+                            <li class="manageuserBroker"><a href="@Url.Action("BrokerList", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_Broker")</span></a></li>
+                        }
+                        @if (Helper.CheckClaims(Claims.ManageShipToParty) || Helper.CheckClaims(Claims.ViewShipToParty))
+                        {
+                            <li class="manageuserShipToParty"><a href="@Url.Action("ShipToPartyList", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_ShipToParty")</span></a></li>
+                        }
+                    </ul>
+                </li>
+            }
+
+            if (Helper.CheckClaims(Claims.ManageMaster) || Helper.CheckClaims(Claims.ViewMaster))
+            {
+                <li id="master">
+                    <a href="#" data-toggle="collapse" class="collapsed"><i class="icon-masters"></i> <span>Masters</span><i class="icon-submenu lnr lnr-chevron-left"></i></a>
+                    <ul class="nav">
+                        <li class="masterSaleOrganisation"><a href="@Url.Action("SalesOrganizationList", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_SalesOrganization")</span></a></li>
+                        <li class="masterDistributionChannel"><a href="@Url.Action("DistributionChannelList", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_DistributionChannel")</span></a></li>
+                        <li class="masterVertical"><a href="@Url.Action("Vertical", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_Division")</span></a></li>
+                        <li class="masterOilType"><a href="@Url.Action("OilType", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_OilType")</span></a></li>
+                        <li class="masterPlantMaster"><a href="@Url.Action("PlantMasterList", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_Plant")</span></a></li>
+                        @*<li class="masterDepotMaster"><a href="@Url.Action("DepotMasterList", "Lookup")"><span>@Helper.GetResourceString("lbl_Depot")</span></a></li>*@
+                        @*<li class="masterRake"><a href="@Url.Action("RakeList", "Lookup")"><span>@Helper.GetResourceString("lbl_Rake")</span></a></li>*@
+                        @*<li class="masterRetailer"><a href="@Url.Action("RetailerList", "Lookup")"><span>@Helper.GetResourceString("lbl_Retailer")</span></a></li>*@
+                        <li class="masterSku"><a href="@Url.Action("SkuList", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_Sku")</span></a></li>
+                        <li class="masterCompetitorMaster"><a href="@Url.Action("CompetitorList", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_Competitor")</span></a></li>
+                        <li class="masterZone"><a href="@Url.Action("ZoneList", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_Zone")</span></a></li>
+                        <li class="masterState"><a href="@Url.Action("States", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_State")</span></a></li>
+                        @*<li class="masterTerritories"><a href="@Url.Action("Territories", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_Territory")</span></a></li>*@
+                        <li class="masterdistrict"><a href="@Url.Action("Districts", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_District")</span></a></li>
+                        <li class="mastercity"><a href="@Url.Action("Cities", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_City")</span></a></li>
+                        @*<li class="masterHeadquarters"><a href="@Url.Action("Headquarters", "SalesTourPlan")"><span class="nav-label">@Helper.GetResourceString("msg_Headquarters")</span></a></li>*@
+                        @*<li class="masterFreightZone"><a href="@Url.Action("FreightZoneList", "Lookup")"><i class="icon-steam2"></i> @Helper.GetResourceString("lbl_FreightZone")</a></li>
+        <li class="masterFreightRoute"><a href="@Url.Action("FreightRouteList", "Lookup")"><i class="icon-shuffle"></i> @Helper.GetResourceString("lbl_FreightRoute")</a></li>*@
+                        @*<li class="masterSubCategory"><a href="@Url.Action("SubCategoryList", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_SubCategory")</span></a></li>*@
+                        @*<li class="masterFreightRoute"><a href="@Url.Action("CustomerGroupOneList", "Lookup")"><i class="icon-shuffle"></i> Customer Group One</a></li>
+        <li class="masterSubCategory"><a href="@Url.Action("CustomerGroupTwoList", "Lookup")"><i class="icon-tree7"></i> Customer Group Two</a></li>*@
+                        <li class="masterCustomerGroupFive"><a href="@Url.Action("CustomerGroupFiveList", "Lookup")"><span class="nav-label">Customer Group Five</span></a></li>
+                        @*<li class="masterVehicleLoadabilities"><a href="@Url.Action("VehicleLoadabilitiesList", "Lookup" )"><i class="icon-tree7"></i><span class="nav-label">@Helper.GetResourceString("lbl_ExtensionPolicy")</span> @Helper.GetResourceString("lbl_VehicleLoadabilities")</a></li>*@
+                        @*<li class="mastersaudaextensiontype"><a href="@Url.Action("SaudaConversionType", "Lookup")"><span>@Helper.GetResourceString("lbl_SaudaConversionType")</span></a></li>*@
+                        <li class="mastersaudaextensionpolicy"><a href="@Url.Action("ExtensionPolicy", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_ExtensionPolicy")</span></a></li>
+                        <li class="masterdeletelistcreation"><a href="@Url.Action("DeleteListCreation", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_DeleteListCreation")</span></a></li>
+                        <li class="masterSendSMS"><a href="@Url.Action("SmsSend", "Lookup")"><span class="nav-label">Send Notification</span></a></li>
+                        @*<li class="masterMaterialType"><a href="@Url.Action("MaterialTypeList", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_MaterialType")</span></a></li>*@
+                        @*<li class="masterVolumeLoadability"><a href="@Url.Action("VolumeLoadabilityList", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_VolumeLoadability")</span></a></li>*@
+                        <li class="masterDateRange"><a href="@Url.Action("DateRangeAdd", "Lookup")"><span class="nav-label">Date Range</span></a></li>
+                        <li class="masterLine"><a href="@Url.Action("LineList", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_Line")</span></a></li>
+                    </ul>
+                </li>
+            }
+
+            if (Helper.CheckClaims(Claims.ManageTradeTicket) || Helper.CheckClaims(Claims.ViewTradeTicket) || Helper.CheckClaims(Claims.ManageSauda) || Helper.CheckClaims(Claims.ManageLiftingList)
+                    || Helper.CheckClaims(Claims.ManageSaudaLimit) || Helper.CheckClaims(Claims.ViewSpecialRate) 
+                    || Helper.CheckClaims(Claims.ViewSaudaConversion) || Helper.CheckClaims(Claims.ViewSaudaExtension) )
+            {
+                <li id="transaction">
+                    <a href="#" data-toggle="collapse" class="collapsed"><i class="icon-transactions"></i> <span >Transaction</span><i class="icon-submenu lnr lnr-chevron-left"></i></a>
+                    <ul class="nav">
+                        @if (Helper.CheckClaims(Claims.ManageSauda))
+                        {
+                            <li id="SaudaList" class="transactionSaudaList"><a href="@Url.Action("SaudaList", "ReverseAuction")"><span class="nav-label">Contract List</span></a></li>
+                        }
+                        @if (Helper.CheckClaims(Claims.ManageLiftingList))
+                        {
+                            <li id="LiftingList" class="transactionLiftingList"><a href="@Url.Action("LiftingList", "ReverseAuction")"><span class="nav-label">@Helper.GetResourceString("lbl_IndentList")</span></a></li>
+                        }
+                        @if (Helper.CheckClaims(Claims.ManageSaudaLimit))
+                        {
+                            <li class="transactionsaudaLimit"><a href="@Url.Action("SaudaLimit", "Sauda")"><span class="nav-label">Contract Limit</span></a></li>
+                        }
+
+                        @if (Helper.CheckClaims(Claims.PendingContracts))
+                        {
+                            <li class="transactionPendingContractTrigger"><a href="@Url.Action("PendingContractTrigger", "Report")"> <span class="nav-label">@Helper.GetResourceString("lbl_PendingContractTrigger") </span> </a></li>
+                        }
+                        @if (Helper.CheckClaims(Claims.PendingContracts))
+                        {
+                            <li class="transactionSAPPendingContracts"><a href="@Url.Action("PendingContracts", "Report")"><span class="nav-label">@Helper.GetResourceString("lbl_PendingContracts")</span></a></li>
+
+                        }
+                        @if (Helper.CheckClaims(Claims.SalesRegister))
+                        {
+                            <li class="transactionSalesRegister"><a href="@Url.Action("SalesRegister", "Report")"><span class="nav-label">@Helper.GetResourceString("lbl_SalesRegister")</span></a></li>
+
+                        }
+                        @if (Helper.CheckClaims(Claims.CreditLimitReport))
+                        {
+                            <li class="transactioncreditLimitReport"><a href="@Url.Action("CreditLimtReport", "Report")"><span class="nav-label">Credit Limit</span></a></li>
+                        }
+                        @*@if (Helper.CheckClaims(Claims.ViewSpecialRate))
+        {
+            <li class="transactionSpecialRate"><a href="@Url.Action("SpecialRateApprovalList", "Sauda")"><span class="nav-label">@Helper.GetResourceString("lbl_SpecialRateApproval")</span></a></li>
+        }*@
+
+                        @*@if (Helper.CheckClaims(Claims.ViewSaudaExtension))
+        {
+            <li id="SaudaList" class="transactionSaudaExtension"><a href="@Url.Action("SaudaExtensionDetail", "Lookup")"><span>@Helper.GetResourceString("lbl_SaudaExtension")</span></a></li>
+        }*@
+                        @if (Helper.CheckClaims(Claims.ViewPriceDiscovery))
+                        {
+                            <li class="transactionCompetitorAnalysis"><a href="@Url.Action("CompetitorAnalysisList", "Sauda")"><span class="nav-label">@Helper.GetResourceString("lbl_CompetitorAnalysis")</span></a></li>
+                        }
+
+                        @if (Helper.CheckClaims(Claims.ViewSaudaConversion))
+                        {
+                            <li class="transactionsaudaconversiondetail"><a href="@Url.Action("SaudaModificationList", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_SaudaModification")</span></a></li>
+                        }
+
+                        @if (Helper.CheckClaims(Claims.ManageSauda))
+                        {
+                            <li id="vehicletrackinglist" class="transactionvehicletrackinglist"><a href="@Url.Action("VehicleTrackingList", "Vehicle")"><span class="nav-label">Track your Truck</span></a></li>
+                        }
+
+                    </ul>
+                </li>
+            }
+        }
+    </ul>

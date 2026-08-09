@@ -1,0 +1,154 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model Adani.Solution.DTO.CustomerGroupMappingDto
+
+@{
+    ViewBag.Title = "CustomerGroupMappings";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="ra2CustomerGroupMappings" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_CustomerGroupMappings")</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="divLoader">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("AddOrUpdateCustomerGroupMappings", "RAVersionTwo", FormMethod.Post, new { id = "frmCustomerGroupMapping", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        @Html.HiddenFor(m => m.Id, new { id = "hdnId" })
+                      
+                        <div class="row form-group">
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_CustomerGroup") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-4">
+                                    @(Html.Kendo().DropDownListFor(m => m.CustomerGroupId)
+                                          .OptionLabel(@Helper.GetResourceString("plho_SelectCustomerGroup"))
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .Events(e => e.Change("onCustomerGroupChange"))
+                                          .DataSource(source => source.Read(read => read.Action("GetCustomerGroupListNotMappedInCustomerGroupMappings", "RAVersionTwo").Data("additionalParams"))
+                                          .ServerFiltering(true))
+                                          .HtmlAttributes(new { id = "ddlCustomerGroup", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_CustomerGroup"), @style = "width:100%" }))
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_DerivedCustomerGroup") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-4">
+                                    @(Html.Kendo().MultiSelectFor(m => m.derivedCustomerGroupId)
+                                          .Placeholder(@Helper.GetResourceString("plho_SelectDerivedCustomerGroup"))
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .AutoClose(false)
+                                          .TagMode(TagMode.Single)
+                                          .Events(e => e.Change("onDerivedCustomerGroupChange").DataBound("onDerivedCustomerGroupDataBound"))
+                                          .DataSource(source => source.Read(read => read.Action("GetDerivedCustomerGroupListNotMappedToCustomerGroupMappings", "RAVersionTwo").Data("additionalParams"))
+                                          .ServerFiltering(false))
+                                          .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='derivedCustomerGroupSelectAll'> Select All</label>")
+                                          .HtmlAttributes(new { id = "ddlDerivedCustomerGroup", tabindex = "2", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_DerivedCustomerGroup"), @style = "width:100%" }))
+                                </div>
+
+
+                            </div>
+
+
+
+
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+                                <button type="button" tabindex="8" id="btnCancel" onclick="location.href = '@Url.Action("CustomerGroupMappingList", "RAVersionTwo")'" class="k-button">@Helper.GetResourceString("btn_Cancel")</button>
+                                @if (Helper.CheckClaims(Claims.ManageRAMasters))
+                                {
+                                    <button type="button" tabindex="9" id="btnSave" class="k-primary k-button">@(Model != null && Model.CustomerGroupId == 0 ? @Helper.GetResourceString("btn_Save") : @Helper.GetResourceString("btn_Update"))<i class="icon-arrow-right14 position-right"></i></button>
+                                }
+                                </div>
+                        </div>
+                    }
+                    <!---end of form input-->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<script>
+   
+    $(document).ready(function () {
+       
+
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        if ('@Model.CustomerGroupId' > 0) {
+            $("#ddlCustomerGroup").data("kendoDropDownList").readonly(true);
+        }
+
+        $('#btnSave').on('click', function (e) {
+            $('#frmCustomerGroupMapping').submit();
+        });
+      
+
+        $("#derivedCustomerGroupSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlDerivedCustomerGroup", "derivedCustomerGroupSelectAll");
+        });
+
+    });
+
+
+   
+   
+    function additionalParams() {
+        
+        return {
+            
+            CustomerGroupId : $("#ddlCustomerGroup").val()
+        };
+    }
+
+    function onCustomerGroupChange() {
+       $("#ddlDerivedCustomerGroup").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function onDerivedCustomerGroupChange() {
+        MultiSelectEvents("ddlDerivedCustomerGroup", "derivedCustomerGroupSelectAll");
+    }
+
+    function onDerivedCustomerGroupDataBound() {
+        MultiSelectEvents("ddlDerivedCustomerGroup", "derivedCustomerGroupSelectAll");
+    }
+
+    
+
+   
+
+    
+
+   
+</script>
+
+
+

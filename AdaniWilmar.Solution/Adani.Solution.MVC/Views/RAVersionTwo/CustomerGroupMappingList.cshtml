@@ -1,0 +1,114 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+
+@{
+    ViewBag.Title = "CustomerGroupMappingsList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="ra2CustomerGroupMappings" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_CustomerGroupMappingList")</h2>
+    <div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            @if (Helper.CheckClaims(Claims.ManageRAMasters))
+            {
+                <a href="@Url.Action("CustomerGroupMappingsEditRedirect", "RAVersionTwo")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateCustomerGroupMapping")</a>
+            }
+            </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvDealers">
+                <div class="text-right">
+                    
+                    @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                </div>
+                @(Html.Kendo().Grid<Adani.Solution.DTO.CustomerGroupMappingDto>()
+                      .Name("ViewCustomerGroupMapping")
+                      .Columns(columns =>
+                      {
+                          columns.Bound(c => c.Id).Visible(false);
+                          columns.Bound(c => c.CustomerGroupId).Visible(false);
+                          columns.Bound(c => c.CustomerGroupName).Title(@Helper.GetResourceString("lbl_CustomerGroup")).ClientTemplate(@" <div> <a style='text-decoration: underline;' href='" + Url.Action("CustomerGroupMappingsEditRedirect", "RAVersionTwo", new { CustomerGroupMappingId = "#=CustomerGroupId#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=CustomerGroupName#</a> </div> ").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                         
+                      })
+                      .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                      .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                      .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                      .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                      .Scrollable(s => s.Enabled(true).Height("auto"))
+                      .Reorderable(reorder => reorder.Columns(true))
+                      .Resizable(resize => resize.Columns(true))
+                      .ClientDetailTemplateId("template")
+                      
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                     
+                      .ServerOperation(true)
+                      .Read(read => read.Action("GetCustomerGroupMappingListAsync", "RAVersionTwo"))))
+
+                <script id="template" type="text/kendo-tmpl">
+                    @(Html.Kendo().Grid<CustomerGroupMappingGridDto>()
+                          .Name("grid_#=CustomerGroupId#")
+                          .Columns(columns =>
+                          {
+                             
+                              columns.Bound(c => c.DerivedCustomerGroupName).Title(@Helper.GetResourceString("lbl_DerivedCustomerGroup")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                          })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Selectable(selectable => selectable
+                          .Type(GridSelectionType.Row))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .Resizable(resize => resize.Columns(true))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .PageSize(Settings.DefaultPageSize)
+                          .Read(read => read.Action("GetCustomerGroupMappingListDetailsById", "RAVersionTwo", new { CustomerGroupMappingId = "#=CustomerGroupId#" }))
+                          ).ToClientTemplate())
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();
+
+        if ('@TempData["SuccessMessage"]'.length) {
+            ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+    });
+
+    function dataBound(e) {
+        SetEmptyRow(e);
+        //this.expandRow(this.tbody.find("tr.k-master-row").first());   //expand first row
+    }
+
+</script>
+
+
+
+
+
+
+
+
+
+
+

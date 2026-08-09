@@ -1,0 +1,501 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@model LoginUserIdDto
+@{
+    ViewBag.Title = "GeographyDiscountList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="tpdiscountGeography" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_GeographyDiscounts")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#"> Discounts</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_GeographyDiscounts")<span class="icon-right"></span></li>
+    </ol>
+    @*<div id="dateFilter" class="col-xs-9">
+            <div class="period-wrapper">
+                @if (Helper.CheckClaims(Claims.ManageGeographyDiscount))
+                {
+                    <a href="@Url.Action("GeographyDiscountEdit", "Pricing")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_AddGeographyDiscounts")</a>
+                }
+            </div>
+        </div>*@
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class=" col-md-12">
+                <div class="panel-group filter-accordion" id="accordion">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" class="accord" data-parent="#accordion" href="#collapseOne" aria-expanded="false">Filters</a>
+                            </h4>
+                        </div>
+                        <div id="collapseOne" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="panel-body">
+                                        <div class="row" id="dvSecondaryFreights">
+                                            <div class="row form-group">
+                                                <div class="col-lg-4 col-sm-4 mb-4 mt-4">
+                                                    <label class="custom_label">
+                                                        Date
+                                                    </label>
+                                                    @(Html.Kendo().DatePickerFor(m => m.Date)
+                                                        .Value(DateTime.Now)
+                                                        .Format(Settings.DateFormat)
+                                                        //.Events(e => e.Change("fromChange"))
+                                                        .HtmlAttributes(new { id = "StartDate", onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                                                </div>
+                                                <div class="col-lg-4 col-sm-4 mb-4 mt-4">
+                                                    <label class="custom_label">  @Helper.GetResourceString("lbl_Zone") </label>
+                                                    @(Html.Kendo().MultiSelect().Name("ZoneId")
+                                                        .Events(events => events.Change("onZoneChange").DataBound("onZoneDataBound"))
+                                                        .Placeholder("Select Zone")
+                                                        .DataTextField("Name")
+                                                        .DataValueField("Id")
+                                                        .AutoClose(false)
+                                                        .TagMode(TagMode.Single)
+                                                        .DataSource(source => source.Read(read => read.Action("GetZoneListddl", "Lookup", new { isToReturnInactiveData = false }))
+                                                        .ServerFiltering(false))
+                                                        .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='zoneSelectAll'> Select All</label>")
+                                                        .HtmlAttributes(new { id = "ddlZone", @class = "", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Zone"), @style = "width:100%" }))
+                                                </div>
+                                                <div class="col-lg-4 col-sm-4 mb-4 mt-4">
+                                                    <label class="custom_label"> @Helper.GetResourceString("lbl_State") <span class="text-danger">*</span> </label>
+                                                    @(Html.Kendo().MultiSelect().Name("StateId")
+                                                        .Events(events => events.Change("onStateChange").DataBound("onStateDataBound"))
+                                                        .Placeholder("Select State")
+                                                        .DataTextField("Name")
+                                                        .DataValueField("Id")
+                                                        .AutoClose(false)
+                                                        .AutoBind(false)
+                                                        .TagMode(TagMode.Single)
+                                                        .DataSource(source => source.Read(read => read.Action("GetStatesBasedOnZoneIds", "Lookup").Data("stateLoadParam"))
+                                                        .ServerFiltering(false))
+                                                        .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='stateSelectAll'> Select All</label>")
+                                                        .HtmlAttributes(new { id = "ddlState", @class = "", tabindex = "4", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_State"), @style = "width:100%" }))
+                                                </div>
+                                               
+                                            </div>
+
+                                            <div class="row form-group">
+                                                <div class="col-lg-4 col-sm-4 mb-4 mt-4">
+                                                    <label class="custom_label">   @Helper.GetResourceString("lbl_District") </label>
+                                                    @(Html.Kendo().MultiSelect().Name("DistrictId")
+                                                     .Events(e => e.Change("onDistrictChange").DataBound("OnDistrictDataBound"))
+                                                     .Placeholder(@Helper.GetResourceString("plho_SelectDistrict"))
+                                                     .DataTextField("Name")
+                                                     .DataValueField("Id")
+                                                     .AutoClose(false)
+                                                     .AutoBind(false)
+                                                     .TagMode(TagMode.Single)
+                                                     .DataSource(source => source.Read(resd => resd.Action("GerDistrictBasedOnTerritory", "Lookup").Data("additionalDistrictByTerritoryInfo"))
+                                                     .ServerFiltering(false))
+                                                     .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='districtSelectAll'> Select All</label>")
+                                                     .HtmlAttributes(new { id = "ddlDistrict", @class = "", tabindex = "11", @style = "width:100%" }))
+                                                </div>
+                                                <div class="col-lg-4 col-sm-4 mb-4 mt-4">
+                                                    <label class="custom_label">  @Helper.GetResourceString("lbl_City") </label>
+                                                    @(Html.Kendo().MultiSelect()
+                                                        .Name("CityId")
+                                                        .Placeholder(@Helper.GetResourceString("plho_SelectCity"))
+                                                        .DataTextField("Name")
+                                                        .DataValueField("Id")
+                                                        .AutoClose(false)
+                                                        .AutoBind(false)
+                                                        .TagMode(TagMode.Single)
+                                                        .Events(e => e.Change("onCityChange").DataBound("onCityDataBound"))
+                                                        .DataSource(source =>
+                                                        {
+                                                            source.Custom()
+                                                                .ServerFiltering(true)
+                                                                .ServerPaging(true)
+                                                                .PageSize(80)
+                                                                .Type("aspnetmvc-ajax")
+                                                                .Transport(t => t
+                                                                    .Read(r => r
+                                                                        .Action("GetCityListBasedOnDistrict", "Lookup")
+                                                                        .Data("additionalCityByDistrictInfo")
+                                                                    )
+                                                                )
+                                                                .Schema(schema =>
+                                                                {
+                                                                    schema.Data("Data").Total("Total");
+                                                                });
+                                                        })
+                                                        .Virtual(v => v.ItemHeight(26).ValueMapper("cityValueMapper"))
+                                                        //.HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='citySelectAll'> Select All</label>")
+                                                        .HtmlAttributes(new { id = "ddlCity", tabindex = "12", @class = "form-control", @style = "width:100%" })
+                                                    )
+                                                </div>
+
+                                                <div class="col-lg-2 col-sm-4 mb-2" style="margin-left: 0px">
+                                                    <label class="custom_label">Status</label>
+                                                    <div class="custom_checkbox_main">
+                                                        <label class="custom_checkbox">
+                                                            @(Html.CheckBox("IsActive",false,new { id = "cbActiveInactive", tabindex = "20" }))
+                                                            <span class="checkmark check_tick"></span>
+                                                            <span class="label-title">@Helper.GetResourceString("lbl_Active")</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="row form-group">
+                                                @*<div class="col-md-5">
+                                            </div>*@
+                                                <div class="col-md-12 text-right">
+                                                    <button type="button" tabindex="4" id="btnDiscount" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Search") </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="row form-group"></div>
+
+            <div class="row" id="dvDealers">
+                <div class="col-md-12">
+                    <div class="text-right right-buttons">
+                        <div class="export_as">
+                            <span>Export as</span>
+                            <div class="export-btns">
+                                <span class="export-link" id="GeographyDiscountExport" type="button">Excel</span>
+                            </div>
+                        </div>
+                        <div class="period-wrapper">
+                            @if (Helper.CheckClaims(Claims.ManageGeographyDiscount))
+                            {
+                                <a href="@Url.Action("GDEdit", "Pricing")" class="k-primary k-button"><b><i class="icon-plus"></i></b>&ensp;@Helper.GetResourceString("lbl_AddGeographyDiscounts")</a>
+                            }
+                        </div>
+                    </div>
+                    @(Html.Kendo().Grid<Adani.Solution.DTO.DiscountOutputDto>
+                    ()
+                    .Name("GridGeographyDetails")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(c => c.Id).Title(@Helper.GetResourceString("lbl_DiscountId")).ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("GDEdit", "Pricing", new { EncryptedId = "#=EncryptedId#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=Id#</a> </div>").Width(Settings.GridOtherColumnWidth);
+                        columns.Bound(c => c.ParentId).Visible(false);
+                        columns.Bound(c => c.SkuName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_Sku")).Width(Settings.GridColumnMaxWidth).HtmlAttributes(new { @class = "tooltip-col", title = "#= SkuName #" }); ;
+                        columns.Bound(c => c.ActualDiscount).Title(@Helper.GetResourceString("lbl_DiscountAmount")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                        columns.Bound(c => c.ValidFrom).Format(Settings.GridDateTimeFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_ValidFrom")).Width(Settings.GridColumnMaxWidth);
+                        columns.Bound(c => c.ValidTo).Format(Settings.GridDateTimeFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_ValidTo")).Width(Settings.GridColumnMaxWidth);                         
+                        columns.Bound(c => c.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Active")).ClientTemplate(@"<div style='text-align: center;'>#if(IsActive){#<i class='icon-green_ckbox_tick faicon-green'><span class='path1'></span><span class='path2'></span></i>#}else{#<i class='icon-red_ckbox_tick faicon-red'><span class='path1'></span><span class='path2'></span></i>#}#</div>").Width(Settings.GridFilterColumnWidth);
+                    })
+                    .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                    .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                    .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                    .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                    .Scrollable(s => s.Enabled(true).Height("auto"))
+                    .Reorderable(reorder => reorder.Columns(true))
+                    .Resizable(resize => resize.Columns(true))
+                    .ClientDetailTemplateId("template")
+                    .Events(events => events.DataBound("dataBound"))
+                    .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .Sort(sort => sort.Add("Id").Descending())
+                    .Model(model => { model.Id(p => p.Id); })
+                    .ServerOperation(true)
+                    .Read(read => read.Action("GetGeographyList", "Pricing").Data("additionalParam"))))
+                </div>
+            </div>
+       
+        </div>
+    </div>
+
+    <script id="template" type="text/kendo-tmpl">
+    @(Html.Kendo().Grid<Adani.Solution.DTO.CityDetails>()
+          .Name("grid_#=Id#")      //template expression, to be evaluated in the master context
+          .Columns(columns =>
+          {
+              columns.Bound(c => c.SkuName).Title(@Helper.GetResourceString("lbl_SkuName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+              columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+             // columns.Bound(c => c.Discount).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_Discount")).Width(Settings.GridColumnMaxWidth);
+              columns.Bound(c => c.CityName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_City")).Width(Settings.GridColumnMaxWidth);
+              columns.Bound(c => c.DistrictName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_District")).Width(Settings.GridColumnMaxWidth);
+              //columns.Bound(c => c.TerritoryName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_Territory")).Width(Settings.GridColumnMaxWidth);
+              columns.Bound(c => c.StateName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_State")).Width(Settings.GridColumnMaxWidth);
+              columns.Bound(c => c.ZoneName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_Zone")).Width(Settings.GridColumnMaxWidth);
+          })
+          .DataSource(dataSource => dataSource
+          .Ajax()
+          .Sort(sort => sort.Add("SkuId").Descending())
+          .PageSize(10)
+          .Read(read => read.Action("GetGeographyCityList", "Pricing", new { id = "#=Id#"}))
+          )
+          .Pageable()
+          .Sortable()
+          .Scrollable(s => s.Enabled(true).Height("auto"))
+          .Reorderable(reorder => reorder.Columns(true))
+          .Resizable(resize => resize.Columns(true))
+          .ToClientTemplate())
+    </script>
+
+    <script type="text/javascript">
+
+     var isOnSerach = false;
+        
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();
+
+        $("#btnDiscount").click(function () {
+            isOnSerach = true;
+            GetDiscount()
+        });
+
+        if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+
+        $("#zoneSelectAll").click(function () {
+            MultiSelectSelectAll("ddlZone", "zoneSelectAll");
+            $("#ddlState").data("kendoMultiSelect").dataSource.read();
+        });
+
+        $("#stateSelectAll").click(function () {
+            MultiSelectSelectAll("ddlState", "stateSelectAll");
+            $("#ddlDistrict").data("kendoMultiSelect").dataSource.read();
+        });
+
+        $("#districtSelectAll").click(function () {
+            MultiSelectSelectAll("ddlDistrict", "districtSelectAll");
+            $("#ddlCity").data("kendoMultiSelect").dataSource.read();
+        });
+
+        $("#citySelectAll").click(function () {
+            MultiSelectSelectAll("ddlCity", "citySelectAll");
+        });
+
+        $("#GridGeographyDetails").kendoTooltip({
+            filter: ".tooltip-col",
+            content: function (e) {
+                return $(e.target).text();
+            },
+            position: "top"
+        });
+
+    });
+
+    function GetDiscount() {
+        $("#GridGeographyDetails").data("kendoGrid").dataSource.read();
+    }
+
+    function additionalParam() {
+        var zoneIds = "";
+        var stateIds = "";
+        var districtIds = "";
+        var cityIds = "";
+        var status = "";
+
+        if ($("#ddlZone").val() != "") {
+            zoneIds = $("#ddlZone").data("kendoMultiSelect").value();
+            zoneIds = zoneIds.join(',');
+        }
+        if ($("#ddlState").val() != "") {
+            stateIds = $("#ddlState").data("kendoMultiSelect").value();
+            stateIds = stateIds.join(',');
+        }
+        if ($("#ddlDistrict").val() != "") {
+            districtIds = $("#ddlDistrict").data("kendoMultiSelect").value();
+            districtIds = districtIds.join(',');
+        }
+
+        if ($("#ddlCity").val() != "") {
+            cityIds = $("#ddlCity").data("kendoMultiSelect").value();
+            cityIds = cityIds.join(',');
+        }
+
+        if (isOnSerach) {
+            status = $("#cbActiveInactive").is(":checked");
+        }
+
+        return {
+            Date: ($("#StartDate").val() === "" ? "" : $("#StartDate").val()),
+            isToReturnInactiveData: true,
+            ZoneIds: zoneIds,
+            StateIds: stateIds,
+            DistrictIds: districtIds,
+            CityIds: cityIds,
+            Status: status
+        };
+    }
+    //Method to data bound event for owner
+    function onDataBoundSetEmptyRow(e) {
+        SetEmptyRow(e);
+    }
+
+    function dataBound(e) {
+        SetEmptyRow(e);
+        this.collapseRow(this.tbody.find("tr.k-master-row").first());   //expand first row
+    }
+
+    $("#GeographyDiscountExport").click(function () {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        debugger;
+        $.ajax({
+             type: "POST",
+             url: '@Url.Action("ExportGeographyDiscount", "Pricing")',
+             data: {
+                 fromDate: $("#StartDate").val()
+             },
+             success: function (responce) {
+                 if (responce.FileGuid) {
+                     window.location.href = '@Url.Action("ExcelDownload", "Base")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                 } else {
+                     ShowErrorMessage("No records found");
+                 }
+                 window.kendo.ui.progress($("#div_Progress"), false);
+             },
+             error: function (responce) {
+                 ShowErrorMessage("File download failed");
+                 window.kendo.ui.progress($("#div_Progress"), false);
+             }
+        });
+    });
+
+    //Zone
+    function onZoneChange() {
+        $("#ddlState").data("kendoMultiSelect").dataSource.read();
+        MultiSelectIndividualSelect("ddlZone", "zoneSelectAll");
+    }
+
+    function onZoneDataBound(e) {
+        MultiSelectIndividualSelect("ddlZone", "zoneSelectAll");
+    }
+
+//State
+
+    function onStateChange(e) {
+        $("#ddlDistrict").data("kendoMultiSelect").dataSource.read();
+        MultiSelectIndividualSelect("ddlState", "stateSelectAll");
+    }
+
+    function onStateDataBound(e) {
+        MultiSelectIndividualSelect("ddlState", "stateSelectAll");
+    }
+
+    function stateLoadParam() {
+        return {
+            SelectedIds: ($("#ddlZone").val() ? $("#ddlZone").val().join() : "")
+        }
+    }
+
+//District
+
+    function onDistrictChange() {
+        $("#ddlCity").data("kendoMultiSelect").dataSource.read();
+        MultiSelectIndividualSelect("ddlDistrict", "districtSelectAll");
+    }
+
+    function OnDistrictDataBound() {
+        MultiSelectIndividualSelect("ddlDistrict", "districtSelectAll");
+    }
+
+    function additionalDistrictByTerritoryInfo() {
+        return {
+            territoryId: ($("#ddlState").val() ? $("#ddlState").val().join() : "")
+        };
+    }
+//City
+    function onCityChange() {
+        MultiSelectIndividualSelect("ddlCity", "citySelectAll");
+    }
+
+    function onCityDataBound() {
+        MultiSelectIndividualSelect("ddlCity", "citySelectAll");
+    }
+
+    //function additionalCityByDistrictInfo(data) {
+    //    return {
+    //        districtId: ($("#ddlDistrict").val() ? $("#ddlDistrict").val().join() : "")
+    //    };
+    //    }
+
+        function additionalCityByDistrictInfo(e) {
+            return {
+                districtId: ($("#ddlDistrict").val() ? $("#ddlDistrict").val().join() : ""),
+                take: e.take,
+                skip: e.skip,
+                page: e.page,
+                pageSize: e.pageSize,
+                sort: e.sort,
+                filter: e.filter
+            };
+        }
+
+    function ChildGridParam() {
+        var zoneIds = "";
+        var stateIds = "";
+        var districtIds = "";
+        var cityIds = "";
+        if ($("#ddlZone").val() != "") {
+            zoneIds = $("#ddlZone").data("kendoMultiSelect").value();
+            zoneIds = zoneIds.join(',');
+        }
+        if ($("#ddlState").val() != "") {
+            stateIds = $("#ddlState").data("kendoMultiSelect").value();
+            stateIds = stateIds.join(',');
+        }
+        if ($("#ddlDistrict").val() != "") {
+            districtIds = $("#ddlDistrict").data("kendoMultiSelect").value();
+            districtIds = districtIds.join(',');
+        }
+        if ($("#ddlCity").val() != "") {
+            cityIds = $("#ddlCity").data("kendoMultiSelect").value();
+            cityIds = cityIds.join(',');
+        }
+        return {
+            ZoneIds: zoneIds,
+            StateIds: stateIds,
+            DistrictIds: districtIds,
+            CityIds: cityIds
+        };
+    }
+
+    function cityValueMapper(options)
+    {
+        var districts = ($("#ddlDistrict").val() ? $("#ddlDistrict").val().join() : "");
+        $.ajax({
+            url: "@Url.Action("CityListValueMapper", "Lookup")",
+            data: { values: convertValues(options.value), districtId: districts},
+            success: function (data) {
+                options.success(data);
+            }
+        });
+    }
+
+    function convertValues(value) {
+        var data = {};
+
+        value = $.isArray(value) ? value : [value];
+
+        for (var idx = 0; idx < value.length; idx++) {
+            data["values[" + idx + "]"] = value[idx];
+        }
+
+        return data;
+    }
+
+    </script>
+
+
+

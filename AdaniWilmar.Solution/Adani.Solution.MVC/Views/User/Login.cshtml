@@ -1,0 +1,193 @@
+﻿@using Adani.Solution.MVC.Common;
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.DTO.Enums;
+@using CaptchaMvc.HtmlHelpers
+@model Adani.Solution.MVC.Models.LoginViewModel
+
+@{
+    ViewBag.Title = Helper.GetResourceString("msg_Signin");
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+
+
+<div>
+    <!-- Simple login form -->
+    @using (Html.BeginForm("Login", "User", FormMethod.Post, new { id = "frmLogin", @class = "form-validate-jquery" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="panel panel-body login-form">
+            <div class="login-form-box text-center">
+                @*@Html.Partial("LogoView")*@
+
+                <div id="logo-carousel" class="carousel slide logo-carousel" data-ride="carousel">
+                    <div class="carousel-inner">
+                        <div class="item active">
+                            <img src="/images/login_logo.png" class="logo-item" alt="logo-1">
+                        </div>
+
+                        <div class="item">
+                            <img src="/images/adani_logo.png" class="logo-item" alt="logo-2">
+                        </div>
+                    </div>
+
+                </div>
+                <h6 class="content-group text-left mt-2" style="padding: 10px;"><span class="user-heading2"> @Helper.GetResourceString("msg_LoginToYourAccount") </span><br /> <small class="display-block small-desc">@Helper.GetResourceString("msg_EnterYourCredentialsBelow")</small></h6>
+            </div>
+            <div class="form-group"></div>
+
+            <div class="form-group">
+                <div class="col-lg-12">
+                    <div class="input-group">
+                        <label for="">Username</label>
+                        @Html.TextBoxFor(m => m.Username, new
+                        {
+                            id = "txtUsername",
+                            required = "required",@*onFocusout = "ValidateEmailOrMobileNumber()",*@@class = "k-textbox",
+                            placeholder = Helper.GetResourceString("lbl_Username"),
+                            data_msg_required = Helper.GetMsgRequired("lbl_Username"),
+                            @maxlength = (int)InputMaxLength.String
+                        })
+                        <span class="input-group-addon"><i class="icon-username"></i></span>
+                    </div>
+                </div>
+            </div>
+
+            @*<div class="form-group" id="dvVertical">
+                <div class="col-lg-12">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-stats"></i></span>
+              
+                        @(Html.Kendo().DropDownListFor(m => m.VerticalId)
+                            //.OptionLabel("Select Vertical Type")
+                            .DataTextField("Name")
+                            .DataValueField("Id")
+                            .Events(e => e.DataBound("verticleDataBound"))
+                            .DataSource(source => source.Read(resd => resd.Action("GetVerticalListBasedOnUserAsync", "User").Data("verticalAdditionalInfo"))
+                            .ServerFiltering(false))
+                            .HtmlAttributes(new { id = "ddlVertical", @class = "form-control", data_msg_required = Helper.GetSelectMsgRequired("lbl_VerticleType"), @style = "width:100%" }))
+
+                    </div>
+                </div>
+            </div>*@
+
+            <div class="form-group">
+                <div class="col-lg-12">
+                    <div class="input-group">
+                        <label for="">Password</label>
+                        @Html.PasswordFor(m => m.Password, new { id = "txtPassword", required = "required", @type = "Password", @class = "k-textbox", placeholder = Helper.GetResourceString("lbl_Password"), onkeypress = "return RestrictSpaceOnPassword()", data_msg_required = Helper.GetMsgRequired("lbl_Password"), @maxlength = (int)InputMaxLength.Password })
+                        <span class="input-group-addon toggle-password" id="toggle_pass"><i id="icps" class="fa fa-eye toggle-password"></i></span>
+                    </div>
+                    <div class="text-right pt-3">
+                        <a class="a-ChangePassword" href="@Url.Action("ForgotPassword","User")">@Helper.GetResourceString("msg_ForgotPassword")?</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-lg-12 capatchaCont">
+                    @{
+                        var captcha = Html.Captcha(@Helper.GetResourceString("msg_TryAnother"), @Helper.GetResourceString("msg_EnterTheTextYouSeeAbove"), Settings.CaptchaSringLength, "Is required field.", false);
+                        @captcha
+                    }
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button id="btnLogin" type="button" class="k-primary k-button btn-block">@Helper.GetResourceString("msg_Signin")</button>
+            </div>
+        </div>
+        <div class="bottom-logo text-center pb-4">
+            <div class="icon-object border-slate-300 text-slate-300 pt-3">
+                <a href="/"><img src="/images/adani_logo.png" class="logo-small"></a>
+            </div>
+            <div class="small-desc pt-3">This site is for the use of internal customers & traders of AWL.</div>
+        </div>
+
+        @Html.Partial("Footer")
+    }
+    <!-- /simple login form -->
+
+</div>
+
+<script>
+	$(document).ready(function () {
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        $("#dvVertical").hide();
+
+         $("#btnLogin").click(function (e) {
+			formSubmit();
+        });
+
+        $("#txtUsername").focusout(function () {
+            window.kendo.ui.progress($("#div_Progress"), true);
+            //if ($("#txtUsername").val().length > 0) {
+            //    $("#ddlVertical").data("kendoDropDownList").dataSource.read();
+            //}
+            window.kendo.ui.progress($("#div_Progress"), false);
+        });
+
+        $("#toggle_pass").click(() => {
+
+            if ($("#txtPassword").attr("type") == "Password") {
+                $('#icps').toggleClass("fa-eye");
+                $('#icps').toggleClass("fa-eye-slash");
+                $("#txtPassword").attr("type", "text");
+            } else {
+                $('#icps').toggleClass("fa-eye-slash");
+                $('#icps').toggleClass("fa-eye");
+                $("#txtPassword").attr("type", "Password");
+            }
+        });
+
+	});
+
+    function formSubmit() {
+        var erorrMsgFlag = true;
+        if (erorrMsgFlag || $("#txtUsername").val().length === 0) {
+            $("#CaptchaInputText").prop('required', true);
+            $('#frmLogin').submit();
+            var isValid = $("#frmLogin").valid();
+            if (isValid) {
+                // Animate loader
+                window.kendo.ui.progress($("#div_Progress"), true);
+            }
+        }
+
+    }
+    function RestrictSpaceOnPassword() {
+        if (event.keyCode == 32) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+
+
+    //function verticalAdditionalInfo() {
+    //   return {
+    //       username: $("#txtUsername").val()
+    //    };
+    //}
+
+    //  //Verticle data onBound events
+    //function verticleDataBound() {
+    //    if ($("#ddlVertical").data("kendoDropDownList").ul.children().length > 0)
+    //        $("#dvVertical").show();
+    //    else
+    //        $("#dvVertical").hide();
+    //}
+
+</script>
+
+

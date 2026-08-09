@@ -1,0 +1,279 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Models
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO
+@{
+    ViewBag.Title = "QuestionList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="cmsquestion" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_Questions")</h2>
+    <div class="period-wrapper">
+        <ol class="breadcrumb custom_breadcrumb">
+            <li><a href="#">@Helper.GetResourceString("lbl_cms")</a><span class="icon-right"></span></li>
+            <li class="active">@Helper.GetResourceString("lbl_Questions")<span class="icon-right"></span></li>
+        </ol>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvUsers">
+                <div class="col-md-12">
+                    <div class="text-right right-buttons">
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                        <div class="period-wrapper">
+                            <a href="@Url.Action("CreateQuestion", "Lookup")" class="k-primary k-button custom-btns"><b><i class="icon-plus"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateQuestion")</a>
+                        </div>
+                    </div>
+                    @(Html.Kendo().Grid<QuestionsViewDto>()
+                          .Name("ViewQuestions")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.Id).Visible(false);
+                              columns.Bound(c => c.QuestionId).Visible(false);
+                              columns.Bound(c => c.OrderId).Title(@Helper.GetResourceString("lbl_No")).Width(Settings.GridButtonColumnWidth).ClientTemplate("#= renderNumber(data) #").Visible(false);
+                              columns.Bound(c => c.Query).Title(@Helper.GetResourceString("lbl_Question")).ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("QuestionEditRedirect", "Lookup", new { QuestionId = "#=QuestionId#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=Query#</a> </div>").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.QuestionTypeName).Title(@Helper.GetResourceString("lbl_QuestionType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.IsMandatory).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Mandatory")).ClientTemplate(@"<div style='text-align: center;'> #if(IsMandatory == false) { #"
+                                       + " <a  title='" + @Helper.GetResourceString("lbl_Mandatory") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Active")).ClientTemplate(@"<div style='text-align: center;'> #if(IsActive == false) { #"
+                                           + " <a  title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Width(Settings.GridColumnMaxWidth);
+
+                          })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Resizable(resize => resize.Columns(true))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Excel(excel => excel.AllPages(true).FileName(@Helper.GetResourceString("lbl_Section") + " " + DateTime.Now + ".xlsx").Filterable(true))
+                          .Events(events => events.DataBound("onQuestionListDataBound").Change("OnQuestionListChanged"))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          //.Resizable(resize => resize.Columns(true))
+                          //.Reorderable(reorder => reorder.Columns(true))
+                          .Selectable()
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Model(model => { model.Id(p => p.QuestionId); })
+                          //.Sort(sort => sort.Add("Id").Descending())
+                          .Sort(sort => sort.Add("QuestionId").Descending())
+                          .ServerOperation(true)
+                          .Read(read => read.Action("GetCMSQuestionListAsync", "Lookup"))
+                          ))
+                </div>
+                @*<div class="col-md-2" style="text-align:center;margin-top:5%">
+                        <div class="row" style="height:45px;">
+                            <button type="button" id="btnTop" class="k-primary k-button btn-icon btn-rounded" title="@Helper.GetResourceString("lbl_Top")"><i class="icon-arrow-up15"></i></button>
+                        </div>
+                        <div class="row" style="height:45px;">
+                            <button type="button" id="btnUp" class="k-primary k-button btn-icon btn-rounded" title="@Helper.GetResourceString("lbl_MoveUp")"><i class="icon-arrow-up16"></i></button>
+                        </div>
+                        <div class="row" style="height:45px;">
+                            <button type="button" id="btnDown" class="k-primary k-button btn-icon btn-rounded" title="@Helper.GetResourceString("lbl_MoveDown")"><i class=" icon-arrow-down16"></i></button>
+                        </div>
+                        <div class="row" style="height:45px;">
+                            <button type="button" id="btnBottom" class="k-primary k-button btn-icon btn-rounded" title="@Helper.GetResourceString("lbl_Bottom")"><i class="icon-arrow-down15"></i></button>
+                        </div>
+                    </div>*@
+            </div>
+            @*<div class="text-right marginT20">
+                    <button id="btnAddRoleTypeHierarchy" onclick="SaveQuestionOrderfunction()" class="k-primary k-button">@Helper.GetResourceString("btn_Save") <i class="icon-arrow-right14 position-right"></i></button>
+                </div>*@
+        </div>
+    </div>
+</div>
+<script>
+    var rowNumber = 0;
+    var dataSelectIndex = 0;
+    var rows;
+    $(document).ready(function () {
+        var GridDetails = $("#ViewQuestions").data("kendoGrid"),
+            columnsConfig = GridDetails.options.columns;
+        columnsConfig[0].filterable = false;
+        GridDetails.setOptions({ columns: columnsConfig });
+        // kendo grid filter contains
+        FilterContains();
+
+         if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+
+        /* move up */
+        $("#btnUp").on("click", function (idx, elem) {
+            var visibleGrid = $("#ViewQuestions").data("kendoGrid");
+            var selected = rows;
+            if (selected.length > 0) {
+                $.each(selected, function (idx, elem) {
+                    var dataItem = visibleGrid.dataItem($(this));
+                    var index = visibleGrid.dataSource.indexOf(dataItem);
+                    if (index > 0) {
+                        var newIndex = index - 1;
+                        visibleGrid.dataSource.remove(dataItem);
+                        visibleGrid.dataSource.insert(newIndex, dataItem);
+                        visibleGrid.select("tr:eq(" + newIndex + ")");
+                        rows = visibleGrid.select();
+                    }
+                });
+            }
+        });
+
+        /* move down */
+        $("#btnDown").on("click", function (idx, elem) {
+            var visibleGrid = $("#ViewQuestions").data("kendoGrid");
+            var selected = rows;
+            if (selected.length > 0) {
+
+                $.each(selected, function (idx, elem) {
+                    var dataItem = visibleGrid.dataItem($(this));
+                    var index = visibleGrid.dataSource.indexOf(dataItem);
+                    var maxIndex = visibleGrid.dataSource._data.length - 1;
+
+                    if (index < maxIndex) {
+                        var newIndex = index + 1;
+
+                        visibleGrid.dataSource.remove(dataItem);
+                        visibleGrid.dataSource.insert(newIndex, dataItem);
+                        visibleGrid.select("tr:eq(" + newIndex + ")");
+                        rows = visibleGrid.select();
+                    }
+                });
+            }
+
+            return false;
+        });
+
+        /* move to top */
+        $("#btnTop").on("click", function (idx, elem) {
+
+            var visibleGrid = $("#ViewQuestions").data("kendoGrid");
+            var selected = rows;
+            var firstIndex = -1;
+
+            if (selected.length > 0) {
+                $.each(selected, function (idx, elem) {
+
+                    if (firstIndex < 0) {
+                        firstIndex = 0;
+                    }
+                    else {
+                        firstIndex++;
+                    }
+
+                    var dataItem = visibleGrid.dataItem($(this));
+                    var index = visibleGrid.dataSource.indexOf(dataItem);
+                    var newIndex = firstIndex;
+
+                    if (newIndex != index) {
+                        visibleGrid.dataSource.remove(dataItem);
+                        visibleGrid.dataSource.insert(newIndex, dataItem);
+                        visibleGrid.select("tr:eq(" + newIndex + ")");
+                        rows = visibleGrid.select();
+                    }
+                });
+            }
+            return false;
+        });
+
+
+        /* move to bottom */
+        $("#btnBottom").on("click", function (idx, elem) {
+            var visibleGrid = $("#ViewQuestions").data("kendoGrid");
+            var selected = rows;
+            var lastIndex = -1;
+
+            if (selected.length > 0) {
+                if (lastIndex < 0) {
+                    lastIndex = visibleGrid.dataSource._data.length - 1;
+                }
+                else {
+                    lastIndex--;
+                }
+                $.each(selected, function (idx, elem) {
+                    var dataItem = visibleGrid.dataItem($(this));
+                    var index = visibleGrid.dataSource.indexOf(dataItem);
+                    var newIndex = lastIndex;
+
+                    if (newIndex != index) {
+                        visibleGrid.dataSource.remove(dataItem);
+                        visibleGrid.dataSource.insert(newIndex, dataItem);
+                        visibleGrid.select("tr:eq(" + newIndex + ")");
+                        rows = visibleGrid.select();
+                    }
+                });
+            }
+
+            return false;
+        });
+    });
+
+    function SaveQuestionOrderfunction() {
+        var gridData = $("#ViewQuestions").data("kendoGrid").dataSource.data();
+        var SectionId = $("#ddlSection").data("kendoDropDownList").value();
+        if (gridData.length > 0) {
+            window.kendo.ui.progress($("#div_Progress"), true);
+            var jsonObj = [];
+            $.each(gridData, function (idx2, val) {
+                item = {}
+                item["QuestionId"] = val.QuestionId;
+                item["SectionId"] = SectionId;
+                item["OrderId"] = $("#ViewQuestions").data("kendoGrid").dataSource.indexOf(val) + 1;
+                jsonObj.push(item);
+            });
+            $.ajax({
+                url: "/Lookup/SaveQuestionOrder",
+                type: 'POST',
+                data: { input: jsonObj },
+                success: function (result) {
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                    if (result.PostStatus) {
+                        ShowSuccessMessage(result.PostMessage);
+                        var grid = $("#ViewQuestions").data("kendoGrid");
+                        grid.dataSource.read();
+                    } else {
+                        ShowErrorMessage(result.PostMessage);
+                        return false;
+                    }
+                }
+            });
+        }
+    }
+
+	function OnSectionDatabound(e) {
+		//if ($("#ddlSection").data("kendoDropDownList") != null && $("#ddlSection").data("kendoDropDownList").dataSource._data.length > 0) {
+		//	$("#ddlSection").data("kendoDropDownList").value($("#ddlSection").data("kendoDropDownList").dataSource._data[0].SectionId);
+		//}
+			$("#ViewQuestions").data("kendoGrid").dataSource.read();
+    }
+    function renderNumber(data) {
+        return ++rowNumber;
+    }
+    //Method to data bound event for owner
+    function OnQuestionListChanged(e) {
+        rows = e.sender.select();
+        this.select("tr:eq(" + rows + ")");
+        dataSelectIndex = rows["0"].rowIndex;
+    }
+
+    //Method to data bound event for dealer List
+	function onQuestionListDataBound(e) {
+        SetEmptyRow(e);
+        rowNumber = 0;
+	}
+	//function additionalParam() {
+ //       var SectionId = $("#ddlSection").data("kendoDropDownList").value();
+ //       return {
+ //           SectionId: Number(SectionId),
+ //       };
+ //   }
+	function onSectionSelect(e) {
+        //Refresh grid
+        $("#ViewQuestions").data("kendoGrid").dataSource.read();
+	}
+</script>

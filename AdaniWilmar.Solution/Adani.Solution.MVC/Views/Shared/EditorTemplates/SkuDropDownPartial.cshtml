@@ -1,0 +1,12 @@
+﻿@using Kendo.Mvc.UI
+@model Adani.Solution.DTO.SkuDropDown
+
+
+@(Html.Kendo().DropDownListFor(m => m)
+                .OptionLabel("Select Sku")
+                .DataValueField("SkuId")
+                .DataTextField("SkuName")                
+                .DataSource(source => source.Read(read => read.Action("GetSkusBasedOnOilType", "Lookup").Data("skuDropdownAdditionalInfo"))              
+                .ServerFiltering(true))
+                .ValuePrimitive(false)
+)

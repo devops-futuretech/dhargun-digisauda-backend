@@ -1,0 +1,126 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO
+@using Adani.Solution.DTO.Enums
+@model  SaleReportDto
+@{
+    ViewBag.Title = "Stock Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="reportStockReport" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_stockreport")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Report</a><span class="icon-right"></span></li>
+        <li class="active">Sale Report<span class="icon-right"></span></li>
+    </ol>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvSpecialRate">
+                <div class="row form-group">
+                    <div class="row form-group">
+                        <div class="row form-group">
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">
+                                    @Helper.GetResourceString("lbl_Plant") <span class="text-danger">*</span>
+                                </label>
+
+                                @(Html.Kendo().DropDownListFor(m => m.PlantId)
+                            .OptionLabel("Select Plant")
+                            .DataTextField("Name")
+                            .DataValueField("Id")
+                            .Events(e => e.Change("onSaleChange"))
+                            .DataSource(source => source.Read(read => read.Action("GetPlantListddlAsync", "Lookup", new { isToReturnInactiveData = false }))
+                            .ServerFiltering(false))
+                            .HtmlAttributes(new { id = "ddlPlant", @class = "", tabindex = "8", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_SaudaBookingType"), @style = "width:100%" }))
+
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">
+                                    @Helper.GetResourceString("lbl_Name") <span class="text-danger">*</span>
+                                </label>
+
+                                @Html.TextBoxFor(m => m.Name, new { id = "txtName", tabindex = "9", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_GSTN"), @maxlength = (int)InputMaxLength.String })
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">
+                                    @Helper.GetResourceString("lbl_Plant") <span class="text-danger">*</span>
+                                </label>
+
+                                @(Html.Kendo().DropDownListFor(m => m.MaterialId)
+                            .OptionLabel("Select Material")
+                            .DataTextField("Name")
+                            .DataValueField("Id")
+                            .Events(e => e.Change("onSaleChange"))
+                            .DataSource(source => source.Read(read => read.Action("GetMaterialTypes", "Lookup", new { isToReturnInactiveData = false }))
+                            .ServerFiltering(false))
+                            .HtmlAttributes(new { id = "ddlMaterial", @class = "", tabindex = "8", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_SaudaBookingType"), @style = "width:100%" }))
+
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">
+                                    Material Description <span class="text-danger">*</span>
+                                </label>
+
+                                @Html.TextBoxFor(m => m.MaterialDescription, new { id = "txtDescription", tabindex = "9", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_GSTN"), @maxlength = (int)InputMaxLength.String })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-right">
+                                <button type="button" tabindex="4" id="btnGenerateReport" class="k-primary k-button custom-btns">Generate Report</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                $("#btnGenerateReport").click(function () {
+                    downloadSaudaReport();
+                });
+
+            });
+            function onSaleChange() {
+
+            }
+            function downloadSaudaReport(Id) {
+                var inputputDto = {
+                    PlantId: $("#ddlPlant").val(),
+                    Name: $("#txtName").val(),
+                    MaterialId: $("#ddlMaterial").val(),
+                    MaterialDescription: $("#txtDescription").val()
+                };
+        window.kendo.ui.progress($("#div_Progress"), true);
+       
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetStockReport", "Report")',
+            data: inputputDto,
+            success: function (responce) {
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Pricing")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+        </script>

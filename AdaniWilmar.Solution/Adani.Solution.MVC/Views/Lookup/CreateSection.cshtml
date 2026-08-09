@@ -1,0 +1,77 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Models
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO
+@model Adani.Solution.MVC.Models.SectionModel
+@{
+    ViewBag.Title = "Create Section";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="cmssection" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_CreateSection")</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="dvSection">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("AddOrUpdateSection", "Lookup", FormMethod.Post, new { id = "frmSection", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.SectionId, new { id = "txtId" })
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_SectionName") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4 width26">
+                                @Html.TextBoxFor(m => m.SectionName, new { id = "txtSectionName", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_SectionName"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Active")
+                            </div>
+                            <div class="col-md-4 width26">
+                                @Html.CheckBoxFor(m => m.IsActive, new { id = "cbActiveInactive", tabindex = "2" })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-right buttons-align">
+                                <button type="button" id="btnCancel" tabindex="4" onclick="location.href = '@Url.Action("SectionList", "Lookup")'" class="k-button k-cancel custom-btns">Cancel</button>
+                                @*@if (Helper.CheckClaims(Claims.ManageForms))
+                                {*@
+                                    <button type="button" id="btnSave" tabindex="3" class="k-primary k-button custom-btns">@(Model != null && Model.SectionId == 0 ? @Helper.GetResourceString("btn_Save") : @Helper.GetResourceString("btn_Update"))</button>
+                                @*  }*@
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+    });
+    $('#btnSave').on('click', function (e) {
+        var isValid = $('#frmSection').valid();
+        if (isValid) {
+            window.kendo.ui.progress($("#dvSection"), true);
+            $('#frmSection').submit();
+            window.kendo.ui.progress($("#dvSection"), false);
+        }
+    });
+</script>

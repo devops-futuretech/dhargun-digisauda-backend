@@ -1,0 +1,135 @@
+﻿@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@model Adani.Solution.MVC.Models.SaudaConversionDetailViewModel
+@{
+    ViewBag.Title = "SaudaConversionDetailView";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="transactionsaudaconversiondetail" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3"> @Helper.GetResourceString("lbl_SaudaConversionDetail")</h2>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="SaudaExtensionMasterLoader">
+                <div class="row form-group">
+                    <div class="col-md-3 text-right">
+                        @Helper.GetResourceString("lbl_BDOName")
+                    </div>
+                    <div class="col-md-3">
+                        @Html.TextBoxFor(m => m.BDOName, new { @id = "txtBdoName", tabindex = "1", @readonly = "readonly", @class = "form-control" })
+                    </div>
+                    <div class="col-md-3 text-right">
+                        @Helper.GetResourceString("lbl_DealerName")
+                    </div>
+                    <div class="col-md-3">
+                        @Html.TextBoxFor(m => m.DealerName, new { @id = "txtDealerName", tabindex = "2", @readonly = "readonly", @class = "form-control" })
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-3 text-right">
+                        @Helper.GetResourceString("lbl_ConversionDate")
+                    </div>
+                    <div class="col-md-3">
+                        @Html.TextBoxFor(m => m.ConversionCreatedDate, new { @id = "txtConversionDate", tabindex = "3", @readonly = "readonly", @class = "form-control", @Value = Model.ConversionCreatedDate.ToString("dd-MMM-yyyy") })
+                    </div>
+                    <div class="col-md-3 text-right">
+                        @Helper.GetResourceString("lbl_Status")
+                    </div>
+                    <div class="col-md-3">
+                        @Html.TextBoxFor(m => m.SaudaConversionStatus, new { @id = "txtStatus", tabindex = "4", @readonly = "readonly", @class = "form-control" })
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-12 text-left">
+                        @Helper.GetResourceString("lbl_FromSKU")
+                    </div>
+                    <div class="col-md-12">
+                        @*<div class="text-right">
+                            @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                        </div>*@
+                        @(Html.Kendo().Grid<Adani.Solution.DTO.SaudaConversionSkuDetailOutput>()
+                          .Name("ViewSaudaConversionDetailFromSKU")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.SkuName).Title(@Helper.GetResourceString("lbl_Sku")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.SaudaNumber).Title(@Helper.GetResourceString("lbl_SaudaNumber")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.SaudaQuantityInMT).Format("{0:0.000}").Title(@Helper.GetResourceString("lbl_SaudaConversionQuatityInMt")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.SaudaQuantityInSku).Format("{0:0.00}").Title(@Helper.GetResourceString("lbl_SaudaConversionQuantityInCase")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.BaseRate).Title(@Helper.GetResourceString("lbl_BaseRate")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.Remarks).Title(@Helper.GetResourceString("lbl_Remarks")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                          })
+                          .BindTo(Model.FromSkus)
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Selectable(selectable => selectable
+                          .Mode(GridSelectionMode.Multiple)
+                          .Type(GridSelectionType.Row))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          //.Events(events => events.DataBound("onBrokerListDataBound"))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          //.Model(model => model.Id(m => m.ConversionId))
+                          .ServerOperation(true)
+                          ))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-12 text-left">
+                        @Helper.GetResourceString("lbl_ToSKU")
+                    </div>
+                    <div class="col-md-12">
+                        @*<div class="text-right">
+                            @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                        </div>*@
+                        @(Html.Kendo().Grid<Adani.Solution.DTO.SaudaConversionSkuDetailOutput>()
+                          .Name("ViewSaudaConversionDetailToSKU")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.SkuName).Title(@Helper.GetResourceString("lbl_Sku")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.SaudaNumber).Title(@Helper.GetResourceString("lbl_SaudaNumber")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.SaudaQuantityInMT).Format("{0:0.000}").Title(@Helper.GetResourceString("lbl_SaudaConversionQuatityInMt")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.SaudaQuantityInSku).Format("{0:0.00}").Title(@Helper.GetResourceString("lbl_SaudaConversionQuantityInCase")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.BaseRate).Title(@Helper.GetResourceString("lbl_BaseRate")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.Remarks).Title(@Helper.GetResourceString("lbl_Remarks")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                          })
+                          .BindTo(Model.ToSkus)
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Selectable(selectable => selectable
+                          .Mode(GridSelectionMode.Multiple)
+                          .Type(GridSelectionType.Row))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          //.Events(events => events.DataBound("onBrokerListDataBound"))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          //.Model(model => model.Id(m => m.ConversionId))
+                          .ServerOperation(true)
+                          ))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-12 text-center">
+                        <button type="button" tabindex="5" id="btnCancel" onclick="location.href = '@Url.Action("SaudaConversionDetail", "Lookup")'" class="k-button">@Helper.GetResourceString("btn_Cancel")</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();
+    });
+
+</script>

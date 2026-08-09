@@ -1,0 +1,457 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model OilPriceReportInputDto 
+@{
+    ViewBag.Title = "OilPriceReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="reportOilPriceReport" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Oil Price Report</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvFinalPricing">
+                <div class="col-md-12">
+                    <form id="frmSearchPricing" class="form-validate-jquery" onsubmit="GetOilPriceReport(this)">
+                        <div class="col-md-12">
+                            <div class="row form-group">
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_SaudaBookingType") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownListFor(m => m.SaudaBookingTypeId)
+                                                                                          .OptionLabel(@Helper.GetResourceString("plho_SelectSaudaBookingType"))
+                                                                                          .DataTextField("Name")
+                                                                                          .DataValueField("Id")
+                                                                                          .DataSource(source => source.Read(read => read.Action("GetSaudaBookingTypeListAsync", "Lookup", new { isToReturnInactiveData = false }))
+                                                                                          .ServerFiltering(false))
+                                                                                          .HtmlAttributes(new { id = "ddlSaudaBookingType", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_SaudaBookingType"), @style = "width:100%"/*, @onchange = "BookingTypeChange(this)"*/ }))
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_Zone") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownList().Name("ZoneId")
+                                                                                          .OptionLabel(@Helper.GetResourceString("plho_SelectZone"))
+                                                                                          .DataTextField("Name")
+                                                                                          .DataValueField("Id")
+                                                                                          .Events(e => e.Change("onZoneChange"))
+                                                                                          .DataSource(source => source.Read(read => read.Action("GetZoneListddl", "Lookup", new { isToReturnInactiveData = false }))
+                                                                                          .ServerFiltering(false))
+                                                                                          .HtmlAttributes(new { id = "ddlZone", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Zone"), @style = "width:100%" }))
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_Vertical") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownListFor(f => f.VerticalId)
+                                                                                          //.Name("VerticalId")
+                                                                                          .OptionLabel(@Helper.GetResourceString("plho_SelectVertical"))
+                                                                                          .DataTextField("Name")
+                                                                                          .DataValueField("Id")
+                                                                                          .Events(e => e.Change("onVerticalTypeChange"))
+                                                                                          .DataSource(source => source.Read(resd => resd.Action("GetVerticalDetailsdd", "Lookup"))
+                                                                                          .ServerFiltering(false))
+                                                                                          .HtmlAttributes(new { id = "ddlVertical", @class = "", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Vertical"), @style = "width:100%" }))
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_State") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownListFor(m => m.StateId)
+                                                                                          .OptionLabel(@Helper.GetResourceString("plho_SelectState"))
+                                                                                          .Events(events => events.Change("onStateChange").DataBound("OnStateDataBound"))
+                                                                                          .DataTextField("StateName")
+                                                                                          .DataValueField("StateId")
+                                                                                          .DataSource(source => source.Read(read => read.Action("GetZoneMappedStatesddl", "Lookup").Data("stateLoadParam"))
+                                                                                          .ServerFiltering(false))
+                                                                                          .HtmlAttributes(new { id = "ddlState", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_State"), @style = "width:100%" }))
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_OilType") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownListFor(m => m.OilTypeId)
+                                                                                          .OptionLabel(@Helper.GetResourceString("plho_SelectOilType"))
+                                                                                          .DataTextField("Name")
+                                                                                          .DataValueField("Id")
+                                                                                          .Events(e => e.Change("onOiltypeChange"))
+                                                                                          .DataSource(source => source.Read(read => read.Action("GetOilTypesBasedOnVerticalId", "Lookup", new { isToReturnInactiveData = false }).Data("oilTypeAdditionalInfo"))
+                                                                                          .ServerFiltering(true))
+                                                                                          .HtmlAttributes(new { id = "ddlOilType", @class = "", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilType"), @style = "width:100%" }))
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_Territory") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownList().Name("TerritoryId")
+                                                                                          .OptionLabel(@Helper.GetResourceString("plho_SelectTerritory"))
+                                                                                          .DataTextField("Name")
+                                                                                          .DataValueField("Id")
+                                                                                          .Events(e => e.Change("territoryChange").DataBound("OnTerritoryDataBound"))
+                                                                                          .DataSource(source => source.Read(read => read.Action("GerTerritoryStateBase", "Lookup").Data("territoryAdditionalInfo"))
+                                                                                          .ServerFiltering(false))
+                                                                                          .HtmlAttributes(new { id = "ddlTerritory", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Territory"), @style = "width:100%" }))
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_OilPackingType") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownListFor(m => m.OilPackingTypeId)
+                                                                                          .OptionLabel(@Helper.GetResourceString("plho_SelectOilPackingType"))
+                                                                                          .DataTextField("Name")
+                                                                                          .DataValueField("Id")
+                                                                                          .DataSource(source => source.Read(read => read.Action("GetOilPackingTypeListAsync", "Lookup", new { isToReturnInactiveData = true }))
+                                                                                          .ServerFiltering(true))
+                                                                                          .HtmlAttributes(new { id = "ddlOilPackingType", @class = "", tabindex = "7", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilPackingType"), @style = "width:100%" }))
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_District") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownList().Name("DistrictId")
+                                                                                          .OptionLabel(@Helper.GetResourceString("plho_SelectDistrict"))
+                                                                                          .Events(events => events.Change("onDistrictChange").DataBound("OnDistrictDataBound"))
+                                                                                          .DataTextField("DistrictName")
+                                                                                          .DataValueField("DistrictId")
+                                                                                          .DataSource(source => source.Read(read => read.Action("GetDistrictListBaseTerritory", "Lookup").Data("additionalDistrictByStateInfo"))
+                                                                                          .ServerFiltering(false))
+                                                                                          .HtmlAttributes(new { id = "ddlDistrict", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_District"), @style = "width:100%" }))
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_TransportMode") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownListFor(m => m.TransportModeId)
+                                                                                          .OptionLabel(@Helper.GetResourceString("plho_SelectTransportMode")).DataTextField("Name")
+                                                                                          .DataValueField("Id").DataSource(source => source.Read(read => read.Action("GetTransportModeListAsync", "Lookup", new { isToReturnInactiveData = true })).ServerFiltering(false))
+                                                                                          .HtmlAttributes(new
+                                                                                          {
+                                                                                              id = "ddlTransportMode",
+                                                                                              @class = "",
+                                                                                              tabindex = "8",
+                                                                                              required = "required",
+                                                                                              data_msg_required = Helper.GetSelectMsgRequired("lbl_TransportMode"),
+                                                                                              @style = "width:100%"
+                                                                                          }))
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_City") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownListFor(m => m.CityId)
+                                                                                          .OptionLabel(@Helper.GetResourceString("plho_SelectCity"))
+                                                                                          .DataTextField("CityName")
+                                                                                          .DataValueField("CityId")
+                                                                                          .DataSource(source => source.Read(read => read.Action("GetCityListByDistrictName", "Lookup").Data("additionalCityByDistrictInfo"))
+                                                                                          .ServerFiltering(false))
+                                                                                          .HtmlAttributes(new { id = "ddlCity", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_City"), @style = "width:100%" }))
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_Plant") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownListFor(m => m.PlantId)
+                                                                                          .OptionLabel(@Helper.GetResourceString("plho_SelectPlant"))
+                                                                                          .DataTextField("Name")
+                                                                                          .DataValueField("Id")
+                                                                                          .Events(e => e.Change("onPlantChange"))
+                                                                                          .DataSource(source => source.Read(read => read.Action("GetPlantListddlAsync", "Lookup"))
+                                                                                          .ServerFiltering(false))
+                                                                                          .HtmlAttributes(new { id = "ddlPlant", @class = "", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Plant"), @style = "width:100%" }))
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_Depot") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownListFor(m => m.DepotId)
+                                                                                          .OptionLabel(@Helper.GetResourceString("plho_SelectDepot"))
+                                                                                          .DataTextField("Name")
+                                                                                          .DataValueField("Id")
+                                                                                          //.Events(e => e.Change("onDepotChange"))
+                                                                                          .DataSource(source => source.Read(read => read.Action("GetDepotsByPlantIdddlAsync", "Lookup").Data("depotLoadParam"))
+                                                                                          .ServerFiltering(false))
+                                                                                          .HtmlAttributes(new { id = "ddlDepot", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_DepotCode"), @style = "width:100%" }))
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_FreightZone") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownListFor(m => m.FreightZoneId)
+                                                                                          .OptionLabel(@Helper.GetResourceString("plho_SelectFreightZone"))
+                                                                                          .DataTextField("Name")
+                                                                                          .DataValueField("Id")
+                                                                                          .Events(e => e.Change("onFreightZoneChange"))
+                                                                                          //.DataSource(source => source.Read(read => read.Action("GetFreightZoneListByDepot", "Lookup").Data("freightZoneAdditionalInfo"))
+                                                                                          .DataSource(source => source.Read(read => read.Action("GetFreightZoneListddlAsync", "Lookup", new { isToReturnInactiveData = false }))
+                                                                                          .ServerFiltering(false))
+                                                                                          .HtmlAttributes(new { id = "ddlFreightZone", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_FreightZone"), @style = "width:100%" }))
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_FreightRoute") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownListFor(m => m.FreightRouteId)
+                                                                                          .OptionLabel(@Helper.GetResourceString("plho_SelectFreightRoute"))
+                                                                                          .DataTextField("Name")
+                                                                                          .DataValueField("Id")
+                                                                                          .DataSource(source => source.Read(read => read.Action("GetFreightRouteListByZone", "Lookup").Data("freightRouteAdditionalInfo"))
+                                                                                          .ServerFiltering(false))
+                                                                                          .HtmlAttributes(new { id = "ddlFreightRoute", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_FreightRoute"), @style = "width:100%" }))
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_IncoTerm") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownListFor(m => m.IncoTermId)
+                                                                                          .OptionLabel(@Helper.GetResourceString("plho_IncoTerm"))
+                                                                                          .DataTextField("Name")
+                                                                                          .DataValueField("Id")
+                                                                                          .DataSource(source => source.Read(read => read.Action("GetIncoTermddl", "Lookup"))
+                                                                                          .ServerFiltering(false))
+                                                                                          .HtmlAttributes(new { id = "ddlIncoTerm", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_IncoTerm"), @style = "width:100%" }))
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_Sku") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().MultiSelectFor(m => m.SkuId)
+                                                            .DataTextField("SkuName")
+                                                            .DataValueField("SkuId")                                                       
+                                                            .DataSource(source => source.Read(read => read.Action("GetSkusBasedOnOilType", "Lookup").Data("skuAdditionalInfo"))
+                                                            .ServerFiltering(true))
+                                                            .HtmlAttributes(new { id = "ddlSkuName", @class = "form-control", tabindex = "7", data_msg_required = Helper.GetSelectMsgRequired("lbl_Sku"), @style = "width:100%" }))
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-2 text-right control-label">
+                                    @Helper.GetResourceString("lbl_FromDate")
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DatePickerFor(s=>s.FromDate)
+                                                          .Events(e => e.Change("fromChange"))
+                                                          .HtmlAttributes(new { id = "StartDate", onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                                </div>
+                                <div class="col-md-2 text-right control-label">
+                                    @Helper.GetResourceString("lbl_ToDate")
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DatePickerFor(s=>s.ToDate)
+                                                        
+                                                          .Enable(false)
+                                                          .HtmlAttributes(new { id = "EndDate", onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                                </div>
+                            </div>
+
+
+                            <div style="display:none">
+                                <input type="hidden" name="SkuIds" />
+                            </div>
+                            <div class="form-group row text-center">
+                                <button type="submit" id="btnSave" class="k-primary k-button">Get Oil Price<i class="icon-arrow-right14 position-right"></i></button>
+                            </div>
+                        </div>
+                    </form>
+              
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="oilTypeReport"></div>
+</div>
+
+<script>
+   
+    function fromChange() {
+        var endPicker = $("#EndDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate() + 6);
+            $("#EndDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+            endPicker.value(startDate);
+        }
+    }
+
+    function additionalDistrictByStateInfo() {
+        return {
+            territoryId: Number($("#ddlTerritory").val())
+        };
+    }
+
+    function additionalCityByDistrictInfo() {
+        var districtId = $("#ddlDistrict").data("kendoDropDownList").value();
+        return {
+            districtId: districtId
+        };
+    }
+
+    function onStateChange(e) {
+        $("#ddlTerritory").data("kendoDropDownList").dataSource.read();
+    }
+
+    function onDistrictChange(e) {
+        $("#ddlCity").data("kendoDropDownList").dataSource.read();
+    }
+
+    function OnStateDataBound(e) {
+        var stateId = $("#ddlState").data("kendoDropDownList").value();
+        if (stateId > 0) {
+            $("#ddlTerritory").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    function OnDistrictDataBound(e) {
+        var districtId = $("#ddlDistrict").data("kendoDropDownList").value();
+        if (districtId > 0) {
+            $("#ddlCity").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    //Zone
+    function onZoneChange() {
+        $("#ddlState").data("kendoDropDownList").dataSource.read();
+    }
+
+    function stateLoadParam() {
+        var zoneId = $("#ddlZone").data("kendoDropDownList").value();
+        return {
+            zoneId: zoneId
+        }
+    }
+
+    //Territory
+    function territoryAdditionalInfo() {
+        return {
+            stateId: Number($("#ddlState").val())
+        }
+    }
+
+    function territoryChange() {
+        $("#ddlDistrict").data("kendoDropDownList").dataSource.read();
+    }
+
+    function OnTerritoryDataBound() {
+        var territoryId = Number($("#ddlTerritory").val());
+        if (territoryId > 0) {
+            $("#ddlDistrict").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    function oilTypeAdditionalInfo() {
+        var verticalId = $("#ddlVertical").data("kendoDropDownList").value();
+        return {
+            verticalId: Number(verticalId)
+        };
+    }
+
+    function onVerticalTypeChange() {
+        $("#ddlOilType").data("kendoDropDownList").dataSource.read();
+    }
+
+    function freightZoneAdditionalInfo() {
+        var ddlDepot = $("#ddlDepot").data("kendoDropDownList").value();
+        return {
+            depotId: Number(ddlDepot)
+        };
+    }
+
+    function freightRouteAdditionalInfo() {
+        var ddlFreightZone = $("#ddlFreightZone").data("kendoDropDownList").value();
+        return {
+            zoneId: Number(ddlFreightZone)
+        };
+    }
+
+    function onFreightZoneChange() {
+        $("#ddlFreightRoute").data("kendoDropDownList").dataSource.read();
+    }
+
+    function onPlantChange() {
+        $("#ddlDepot").data("kendoDropDownList").dataSource.read();
+    }
+
+    function depotLoadParam() {
+        var plantId = $("#ddlPlant").data("kendoDropDownList").value();
+        return {
+            plantId: plantId
+        };
+    }
+
+    function skuAdditionalInfo() {
+        var oilTypeId = $("#ddlOilType").data("kendoDropDownList").value();
+        return {
+            oiltypeId: oilTypeId
+        }
+    }
+
+    //Oiltype Change Events
+    function onOiltypeChange() {
+        
+        $("#ddlSkuName").data("kendoMultiSelect").dataSource.read();
+        $("#ddlSkuName").data("kendoMultiSelect").value(0);
+    }
+
+    function GetOilPriceReport(e) {
+        
+        event.preventDefault();
+        var formdata = {};
+        $("#frmSearchPricing").serializeArray().map(function (item) {
+            if (formdata[item.name]) {
+                if (typeof (formdata[item.name]) === "string") { 
+                    formdata[item.name] = [formdata[item.name]];
+                }
+                formdata[item.name].push(item.value);
+            } else {
+                formdata[item.name] = item.value;
+            }
+        });       
+        var todate = $("#EndDate").val();
+        formdata["ToDate"] = todate;
+        //$("#oilTypeReport").load('@Url.Action("GetOilPriceReport", "Report")', formdata);  
+
+        $.ajax('@Url.Action("GetOilPriceReport", "Report")', {
+            type: 'POST',  // http method
+            data: formdata,  // data to submit
+            success: function (data, status, xhr) {
+                $("#oilTypeReport").empty();
+                $("#oilTypeReport").html(data);
+            },
+            error: function (jqXhr, textStatus, errorMessage) {
+                $("#oilTypeReport").empty();
+                $("#oilTypeReport").html("Request Failed");
+            }
+        });
+
+    }
+ 
+</script>

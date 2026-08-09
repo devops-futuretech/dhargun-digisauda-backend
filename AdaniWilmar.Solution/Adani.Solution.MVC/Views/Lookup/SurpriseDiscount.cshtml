@@ -1,0 +1,200 @@
+﻿@using Kendo.Mvc.UI;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.MVC.Models;
+@model Adani.Solution.DTO.SurpriseDiscountDto
+@{
+    ViewBag.Title = Helper.GetResourceString("lbl_SurpriseDiscount");
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="discountSurprise" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3"> @Helper.GetResourceString("lbl_SurpriseDiscount")</h2>
+    <div id="dateFilter" class="col-xs-9">        
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">        
+        <div class="panel-body" style="display: block;">
+            <p class="content-group-lg"></p>
+
+            @using (Html.BeginForm("SurpriseDiscount", "Lookup", FormMethod.Post, new { id = "frmSurpriseDiscount", @class = "form-validate-jquery" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.Id, new { id = "hdnId" })
+
+                <div class="row form-group">
+                    <div class="col-md-4 text-right">
+                        @Helper.GetResourceString("lbl_OilType") <span class="text-danger">*</span>
+                    </div>
+                    <div class="col-lg-4">
+                        @(Html.Kendo().DropDownListFor(m => m.OilTypeId)
+                                    .DataTextField("Name")
+                                    .DataValueField("Id")
+                                    .OptionLabel(@Helper.GetResourceString("plho_SelectOilType"))
+                                    .Events(e => e.Change("onOilTypeChange"))
+                                    .DataSource(source => source.Read(read => read.Action("GetOilTypeDetailsddlAsync", "Pricing", new { isToReturnInactiveData = true }))
+                                    .ServerFiltering(true))
+                                    .HtmlAttributes(new { id = "ddlOilType", tabindex = "1", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilType"), @style = "width:100%" }))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-4 text-right">
+                        @Helper.GetResourceString("lbl_Sku") <span class="text-danger">*</span>
+                    </div>
+                    <div class="col-lg-4">
+                        @(Html.Kendo().DropDownListFor(m => m.SkuId)
+                                    .DataTextField("SkuName")
+                                    .DataValueField("SkuId")
+                                    .OptionLabel("Select Sku")
+                                    .DataSource(source => source.Read(read => read.Action("GetSkusBasedOnOilType", "Lookup").Data("skuAdditionalInfo"))
+                                    .ServerFiltering(true))
+                                    .HtmlAttributes(new { id = "ddlSkuName", tabindex = "2", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Sku"), @style = "width:100%" }))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-4 text-right">
+                        @Helper.GetResourceString("lbl_OilPackingType") <span class="text-danger">*</span>
+                    </div>
+                    <div class="col-lg-4">
+                        @(Html.Kendo().DropDownListFor(m => m.OilPackingTypeId)
+                                   .OptionLabel(@Helper.GetResourceString("plho_SelectOilPackingType"))
+                                   .DataTextField("Name")
+                                   .DataValueField("Id")
+                                   .DataSource(source => source.Read(read => read.Action("GetOilPackingTypeListAsync", "Lookup", new { isToReturnInactiveData = true }))
+                                   .ServerFiltering(true))
+                                   .HtmlAttributes(new { id = "ddlOilPackingType", tabindex = "3", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilPackingType"), @style = "width:100%" }))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-4 text-right">
+                        @Helper.GetResourceString("lbl_CustomerName") <span class="text-danger">*</span>
+                    </div>
+                    <div class="col-md-4">
+                        @(Html.Kendo().DropDownListFor(m => m.CustomerId)
+                                    .DataTextField("Name")
+                                    .DataValueField("Id")
+                                    .OptionLabel(@Helper.GetResourceString("plho_SelectCustomer"))
+                                    .DataSource(source => source.Read(read => read.Action("GetUserDetailsddlAsync", "Pricing", new { isToReturnInactiveData = true }))
+                                    .ServerFiltering(true))
+                                    .HtmlAttributes(new { id = "ddlCustomer", @class = "", tabindex = "4", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_CustomerName"), @style = "width:100%" }))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-4 text-right">
+                        @Helper.GetResourceString("lbl_Discount") <span class="text-danger">*</span>
+                    </div>
+                    <div class="col-lg-4">
+                        @Html.TextBoxFor(m => m.Discount, new { id = "txtDiscount", tabindex = "5", required = "required", @class = "k-textbox", data_msg_required = Helper.GetMsgRequired("lbl_Discount"), @maxlength = (int)InputMaxLength.String })
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="control-label col-lg-4">@Helper.GetResourceString("lbl_FromDate")</label>
+                    <div class="col-lg-4">
+                        @(Html.Kendo().DatePickerFor(m => m.ValidFrom)
+                                    .Name("dpFromDate")
+                                    .Format(Settings.DateFormat)
+                                    .HtmlAttributes(new { id = "dpFromDate", tabindex = "6", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_FromDate"), style = "width: 100%" }))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="control-label col-lg-4">@Helper.GetResourceString("lbl_ToDate")</label>
+                    <div class="col-lg-4">
+                        @(Html.Kendo().DatePickerFor(m => m.ValidTo)
+                                    .Name("dpToDate")
+                                    .Format(Settings.DateFormat)
+                                    .HtmlAttributes(new { id = "dpToDate", tabindex = "7", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_ToDate"), style = "width: 100%" }))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-12 text-center">
+                        <button type="button" tabindex = "8" id="btnCancel" onclick="location.href = '@Url.Action("SurpriseDiscounts", "Lookup")'" class="k-button">@Helper.GetResourceString("btn_Cancel")</button>
+                        <button type="button" tabindex = "9" id="btnSave" class="k-primary k-button">@Helper.GetResourceString("btn_Save") <i class="icon-arrow-right14 position-right"></i></button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        if ('@Model.PostMessage' !== ""){
+			   if ('@Model.PostStatus' === '@true') {
+					ShowSuccessMessage('@Model.PostMessage');
+				} else {
+					ShowErrorMessage('@Model.PostMessage');
+				}
+		}
+        $("#btnSave").click(function (e) {
+			formSubmit();
+        });
+
+         if ('@Model.Discount' == 0){
+             $("#txtDiscount").val('');
+         }
+
+    });
+
+    function formSubmit() {
+        
+        var isValidForm = $("#frmSurpriseDiscount").valid(); 
+        
+        if (isValidForm) {
+
+            window.kendo.ui.progress($("#div_Progress"), true);
+            var form = $('#frmSurpriseDiscount');
+            var token = $('input[name="__RequestVerificationToken"]', form).val();           
+
+            var model = {
+                   OilTypeId: $("#ddlOilType").data("kendoDropDownList").value(),
+                   SkuId: $("#ddlSkuName").data("kendoDropDownList").value(),
+                   OilPackingTypeId: $("#ddlOilPackingType").data("kendoDropDownList").value(),
+                   ValidFrom: $("#dpFromDate").val(),
+                   ValidTo: $("#dpToDate").val(),
+                   Discount: $("#txtDiscount").val(),
+                   Id: $("#hdnId").val(),
+                   CustomerId: $("#ddlCustomer").data("kendoDropDownList").value()      
+            };
+
+            moduleCommon.Common.AjaxCall({
+            url: '@Url.Action("SurpriseDiscount", "Lookup")',
+		    type: 'POST',
+            data: { __RequestVerificationToken: token, surpriseDiscountDto: model },
+		    success: function (result) {
+                if (result.PostStatus) {
+                    ShowSuccessMessage(result.PostMessage);
+                    setTimeout(() => {                        
+                        window.location.href = '@Url.Action("SurpriseDiscounts", "Lookup")';
+                    }, 1500);				   
+			    } else {
+				    ShowErrorMessage(result.PostMessage);
+				    window.kendo.ui.progress($("#div_Progress"), false);
+				    return false;
+			    }
+		    }
+		    });
+        }  
+    }
+
+    //Oiltype Change Events
+    function onOilTypeChange() {
+        $("#ddlSkuName").data("kendoDropDownList").dataSource.read();
+    }
+
+    //SkuName loading additional parameters
+    function skuAdditionalInfo() {
+        var oilTypeId = $("#ddlOilType").data("kendoDropDownList").value();
+            if (!oilTypeId) {
+                if ('@Model.Id' != 0) {
+                oilTypeId = '@Model.OilTypeId';
+            }
+        }        
+        return {
+            oiltypeId: Number(oilTypeId)
+        }
+    }
+</script>

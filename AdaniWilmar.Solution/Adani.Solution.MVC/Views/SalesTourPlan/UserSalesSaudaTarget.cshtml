@@ -1,0 +1,140 @@
+﻿@using Kendo.Mvc.UI;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@model Adani.Solution.DTO.UserSalesSaudaTargetDto
+@{
+    ViewBag.Title = Helper.GetResourceString("msg_Reasons");
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="salestourplanUserSalesSaudaTarget" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("msg_UserSalesSaudaTarget")</h2>
+    <div id="dateFilter" class="col-xs-9">
+
+        <div class="period-wrapper">
+
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <p class="content-group-lg"></p>
+
+            @using (Html.BeginForm("UserSalesSaudaTarget", "SalesTourPlan", FormMethod.Post, new { id = "frmUserSalesSaudaTarget", @class = "form-validate-jquery" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.Id)
+            <fieldset class="content-group">
+                <div class="row form-group">
+                    <label class="control-label col-lg-4">@Helper.GetResourceString("lbl_BDO")</label>
+                    <div class="col-lg-6">
+                        @(Html.Kendo().DropDownListFor(m => m.UserId)
+                                                                    .OptionLabel(@Helper.GetResourceString("lbl_BDO"))
+                                                                    .DataTextField("EmployeeName")
+                                                                    .DataValueField("Id")
+                                                                    .DataSource(source => source.Read(read => read.Action("GetUsersByRoleAsync", "Lookup", new { userRoleId = (int)Role.Admin }))
+                                                                    .ServerFiltering(true))
+                                                                    .HtmlAttributes(new { id = "ddlBDO", tabindex = "1", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_BDO"), @style = "width:100%" }))
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <label class="control-label col-lg-4">@Helper.GetResourceString("lbl_CalendarDuaration")</label>
+                    <div class="col-lg-6">
+                        @(Html.Kendo().DropDownListFor(m => m.FinancialYearId)
+                                                                            .OptionLabel(@Helper.GetPlaceHolderSelectMsg("lbl_Year"))
+                                                                            .DataTextField("Year")
+                                                                            .DataValueField("Id")
+                                                                            .DataSource(source => source.Read(read => read.Action("GetActiveFinancialYearListAsync", "SalesTourPlan"))
+                                                                            .ServerFiltering(true))
+                                                                            .HtmlAttributes(new { id = "ddlYear", tabindex = "2", onchange = "onchangeFinancialYear();", @class = "", @style = "width:100%" }))
+                    </div>
+                </div>
+
+                <div id="dv_detail">
+
+                </div>
+                @{
+                    if (Model.UserSalesSaudaTargetDetail.Any())
+                    {
+                        if (Model.UserSalesSaudaTargetDetail.Count > 0)
+                        {
+                            <div id="dv_detailpartial">
+                                @Html.Partial("UserSaleTargetDetail", Model)
+                            </div>
+                        }
+                    }
+                }
+            </fieldset>
+                <div class="text-right">
+                    <button type="button" tabindex = "3" id="btnCancel" onclick="location.href = '@Url.Action("UserSalesSaudaTargets", "SalesTourPlan")'" class="k-button">@Helper.GetResourceString("btn_Cancel")</button>
+                    <button type="button" tabindex = "4" id="btnSave" class="k-primary k-button">@Helper.GetResourceString("btn_Save") <i class="icon-arrow-right14 position-right"></i></button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script>
+	$(document).ready(function () {
+		 if ('@Model.PostMessage' !== ""){
+			   if ('@Model.PostStatus' === '@true') {
+					ShowSuccessMessage('@Model.PostMessage');
+				} else {
+				   ShowErrorMessage('@Model.PostMessage');
+				}
+		}
+  //      if ($("#ddlYear").data("kendoDropDownList").value() != "") {
+  //          onchangeFinancialYear();	
+		//}
+        $("#btnSave").click(function (e) {
+			formSubmit();
+		});
+	});
+
+    function formSubmit() {
+        $('#frmUserSalesSaudaTarget').submit();
+        var isValid = $("#frmUserSalesSaudaTarget").valid();
+        if (isValid) {
+
+		}
+	}
+    function onchangeFinancialYear() {
+        var errorFlag = false;
+		var errorMessage = "";
+
+        if ($("#ddlBDO").data("kendoDropDownList").value() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_BDO")');
+			errorFlag = true;
+		}
+        if ($("#ddlYear").data("kendoDropDownList").value() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_CalendarDuaration")');
+			errorFlag = true;
+		}
+
+		if (errorFlag) {
+			ShowErrorMessageLeftAlign(errorMessage);
+        } else {
+            var FinancialYearId = $("#ddlYear").data("kendoDropDownList").value();
+
+			$.ajax({
+                url: "/SalesTourPlan/UserSaleTargetDetail",
+				type: 'POST',
+                data: { FinancialYearId: FinancialYearId },
+                success: function (result) {
+					if (result !== null) {
+                        $("#dv_detail").html(result);
+					}
+				}
+			});
+		}
+
+    }
+
+</script>

@@ -1,0 +1,288 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+
+@{
+    ViewBag.Title = "CrossAndUpsellList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="saudaconditionalbookingconfig" />
+
+<div id="main-section-header" class="row">
+    <h2 class="main-title">Cross-Selling & Upselling List</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Cross-Selling & Upselling Settings</a><span class="icon-right"></span></li>
+        <li class="active">Cross-Selling & Upselling List<span class="icon-right"></span></li>
+    </ol>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-body">
+            <div class="row" id="dvPercentileNumber">
+                <div class="text-right right-buttons">
+                    <div class="export_as">
+                        <span>Export as</span>
+                        <div class="export-btns">
+                            <span class="export-link" id="CrossAndUpsellConfigExport" type="button">Excel</span>
+                        </div>
+                    </div>
+
+                    @(Html.Kendo().CheckBox()
+                        .Name("chkKendoFilterShowHide")
+                        .HtmlAttributes(new { id = "chkKendoFilterShowHide" })
+                        .Label(@Helper.GetResourceString("msg_ShowFilter")))
+
+                    <div class="period-wrapper">
+                        <a href="@Url.Action("AddCrossAndUpsell", "CrossAndUpsell")"
+                           class="k-primary k-button custom-btns">
+                            <b><i class="icon-plus"></i></b>&ensp;
+                            @Helper.GetResourceString("lbl_CrossAndUpSellCreate")
+                        </a>
+                    </div>
+                </div>
+
+                @(Html.Kendo().Grid<SaudaConditionalBookingConfigurationListDto>()
+                    .Name("CrossAndUpSellConfigurationList")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(c => c.Id).Visible(false);
+                        columns.Bound(c => c.Id).Title(@Helper.GetResourceString("lbl_SaudaConditionalId")).ClientTemplate(@"<div><a style='text-decoration: underline;' href='" + Url.Action("EditSaudaConditionalBookingRedirect", "CrossAndUpsell", new { EncryptedId = "#=EncryptedId#" }) + @"' title='" + @Helper.GetResourceString("msg_Edit") + @"'>#=Id#</a></div>").Width(Settings.GridOtherColumnWidth);
+                        //columns.Bound(c => c.OilTypeName).Title(@Helper.GetResourceString("msg_OilType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth).HtmlAttributes(new { @class = "tooltip-col", title = "#= ZoneNames #" });
+                        //columns.Bound(c => c.PackGroupName).Title(@Helper.GetResourceString("lbl_PackGroup")).Width(Settings.GridOtherColumnWidth);
+                        columns.Bound(c => c.ZoneNames).Title(@Helper.GetResourceString("lbl_Zone")).Width(Settings.GridColumnMaxWidth).HtmlAttributes(new { @class = "tooltip-col", title = "#= ZoneNames #" });
+                        columns.Bound(c => c.StateNames).Title(@Helper.GetResourceString("lbl_State")).Width(Settings.GridColumnMaxWidth).HtmlAttributes(new { @class = "tooltip-col", title = "#= StateNames #" });
+                        columns.Bound(c => c.StartDate).Format("{0:yyyy-MM-dd HH:mm:ss}").Title(@Helper.GetResourceString("lbl_StartDate")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.DateFilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnButtonWidth);
+                        columns.Bound(c => c.EndDate).Format("{0:yyyy-MM-dd HH:mm:ss}").Title(@Helper.GetResourceString("lbl_EndDate")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.DateFilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnButtonWidth);
+                        columns.Bound(c => c.IsActive)
+                               .Title("IsActive")
+                               .ClientTemplate(
+                                   @"<div style='text-align: center;'>
+                                        # if (IsActive) { #
+                                            <a title='" + Helper.GetResourceString("msg_Active") + @"'>
+                                                <i class='icon-checkbox-checked2 faicon-green'></i>
+                                            </a>
+                                        # } else { #
+                                            <a title='" + Helper.GetResourceString("msg_Inactive") + @"'>
+                                                <i class='icon-cancel-square2 faicon-red'></i>
+                                            </a>
+                                        # } #
+                                    </div>")
+                               .Width(Settings.GridOtherColumnWidth);
+                    })
+                    .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                    .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                    .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                    .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                    .Scrollable(s => s.Enabled(true).Height("auto"))
+                    .Resizable(resize => resize.Columns(true))
+                    .Reorderable(reorder => reorder.Columns(true))
+                    .ClientDetailTemplateId("template")
+                    .Excel(excel => excel.AllPages(true).FileName(@Helper.GetResourceString("lbl_SaudaBookingConfig") + " " + DateTime.Now + ".xlsx").Filterable(true))
+                    .Events(events => events.DetailExpand("onDetailExpand").DataBound("OnCrossAndUpsellDatabound"))
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Model(model => model.Id(p => p.Id))
+                        .ServerOperation(true)
+                        .Read(read => read.Action("GetCrossAndUpsellList", "CrossAndUpsell"))))
+
+                <script id="template" type="text/kendo-tmpl">
+                    @(Html.Kendo().Grid<SaudaConditionalBookingSkuMappingListDto>()
+                          .Name("CrossAndUpSellConfigurationList_#=Id#")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.MandatorySkuName).Title(@Helper.GetResourceString("lbl_MandatorySkuName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.MandatorySkuCode).Title(@Helper.GetResourceString("lbl_MandatorySkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.MandatoryBookingQuantityPercentage).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_Percentage")).Width(Settings.GridColumnButtonWidth);
+                              columns.Bound(c => c.OilType).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("msg_OilType")).Width(Settings.GridColumnButtonWidth);
+                              columns.Bound(c => c.IsActive).ClientTemplate("<div style='text-align: center;'>\\# if (IsActive) { \\#<a title='Active'><i class='icon-checkbox-checked2 faicon-green'></i></a>\\# } else { \\#<a title='Inactive'><i class='icon-cancel-square2 faicon-red'></i></a>\\# } \\#</div>"
+                              ).Title("IsActive").Width(Settings.GridFilterColumnWidth);
+
+                          })
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Sort(sort => sort.Add("Id").Descending())
+                          .PageSize(10)
+                          .Read(read => read.Action("GetCrossAndUpsellSkusList", "CrossAndUpsell", new { id = "#=Id#"}))
+                          .Group(groups => groups
+                            .Add(p => p.EssentialSkuName))
+                          )
+                          .Pageable()
+                          .Sortable()
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .Resizable(resize => resize.Columns(true))
+                          .Events(e => e.DataBound("OnCrossAndUpsellSkuDatabound"))
+                          .ToClientTemplate())
+                </script>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@(Html.Kendo().Window()
+    .Name("EssentialSkuWindow")
+    .Title("Essential Sku List")
+    .Visible(false)
+    .Modal(true)
+    .Draggable(true)
+    .Width(800)
+    .Actions(actions => actions.Close())
+    .Events(events => events.Activate("onEssentialWindowActivate"))
+    .Content(@<text>
+        <div id="EssentialGridContainer">
+            <div class="row">
+            @(Html.Kendo().Grid<SaudaConditionalBookingSkuMappingListDto>()
+                .Name("EssentialSkus")
+                .Columns(columns =>
+                {
+                    columns.Bound(c => c.EssentialSkuName).Title(@Helper.GetResourceString("lbl_EssentialSkuName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                    columns.Bound(c => c.EssentialSkuCode).Title(@Helper.GetResourceString("lbl_EssentialSkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                })
+                .Scrollable()
+                .Pageable()
+                .DataSource(dataSource => dataSource
+                   .Ajax()
+                   .ServerOperation(false)
+                   .PageSize(Settings.MinimumPageSize)
+                )
+            )
+            </div>
+        </div>
+    </text>)
+)
+
+<style type="text/css">
+    .k-window-titlebar {
+        background-color: #E71928 !important;
+    }
+
+    .k-widget k-window {
+        min-height: 100px !important;
+        height: auto !important;
+    }
+
+    #EssentialSkus .k-grid-content {
+        height: auto !important;
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+        FilterContains();
+
+        if ('@TempData["SuccessMessage"]'.length) {
+            ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+
+        $("#CrossAndUpSellConfigurationList").kendoTooltip({
+            filter: ".tooltip-col",
+            content: function (e) {
+                return $(e.target).text();
+            },
+            position: "top"
+        });
+
+
+        $("#SaudaBookingConfigExport").click(function ()
+        {
+             window.kendo.ui.progress($("#div_Progress"), true);
+                 $.ajax({
+                     type: "POST",
+                     url: '@Url.Action("ExportSaudaBookingConfiguration", "Sauda")',
+                     success: function (responce) {
+                         if (responce.FileGuid) {
+                             window.location.href = '@Url.Action("ExcelDownload", "Base")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                         } else {
+                             ShowErrorMessage("No records found");
+                         }
+                         window.kendo.ui.progress($("#div_Progress"), false);
+                     },
+                     error: function (responce) {
+                         ShowErrorMessage("File download failed");
+                         window.kendo.ui.progress($("#div_Progress"), false);
+                     }
+                 });
+        });
+    });
+
+    function onDetailExpand(e) {
+        var grid = $("#CrossAndUpSellConfigurationList").data("kendoGrid");
+        grid.tbody.find("> tr.k-master-row").not(e.masterRow).each(function () {
+            grid.collapseRow($(this));
+        });
+    }
+
+    function OnCrossAndUpsellSkuDatabound(e) {
+        var grid = this;
+        grid.tbody.find("tr").on("dblclick", function (e) {
+            var dataItem = grid.dataItem(this);
+            if (dataItem) {
+                LoadEssentialSkusPopup(dataItem);
+            }
+        });
+    }
+
+    function LoadEssentialSkusPopup(data) {
+        var popup = $("#EssentialSkuWindow").data("kendoWindow");
+        popup.center().open();
+        var skuData = [];
+        var essentialSku = $("#EssentialSkus").data("kendoGrid");
+
+        if (data) {
+            essentialSku.dataSource.data([]);
+            data.EssentialSkuName.split(",").forEach(function (val) {
+                var skuName = val.split("-")[0];
+                var skuCode = val.split("-")[1];
+
+                skuData.push({
+                    SkuName: skuName,
+                    SkuCode: skuCode
+                });
+            });
+
+            skuData.forEach(function (val) {
+                essentialSku.dataSource.add({
+                    EssentialSkuName: val.SkuName || val.Name,
+                    EssentialSkuCode: val.SkuCode || val.Code,
+                });
+            });
+        }
+    }
+
+    function onEssentialWindowActivate() {
+        var popup = $("#EssentialSkuWindow").data("kendoWindow");
+        popup.center();
+    }
+
+    $("#CrossAndUpsellConfigExport").click(function () {
+       window.kendo.ui.progress($("#div_Progress"), true);
+          $.ajax({
+              type: "POST",
+              url: '@Url.Action("ExportCrossAndUpsellConfiguration", "CrossAndUpsell")',
+              success: function (responce) {
+                  if (responce.FileGuid) {
+                      window.location.href = '@Url.Action("ExcelDownload", "Base")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                  } else {
+                      ShowErrorMessage("No records found");
+                  }
+                  window.kendo.ui.progress($("#div_Progress"), false);
+              },
+              error: function (responce) {
+                  ShowErrorMessage("File download failed");
+                  window.kendo.ui.progress($("#div_Progress"), false);
+              }
+          });
+    });
+
+    function OnCrossAndUpsellDatabound(e) {
+        $(".k-filtercell .k-datepicker input").attr("readonly", "readonly");
+    }
+
+</script>

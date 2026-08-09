@@ -1,0 +1,442 @@
+﻿
+
+@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using System.Security.Claims
+@using Adani.Solution.DTO.Enums
+@model Adani.Solution.DTO.PendingContractReportDto
+
+@{
+    ViewBag.Title = "PendingContractReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+@{
+    var userid = string.Empty;
+    var identity = (ClaimsIdentity)HttpContext.Current.User.Identity;
+    userid = identity.FindFirst("UserId")?.Value;
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="reportContract" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_PendingContractReport")</h2>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvPendingContract">
+                @if (Helper.CheckClaims(Adani.Solution.DTO.Enums.Claims.ManageOrganization))
+                {
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right control-label">
+                            @Helper.GetResourceString("lbl_Zone")
+                        </div>
+                        <div class="col-md-3">
+                            @(Html.Kendo().MultiSelectFor(m => m.ZoneIds)
+                                                                                                                                               .Events(events => events.Change("onZoneChange").DataBound("onZoneDataBound"))
+                                                                                                                                               .Placeholder("Select Zone")
+                                                                                                                                               .DataTextField("Name")
+                                                                                                                                               .DataValueField("Id")
+                                                                                                                                               .AutoClose(false)
+                                                                                                                                               .TagMode(TagMode.Single)
+                                                                                                                                               //.MaxSelectedItems(ConfigHelper.MaxSelectedOneItemForMultiselect)
+                                                                                                                                               .DataSource(source => source.Read(read => read.Action("GetZoneListddl", "Lookup", new { isToReturnInactiveData = false }))
+                                                                                                                                               .ServerFiltering(false))
+                                                                                                                                               .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='zoneSelectAll'> Select All</label>")
+                                                                                                                                               .HtmlAttributes(new { id = "ddlZone", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Zone"), @style = "width:100%" }))
+                        </div>
+                        <div class="col-md-2 text-right control-label">
+                            @Helper.GetResourceString("lbl_State")
+                        </div>
+                        <div class="col-md-3">
+                            @(Html.Kendo().MultiSelectFor(m => m.StateIds)
+                                                                                                                                          .Events(events => events.Change("onStateChange").DataBound("onStateDataBound"))
+                                                                                                                                          .Placeholder("Select State")
+                                                                                                                                          .DataTextField("Name")
+                                                                                                                                          .DataValueField("Id")
+                                                                                                                                          .AutoClose(false)
+                                                                                                                                          .TagMode(TagMode.Single)
+                                                                                                                                          .DataSource(source => source.Read(read => read.Action("GetStatesBasedOnZoneIds", "Lookup").Data("stateLoadParam"))
+                                                                                                                                          .ServerFiltering(false))
+                                                                                                                                          .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='stateSelectAll'> Select All</label>")
+                                                                                                                                          .HtmlAttributes(new { id = "ddlState", @class = "", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_State"), @style = "width:100%" }))
+                        </div>
+                    </div>
+                }
+                @if (Helper.CheckClaims(Adani.Solution.DTO.Enums.Claims.ManageOrganization))
+                {
+                    <div class="row form-group">
+
+                        <div class="col-md-2 text-right">
+                            @Helper.GetResourceString("lbl_ZonalHead")
+                        </div>
+                        <div class="col-md-3">
+                            @(Html.Kendo().MultiSelect().Name("ZonalHeadId")
+                                                                              .Events(events => events.Change("onZonalHeadChange").DataBound("onZonalheadDataBound"))
+                                                                              .Placeholder("Select Zonal Head")
+                                                                              .DataTextField("Name")
+                                                                              .DataValueField("Id")
+                                                                              .AutoClose(false)
+                                                                              .TagMode(TagMode.Single)
+                                                                              //.DataSource(source => source.Read(read => read.Action("GetZonalHeadList", "Lookup", new { isToReturnInactiveData = false }))
+                                                                              .DataSource(source => source.Read(read => read.Action("GetZonalHeadBasedonZoneState", "Lookup").Data("zonalHeadLoadParam"))
+                                                                              .ServerFiltering(false))
+                                                                              .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='zonalheadSelectAll'> Select All</label>")
+                                                                              .HtmlAttributes(new { id = "ddlZonalHead", @class = "", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_ZonalHead"), @style = "width:100%" }))
+                        </div>
+
+                        <div class="col-md-2 text-right control-label">
+                            @Helper.GetResourceString("lbl_BDO")
+                        </div>
+                        <div class="col-md-3">
+                            @(Html.Kendo().MultiSelectFor(m => m.BDOIds)
+                                                                                                                            .Events(events => events.Change("onBDOChange").DataBound("onBDODataBound"))
+                                                                                                                            .Placeholder("Select StateTrader")
+                                                                                                                            .DataTextField("Name")
+                                                                                                                            .DataValueField("Id")
+                                                                                                                            .AutoClose(false)
+                                                                                                                            .TagMode(TagMode.Single)
+                                                                                                                            //.MaxSelectedItems(ConfigHelper.MaxSelectedOneItemForMultiselect)
+                                                                                                                            .DataSource(source => source.Read(read => read.Action("GetBDOBasedOnZonalheadIds", "Lookup").Data("BDOLoadParam"))
+                                                                                                                            .ServerFiltering(false))
+                                                                                                                            .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='BDOSelectAll'> Select All</label>")
+                                                                                                                            .HtmlAttributes(new { id = "ddlBDO", @class = "", tabindex = "4", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_BDO"), @style = "width:100%" }))
+                        </div>
+
+                    </div>
+                }
+            <div class="row form-group">
+                @if (Helper.CheckClaims(Adani.Solution.DTO.Enums.Claims.ManageOrganization))
+                {
+                    <div class="col-md-2 text-right">
+                        @Helper.GetResourceString("lbl_Vertical") <span class="text-danger"></span>
+                    </div>
+                    if (Model.RoleId == (long)Role.Admin || Model.RoleId == (long)Role.SubAdmin)
+                    {
+                        <div class="col-md-3">
+                            @(Html.Kendo().DropDownList().Name("VerticalId")
+                                    .Events(events => events.Change("onVerticalChange").Select("onVerticalSelect").DataBound("onVerticalDataBound"))
+                                    .OptionLabel(@Helper.GetResourceString("plho_All"))
+                                    .DataTextField("Name")
+                                    .DataValueField("Id")
+                                    .DataSource(source => source.Read(resd => resd.Action("GetVerticalDetailsdd", "Lookup"))
+                                    .ServerFiltering(false))
+                                    .HtmlAttributes(new { id = "ddlVertical", tabindex = "5", @class = "", data_msg_required = Helper.GetSelectMsgRequired("lbl_Vertical"), @style = "width:100%" }))
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-3">
+                            @(Html.Kendo().DropDownList().Name("VerticalId")
+                                  .Events(events => events.Change("onVerticalChange").Select("onVerticalSelect").DataBound("onVerticalDataBound"))
+                                  .OptionLabel(@Helper.GetResourceString("plho_All"))
+                                  .DataTextField("Name")
+                                  .DataValueField("Id")
+                                  .Value(Model.VerticalId.ToString())
+                                  .DataSource(source => source.Read(resd => resd.Action("GetVerticalDetailsdd", "Lookup"))
+                                  .ServerFiltering(false))
+                                  .HtmlAttributes(new { id = "ddlVertical", tabindex = "5", @class = "", @style = "width:100%", @readonly = "readonly" }))
+                            </div>
+                    }
+                }
+                @Html.HiddenFor(m => m.VerticalId, new { id = "hdnVerticalId" })
+                <div class="col-md-2 text-right">
+                    @Helper.GetResourceString("lbl_OilType")
+                </div>
+                <div class="col-md-3">
+                    @(Html.Kendo().MultiSelectFor(m => m.OilTypeIds)
+                                                            .Events(events => events.Change("onOilTypeChange").DataBound("onOilTypeDataBound"))
+                                                            .Placeholder("Select Oil Type")
+                                                            .DataTextField("Name")
+                                                            .DataValueField("Id")
+                                                            .AutoClose(false)
+                                                            .TagMode(TagMode.Single)
+                                                            //.MaxSelectedItems(ConfigHelper.MaxSelectedOneItemForMultiselect)
+                                                            .DataSource(source => source.Read(read => read.Action("GetOilTypeOnVerticalList", "Lookup").Data("OilTypeLoadParam"))
+                                                            .ServerFiltering(false))
+                                                            .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='oilTypeSelectAll'> Select All</label>")
+                                                            .HtmlAttributes(new { id = "ddlOilType", @class = "", tabindex = "6", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilType"), @style = "width:100%" }))
+                </div>
+
+            </div>
+                    <div class="row form-group">
+                        <div class="col-md-12 text-center">
+                            <button type="button" tabindex="7" id="btnGenerateReport" class="k-primary k-button">Generate Report<i class="icon-arrow-right14 position-right"></i></button>
+                        </div>
+                    </div>
+
+                </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        $("#btnGenerateReport").click(function () {
+            var errorFlag = false;
+            var errorMessage = "";
+
+            if ('@Helper.CheckClaims(Adani.Solution.DTO.Enums.Claims.ManageOrganization)' == 'True') {
+
+                if ($("#ddlZone").data("kendoMultiSelect").value() == "") {
+                    errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_Zone")');
+                    errorFlag = true;
+                }
+
+                if ($("#ddlState").data("kendoMultiSelect").value() == "") {
+                    errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_State")');
+                    errorFlag = true;
+                }
+
+                if ($("#ddlZonalHead").data("kendoMultiSelect").value() == "") {
+                    errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_ZonalHead")');
+                    errorFlag = true;
+                }
+
+                if ($("#ddlBDO").data("kendoMultiSelect").value() == "") {
+                    errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_BDO")');
+                    errorFlag = true;
+                }
+            
+                @*if ($("#ddlVertical").val() == "") {
+			        errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_Vertical")');
+			        errorFlag = true;
+                }*@
+            }
+
+            if ($("#ddlOilType").data("kendoMultiSelect").value() == "") {
+			    errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_OilType")');
+			    errorFlag = true;
+            }
+
+            if (errorFlag) {
+                ShowErrorMessageLeftAlign(errorMessage);
+            }
+            else {
+                downloadPendingContractReport();
+            }
+        });
+
+
+        $("#stateSelectAll").click(function () {
+
+            MultiSelectSelectAll("ddlState", "stateSelectAll");
+            $("#ddlZonalHead").data("kendoMultiSelect").dataSource.read();
+            $("#ddlBDO").data("kendoMultiSelect").dataSource.read();
+        });
+
+        $("#zoneSelectAll").click(function () {
+            MultiSelectSelectAll("ddlZone", "zoneSelectAll");
+            $("#ddlState").data("kendoMultiSelect").dataSource.read();
+            $("#ddlZonalHead").data("kendoMultiSelect").dataSource.read();
+            $("#ddlBDO").data("kendoMultiSelect").dataSource.read();
+
+        });
+
+        $("#zonalheadSelectAll").click(function () {
+            MultiSelectSelectAll("ddlZonalHead", "zonalheadSelectAll");
+            $("#ddlBDO").data("kendoMultiSelect").dataSource.read();
+
+        });
+
+        $("#BDOSelectAll").click(function () {
+            MultiSelectSelectAll("ddlBDO", "BDOSelectAll");
+        });
+
+        $("#oilTypeSelectAll").click(function () {
+            MultiSelectSelectAll("ddlOilType", "oilTypeSelectAll");
+        });
+
+        
+    });
+
+    function MultiSelectCheckUnCheck(DropDownName, CheckBoxName) {
+        var dropdown = $("#" + DropDownName + "").data("kendoMultiSelect");
+        if (dropdown) {
+            var allIds = dropdown.dataSource.data().map(function (dataItem) { return dataItem.StateId; });            //Select all ids from dropdown
+            if ($("#" + CheckBoxName + "").is(":checked")) {
+                dropdown.value(allIds);
+            } else {
+                dropdown.value([]);
+            }
+        }
+    }
+
+    function MultiSelectEvents(DropDownName, CheckBoxName) {
+        var dropdown = $("#" + DropDownName + "").data("kendoMultiSelect");
+        if (dropdown) {
+            var selectedValueCount = dropdown.value().length;                                   //Selected value length
+            var totalValueCount = dropdown.dataSource.data().length;                            //Dropdown total value count
+            if (selectedValueCount > 0 && totalValueCount > 0 && selectedValueCount === totalValueCount) {
+                $("#" + CheckBoxName + "").prop("checked", true);
+            } else {
+                $("#" + CheckBoxName + "").prop("checked", false);
+            }
+        }
+    }
+
+    function downloadPendingContractReport(Id) {
+
+        window.kendo.ui.progress($("#div_Progress"), true);
+        
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("PendingContractExportAsync", "Report")',
+            data: {
+
+                ZoneIds: $("#ddlZone").val(),
+                StateIds: $("#ddlState").val(),
+                ZonalHeadIds: $("#ddlZonalHead").val(),
+                BDOIds: $("#ddlBDO").val(),
+                VerticalId: "0",
+                OilTypeIds: $("#ddlOilType").val(),
+            },
+            success: function (responce) {
+
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Report")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+    function onStateChange(e) {
+
+        $("#ddlZonalHead").val("");
+        $("#ddlBDO").val("");
+
+        $("#ddlZonalHead").data("kendoMultiSelect").dataSource.read();
+        $("#ddlBDO").data("kendoMultiSelect").dataSource.read();
+        $("#ddlOilType").data("kendoMultiSelect").dataSource.read();
+
+        MultiSelectIndividualSelect("ddlState", "stateSelectAll");        
+    }
+
+    function onVerticalChange(e) {
+        $("#ddlOilType").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function onVerticalSelect(e) {
+        $("#ddlOilType").data("kendoMultiSelect").dataSource.read();
+    }
+    
+    function additionalParamBDO() {
+        if ($("#ddlState").val()) {
+            return {
+                stateIds: $("#ddlState").val().join()
+            }
+        }
+    }
+
+    function onZoneChange(e) {
+
+        $("#ddlState").val("");
+        $("#ddlZonalHead").val("");
+        $("#ddlBDO").val("");
+
+        $("#ddlState").data("kendoMultiSelect").dataSource.read();
+        $("#ddlZonalHead").data("kendoMultiSelect").dataSource.read();
+        $("#ddlBDO").data("kendoMultiSelect").dataSource.read();
+        $("#ddlOilType").data("kendoMultiSelect").dataSource.read();
+
+        MultiSelectIndividualSelect("ddlZone", "zoneSelectAll");
+
+    }
+
+    function onZoneDataBound(e) {
+
+        MultiSelectIndividualSelect("ddlZone", "zoneSelectAll");
+    }
+
+    function onStateDataBound(e) {
+        MultiSelectIndividualSelect("ddlState", "stateSelectAll");
+    }
+
+    function stateLoadParam() {
+        return {
+            SelectedIds: ($("#ddlZone").val() ? $("#ddlZone").val().join() : "")
+        }
+    }
+
+    function zonalHeadLoadParam() {
+        return {
+            SelectedZoneIds: ($("#ddlZone").val() ? $("#ddlZone").val().join() : ""),
+            SelectedStateIds: ($("#ddlState").val() ? $("#ddlState").val().join() : "")
+        }
+    }
+
+    function onBDOChange() {
+
+        $("#ddlOilType").data("kendoMultiSelect").dataSource.read();
+        MultiSelectIndividualSelect("ddlBDO", "BDOSelectAll");
+    }
+
+    function onBDODataBound(e) {
+        MultiSelectIndividualSelect("ddlBDO", "BDOSelectAll");
+    }
+
+    function onZonalHeadChange(e)
+    {
+        $("#ddlBDO").val("");
+        $("#ddlBDO").data("kendoMultiSelect").dataSource.read();
+        $("#ddlOilType").data("kendoMultiSelect").dataSource.read();
+        MultiSelectIndividualSelect("ddlZonalHead", "zonalheadSelectAll");
+    }
+
+    function onOilTypeChange(e) {
+        MultiSelectIndividualSelect("ddlOilType", "oilTypeSelectAll");
+    }
+
+    function onOilTypeDataBound(e) {
+        MultiSelectIndividualSelect("ddlOilType", "oilTypeSelectAll");
+
+    }
+
+    function onZonalheadDataBound(e) {
+        MultiSelectIndividualSelect("ddlZonalHead", "zonalheadSelectAll");
+    }
+
+    function onVerticalDataBound(e) { }
+
+    function BDOLoadParam() {
+
+        return {
+            SelectedIds: ($("#ddlZonalHead").val() ? $("#ddlZonalHead").val().join() : "")
+        };
+    }
+
+    function OilTypeLoadParam() {
+
+        if ($("#hdnVerticalId").val() != null && $("#hdnVerticalId").val() > 0) {
+
+            return {
+                SelectedVerticalId: Number($("#hdnVerticalId").val())
+            };
+        }
+        else {
+            return {
+                SelectedZoneIds: ($("#ddlZone").val() ? $("#ddlZone").val().join() : ""),
+                SelectedStateIds: ($("#ddlState").val() ? $("#ddlState").val().join() : ""),
+                SelectedZonalHeadIds: ($("#ddlZonalHead").val() ? $("#ddlZonalHead").val().join() : ""),
+                SelectedBDOIds: ($("#ddlBDO").val() ? $("#ddlBDO").val().join() : ""),
+                SelectedVerticalId: Number($("#ddlVertical").val())
+
+            };
+        }
+    }
+
+</script>

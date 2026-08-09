@@ -1,0 +1,51 @@
+﻿@model Adani.Solution.DTO.TerritoryDto
+
+@{
+    Layout = null;
+}
+
+<div class="col-md-10">
+    @if (Model.District.Count() >= 1)
+    {
+        <label>@Html.CheckBox("check", new { Style = "vertical-align:3px}", @id = "selectAllCheckBox", tabindex = "2" }) All</label>
+    }
+    else
+    {
+        <label>Districts not Mapped</label>
+    }
+    @for (var i = 0; i < Model.District.Count(); i++)
+    {
+        <div>
+            @Html.CheckBoxFor(it => it.District[i].Checked, new { Style = "vertical-align:3px}", @class = "groupCheckBox", tabindex = "3" })
+            @Html.HiddenFor(it => it.District[i].Id)
+            @Html.HiddenFor(it => it.District[i].Name)
+            @Html.Label(Model.District[i].Name, htmlAttributes: new { @for = "States_" + i + "__Checked" })
+        </div>
+
+    }
+</div>
+
+<script>
+    $(document).ready(function ()
+    {      
+        //select all checkboxes
+        $("#selectAllCheckBox").change(function () { 
+            var status = this.checked;
+            $('.groupCheckBox').each(function () { //iterate all listed checkbox items
+                this.checked = status; //change ".checkbox" checked status
+            });
+        });
+
+        $('.groupCheckBox').change(function () { 
+            if (this.checked === false) { //if this item is unchecked
+                $("#selectAllCheckBox")[0].checked = false; //change "select all" checked status to false
+            }
+
+            //check "select all" if all checkbox items are checked
+            if ($('.groupCheckBox:checked').length === $('.groupCheckBox').length) {
+                $("#selectAllCheckBox")[0].checked = true; //change "select all" checked status to true
+            }
+        });
+    });
+   
+</script>

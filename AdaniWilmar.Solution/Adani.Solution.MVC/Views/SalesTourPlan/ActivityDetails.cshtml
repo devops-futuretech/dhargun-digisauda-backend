@@ -1,0 +1,415 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.DTO;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Models;
+@model SalesTourPlanParamDto
+
+@{
+    ViewBag.Title = @Helper.GetResourceString("lbl_ActivityDetails");
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="salestourplanActivityDetails" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_ActivityDetails")</h2>
+    <div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+<div id="ReatailOrders" class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+
+        </div>
+        @using (Html.BeginForm("ActivityDetails", "SalesTourPlan", FormMethod.Post, new { id = "frmOrders", @class = "form-validate-jquery" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="panel-body" style="display: block;">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="tabs">
+                            <ul class="tab-links">
+                                <li class="tabactive "><a class="k-button k-primary custom-btns" href="#tab1">Dealer Visit</a></li>
+                                <li><a href="#tab2" class="k-button k-primary custom-btns">Wholer Seller Visit</a></li>
+                                <li><a href="#tab3" class="k-button k-primary custom-btns"> Prospective Dealer</a></li>
+                            </ul>
+                            <div class="tab-content">
+
+                                @*------------------------- Dealer Visit Start--------------------------------------*@
+
+
+                                <div id="tab1" class="tab active">
+                                    <div class="panel-heading">
+                                        
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <h6 class="panel-title">Pending Sauda Details</h6>
+                                                <br />
+                                                @(Html.Kendo().Grid<PendingSaudaRemarksDto>()
+                                                                            .Name("ViewPendingSaudaRemarks")
+                                                                            .Columns(columns =>
+                                                                            {
+                                                                                columns.Bound(c => c.SaudaId).Title("Sauda Id").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                                                columns.Bound(c => c.Status).Title("Status").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                                                columns.Bound(c => c.Remarks).Title("Remarks").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                                            })
+                                                                            .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                                                            .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                                                            .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                                                            .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                                                            .Scrollable(s => s.Enabled(true).Height("auto"))
+                                                                            //.Excel(excel => excel.FileName(@Helper.GetResourceString("lbl_PermanentJourneyPlan") + " " + DateTime.Now + ".xlsx").AllPages(true))
+                                                                            .Reorderable(reorder => reorder.Columns(true))
+                                                                            .Resizable(resize => resize.Columns(true))
+                                                                            .DataSource(dataSource => dataSource
+                                                                            .Ajax()
+                                                                            .Model(model => model.Id(m => m.SaudaId))
+                                                                            .ServerOperation(true)
+                                                                            .Read(read => read.Action("GetPendingSaudaRemarksList", "SalesTourPlan", new { dealerId = Model.DealerId, searchDate = Model.CreatedDate })))
+                                                                            .HtmlAttributes(new { @id = "gridPendingSaudaRemarks" }))
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="panel-heading">
+                                        
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <h6 class="panel-title">Sales Discussion Details</h6>
+                                                <br />
+                                                @(Html.Kendo().Grid<MarketScenariosDto>()
+                                                                            .Name("ViewMarketScenarios")
+                                                                            .Columns(columns =>
+                                                                            {
+                                                                                columns.Bound(c => c.Title).Title("Title").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                                                columns.Bound(c => c.Remarks).Title("Remarks").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                                            })
+                                                                            .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                                                            .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                                                            .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                                                            .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                                                            .Scrollable(s => s.Enabled(true).Height("auto"))
+                                                                            //.Excel(excel => excel.FileName(@Helper.GetResourceString("lbl_PermanentJourneyPlan") + " " + DateTime.Now + ".xlsx").AllPages(true))
+                                                                            .Reorderable(reorder => reorder.Columns(true))
+                                                                            .Resizable(resize => resize.Columns(true))
+                                                                            .DataSource(dataSource => dataSource
+                                                                            .Ajax()
+                                                                            //.Model(model => model.Id(m => m.))
+                                                                            .ServerOperation(true)
+                                                                            .Read(read => read.Action("GetMarketScenariosList", "SalesTourPlan", new { dealerId = Model.DealerId, searchDate = Model.CreatedDate })))
+                                                                            .HtmlAttributes(new { @id = "gridMarketScenarios" }))
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="panel-heading">
+                                        
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <h6 class="panel-title">Competitor Details</h6>
+                                                <br />
+                                                @(Html.Kendo().Grid<BdoCompetitorsDto>()
+                                                                            .Name("ViewCompetitorDetails")
+                                                                            .Columns(columns =>
+                                                                            {
+                                                                                columns.Bound(c => c.Id).Visible(false);
+                                                                                columns.Bound(c => c.CompetitorName).Title("Competitor Name").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                                                columns.Bound(c => c.Remarks).Title("Remarks").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                                                columns.Template(c => c.Attachments).ClientTemplate(@"<div><div style='text-decoration: underline;cursor:pointer;' onclick='getCompetitorAttachments(#=Id#)'  title='Attachments'><i  class='icon-magazine'></i></div>  </div>").Title("Attachments").Width(Settings.GridButtonColumnWidth);
+                                                                            })
+                                                                            .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                                                            .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                                                            .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                                                            .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                                                            .Scrollable(s => s.Enabled(true).Height("auto"))
+                                                                            //.Excel(excel => excel.FileName(@Helper.GetResourceString("lbl_PermanentJourneyPlan") + " " + DateTime.Now + ".xlsx").AllPages(true))
+                                                                            .Reorderable(reorder => reorder.Columns(true))
+                                                                            .Resizable(resize => resize.Columns(true))
+                                                                            .ClientDetailTemplateId("competitorSkuTemplate")
+                                                                            .DataSource(dataSource => dataSource
+                                                                            .Ajax()
+                                                                            //.Model(model => model.Id(m => m.))
+                                                                            .ServerOperation(true)
+                                                                            .Read(read => read.Action("GetCompetitorsList", "SalesTourPlan", new { dealerId = Model.DealerId, searchDate = Model.CreatedDate })))
+                                                                            .HtmlAttributes(new { @id = "gridCompetitorDetails" }))
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                    <div>
+                                    </div>
+                                </div>
+
+                                @*------------------------- Dealer Visit End--------------------------------------*@
+
+
+                                @*------------------------- Wholer Seller Visit Start--------------------------------------*@
+
+
+                                <div id="tab2" class="tab">
+                                    <div class="panel-heading">
+                                        
+
+                                        <div class="row">
+                                            
+                                            <div class="col-md-12">
+                                                <h6 class="panel-title">WholeSeller Details</h6>
+                                                <br />
+                                                @(Html.Kendo().Grid<WholesellerSecondarySalesDto>()
+                                                                                                            .Name("ViewWholesellerSecondarySales")
+                                                                                                            .Columns(columns =>
+                                                                                                            {
+                                                                                                                columns.Bound(c => c.WholesellerId).Visible(false);
+                                                                                                                columns.Bound(c => c.Name).Title("Wholeseller Name").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                                                                            })
+                                                                                                            .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                                                                                            .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                                                                                            .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                                                                                            .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                                                                                            .Scrollable(s => s.Enabled(true).Height("auto"))
+                                                                                                            .Reorderable(reorder => reorder.Columns(true))
+                                                                                                            .Resizable(resize => resize.Columns(true))
+                                                                                                            .ClientDetailTemplateId("wholesalerSalesDetailTemplate")
+                                                                                                            .DataSource(dataSource => dataSource
+                                                                                                            .Ajax()
+                                                                                                            //.Model(model => model.Id(m => m.))
+                                                                                                            .ServerOperation(true)
+                                                                                                            .Read(read => read.Action("GetSecondarySalesFortheDayByWholesellerForWeb", "SalesTourPlan", new { dealerId = Model.DealerId, searchDate = Model.CreatedDate })))
+                                                                                                            .HtmlAttributes(new { @id = "gridWholeSalerVisits" }))
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            
+                                            <div class="col-md-12">
+                                                <br />
+                                                <h6 class="panel-title">Wholeseller Competitor Details</h6>
+                                                <br />
+                                                @(Html.Kendo().Grid<BdoCompetitorsDto>()
+                                                                                                            .Name("ViewWholeSalerVisit")
+                                                                                                            .Columns(columns =>
+                                                                                                            {
+                                                                                                                columns.Bound(c => c.Id).Visible(false);
+                                                                                                                columns.Bound(c => c.CompetitorName).Title("Competitor Name").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                                                                                columns.Bound(c => c.DealerName).Title("Wholeseller Name").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                                                                                columns.Bound(c => c.Remarks).Title("Remarks").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                                                                                columns.Template(c => c.Attachments).ClientTemplate(@"<div><div style='text-decoration: underline;cursor:pointer;' onclick='getCompetitorAttachments(#=Id#)'  title='Attachments'><i  class='icon-magazine'></i></div>  </div>").Title("Attachments").Width(Settings.GridButtonColumnWidth);
+                                                                                                            })
+                                                                                                            .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                                                                                            .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                                                                                            .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                                                                                            .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                                                                                            .Scrollable(s => s.Enabled(true).Height("auto"))
+                                                                                                            //.Excel(excel => excel.FileName(@Helper.GetResourceString("lbl_PermanentJourneyPlan") + " " + DateTime.Now + ".xlsx").AllPages(true))
+                                                                                                            .Reorderable(reorder => reorder.Columns(true))
+                                                                                                            .Resizable(resize => resize.Columns(true))
+                                                                                                            .ClientDetailTemplateId("wholesalerSkuTemplate")
+                                                                                                            .DataSource(dataSource => dataSource
+                                                                                                            .Ajax()
+                                                                                                            //.Model(model => model.Id(m => m.))
+                                                                                                            .ServerOperation(true)
+                                                                                                            .Read(read => read.Action("GetWholesellerCompetitorsList", "SalesTourPlan", new { dealerId = Model.DealerId, searchDate = Model.CreatedDate })))
+                                                                                                            .HtmlAttributes(new { @id = "gridWholeSalerVisit" }))
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                @*------------------------- Wholer Seller Visit End--------------------------------------*@
+
+                                @*------------------------- Prospective Dealer Start--------------------------------------*@
+
+                                <div id="tab3" class="tab">
+                                    <div class="panel-heading">
+                                        <div class="row">
+                                            <div class="col-md-12">
+
+                                                @(Html.Kendo().Grid<ProspectiveDealerDto>()
+                                                                    .Name("ViewProspectiveDealer")
+                                                                    .Columns(columns =>
+                                                                    {
+                                                                        columns.Bound(c => c.Id).Visible(false);
+                                                                        columns.Bound(c => c.Name).Title("Name").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                                        columns.Bound(c => c.MobileNumber).Title("MobileNumber").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                                        columns.Bound(c => c.Email).Title("Email").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                                        columns.Bound(c => c.ProspectiveSales).Title("Prospective Sales").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                                        columns.Bound(c => c.ProspectiveInterestLevel).Title("Prospective Interest Level").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                                        columns.Bound(c => c.BusinessPotentialPeryear).Title("Business Potential Peryear").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                                        columns.Bound(c => c.Dealer).Title("Dealer Name").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                                        columns.Bound(c => c.Address).Title("Address").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                                        columns.Template(c => c.Attachments).ClientTemplate(@"<div><div style='text-decoration: underline;cursor:pointer;' onclick='getProspectiveDealerAttachments(#=Id#)'  title='Attachments'><i  class='icon-magazine'></i></div>  </div>").Title("Attachments").Width(Settings.GridButtonColumnWidth);
+                                                                    })
+                                                                    .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                                                    .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                                                    .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                                                    .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                                                    .Scrollable(s => s.Enabled(true).Height("auto"))
+                                                                    .Reorderable(reorder => reorder.Columns(true))
+                                                                    .Resizable(resize => resize.Columns(true))
+                                                                    .DataSource(dataSource => dataSource
+                                                                    .Ajax()
+                                                                    //.Model(model => model.Id(m => m.))
+                                                                    .ServerOperation(true)
+                                                                    .Read(read => read.Action("GetProspectiveDealerList", "SalesTourPlan", new { dealerId = Model.DealerId, searchDate = Model.CreatedDate })))
+                                                                    .HtmlAttributes(new { @id = "gridProspectiveDealer" }))
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                @*------------------------- Prospective Dealer End--------------------------------------*@
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script id="competitorSkuTemplate" type="text/kendo-tmpl">
+
+    @(Html.Kendo().Grid<Adani.Solution.DTO.BdoCompetitorSkusDto>()
+                                .Name("grid_#=Id#")       //template expression, to be evaluated in the master context
+                                .Columns(columns =>
+                                {
+                                    columns.Bound(c => c.SkuName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("SkuName").Width(Settings.GridColumnMaxWidth);
+                                    columns.Bound(c => c.QuanityPerMt).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Quanity in cases/Nos").Width(Settings.GridColumnMaxWidth);
+                                    columns.Bound(c => c.Price).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Price").Width(Settings.GridColumnMaxWidth);
+                                })
+                                .DataSource(dataSource => dataSource
+                                    .Ajax()
+                                    .PageSize(10)
+                                    .Read(read => read.Action("GetCompetitorSkuList", "SalesTourPlan", new { competitorsId = "#=Id#" }))
+                                )
+                                .Pageable()
+                                .Sortable()
+                                .ToClientTemplate()
+    )
+</script>
+
+<script id="wholesalerSkuTemplate" type="text/kendo-tmpl">
+
+    @(Html.Kendo().Grid<Adani.Solution.DTO.BdoCompetitorSkusDto>()
+                                        .Name("grid_#=Id#")       //template expression, to be evaluated in the master context
+                                        .Columns(columns =>
+                                        {
+                                            columns.Bound(c => c.SkuName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("SkuName").Width(Settings.GridColumnMaxWidth);
+                                            columns.Bound(c => c.QuanityPerMt).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Quanity in cases/Nos").Width(Settings.GridColumnMaxWidth);
+                                            columns.Bound(c => c.Price).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Price").Width(Settings.GridColumnMaxWidth);
+                                        })
+                                        .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .PageSize(10)
+                                            .Read(read => read.Action("GetCompetitorSkuList", "SalesTourPlan", new { competitorsId = "#=Id#" }))
+                                        )
+                                        .Pageable()
+                                        .Sortable()
+                                        .ToClientTemplate()
+    )
+</script>
+
+<script id="wholesalerSalesDetailTemplate" type="text/kendo-tmpl">
+
+    @(Html.Kendo().Grid<Adani.Solution.DTO.WholesellerSecondarySalesDetailOutputDto>()
+                                                .Name("grid_#=WholesellerId#")       //template expression, to be evaluated in the master context
+                                                .Columns(columns =>
+                                                {
+                                                    columns.Bound(c => c.OilType).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Oil Type").Width(Settings.GridColumnMaxWidth);
+                                                    columns.Bound(c => c.SkuName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Sku Name").Width(Settings.GridColumnMaxWidth);
+                                                    columns.Bound(c => c.Quantity).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Quanity").Width(Settings.GridColumnMaxWidth);
+                                                    columns.Bound(c => c.Price).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Price").Width(Settings.GridColumnMaxWidth);
+                                                })
+                                                .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    .PageSize(10)
+                                                    .Read(read => read.Action("GetSecondarySalesDetails", "SalesTourPlan", new { WholesellerId = "#=WholesellerId#", searchDate = Model.CreatedDate }))
+                                                )
+                                                .Pageable()
+                                                .Sortable()
+                                                .ToClientTemplate()
+    )
+</script>
+<div id="dvProductCont" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:50%;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close closeProduct model-header-color" data-dismiss="modal">&times;</button>
+                <h6 class="panel-title"><span class="text-semibold model-header-color">Attachments</span></h6>
+            </div>
+            <div class="modal-body">
+                <div id="dv_Remarks">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="popupClose('hdSelectedProductIds','DiscountProductType_2');" class="k-button closeProduct" data-dismiss="modal">@Helper.GetResourceString("btn_Close")</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+
+        jQuery('.tabs .tab-links a').on('click', function (e) {
+            var currentAttrValue = jQuery(this).attr('href');
+            // Show/Hide Tabs
+            jQuery('.tabs ' + currentAttrValue).show().siblings().hide();
+            // Change/remove current tab to active
+            jQuery(this).parent('li').addClass('tabactive').siblings().removeClass('tabactive');
+            e.preventDefault();
+        });
+
+        // kendo grid filter contains
+        FilterContains();
+
+    });
+    function getCompetitorAttachments(Id) {
+        $('#dvProductCont').modal('show');
+        $.ajax({
+            url: "/SalesTourPlan/CompetitorAttachments",
+            type: 'POST',
+            data: { Id: Id },
+            success: function (result) {
+                if (result !== null) {
+                    $("#dv_Remarks").html(result);
+                }
+            }
+        });
+
+        return false;
+    }
+
+    function getProspectiveDealerAttachments(Id) {
+        $('#dvProductCont').modal('show');
+        $.ajax({
+            url: "/SalesTourPlan/ProspectiveDealerAttachments",
+            type: 'POST',
+            data: { Id: Id },
+            success: function (result) {
+                if (result !== null) {
+                    $("#dv_Remarks").html(result);
+                }
+            }
+        });
+
+        return false;
+    }
+</script>

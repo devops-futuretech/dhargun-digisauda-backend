@@ -1,0 +1,208 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@model Adani.Solution.DTO.IssueRegisterDto
+
+@{
+    ViewBag.Title = "IssueRegister";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+
+    .k-confirm .k-window-titlebar::before {
+        content: 'Issue Register';
+    }
+
+    .k-confirm .k-window-titlebar .k-dialog-title {
+        visibility: collapse;
+    }
+</style>
+<input type="hidden" class="currentMenu" value="supportIssueRegister" />
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="supportIssueList" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_IssueRegister")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Support</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_IssueRegister")<span class="icon-right"></span></li>
+    </ol>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="IssueRegisterLoader">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("IssueRegister", "Support", FormMethod.Post, new { id = "frmIssueRegister", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="row form-group">
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">  @Helper.GetResourceString("lbl_Feature") <span class="text-danger">*</span> </label>
+                                @(Html.Kendo().DropDownListFor(m => m.FeatureId)
+                                                                          .OptionLabel(@Helper.GetResourceString("plho_SelectFeature"))
+                                                                          .DataTextField("Name")
+                                                                          .DataValueField("Id")
+                                                                          .Events(e => e.Change("onFeatureChange"))
+                                                                          //.DataSource(source => source.Read(read => read.Action("GetApplicationComponentModuleListForDropdown", "Support"))
+                                                                          .DataSource(source => source.Read(read => read.Action("GetFeatureListForDropdown", "Support"))
+                                                                          .ServerFiltering(false))
+                                                                          .HtmlAttributes(new { id = "ddlFeature", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Feature"), @style = "width:100%" }))
+                            </div>
+                            @Html.HiddenFor(m => m.Feature, new { id = "hdnFeature" })
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_Component") <span class="text-danger">*</span> </label>
+                                @(Html.Kendo().DropDownListFor(m => m.ComponentId)
+                                                                                       .OptionLabel(@Helper.GetResourceString("plho_SelectComponent"))
+                                                                                       .DataTextField("Name")
+                                                                                       .DataValueField("Id")
+                                                                                       .Events(e => e.Change("onComponentChange").Select("onComponentSelect").DataBound("onComponentBound"))
+                                                                                       //.DataSource(source => source.Read(read => read.Action("GetIssueTypeListForDropdown", "Support"))
+                                                                                       .DataSource(source => source.Read(resd => resd.Action("GetQueryFromListForDropdown", "Support"))
+                                                                                       .ServerFiltering(false))
+                                                                                       .HtmlAttributes(new { id = "ddlComponent", @class = "", tabindex = "2", onclick = "LoadComponent('ddlComponent')", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Component"), @style = "width:100%" }))
+                            </div>
+                            @Html.HiddenFor(m => m.Component, new { id = "hdnComponent" })
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_Impact") <span class="text-danger">*</span> </label>
+                                @(Html.Kendo().DropDownListFor(m => m.ImpactId)
+                                                                      .OptionLabel(@Helper.GetResourceString("plho_SelectImpact"))
+                                                                      .DataTextField("Name")
+                                                                      .DataValueField("Id")
+                                                                      .DataSource(source => source.Read(read => read.Action("GetSeverityListForDropdown", "Support"))
+                                                                      .ServerFiltering(false))
+                                                                      .HtmlAttributes(new { id = "ddlImpact", @class = "", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Impact"), @style = "width:100%" }))
+                            </div>
+
+
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-sm-12 mb-3">
+                                <label class="custom_label">  @Helper.GetResourceString("lbl_IssueDescription") <span class="text-danger">*</span> </label>
+                                @Html.TextAreaFor(m => m.Description, new { @id = "txtIssueDetails", tabindex = "4", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_IssueDetails"), @maxlength = (int)InputMaxLength.String })
+                            </div>
+                        </div>
+                            <div class="row form-group" id="dvIssueAttachments">
+                                <div class="col-lg-3 col-sm-6 mb-3">
+                                    <label class="custom_label">   Media <span class="text-danger"></span>  </label>
+                                    @(Html.Kendo().Upload()
+                                                                      .Name("files")
+                                                                      .HtmlAttributes(new { id = "fpMediaImage", tabindex = "5",/*required = "required",*/ aria_label = "files", accept = "image/*" }))
+                                    <label style="font-size: 12px; font-weight: bold !important;"> File format must be jpeg, png, jpg </label>
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-md-12 text-right">
+                                    @*<button type="button" id="btnCancel" tabindex="13" onclick="location.href = '@Url.Action("IssueRegisterList", "Support")'" class="k-button">@Helper.GetResourceString("btn_Cancel")</button>*@
+                                    @if (Helper.CheckClaims(Claims.ManageSupport))
+                                    {
+                                        <button type="button" id="btnSave" tabindex="7" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Submit") </button>
+                                    }
+                                </div>
+                            </div>
+                            }
+                            <!---end of form input-->
+                        </div>
+                    </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                Clear();
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        $("#btnSave").click(function () {
+            var isValidForm = $("#frmIssueRegister").valid();
+            if ($('#txtIssueDetails').val() === "") {
+                return false;
+            }
+            else if ($("#ddlComponent").data("kendoDropDownList").value() === "") {
+                return false;
+            }
+            else if ($("#ddlImpact").data("kendoDropDownList").value() === "") {
+                return false;
+            }
+            else if ($("#ddlFeature").data("kendoDropDownList").value() === "") {
+                return false;
+            }
+            else {
+                kendo.confirm("Are you sure that you want to Submit Issue?").then(function () {
+                    if (isValidForm) {
+                        window.kendo.ui.progress($("#div_Progress"), true);
+                        $("#frmIssueRegister").submit();
+                        //window.kendo.ui.progress($("#div_Progress"), false);
+                    }
+                });
+            }
+        });
+
+    });
+
+    function Clear() {
+        $('#txtIssueDetails').val('');
+        $("#ddlComponent").data("kendoDropDownList").select(-1);
+        $("#ddlImpact").data("kendoDropDownList").select(-1);
+        $("#ddlFeature").data("kendoDropDownList").select(-1);
+    }
+
+    function onComponentChange(e) {
+        var dataItem = this.dataItem(e.item);
+        $("#hdnComponent").val(dataItem.Name);
+
+        LoadComponent();
+    }
+
+    function onComponentSelect(e) {
+
+        var dataItem = this.dataItem(e.item);
+        $("#hdnComponent").val(dataItem.Name);
+
+        LoadComponent();
+    }
+
+    function onComponentBound(e) {
+        LoadComponent();
+    }
+
+    function onFeatureChange(e) {
+
+        var dataItem = this.dataItem(e.item);
+        $("#hdnFeature").val(dataItem.Name);
+
+        LoadComponent();
+    }
+
+    function LoadComponent() {
+        var ddl = $("#ddlComponent").data("kendoDropDownList");
+        var oldData = ddl.dataSource.data();
+        var dataLength = oldData.length;
+        for (var i = 0; i < dataLength; i++) {
+            var item = oldData[i];
+            if (item.Name == "All") {    // Here 'Name' is 'dataValueField' field
+                ddl.dataSource.remove(item);
+                break;
+            }
+        }
+    }
+
+</script>
+
+

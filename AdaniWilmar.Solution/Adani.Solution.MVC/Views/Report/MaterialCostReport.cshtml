@@ -1,0 +1,90 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@model Adani.Solution.DTO.ExcelReportFilterDto
+@{
+    ViewBag.Title = "MarginReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="reportMaterialCostReport" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Material Cost Report</h2>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvSpecialRate">
+                <div class="row form-group">
+                    <div class="col-md-2 text-right control-label">
+                        @Helper.GetResourceString("lbl_FromDate")
+                    </div>
+                    <div class="col-md-3">
+                        @(Html.Kendo().DatePicker()
+                            .Name("StartDate")
+                            .Value(DateTime.Now)
+                            .Format(Settings.DateFormat)
+                            .Events(e => e.Change("fromDateChange"))
+                            .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                    </div>
+                    <div class="col-md-2 text-right control-label">
+                        @Helper.GetResourceString("lbl_ToDate")
+                    </div>
+                    <div class="col-md-3">
+                        @(Html.Kendo().DatePicker()
+                            .Name("EndDate")
+                            .Value(DateTime.Now)
+                            .Format(Settings.DateFormat)
+                            .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "2", style = "width: 100%" }))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-12 text-center">
+                        <button type="button" tabindex="4" id="btnGenerateReport" class="k-primary k-button">Generate Report<i class="icon-arrow-right14 position-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    $(document).ready(function () {
+        setFromToDateRange("StartDate", "EndDate", emamiGlobal.constant.ReportDateRange);
+        $("#btnGenerateReport").click(function () {
+            downloadSaudaReport();
+        });
+    });
+
+    function fromDateChange() {
+        setToDateRange("StartDate", "EndDate", emamiGlobal.constant.ReportDateRange);
+    }
+
+    function downloadSaudaReport(Id) {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetMaterialCostReport", "Report")',
+            data: {
+                fromDate: $("#StartDate").data("kendoDatePicker").value().toDateString(),
+                toDate: $("#EndDate").data("kendoDatePicker").value().toDateString()
+            },
+            success: function (responce) {
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Pricing")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+
+</script>

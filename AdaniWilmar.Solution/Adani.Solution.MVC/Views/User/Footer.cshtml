@@ -1,0 +1,13 @@
+﻿@using Adani.Solution.MVC.Common
+
+<div class="footer text-muted text-center">
+    &copy; <span id="currentYear"></span> <a class="a-ChangePassword" href="@ConfigHelper.WebsiteUrl">AWL</a> by <a class="a-ChangePassword" href="https://www.impigertech.com/" target="_blank">Impiger Technologies</a>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const yearElement = document.getElementById('currentYear');
+        yearElement.textContent = new Date().getFullYear();
+    });
+</script>
+

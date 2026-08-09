@@ -1,0 +1,136 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@{
+    ViewBag.Title = "ComparativeAnalysis";
+}
+
+<style>
+    .k-grouping-header {
+        display: none;
+    }
+
+    tr[role="row"] {
+        border: 1px solid #ccc;
+    }
+</style>
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="reverseauctionComparativeAnalysis" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Comparative Analysis</h2>
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvComparativeAnalysis">
+                <div class="col-md-12">
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right">
+                            @Helper.GetResourceString("lbl_Vertical") <span class="text-danger">*</span>
+                        </div>
+                        <div class="col-md-3">
+                            @(Html.Kendo().DropDownList().Name("VerticalId")
+                                  .OptionLabel(@Helper.GetResourceString("plho_SelectVertical"))
+                                  .DataTextField("Name")
+                                  .DataValueField("Id")
+                                  .Events(e => e.Change("onVerticalTypeChange"))
+                                  .DataSource(source => source.Read(resd => resd.Action("GetVerticalDetailsdd", "Lookup"))
+                                  .ServerFiltering(false))
+                                  .HtmlAttributes(new { id = "ddlVertical", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Vertical"), @style = "width:100%" }))
+                        </div>
+
+                        <div class="col-md-2 text-right">
+                            @Helper.GetResourceString("lbl_OilType") <span class="text-danger">*</span>
+                        </div>
+                        <div class="col-md-3">
+                            @(Html.Kendo().DropDownList().Name("OilTypeId")
+                                  .OptionLabel(@Helper.GetResourceString("plho_SelectOilType"))
+                                  .DataTextField("Name")
+                                  .DataValueField("Id")
+                                  .DataSource(source => source.Read(read => read.Action("GetOilTypesBasedOnVerticalId", "Lookup", new { isToReturnInactiveData = false }).Data("oilTypeAdditionalInfo"))
+                                  .ServerFiltering(true))
+                                  .HtmlAttributes(new { id = "ddlOilType", @class = "", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilType"), @style = "width:100%" }))
+                        </div>
+
+                    </div>
+                    <div>
+                        @(Html.Kendo().Grid<CompetitiveAnalysisOutputDto>()
+                              .Name("grid")
+                              .Columns(columns =>
+                              {
+                                  columns.Bound(c => c.SkuName).Width(100);
+                                  columns.Group(group => group
+                                                                  .Title("ADANI")
+                                                                  .Columns(info =>
+                                                                  {
+                                                                      info.Bound(x => x.ADANIMOP).Title("MOP").Width(75);
+                                                                      info.Bound(x => x.ADANISR).Title("SR").Width(75);
+                                                                  })
+                                  );
+                                  columns.Group(group => group
+                                                                 .Title("PATANJALI")
+                                                                 .Columns(info =>
+                                                                 {
+                                                                     info.Bound(x => x.PatanjaliMOP).Title("MOP").Width(75);
+                                                                     info.Bound(x => x.PatanjaliSR).Title("SR").Width(75);
+                                                                 })
+                                  );
+                                  columns.Bound(c => c.EmamiPrice).Width(75);
+                                  columns.Group(group => group
+                                                               .Title("Qty")
+                                                               .Columns(info =>
+                                                               {
+                                                                   info.Bound(x => x.Qty).Title("Qty").Width(75);
+                                                                   info.Bound(x => x.Price).Title("Price").Width(75);
+                                                               })
+                                  );
+                                  columns.Bound(c => c.Margin).Width(75);
+                                  columns.Bound(c => c.Decision).Width(75);
+                              })
+                              .ColumnMenu()
+                              .Events(events => events.DataBound("onDataBound"))
+                              .Resizable(resizable => resizable.Columns(false))
+                              .Reorderable(reorderable => reorderable.Columns(false))
+                              .HtmlAttributes(new { style = "height: 200px;" })
+                              .Scrollable()
+                              .Groupable()
+                              .Sortable()
+                              .Pageable()
+                              .HtmlAttributes(new { @id = "multilineGrid" })
+                              //.DataSource(dataSource => dataSource
+                              //.Ajax()
+                              //.PageSize(20)
+                              //.Read(read => read.Action("MultiColumn_Customers_Read", "Grid"))
+                              //)
+                              )
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function onDataBound(e) {
+        SetEmptyRow(e);
+    }
+    function onVerticalTypeChange() {
+        $("#ddlOilType").data("kendoDropDownList").dataSource.read();
+    }
+    function oilTypeAdditionalInfo() {
+        var verticalId = $("#ddlVertical").data("kendoDropDownList").value();
+        return {
+            verticalId: Number(verticalId)
+        };
+    }
+</script>

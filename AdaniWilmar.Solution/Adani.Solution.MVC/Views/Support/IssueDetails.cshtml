@@ -1,0 +1,257 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model IssueRegisterDto
+@{
+    ViewBag.Title = "IssueDetails";
+}
+
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="supportIssueList" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Issue Details</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="div_Progress">
+                <div class="col-md-12">
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right clsBold">
+                            @Helper.GetResourceString("lbl_IssueId")
+                        </div>
+                        <div class="col-md-3">
+                            @Model.Id
+                            @Html.HiddenFor(_ => _.Id, new { id = "hdnSupportId" })
+                        </div>
+                        <div class="col-md-2 text-right clsBold">
+                            @Helper.GetResourceString("lbl_CreatedDateTime")
+                        </div>
+                        <div class="col-md-3">
+                            @Model.CreatedDateTime
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right clsBold">
+                            @Helper.GetResourceString("lbl_Description")
+                        </div>
+                        <div class="col-md-3">
+                            @Model.Description
+                        </div>
+                        <div class="col-md-2 text-right clsBold">
+                            @Helper.GetResourceString("lbl_Component")
+                        </div>
+                        <div class="col-md-3">
+                            @Model.Component
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right clsBold">
+                            @Helper.GetResourceString("lbl_Impact")
+                        </div>
+                        <div class="col-md-3">
+                            @Model.Impact
+                        </div>
+                        <div class="col-md-2 text-right clsBold">
+                            @Helper.GetResourceString("lbl_RaisedBy")
+                        </div>
+                        <div class="col-md-3">
+                            @Model.IssueRaisedByUserName
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right clsBold">
+                            @Helper.GetResourceString("lbl_State")
+                        </div>
+                        <div class="col-md-3">
+                            @Model.State
+                        </div>
+                        <div class="col-md-2 text-right clsBold">
+                            @Helper.GetResourceString("lbl_Feature")
+                        </div>
+                        <div class="col-md-3">
+                            @Model.Feature
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right clsBold">
+                            @Helper.GetResourceString("lbl_Status")
+                        </div>
+                        <div class="col-md-3">
+                            @(Html.Kendo().DropDownListFor(m => m.StatusId)
+                                                                          .OptionLabel(@Helper.GetResourceString("plho_SelectStatus"))
+                                                                          .DataTextField("Name")
+                                                                          .DataValueField("Id")
+                                                                          //.Events(e => e.Change("onStatusChange").DataBound("onStatusDataBound"))
+                                                                          .DataSource(source => source.Read(read => read.Action("GetSupportIssueStatusListForDropdown", "Support"))
+                                                                          .ServerFiltering(false))
+                                                                          .HtmlAttributes(new { id = "ddlStatus", @class = "", tabindex = "5", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Status"), @style = "width:100%" }))
+                        </div>
+
+                    </div>
+
+                    <div class="row form-group">
+                        @if (Model.StatusId == (int)SupportStatus.Resolved || Model.StatusId == (int)SupportStatus.Closed)
+                        {
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_ResolutionDateTime")
+                            </div>
+                            <div class="col-md-3">
+
+                                @Model.ResolvedDateTime
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_TimeTakenForResolution")
+                            </div>
+                            <div class="col-md-3">
+
+                                @Model.TimeTakenToResolve
+
+                            </div>
+                        }
+                    </div>
+
+                    <div class="row form-group">
+                        @if (Model.Attachments != null && Model.Attachments.Any())
+                        {
+                            var index = 1;
+                            <div class="row form-group" id="dvMedia">
+                                <div class="col-md-2 text-right clsBold">
+                                    Issue Attachments
+                                </div>
+                                <div class="col-md-8">
+                                    @foreach (var mediaItem in Model.Attachments)
+                                    {
+                                        var mediaDivId = "media" + index++;
+                                        var mediaPath = Settings.GetAPIMediaPath(mediaItem.MediaPath);
+                                        <div id="@mediaDivId" class="col-md-2 media-box">
+                                            <a class="Info" href="@mediaPath" target="_blank"> <i class="icon-eye cursor-pointer faicon-red"></i> </a>
+                                            <img src="@mediaPath" width="200" height="200" />
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                        }
+
+                    </div>
+                    <div class="row form-group">
+                        <div class="row" id="dvSkus">
+                            <div class="col-md-1">
+                            </div>
+                                <div class="col-md-6">
+                                    @(Html.Kendo().Grid<IssueCommentsDto>()
+                                                                  .Name("ViewComments")
+                                                                  .Columns(columns =>
+                                                                  {
+                                                                      columns.Bound(o => o.SupportId).Visible(false);
+                                                                      columns.Bound(o => o.CommentId).Visible(false);
+                                                                      columns.Bound(o => o.UserId).Visible(false);
+                                                                      columns.Bound(o => o.Comments).Title(@Helper.GetResourceString("lbl_Comments")).Width(Settings.GridColumnMaxWidth);
+                                                                      columns.Bound(o => o.CommentedDate).Format(Settings.GridDateTimeFormat).Title(@Helper.GetResourceString("lbl_CommentedDate")).Width(Settings.GridColumnMaxWidth);
+                                                                      columns.Bound(o => o.CommentedBy).Title(@Helper.GetResourceString("lbl_CommentedBy")).Width(Settings.GridColumnMaxWidth);
+                                                                  })
+                                                                  .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                                                  .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                                                  .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                                                  .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                                                  .Selectable(selectable => selectable
+                                                                  .Mode(GridSelectionMode.Multiple)
+                                                                  .Type(GridSelectionType.Row))
+                                                                  .Scrollable(s => s.Enabled(true).Height("auto"))
+                                                                  .Resizable(resize => resize.Columns(true))
+                                                                  .Reorderable(reorder => reorder.Columns(true))
+                                                                  .DataSource(dataSource => dataSource
+                                                                  .Ajax()
+                                                                  .Model(model => model.Id(m => m.SupportId))
+                                                                  .ServerOperation(true)
+                                                                  .Read(read => read.Action("GetIssueCommentsListAsync", "Support").Data("additionalParams"))))
+                                </div>
+                            </div>
+                        </div>
+                    <div class="row form-group">
+
+                        <div class="col-md-2 text-right clsBold">
+                            @Helper.GetResourceString("lbl_Comments")
+                            <span class="text-danger">*</span>
+                        </div>
+                        <div class="col-md-4">
+                            @Html.TextAreaFor(m => m.IssueComments, new { id = "txtIssueComments", tabindex = "6", @class = "form-control", @maxlength = (int)InputMaxLength.Remarks })
+
+                        </div>
+                    </div>
+                    <div class="row form-group" id="divUpdate">
+                        <div class="text-center">
+                            <button type="button" id="btnUpdate" class="k-primary k-button">@Helper.GetResourceString("btn_Update")</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function additionalParams() {
+        //var checkedVal = Number($('input[name=BookingType]:checked').val());
+        //var statusId = Number($("#ddlIssueStatus").val());
+        return {
+            supportId: $("#hdnSupportId").val(),
+            isToReturnInactiveData: true
+        };
+    }
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();
+        if ('@TempData["ErrorMessage"]'.length) {
+            ShowErrorMessage('@TempData["ErrorMessage"]');
+        }
+
+        $("#btnUpdate").click(function (e) {
+
+            @*if ($("#ddlStatus").data("kendoDropDownList").value() !== '@((int)SupportStatus.Pending)') {*@
+            if ($("#txtIssueComments").val() == "") {
+                ShowErrorMessageLeftAlign("Please Enter the Comments.");
+                return false;
+            }
+                var model = {
+                    StatusId: $("#ddlStatus").val(),
+                    SupportId: $("#hdnSupportId").val(),
+                    IssueComments: $("#txtIssueComments").val(),
+                };
+
+                window.kendo.ui.progress($("#div_Progress"), true);
+                moduleCommon.Common.AjaxCall({
+                    url: '@Url.Action("UpdateIssueStatus", "Support")',
+                    type: 'POST',
+                    data: { inputDto: model },
+                    success: function (result) {
+                        if (result.PostStatus) {
+                            ShowSuccessMessage(result.PostMessage);
+                            setTimeout(function () { window.location.href = '@Url.Action("IssueList", "Support")'; }, 1300);
+                        }
+                        else {
+                            ShowErrorMessage(result.PostMessage);
+                        }
+                        window.kendo.ui.progress($("#div_Progress"), false);
+                    }
+                });
+            @*}
+            else {
+                ShowErrorMessage('@Helper.GetResourceString("msg_StatusIsPending")');
+            }*@
+        });
+
+    });
+
+</script>
+
+

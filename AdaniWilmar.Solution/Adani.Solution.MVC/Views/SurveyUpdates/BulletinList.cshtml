@@ -1,0 +1,149 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.DTO
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.MVC.Models
+@using Adani.Solution.MVC.Helpers
+
+
+@{
+    ViewBag.Title = Helper.GetResourceString("msg_Bulletin");
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="updatesBulletin" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("msg_Bulletin")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Updates</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("msg_Bulletin")<span class="icon-right"></span></li>
+    </ol>
+    @*<div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            <a href="@Url.Action("ManageBulletinEditRedirect", "SurveyUpdates")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;Create Bulletin</a>
+        </div>
+
+    </div>*@
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+
+        </div>
+        <div class="panel-body" style="display: block;">
+
+            <div class="row">
+                <div class="text-center text">
+                    Content Type
+                </div>
+                <div class="row">
+                    <div class="text-center">
+                        <section class="section">
+                            <div class="container custom_windows">
+                                @{ var contentList = ((ContentType[])Enum.GetValues(typeof(ContentType))).Select(c => new EnumModel() { EntityTypeId = (int)c, Name = c.Description() }).ToList();}
+                                @foreach (var content in contentList)
+                                {
+                                    <input type="radio" name="ContentType" id='@content.EntityTypeId' value='@content.EntityTypeId' />
+                                    <label for='@content.EntityTypeId'><span class="radio">@content.Name</span></label>
+                                }
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="text-right right-buttons">
+                        <div class="export_as">
+                            <span>Export as</span>
+                            <div class="export-btns">
+                                <span class="export-link" onclick='ExportToExcel("ViewBulletins")' type="button">Excel</span>
+                            </div>
+                        </div>
+                        @*<button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ViewBulletins")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;*@
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                        <div class="period-wrapper">
+                            <a href="@Url.Action("ManageBulletinEditRedirect", "SurveyUpdates")" class="k-primary k-button custom-btns"><b><i class="icon-plus"></i></b>&ensp;Create Bulletin</a>
+                        </div>
+                    </div>
+                    @(Html.Kendo().Grid<BulletinDto>()
+                                          .Name("ViewBulletins")
+                                          .Columns(columns =>
+                                          {
+
+                                              columns.Bound(c => c.Title).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).ClientTemplate(@"<div><a style='text-decoration: underline;' href='" + Url.Action("ManageBulletinEditRedirect", "SurveyUpdates", new { bulletinId = "#=BulletinId#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=Title#</a>  </div>").Title(@Helper.GetResourceString("lbl_Title")).Width(Settings.GridOtherColumnWidth);
+                                              //columns.Bound(c => c.Content).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_Content")).Width(Settings.GridOtherColumnWidth);
+                                              columns.Bound(t => t.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Active")).ClientTemplate(@"<div style='text-align: center;'> #if(IsActive == false) { #"
+                                              + " <a  title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Title(@Helper.GetResourceString("msg_Status")).Width(Settings.GridButtonColumnWidth);
+
+                                          })
+                                          .AutoBind(false)
+                                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                          .Excel(excel => excel.FileName(@Helper.GetResourceString("msg_Bulletin") + " " + DateTime.Now + ".xlsx").AllPages(true))
+                                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                                          .Events(events => events.DataBound("OnBulletinListDataBound"))
+                                          .Reorderable(reorder => reorder.Columns(true))
+                                          .Resizable(resize => resize.Columns(true))
+                                          .DataSource(dataSource => dataSource
+                                          .Ajax()
+                                          .PageSize(Settings.DefaultPageSize)
+                                          //.Model(model => model.Id(m => m.BulletinEncryptedId))
+                                          .ServerOperation(true)
+                                          .Read(read => read.Action("GetBulletinListAsync", "SurveyUpdates").Data("additionalFilter"))))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+        if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+		}
+
+        //Method to check radio button - Plant as Default
+        jQuery('input:radio[name="ContentType"]').filter('[value="1"]').attr('checked', true);
+        $('#ViewBulletins').data('kendoGrid').dataSource.read();
+        if ($('#ViewBulletins').data('kendoGrid').dataSource.page() != 1) {
+            $('#ViewBulletins').data('kendoGrid').dataSource.page(1);
+        }
+
+        //Method to radio button onclick data bound event
+        $(document).on('click', '[name="ContentType"]', function () {
+            $('#ViewBulletins').data('kendoGrid').dataSource.read();
+            if ($('#ViewBulletins').data('kendoGrid').dataSource.page() != 1) {
+                $('#ViewBulletins').data('kendoGrid').dataSource.page(1);
+            }
+        });
+
+        // kendo grid filter contains
+        FilterContains();
+
+    });
+
+
+
+    //Method to data bound event for owner
+    function OnBulletinListDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+
+    //Method to pass parameter to controller to filter bulletin grid
+    function additionalFilter() {
+        return {
+            contentTypeId: $("input[name='ContentType']:checked").val()
+        }
+    }
+
+</script>

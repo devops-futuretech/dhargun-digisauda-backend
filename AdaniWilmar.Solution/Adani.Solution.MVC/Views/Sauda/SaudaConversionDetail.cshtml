@@ -1,0 +1,185 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model SaudaConversionDetailForAdminDto
+@{
+    ViewBag.Title = "SaudaConversionDetail";
+}
+
+@{
+    string btnDisabled = "";
+    btnDisabled = Model.StatusId == (int)Status.Pending ? "" : "disabled";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="tptransactionSaudaConversion" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_SaudaConversionDetail")</h2>
+    <div style="clear:both;"></div>
+</div>
+
+@using (Html.BeginForm("SaudhaDetails", "ReverseAuction", FormMethod.Post, new { id = "frmSaudhaConversionDetails", @class = "form-validate-jquery" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.SaudaConversionId, new { id = "hdnSaudaId" })
+    <div class="content main-section-content row">
+        <div class="panel panel-flat">
+            <div class="panel-heading">
+            </div>
+            <div class="panel-body" style="display: block;">
+                <div class="row" id="div_Progress">
+                    <div class="col-md-12">
+
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_DealerName")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.DealerName
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_SaudaNumber")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.SaudaNumber
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_ExpiryDate")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.ExpiryDate
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_ExtendToDate")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.ExtendToDate
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_IsConversion")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.IsConversion
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_IsExtension")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.IsExtension
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_Status")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.StatusName
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div>
+                                <div class="text-right">
+                                </div>
+                                @(Html.Kendo().Grid<SaudaOrderDetails>().Name("SkuFinalpriceList")
+                                      .Columns(columns =>
+                                      {
+                                          columns.Bound(c => c.SkuId).Visible(false);
+                                          columns.Bound(c => c.SkuName).Title(@Helper.GetResourceString("lbl_SkuName")).Width(Settings.GridColumnMaxWidth);
+                                          columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Width(Settings.GridColumnMaxWidth);
+                                          columns.Bound(c => c.BidQuantity).Title(@Helper.GetResourceString("lbl_QuantityPerMT")).Width(Settings.GridColumnMaxWidth);
+                                          columns.Bound(c => c.BidPrice).Title(@Helper.GetResourceString("lbl_Price")).Width(Settings.GridColumnMaxWidth);
+                                      })
+                                      .BindTo(Model.SaudaConversionOrders)
+                                      .EnableCustomBinding(true)
+                                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                      .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                      .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                      .Scrollable(s => s.Enabled(true).Height("auto"))
+                                      .Events(events => events.DataBound("onDataBound"))
+                                      .Reorderable(reorder => reorder.Columns(true))
+                                      .DataSource(dataSource => dataSource
+                                      .Ajax()
+                                      .Model(model => model.Id(m => m.SkuId))
+                                      ))
+
+                            </div>
+                        </div>
+                        <div class="row form-group" id="divSave">
+                            <div class="col-lg-12" id="divRemarks">
+                                <label class="control-label col-lg-1">@Helper.GetResourceString("lbl_Remarks")</label>
+                                <div class="col-lg-11">
+                                    @Html.TextAreaFor(m => m.ApproverRemarks, new { id = "txtRemarks", @class = "k-textarea", @maxlength = (int)InputMaxLength.TextAreaString })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row form-group" id="divSave">
+                            <div class="text-right">
+                                @if (Helper.CheckClaims(Claims.ApproveSaudaConversion))
+                                {
+                                    <button type="button" @btnDisabled id="btnApproved" value="2" class="k-primary k-button">@Helper.GetResourceString("btn_Approve")</button>
+                                    <button type="button" @btnDisabled id="btnRejected" value="3" class="k-button">@Helper.GetResourceString("btn_Reject")</button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+
+    $(document).ready(function () {
+
+        // kendo grid filter contains
+        FilterContains();
+
+        $("#btnApproved,#btnRejected").click(function (e) {
+
+            var form = $('#frmSaudhaConversionDetails')
+            var token = $('input[name="__RequestVerificationToken"]', form).val();
+            var statusId = parseInt($(this).val());
+
+            var model = {
+                SaudaId: $("#hdnSaudaId").val(),
+                StatusId: statusId,
+                Remarks: $("#txtRemarks").val()
+            };
+
+            if ($(this).val() == 3 && !$("#txtRemarks").val()) {
+                ShowErrorMessage("Please enter the reason");
+                return false;
+            }
+            window.kendo.ui.progress($("#div_Progress"), true);
+            moduleCommon.Common.AjaxCall({
+                url: '@Url.Action("UpdateSaudhaConversionStatus", "Sauda")',
+				type: 'POST',
+                data: { __RequestVerificationToken: token, saudaUpdateDto: model },
+				success: function (result) {
+                    if (result.PostStatus) {
+                        ShowSuccessMessage(result.PostMessage);
+                        setTimeout(function () { window.location.href = '@Url.Action("SaudaConversionList", "Sauda")'; }, 1300);
+					} else {
+						ShowErrorMessage(result.PostMessage);
+						window.kendo.ui.progress($("#div_Progress"), false);
+						return false;
+					}
+				}
+			});
+        });
+
+    });
+
+    function onDataBound(e) {
+        SetEmptyRow(e);
+    }
+</script>

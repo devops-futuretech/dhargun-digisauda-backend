@@ -1,0 +1,223 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+
+@model Adani.Solution.DTO.SaudaSalesAreaRestrictionDto
+@{
+    ViewBag.Title = "SaudaSalesAreaRestrictionConfiguration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="saudaSalesAreaRestrictionList" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_SaudaSalesAreaRestriction")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Configuration</a><span class="icon-right"></span></li>
+        <li><a href="/Sauda/SaudaSalesAreaRestrictionList">Sauda Sales Area Restriction List</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_SaudaSalesAreaRestriction")<span class="icon-right"></span></li>
+    </ol>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            @using (Html.BeginForm("SaudaSalesAreaRestrictionConfiguration", "Lookup", FormMethod.Post, new { id = "frmSaudaSalesAreaRestrictionConfiguration", @class = "form-validate-jquery" }))
+            {
+
+                <div class="col-md-12" style="padding-bottom: 20px;display:none" id="successAlert">
+                    <div class="alert alert-success no-border">
+                        <button type="button" class="close" data-dismiss="alert"><span>&times;</span><span class="sr-only">Close</span></button>
+                        <span class="text-semibold" id="successContent"></span>
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <input type="hidden" value="@Model.EncryptedId" name="EncryptedId" />
+                        <label class="custom_label">@Helper.GetResourceString("lbl_SalesOrganization") <span class="text-danger">*</span></label>
+                        @(Html.Kendo().DropDownListFor(m => m.SalesOrganizationId)
+                    .Name("SalesOrganizationId")
+                    .OptionLabel(@Helper.GetResourceString("plho-SelectSales"))
+                    .DataTextField("SalesOrganizationName")
+                    .Events(e => e.Select("onSaleChange"))
+                    .DataValueField("Id")
+                    .DataSource(source => source.Read(read => read.Action("GetSalesOrganizationddl", "Lookup"))
+                    ).HtmlAttributes(new { tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_SalesOrganization"), @style = "width:100%" })
+                )
+                    </div>
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <label class="custom_label">@Helper.GetResourceString("lbl_DistributionChannel") <span class="text-danger">*</span></label>
+
+                        @(Html.Kendo().DropDownListFor(m => m.DistributionChannelId)
+                           .Name("DistributionChannelId")
+                          .OptionLabel(@Helper.GetResourceString("plho-SelectDistChannel"))
+                          .Events(events => events.Select("onDistributionChange").DataBound("OnDistributionDataBound"))
+                          .DataTextField("DistributionChannelName")
+                          .DataValueField("Id")
+                          .DataSource(source => source.Read(read => read.Action("GetDistributionChannelddl", "Lookup").Data("distParam"))
+                          .ServerFiltering(true))
+                          .HtmlAttributes(new { @class = "", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_DistributionChannel"), @style = "width:100%" }))
+                    </div>
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <label class="custom_label"> @Helper.GetResourceString("lbl_VerticleType") <span class="text-danger">*</span> </label>
+                        @(Html.Kendo().DropDownListFor(m => m.DivisionId)
+                           .Name("DivisionId")
+                          .OptionLabel(@Helper.GetResourceString("plho_SelectVertical"))
+                          .DataTextField("Name")
+                          .DataValueField("Id")
+                          .DataSource(source => source.Read(read => read.Action("GetVerticalDetailsdd", "Lookup").Data("verticalParam"))
+                          .ServerFiltering(true))
+                          .HtmlAttributes(new { @class = "", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_VerticleType"), @style = "width:100%" }))
+                    </div>
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <label class="custom_label">@Helper.GetResourceString("lbl_TimeRestriction")<span class="text-danger">*</span></label>
+                        @(Html.Kendo().TimePickerFor(s => s.TimeRestriction)
+                                              .Name("TimeRestriction")
+                                              .Min("12:00 AM")
+                                              .Max("11:30 PM")
+                                              .Format("HH:mm")
+                                              .HtmlAttributes(new { style = "width: 100%", tabindex = "4", required = "required", onkeydown = "return isFocus(event);" }))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <label class="custom_label">@Helper.GetResourceString("lbl_ValidFrom") <span class="text-danger">*</span></label>
+                        @(Html.Kendo().DatePickerFor(m => m.ValidFrom)
+                                          .Format(Settings.DateFormat)
+                                          .Events(e => e.Change("fromChange"))
+                                          .HtmlAttributes(new { id = "salesAreaRestrictionFromDate", tabindex = "5", required = "required", onkeydown = "return isFocus(event);", style = "width: 100%" }))
+                    </div>
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <label class="custom_label">@Helper.GetResourceString("lbl_ValidTo") <span class="text-danger">*</span></label>
+                        @(Html.Kendo().DatePickerFor(m => m.ValidTo)
+                                          .Format(Settings.DateFormat)
+                                          .HtmlAttributes(new { id = "salesAreaRestrictionToDate", tabindex = "6", required = "required", onkeydown = "return isFocus(event);", style = "width: 100%" }))
+                    </div>
+                </div>
+
+                <div class="col-md-12 text-right">
+                    <button id="btnClose" type="button" tabindex="6" class="k-button k-cancel custom-btns">@Helper.GetResourceString("btn_Close")</button>
+                    @if (Helper.CheckClaims(Claims.ManageSaudaSalesAreaRestriction))
+                    {
+                        if (string.IsNullOrEmpty(Model.EncryptedId))
+                        {
+                            <button id="btnSave" type="button" tabindex="6" class="k-primary k-button custom-btns">Save</button>
+                        }
+                        else
+                        {
+                            <button id="btnSave" type="button" tabindex="6" class="k-primary k-button custom-btns">Update</button>
+                        }
+                    }
+                </div>
+
+            }
+
+        </div>
+    </div>
+
+</div>
+<script>
+
+    $(document).ready(function () {
+
+        if ('@Model.Id' === '0') {
+            StartDateRange();
+        }
+        else {
+            StartDateRangeOnUpdate();
+        }
+
+
+        if ('@TempData["SuccessMessage"]'.length) {
+            ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+        if ('@TempData["ErrorMessage"]') {
+            ShowErrorMessage('@TempData["ErrorMessage"]');
+        }
+
+        $('#btnSave').on('click', function () {
+            if ($('#frmSaudaSalesAreaRestrictionConfiguration').valid()) {
+                window.kendo.ui.progress($("#div_Progress"), true);
+                $('#frmSaudaSalesAreaRestrictionConfiguration').submit();
+            }
+        });
+
+        $("#btnClose").click(() => window.location.href = "/Sauda/SaudaSalesAreaRestrictionList");
+    });
+
+    function onSaleChange() {
+        $("#DistributionChannelId").data("kendoDropDownList").dataSource.read();
+    }
+    function onDistributionChange(e) {
+        $("#DivisionId").data("kendoDropDownList").dataSource.read();
+    }
+
+    function OnDistributionDataBound(e) {
+        var distId = $("#DistributionChannelId").data("kendoDropDownList").value();
+        if (distId > 0) {
+            $("#DivisionId").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    function verticalParam() {
+        var distId = $("#DistributionChannelId").data("kendoDropDownList").value();
+        return {
+            distId: Number(distId)
+        };
+    }
+
+    function distParam() {
+        var saleId = $("#SalesOrganizationId").data("kendoDropDownList").value();
+        return {
+            saleId: Number(saleId)
+        };
+    }
+
+    function fromChange() {
+        var endPicker = $("#salesAreaRestrictionToDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            $("#salesAreaRestrictionToDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+            endPicker.min(startDate);
+        }
+    }
+
+    function StartDateRange() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+
+        $("#salesAreaRestrictionFromDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        $("#salesAreaRestrictionToDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+
+        var startPicker = $("#salesAreaRestrictionFromDate").data("kendoDatePicker");
+        startPicker.min(dates);
+
+        var endPicker = $("#salesAreaRestrictionToDate").data("kendoDatePicker");
+        endPicker.min(dates);
+    }
+
+    function StartDateRangeOnUpdate() {
+        var endPicker = $("#salesAreaRestrictionToDate").data("kendoDatePicker"),
+            startDate = $("#salesAreaRestrictionFromDate").data("kendoDatePicker").value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate());
+
+            $("#salesAreaRestrictionFromDate").val(kendo.toString(startDate, emamiGlobal.constant.DateFormat));
+            var startPicker = $("#salesAreaRestrictionFromDate").data("kendoDatePicker");
+            startPicker.min(startDate);
+            endPicker.min(startDate);
+        }
+    }
+</script>
+
+
+

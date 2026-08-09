@@ -1,0 +1,168 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@model Adani.Solution.DTO.QPSSchemeDiscountDto
+
+@{
+    ViewBag.Title = "QPSDiscountList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="tpdiscountQPSScheme" />
+<div id="main-section-header" class="row">
+    @*@Helper.GetResourceString("lbl_OilType")*@
+    <h2 id="team-efficiency" class="main-title">QPSDiscountList</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Discounts</a><span class="icon-right"></span></li>
+        <li class="active">QPSDiscountList<span class="icon-right"></span></li>
+    </ol>
+    @*<div id="dateFilter" class="col-xs-9">
+            <div class="period-wrapper">
+                @if (Helper.CheckClaims(Claims.ManageMaster) && !ConfigHelper.IsSapDataUpdate)
+                {
+                    <a id="btnAddVertical" href="#" class="k-primary k-button"><b><i class="icon-plus"></i></b>&ensp;@Helper.GetResourceString("lbl_AddDivision")</a>
+                }
+            </div>
+        </div>*@
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        @*<div class="panel-heading">
+                <h3 class="inner-title">Division List</h3>
+            </div>*@
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvDealers">
+                <div class="col-md-12">
+                    <div class="text-right right-buttons">
+                        <div class="export_as">
+                            <span>Export as</span>
+                            <div class="export-btns">
+                                @*<span class="export-link" onclick='excelExport()' type="button">CSV</span>*@
+                                <span class="export-link" onclick='excelExport()' type="button">Excel</span>
+                            </div>
+                        </div>
+                        @*<button class="k-button k-button-icontext k-grid-excel" onclick='excelExport()' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;*@
+                        @*<button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("GridVertical")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;*@
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                        <div class="period-wrapper">
+                            @if (Helper.CheckClaims(Claims.QPSDiscount) && !ConfigHelper.IsSapDataUpdate)
+                            {
+                                <a href="@Url.Action("QPSAddRedirect","QPSDiscount")" class="k-primary k-button"><b><i class="icon-plus"></i></b>&ensp;Add New QPSDiscount</a>
+                            }
+                        </div>
+                    </div>
+                    @(Html.Kendo().Grid<QPSSchemeDiscountDto>()
+                          .Name("GridVertical")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.Id).ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("QPSAddRedirect", "QPSDiscount", new { EncryptedId = "#=EncryptedId#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=Id#</a> </div>").Title("QPS Id").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.OilTypeName).ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("QPSAddRedirect", "QPSDiscount", new { EncryptedId = "#=EncryptedId#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=OilTypeName#</a> </div>").Title("Oil Type").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.StartDate).Title("Start Date").Format(Settings.GridDateFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.EndDate).Title("End Date").Format(Settings.GridDateFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Active")).ClientTemplate(@"<div style='text-align: center;'>#if(IsActive){#<i class='icon-green_ckbox_tick faicon-green'><span class='path1'></span><span class='path2'></span></i>#}else{#<i class='icon-red_ckbox_tick faicon-red'><span class='path1'></span><span class='path2'></span></i>#}#</div>").Width(Settings.GridColumnMaxWidth);
+                          })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Resizable(resize => resize.Columns(true))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .Excel(excel => excel.AllPages(true).FileName(@Helper.GetResourceString("lbl_QpsDiscount") + " " + DateTime.Now + ".xlsx").Filterable(true))
+                          .Events(events => events.DataBound("onVerticleDataBound"))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Model(model => { model.Id(p => p.Id); })
+                          .ServerOperation(true)
+                          .Read(read => read.Action("GetQpsDiscountListForGridAsync", "QPSDiscount"))
+                          ))
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        @*if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }*@
+
+        // kendo grid filter contains
+        FilterContains();
+
+        //Modal popup show
+
+
+        //Save function
+
+    });
+
+
+    //Refresh the grid
+    function refreshGrid() {
+        var orderGrid = $("#GridVertical").data("kendoGrid");
+        orderGrid.dataSource.read();
+    }
+
+    //Method to data bound event for owner
+    function onVerticleDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+    function excelExport() {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        var data = { IsToReturnInactiveData: true };
+        $.ajax({
+            type: 'Post',
+            url: '@Url.Action("ExportQPSSchemeDiscount", "QPSDiscount")',
+            data: { inputDto: data },
+            success: function (responce) {
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Pricing")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+
+
+    function onSaleChange() {
+        $("#ddlDistributionChannel").data("kendoDropDownList").dataSource.read();
+    }
+
+
+    function distParam() {
+        var saleId = $("#ddlSalesOrganization").data("kendoDropDownList").value();
+        return {
+            saleId: Number(saleId)
+        };
+    }
+
+</script>
+
+
+
+
+
+
+

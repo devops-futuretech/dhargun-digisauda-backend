@@ -1,0 +1,754 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model LiftingRequestOutputDto
+@{
+    ViewBag.Title = @Helper.GetResourceString("lbl_IndentList");
+}
+
+<style>
+    button:disabled {
+        cursor: not-allowed !important;
+        pointer-events: all !important;
+    }
+</style>
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="transactionLiftingList" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_IndentList")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Transaction</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_IndentList")<span class="icon-right"></span></li>
+    </ol>
+    <div style="clear:both;"></div>
+</div>
+@using (Html.BeginForm("SaudhaDetails", "ReverseAuction", FormMethod.Post, new { id = "frmLiftingList", @class = "form-validate-jquery" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="content main-section-content row">
+        <div class="panel panel-flat">
+            <div class="panel-heading">
+            </div>
+            <div class="panel-body" style="display: block;">
+                <div class="panel-group filter-accordion col-md-12" id="accordion">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" class="accord" data-parent="#accordion" href="#collapseOne">Filters</a>
+                            </h4>
+                        </div>
+                        <div id="collapseOne" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="panel-body">
+                                        <div class="row" id="dvSecondaryFreights">
+                                            <div class="row form-group">
+                                                <div class="col-lg-3 col-sm-6 mb-3">
+                                                    <label class="custom_label">
+                                                        @Helper.GetResourceString("lbl_FromDate")
+                                                    </label>
+                                                    @(Html.Kendo().DatePickerFor(m => m.StartDate)
+                                          .Value(DateTime.Today)
+                                          .Format(Settings.DateFormat)
+                                          .Events(e => e.Change("fromChange"))
+                                          .HtmlAttributes(new { id = "StartDate", onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                                                </div>
+                                                <div class="col-lg-3 col-sm-6 mb-3 ">
+                                                    <label class="custom_label">  @Helper.GetResourceString("lbl_ToDate") </label>
+                                                    @(Html.Kendo().DatePickerFor(m => m.EndDate)
+                                          //.Name("EndDate")
+                                          .Value(DateTime.Today)
+                                          .Format(Settings.DateFormat)
+                                          .HtmlAttributes(new { id = "EndDate", onkeydown = "return isFocus(event);", tabindex = "2", style = "width: 100%" }))
+                                                </div>
+
+                                                <div class="col-lg-3 col-sm-6 mb-3 ">
+                                                    <label class="custom_label"> @Helper.GetResourceString("lbl_State") </label>
+                                                    @(Html.Kendo().MultiSelectFor(m => m.StateIds)
+                                          .Placeholder(@Helper.GetResourceString("plho_SelectState"))
+                                          .Events(events => events.Change("onStateChange").DataBound("onStateDataBound"))
+                                          .DataTextField("StateName")
+                                          .DataValueField("StateId")
+                                          .AutoClose(false)
+                                          .TagMode(TagMode.Single)
+                                          .DataSource(source => source.Read(read => read.Action("GetStateListAsync", "Lookup"))
+                                          .ServerFiltering(false))
+                                          .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='stateSelectAll'> Select All</label>")
+                                          .HtmlAttributes(new { id = "ddlState", @class = "", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_State"), @style = "width:100%" }))
+                                                </div>
+                                                <div class="col-lg-3 col-sm-6 mb-3 ">
+                                                    <label class="custom_label"> @Helper.GetResourceString("lbl_Status") </label>
+                                                    @(Html.Kendo().DropDownListFor(m => m.StatusID)
+                                          .Name("Status")
+                                          .OptionLabel("Select status")
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .DataSource(source => source.Read(resd => resd.Action("GetPendingApprovedStatusWithAllOption", "Lookup"))
+                                          .ServerFiltering(false))
+                                          .HtmlAttributes(new { id = "ddlStatus", @class = "form-control", tabindex = "3", @style = "width:100%" }))
+                                                </div>
+                                            </div>
+
+                                            <div class="row form-group">
+
+                                                <div class="col-lg-3 col-sm-6 mb-3">
+                                                    <label class="custom_label">
+                                                        @Helper.GetResourceString("lbl_SalesOrganization") <span class="text-danger">*</span>
+                                                    </label>
+                                                    @(Html.Kendo().DropDownList()
+                    .Name("ddlSalesOrganization")
+                    .OptionLabel("Select Sales Organization")
+                    .DataTextField("SalesOrganizationName")
+                    .Events(e => e.Change("onSaleChange"))
+                    .DataValueField("Id")
+                    .DataSource(source => source.Read(read => read.Action("GetSalesOrganizationddl", "Lookup"))
+                    ).HtmlAttributes(new { tabindex = "5", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_SalesOrganization"), @style = "width:100%" })
+                )
+
+                                                </div>
+
+                                                <div class="col-lg-3 col-sm-6 mb-3">
+                                                    <label class="custom_label">
+                                                        @Helper.GetResourceString("lbl_DistributionChannel") <span class="text-danger">*</span>
+                                                    </label>
+                                                    @(Html.Kendo().DropDownList()
+                           .Name("ddlDistributionChannel")
+                          .OptionLabel("Select Distribution")
+                          .Events(events => events.Change("onDistributionChange").DataBound("OnDistributionDataBound"))
+                          .DataTextField("DistributionChannelName")
+                          .DataValueField("Id")
+                          .DataSource(source => source.Read(read => read.Action("GetDistributionChannelddl", "Lookup").Data("distParam"))
+                          .ServerFiltering(true))
+                          .HtmlAttributes(new { @class = "", tabindex = "6", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_DistributionChannel"), @style = "width:100%" }))
+
+                                                </div>
+
+                                                <div class="col-lg-3 col-sm-6 mb-3">
+                                                    <label class="custom_label"> @Helper.GetResourceString("lbl_Vertical") <span class="text-danger"></span> </label>
+                                                    @(Html.Kendo().DropDownList().Name("VerticalId")
+                              .OptionLabel(@Helper.GetResourceString("plho_All"))
+                              .DataTextField("Name")
+                              .DataValueField("Id")
+                              .DataSource(source => source.Read(resd => resd.Action("GetVerticalDetailsdd", "Lookup").Data("verticalParam"))
+                              .ServerFiltering(false))
+                              .HtmlAttributes(new { id = "ddlVertical", tabindex = "5", @class = "", @style = "width:100%" }))
+                                                </div>
+                                            </div>
+                                            <div class="row form-group">
+                                                <div class="col-md-5">
+                                                </div>
+                                                <div class="col-md-12 text-right">
+                                                    <button type="button" tabindex="4" id="btnGenerateLiftingList" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Search") </button>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row form-group"></div>
+
+
+
+                <div class="row form-group">
+                    <div class="col-md-12">
+                        <div>
+                            <div class="text-right right-buttons">
+                                <div class="export_as">
+                                    <span>Export as</span>
+                                    <div class="export-btns">
+
+                                        <span class="export-link" id="liftingExcelDownload" type="button">Excel</span>
+                                    </div>
+                                </div>
+                                @*<button class="k-button k-button-icontext k-grid-excel" id="liftingExcelDownload" type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>*@
+                                @*<button class="k-button k-button-icontext k-grid-excel" onclick="location.href='@Url.Action("GetLiftingRequestListForExport", "ReverseAuction")?FromDate=' + $('#StartDate').val()+'&ToDate=' + $('#EndDate').val()+'&StateId=' + $('#ddlState').val()+'&StatusId=' + $('#ddlStatus').val()+'&IsToReturnInactiveData=true'" type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>*@
+                                @*<button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ViewLiftingList")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>*@&ensp;
+                                @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                            </div>
+                            @(Html.Kendo().Grid<LiftingRequestOutputDto>().Name("ViewLiftingList")
+                                              .Columns(columns =>
+                                              {
+                                                  columns.Template(c => c.StatusID).Visible(false);
+                                                  columns.Template(c => c.EnquiryNumberSyncFromSap).Visible(false);
+                                                  columns.Template(c => c.ReprocessStatusId).Visible(false);
+                                                  columns.Template(@<text></text>).ClientTemplate("<div class='text-center' style='display: #= StatusID == emamiGlobal.Status.Pending ? 'block' : 'none' #'><input type='checkbox' class='chkbxAllPaymentReceived'  value=#=LiftingRequestId# onclick=\"findCheckedItemsSaveItToHidden(this,'#=EncryptedId#','hdSelectedIds','masterCBAllPaymentReceived','chkbxAllPaymentReceived','lblPaymentReceivedSelectedCount');\"/></div>")
+                                                 .HeaderTemplate("<div class='text-center' style='display: #= StatusID == emamiGlobal.Status.Pending ? 'block' : 'none' #'><input type='checkbox' id='masterCBAllPaymentReceived' onclick=\"masterfindCheckedItemsSaveItToHidden(this,'hdSelectedIds','chkbxAllPaymentReceived','lblPaymentReceivedSelectedCount')\"/></div>").Width("40px");
+                                                 // columns.Bound(c => c.LiftingRequestId).Title("Reprocess").ClientTemplate("<div class='text-center'>#if(){#<div style='cursor: no-drop;'><button type='button' class='k-primary k-button'  onclick='reproccess(#=LiftingRequestId#);'>Reprocess</button></div>#}#</div>").Width(Settings.GridColumnMaxWidth250);
+                                                  columns.Template(@<text></text>).Title("Reprocess").ClientTemplate(
+                                             "#if((EnquiryNumberSyncFromSap && (EnquiryRemarks != null || EnquiryRemarks != '') && (EnquiryNumber == null || EnquiryNumber == '') ))" +
+                                            "{#" +
+                                            "<input type='checkbox' class='chkbxAllPaymentReceived'  value=#=EncryptedId# onclick=\"findCheckedItemsSaveItToHidden(this,'#=EncryptedId#','hdSelectedIds','masterCBAllPaymentReceived','chkbxAllPaymentReceived','lblPaymentReceivedSelectedCount');\"/>"
+                                            +
+                                            "#}#"
+                                            //"else if((SaudaNumber == null || SaudaNumber == '') && (IsSAPDataSync) && (IsActiveRemarks))" +
+                                            //"{#" +
+                                            //"<input type='checkbox' class='chkbxAllPaymentReceived'  value=#=Id# onclick=\"findCheckedItemsSaveItToHidden(this,'#=SaudaId#','hdSelectedIds','masterCBAllPaymentReceived','chkbxAllPaymentReceived','lblPaymentReceivedSelectedCount');\"/>" +
+                                            //"#}" +
+                                            //"else if(IsSapSyncNotReceivedForSaudaNumber)" +
+                                            //"{#" +
+                                            //"<input type='checkbox' class='chkbxAllPaymentReceived'  value=#=Id# onclick=\"findCheckedItemsSaveItToHidden(this,'#=Id#','hdSelectedIds','masterCBAllPaymentReceived','chkbxAllPaymentReceived','lblPaymentReceivedSelectedCount');\"/>" +
+                                            //"#}#"
+                                            )
+                                            .HeaderTemplate("<div class='text-center'><input type='checkbox' id='masterCBAllPaymentReceived' onclick=\"masterfindCheckedItemsSaveItToHidden(this,'hdSelectedIds','chkbxAllPaymentReceived','lblPaymentReceivedSelectedCount')\"/></div>").Width(Settings.GridFilterColumnWidth);
+                                                  columns.Bound(c => c.LiftingRequestNumber).Title(@Helper.GetResourceString("lbl_IndentRequestNumber")).ClientTemplate(@"<div><a style='text-decoration: underline;'  href='" + Url.Action("LDEdit", "ReverseAuction", new { EncryptedId = "#=EncryptedId#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=LiftingRequestNumber#</a>  </div>").Width(Settings.GridColumnMaxWidth250);
+                                                  columns.Bound(c => c.LiftingRequestdate).Title(@Helper.GetResourceString("lbl_Date")).Format(Settings.GridDateFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                                  columns.Bound(c => c.Dealer).HtmlAttributes(new { @title = "#=Dealer#" }).Title(@Helper.GetResourceString("lbl_Dealer")).Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(c => c.PlantCode).Title("Plant Code").Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(c => c.PlantName).HtmlAttributes(new { @title = "#=PlantName#" }).Title("Plant Name").Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(c => c.CreatedUser).HtmlAttributes(new { @title = "#=CreatedUser#" }).Title(@Helper.GetResourceString("lbl_CreatedBy")).Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(c => c.RequestedQuantity).Title("Sales Order Quantity" + " (MT)").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                                  columns.Bound(c => c.RequestedQuantityInCase).Title("Sales Order Quantity").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                                  columns.Bound(c => c.Status).Title(@Helper.GetResourceString("lbl_Status")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                                  columns.Bound(c => c.Remarks).HtmlAttributes(new { @title = "#=Remarks#" }).Title(@Helper.GetResourceString("lbl_ApproverRemarks")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                                  columns.Bound(c => c.CustomerRemarks).HtmlAttributes(new { @title = "#=CustomerRemarks#" }).Title(@Helper.GetResourceString("lbl_CustomerRemarks")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                                  columns.Bound(c => c.EnquiryNumber).Title(@Helper.GetResourceString("lbl_EnquiryNumber")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                                  columns.Bound(c => c.DeliveryOrderNumber).Title(@Helper.GetResourceString("lbl_DeliveryOrderNumber")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                                  columns.Bound(c => c.EnquiryRemarks).HtmlAttributes(new { @title = "#=EnquiryRemarks#" }).Title(@Helper.GetResourceString("lbl_EnquiryRemarks")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                              })
+                                                .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                                .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                                .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                                .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                                .Selectable(selectable => selectable
+                                                .Mode(GridSelectionMode.Multiple)
+                                                .Type(GridSelectionType.Row))
+                                                .ClientDetailTemplateId("template")
+                                                .Scrollable(s => s.Enabled(true).Height("auto"))
+                                                //.Events(e => e.ExcelExport("employees_excelExport").DetailInit("detailInit"))
+                                                .Events(events => events.DataBound("onFinalPricingDataBound"))
+                                                .Reorderable(reorder => reorder.Columns(true))
+                                                .Resizable(resize => resize.Columns(true))
+                                                //.Excel(excel => excel.AllPages(true).FileName(@Helper.GetResourceString("lbl_IndentList") + " " + DateTime.Now + ".xlsx").Filterable(true))
+                                                .DataSource(dataSource => dataSource
+                                                .Ajax()
+                                                .Model(model => model.Id(p => p.LiftingRequestId))
+                                                .ServerOperation(true)
+                                                .Read(read => read.Action("GetAllLiftingRequestList", "ReverseAuction").Data("AdditionalInfo"))))
+                            <script id="template" type="text/kendo-tmpl">
+                                    @(Html.Kendo().Grid<LiftingRequestDetailsOutputDto>()
+                                       .Name("grid_#=LiftingRequestId#")
+                                       .Columns(columns =>
+                                       {
+                                           //columns.Bound(c => c.ReprocessStatusId).Visible(false);
+                                           //columns.Bound(c => c.EnquiryNumberSyncFromSap).Visible(false);
+                                           columns.Bound(c => c.Id).Visible(false);
+                                           columns.Bound(c => c.SkuName).HtmlAttributes(new { @title = "\\#= SkuName \\#" }).Title(@Helper.GetResourceString("lbl_SkuName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           columns.Bound(c => c.OilType).HtmlAttributes(new { @title = "\\#= OilType \\#" }).Title(@Helper.GetResourceString("lbl_OilType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                           columns.Bound(c => c.LiftingQuantity).Title("Sales Order Quantity (MT)").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                           columns.Bound(c => c.LiftingQuantityCase).Title("Sales Order Quantity").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                           columns.Bound(c => c.SaudaNumber).Title("Contract Number").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                           //columns.Bound(c => c.InvoiceNumber).Title("Invoice Number").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           // columns.Bound(c => c.UserCode).Title("User Code").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           //columns.Bound(c => c.InvoiceDate).Format(Settings.GridDateFormat).Title("Invoice Date").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                           //columns.Bound(c => c.TotalAmount).Title("Total Amount").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                           //columns.Bound(c => c.EnquiryNumber).Title(@Helper.GetResourceString("lbl_EnquiryNumber")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                           //columns.Bound(c => c.EnquiryRemarks).Title(@Helper.GetResourceString("lbl_EnquiryRemarks")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                           //columns.Bound(c => c.DeliveryOrderNumber).Title(@Helper.GetResourceString("lbl_DeliveryOrderNumber")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                           //columns.Bound(c => c.StatusName).Title(@Helper.GetResourceString("lbl_Status")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                       })
+                                       .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                       //.Events(events => events.DataBound("onLiftingRequestDetailListDataBound"))
+                                       .Selectable(selectable => selectable
+                                       .Type(GridSelectionType.Row))
+                                       .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                       .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                       .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                       .Scrollable(s => s.Enabled(true).Height("auto"))
+                                       .Reorderable(reorder => reorder.Columns(true))
+                                       //.ClientDetailTemplateId("SaudaOrderLiftingRequest")
+                                       .Resizable(resize => resize.Columns(true))
+                                       .DataSource(dataSource => dataSource
+                                       .Ajax()
+                                       .PageSize(Settings.DefaultPageSize)
+                                       .Read(read => read.Action("LiftingDetailsById", "ReverseAuction", new { LiftingRequestId = "#=LiftingRequestId#" }))
+                                       ).ToClientTemplate())
+                            </script>
+
+                            @*<script id="SaudaOrderLiftingRequest" type="text/kendo-tmpl">
+                        @(Html.Kendo().Grid<InvoiceLiftingRequestDto>()
+                         .Name("grid_#=Id#_#=LiftingRequestId#")
+                         .Columns(columns =>
+                         {
+                             columns.Bound(c => c.Id).Visible(false);
+                             columns.Bound(c => c.InvoiceNumber).Title("Invoice Number").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                             columns.Bound(c => c.UserCode).Title("User Code").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                             columns.Bound(c => c.InvoiceDate).Format(Settings.GridDateFormat).Title("Invoice Date").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                             columns.Bound(c => c.TotalAmount).Title("Total Amount").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                             //columns.Bound(c => c.StatusName).Title(@Helper.GetResourceString("lbl_Status")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                         })
+                         .Selectable(selectable => selectable
+                         .Type(GridSelectionType.Row))
+                         .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                         .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                         .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                         .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                         .Scrollable(s => s.Enabled(true).Height("auto"))
+                         .Reorderable(reorder => reorder.Columns(true))
+                         .Resizable(resize => resize.Columns(true))
+                         .DataSource(dataSource => dataSource
+                         .Ajax()
+                         .PageSize(Settings.DefaultPageSize)
+                         .Read(read => read.Action("GetSaudaOrderLiftingRequestDetails", "ReverseAuction", new { liftingRequestDetailId = "#=Id#" }))
+                         ).ToClientTemplate())
+                    </script>*@
+                        </div>
+                    </div>
+                </div>
+                <div class="row form-group" id="divSave">
+                    <div class="col-lg-12" id="divRemarks">
+                        <label class="custom_label">@Helper.GetResourceString("lbl_Remarks")</label>
+
+                        @Html.TextAreaFor(m => m.Remarks, new { id = "txtRemarks", tabindex = "5", @class = "k-textarea", @maxlength = (int)InputMaxLength.TextAreaString })
+
+                    </div>
+                </div>
+                <div class="row form-group" id="divSave">
+                    <div class="text-right">
+                        @if (Helper.CheckClaims(Claims.ManageLiftingList))
+                        {
+                            <button type="button" tabindex="6" id="btnApproved" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Approve")</button>
+                            <button type="button" id="btnRejected" class="k-primary k-button">@Helper.GetResourceString("btn_Reject")</button>
+                            <button type="button" tabindex="6" id="btnReprocess" class="k-primary k-button custom-btns">Reprocess</button>
+                        }
+                    </div>
+                </div>
+            </div>
+            </div>
+    </div>
+}
+
+@Html.Hidden("hdSelectedIds")
+<script>
+    $(document).ready(function () {
+
+        setFromToDateRange("StartDate", "EndDate", emamiGlobal.constant.IndentDateRange);
+
+        //StartDateRange();
+        //$("#btnApproved").prop("disabled", true);
+        //$("#btnRejected").prop("disabled", true);
+        $("#masterCBAllPaymentReceived").hide();
+
+        $("#btnApproved").val(emamiGlobal.Status.Approved);
+        $("#btnRejected").val(emamiGlobal.Status.Rejected);
+
+        $("#btnGenerateLiftingList").on('click', function () {
+            //window.kendo.ui.progress($("#div_Progress"), true);
+            onDateChange();
+           // window.kendo.ui.progress($("#div_Progress"), false);
+        });
+
+        // Lifting request Approve & Reject
+        $("#btnApproved,#btnRejected").click(function (e) {
+            var form = $('#frmLiftingList');
+            var token = $('input[name="__RequestVerificationToken"]', form).val();
+            var gridData = $("#ViewLiftingList").data("kendoGrid").dataSource.data();
+            var selectedOrders = [];
+
+            if (gridData.length === 0) {
+                ShowErrorMessage("Please select any record");
+                return false;
+            }
+
+            selectedOrders = $("#hdSelectedIds").val().split(",");
+            if (selectedOrders == '') {
+                ShowErrorMessage("Please select any record");
+                return false;
+            }
+
+            var statusId = parseInt($(this).val());
+            if ((statusId == emamiGlobal.Status.Rejected || statusId == emamiGlobal.Status.Hold) && !$("#txtRemarks").val()) {
+                ShowErrorMessage("Please enter the reason");
+                return false;
+            }
+
+            var model = {
+                EncryptedIds: selectedOrders,
+                StatusId: statusId,
+                Remarks: $("#txtRemarks").val()
+            };
+
+            var IsApproved = false;
+            for (var i = 0; i < gridData.length; i++) {
+                if (gridData[i].StatusID == emamiGlobal.Status.Pending) {
+                    IsApproved = true;
+                }
+            }
+            if (!IsApproved) {
+                ShowErrorMessage('@Helper.GetResourceString("msg_AlreadyApproved")');
+            }
+            else {
+                window.kendo.ui.progress($("#div_Progress"), true);
+                moduleCommon.Common.AjaxCall({
+                url: '@Url.Action("LiftingRequestStatusChanges", "ReverseAuction")',
+                type: 'POST',
+                data: { __RequestVerificationToken: token, liftingRequestStatusChange: model },
+                success: function (result) {
+                    if (result.PostStatus) {
+                        ShowSuccessMessage(result.PostMessage);
+                        setTimeout(function () { window.location.href = '@Url.Action("LiftingList", "ReverseAuction")'; }, 1300);
+                    } else {
+                        ShowErrorMessage(result.PostMessage);
+                    }
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                }
+            });
+            }
+
+        });
+
+        // Lifting request reprocess
+        $("#btnReprocess").click(function (e) {
+            var form = $('#frmLiftingList');
+            var token = $('input[name="__RequestVerificationToken"]', form).val();
+            var gridData = $("#ViewLiftingList").data("kendoGrid").dataSource.data();
+            var selectedOrders = [];
+
+            if (gridData.length === 0) {
+                ShowErrorMessage("Please select any record");
+                return false;
+            }
+
+            selectedOrders = $("#hdSelectedIds").val().split(",");
+            if (selectedOrders == '') {
+                ShowErrorMessage("Please select any record");
+                return false;
+            }
+
+            var model = {
+                EncryptedIds: selectedOrders
+            };
+
+             window.kendo.ui.progress($("#pageLoader"), true);
+            moduleCommon.Common.AjaxCall({
+            url: '@Url.Action("ReprocessLiftingRequest", "ReverseAuction")',
+            type: 'POST',
+            data: { inputDto : model},
+                    success: function(result) {
+                        if (result.PostStatus) {
+                            ShowSuccessMessage(result.PostMessage);
+                            setTimeout(function () { window.location.href = '@Url.Action("LiftingList", "ReverseAuction")'; }, 1500);
+                        } else {
+                            ShowErrorMessage(result.PostMessage);
+                        }
+                        window.kendo.ui.progress($("#pageLoader"), false);
+            }
+            });
+
+        });
+
+
+        // kendo grid filter contains
+        FilterContains();
+
+
+        $("#stateSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlState", "stateSelectAll");
+        });
+
+
+        $("#liftingExcelDownload").click(function () {
+            window.kendo.ui.progress($("#div_Progress"), true);
+            var verticalId = 0;
+            if ($("#ddlVertical").val() != "") {
+                verticalId = $("#ddlVertical").val();
+            }
+            var model = {
+                FromDate: $('#StartDate').val(),
+                ToDate: $('#EndDate').val(),
+                StatusId: $('#ddlStatus').val(),
+                StateIds: $('#ddlState').val(),
+                verticalId: verticalId
+            };
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetSaudaOrderLiftingRequestExcelExport", "ReverseAuction")',
+                data: { inputDto: model },
+                success: function (responce) {
+                    if (responce.FileGuid) {
+                        window.location.href = '@Url.Action("ExcelDownload", "Base")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                    } else {
+                        ShowErrorMessage("No records found");
+                    }
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                },
+                error: function (responce) {
+                    ShowErrorMessage("File download failed");
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                }
+            });
+        });
+    });
+
+
+    var detailExportPromises = [];
+
+    function employees_excelExport(e) {
+
+        var grid = $("#ViewLiftingList").data("kendoGrid");
+        $(".k-master-row").each(function (index) {
+            grid.expandRow(this);
+        });
+
+        // prevent saving the file because we will update the workbook
+        e.preventDefault();
+        var workbook = e.workbook;
+        // Export all detail grids
+        $("[data-role=grid]", this.element).each(function () {
+            $(this).data("kendoGrid").saveAsExcel();
+        });
+        // wait for all detail grids to finish exporting
+        $.when.apply(null, detailExportPromises)
+            .then(function () {
+                // get the export results
+                var detailExports = $.makeArray(arguments);
+                // sort by masterRowIndex
+                detailExports.sort(function (a, b) {
+                    return a.masterRowIndex - b.masterRowIndex;
+                });
+                // add an empty column
+                workbook.sheets[0].columns.unshift({ width: 30 });
+                // prepend an empty cell to each row
+                for (var i = 0; i < workbook.sheets[0].rows.length; i++) {
+                    workbook.sheets[0].rows[i].cells.unshift({});
+                }
+                // merge the detail export sheet rows with the master sheet rows
+                // loop backwards so the masterRowIndex doesn't need to be updated
+                for (var i = detailExports.length - 1; i >= 0; i--) {
+                    var masterRowIndex = detailExports[i].masterRowIndex + 1;
+                    var sheet = detailExports[i].sheet;
+                    // prepend an empty cell to each row
+                    for (var ci = 0; ci < sheet.rows.length; ci++) {
+                        if (sheet.rows[ci].cells[0].value) {
+                            sheet.rows[ci].cells.unshift({});
+                        }
+                    }
+                    // insert the detail sheet rows after the master row
+                    [].splice.apply(workbook.sheets[0].rows, [masterRowIndex + 1, 0].concat(sheet.rows));
+                }
+                // save the workbook
+                kendo.saveAs({
+                    dataURI: new kendo.ooxml.Workbook(workbook).toDataURL(),
+                    fileName: '@Helper.GetResourceString("lbl_IndentList")' + '_' + '@DateTime.Now' + ".xlsx"
+                });
+            });
+    }
+
+
+    function detailInit(e) {
+        var deferred = $.Deferred();
+        // get the index of the master row
+        var masterRowIndex = e.masterRow.index(".k-master-row");
+        // add the deferred to the list of promises
+        detailExportPromises.push(deferred);
+        var detailGrid = e.detailRow.find("[data-role=grid]").data("kendoGrid");
+        detailGrid.bind("excelExport", function (e) {
+            // prevent saving the file
+            e.preventDefault();
+            // resolve the deferred
+            deferred.resolve({
+                masterRowIndex: masterRowIndex,
+                sheet: e.workbook.sheets[0]
+            });
+        });
+    }
+
+    function onDateChange() {
+        $("#hdSelectedIds").val('');
+        var LiftingList = $("#ViewLiftingList").data("kendoGrid");
+        LiftingList.dataSource.read();
+        if (LiftingList.dataSource.page() != 1) {
+            $('#ViewLiftingList').data('kendoGrid').dataSource.page(1);
+        }
+
+        //Status based button hide and show
+        var statusId = parseInt($("#ddlStatus").data("kendoDropDownList").value());
+        if (statusId === emamiGlobal.Status.Pending || statusId === 0 || statusId === -1) {
+            //$("#btnApproved").prop("disabled", false);
+            //$("#btnRejected").prop("disabled", false);
+            $("#masterCBAllPaymentReceived").show();
+        } else {
+            //$("#btnApproved").prop("disabled", true);
+            //$("#btnRejected").prop("disabled", true);
+            $("#masterCBAllPaymentReceived").hide();
+        }
+    }
+     function fromDateChange() {
+        setToDateRange("StartDate", "EndDate", emamiGlobal.constant.IndentDateRange);
+    }
+
+    function selectAllHideShow() {
+        var statusId = Number($("#ddlStatus").val());
+
+    }
+
+    function AdditionalInfo() {
+        var fromDate = new Date();
+        var toDate = new Date();
+
+        if ($("#StartDate").val().length > 0)
+            fromDate = $("#StartDate").val();
+
+        if ($("#EndDate").val().length > 0)
+            toDate = $("#EndDate").val();
+
+        var ddlState = $("#ddlState").data("kendoMultiSelect").value();
+
+        var verticalId = 0;
+        var SalesOrganizationId = $("#ddlSalesOrganization").val();
+        var DistributionChannelId = $("#ddlDistributionChannel").val();
+        if ($("#ddlVertical").val() != "") {
+            verticalId = $("#ddlVertical").val();
+        }
+
+        return {
+            FromDate: fromDate,
+            ToDate: toDate,
+            StatusId: Number($("#ddlStatus").val()),
+            StateIds: ddlState,
+            //StateId: Number($("#ddlState").val()),
+            IsToReturnInactiveData: true,
+            verticalId: verticalId,
+            SalesOrganizationId: DistributionChannelId,
+            DistributionChannelId: DistributionChannelId
+        };
+    }
+
+    //function reproccess(LiftingRequestId) {
+
+    //    var model = {
+    //        LiftingRequestId: LiftingRequestId
+    //    };
+
+    //}
+
+    function onLiftingRequestDetailListDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+    function onFinalPricingDataBound(e) {
+
+        detailExportPromises = [];
+        SetEmptyRow(e);
+        var items = e.sender.items();
+        items.each(function () {
+            var row = $(this);
+            var dataItem = e.sender.dataItem(row);
+            if (dataItem != undefined && !dataItem.HasChildren) {
+                row.find(".k-hierarchy-cell").html("");
+            }
+        });
+
+        var selectedOrders = [];
+        if ($("#hdSelectedIds").val()) {
+            selectedOrders = $("#hdSelectedIds").val().split(",");
+        }
+
+        $("#masterCBAllPaymentReceived").prop('checked', false);
+        $('input:checkbox.' + 'chkbxAllPaymentReceived').each(function () {
+            if ($.inArray(this.value, selectedOrders) > -1) {
+                this.checked = true;
+            }
+            else {
+                this.checked = false;
+            }
+        });
+    }
+
+    function StartDateRange() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+
+        $("#StartDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        $("#EndDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+
+        var endPicker = $("#EndDate").data("kendoDatePicker");
+        endPicker.min(dates);
+    }
+    
+    function fromChange() {
+        debugger;
+        var endPicker = $("#EndDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            $("#EndDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+            endPicker.min(startDate);
+        }
+        setToDateRangeBasedOnFromDate(startDate, "EndDate", emamiGlobal.constant.IndentDateRange);
+    }
+
+    function onStateChange(e) {
+        MultiSelectEvents("ddlState", "stateSelectAll");
+    }
+
+    function onStateDataBound(e) {
+        MultiSelectEvents("ddlState", "stateSelectAll");
+    }
+
+    function MultiSelectCheckUnCheck(DropDownName, CheckBoxName) {
+        var dropdown = $("#" + DropDownName + "").data("kendoMultiSelect");
+        if (dropdown) {
+            var allIds = dropdown.dataSource.data().map(function (dataItem) { return dataItem.StateId; });            //Select all ids from dropdown
+            if ($("#" + CheckBoxName + "").is(":checked")) {
+                dropdown.value(allIds);
+            } else {
+                dropdown.value([]);
+            }
+        }
+    }
+
+    function MultiSelectEvents(DropDownName, CheckBoxName) {
+        var dropdown = $("#" + DropDownName + "").data("kendoMultiSelect");
+        if (dropdown) {
+            var selectedValueCount = dropdown.value().length;                                   //Selected value length
+            var totalValueCount = dropdown.dataSource.data().length;                            //Dropdown total value count
+            if (selectedValueCount > 0 && totalValueCount > 0 && selectedValueCount === totalValueCount) {
+                $("#" + CheckBoxName + "").prop("checked", true);
+            } else {
+                $("#" + CheckBoxName + "").prop("checked", false);
+            }
+        }
+    }
+
+    function onSaleChange() {
+        $("#ddlDistributionChannel").data("kendoDropDownList").dataSource.read();
+    }
+    function onDistributionChange(e) {
+        $("#ddlVertical").data("kendoDropDownList").dataSource.read();
+    }
+
+    function OnDistributionDataBound(e) {
+        var distId = $("#ddlDistributionChannel").data("kendoDropDownList").value();
+        if (distId > 0) {
+            $("#ddlVertical").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    function verticalParam() {
+        var distId = $("#ddlDistributionChannel").data("kendoDropDownList").value();
+        return {
+            distId: Number(distId)
+        };
+    }
+
+    function distParam() {
+        var saleId = $("#ddlSalesOrganization").data("kendoDropDownList").value();
+        return {
+            saleId: Number(saleId)
+        };
+    }
+
+</script>

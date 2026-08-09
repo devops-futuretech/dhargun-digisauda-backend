@@ -1,0 +1,120 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+
+@{
+    ViewBag.Title = "SpecialityFatGeographyDiscountList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="sfquantitylimitGeography" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Speciality Fat Geography Qty Limit</h2>
+    <div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            @if (Helper.CheckClaims(Claims.ManageSpecialtyFatQuantityGeography))
+            {
+            <a href="@Url.Action("SpecialityFatGeographyDiscountEdit", "Pricing")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;Add Geography Quantity</a>
+            }
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvDealers">
+                @(Html.Kendo().Grid<Adani.Solution.DTO.SpecialityFatDiscountOutputDto>()
+                     .Name("SpGeographyDetailsGrid")
+                     .Columns(columns =>
+                     {
+                         columns.Bound(c => c.Id).Visible(false);
+                         columns.Bound(c => c.ParentId).Visible(false);
+                         columns.Bound(c => c.OilTypeName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_OilType")).Width(Settings.GridColumnMaxWidth);
+                         columns.Bound(c => c.OilTypeCode).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_OilType")).Width(Settings.GridColumnMaxWidth);
+                         //columns.Bound(c => c.SkuName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_Sku")).Width(Settings.GridColumnMaxWidth);
+                         columns.Bound(c => c.SkuName).Title(@Helper.GetResourceString("lbl_Sku")).ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("SpecialityFatGeographyDiscountEdit", "Pricing", new { geographyDiscountId = "#=Id#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=SkuName#</a> </div>").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                         columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                         columns.Bound(c => c.ActualDiscount).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Quantity Limit (MT)").Width(Settings.GridColumnMaxWidth);
+                         columns.Bound(c => c.ValidFrom).Format(Settings.GridDateFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_ValidFrom")).Width(Settings.GridColumnMaxWidth);
+                         columns.Bound(c => c.ValidTo).Format(Settings.GridDateFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_ValidTo")).Width(Settings.GridColumnMaxWidth);
+                     })
+                     .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                     .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                     .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                     .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                     .Scrollable(s => s.Enabled(true).Height("auto"))
+                     .Reorderable(reorder => reorder.Columns(true))
+                     .Resizable(resize => resize.Columns(true))
+                     .ClientDetailTemplateId("template")
+                     .Events(events => events.DataBound("dataBound"))
+                     .DataSource(dataSource => dataSource
+                     .Ajax()
+                     .Sort(sort => sort.Add("Id").Ascending())
+                     .Model(model => { model.Id(p => p.Id); })
+                     .ServerOperation(true)
+                     .Read(read => read.Action("GetSpecialityFatGeographyList", "Pricing", new { isToReturnInactiveData = true }))))
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="template" type="text/kendo-tmpl">
+
+    @(Html.Kendo().Grid<Adani.Solution.DTO.CityDetails>()
+          .Name("grid_#=Id#")      //template expression, to be evaluated in the master context
+          .Columns(columns =>
+          {
+              columns.Bound(c => c.CityName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_City")).Width(Settings.GridColumnMaxWidth);
+              columns.Bound(c => c.DistrictName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_District")).Width(Settings.GridColumnMaxWidth);
+              columns.Bound(c => c.TerritoryName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_Territory")).Width(Settings.GridColumnMaxWidth);
+              columns.Bound(c => c.StateName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_State")).Width(Settings.GridColumnMaxWidth);
+              columns.Bound(c => c.ZoneName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_Zone")).Width(Settings.GridColumnMaxWidth);
+          })
+          .DataSource(dataSource => dataSource
+              .Ajax()
+              .PageSize(10)
+              .Read(read => read.Action("GetSpecialityFatGeographyCityList", "Pricing", new { id = "#=Id#" }))
+          )
+          .Pageable()
+          .Sortable()
+          .Scrollable(s => s.Enabled(true).Height("auto"))
+          .Reorderable(reorder => reorder.Columns(true))
+          .Resizable(resize => resize.Columns(true))
+          .ToClientTemplate()
+    )
+</script>
+
+<script>
+
+    $(document).ready(function () {
+
+        // kendo grid filter contains
+        FilterContains();
+
+        if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+
+    });
+
+    //Method to data bound event for owner
+    function onDataBoundSetEmptyRow(e) {
+        SetEmptyRow(e);
+    }
+
+    function dataBound(e) {
+        SetEmptyRow(e);
+        this.expandRow(this.tbody.find("tr.k-master-row").first());   //expand first row
+    }
+
+</script>
+
+
+

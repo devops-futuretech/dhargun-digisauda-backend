@@ -1,0 +1,341 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+
+@{
+    ViewBag.Title = "SkuDiscountHistory";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="ra2SkuDiscountHistory" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_AuditLog")</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row">
+                <div class="row form-group">
+                    <div class="col-md-2 text-right control-label">
+                        @Helper.GetResourceString("lbl_FromDate")
+                    </div>
+                    <div class="col-md-3">
+                        @(Html.Kendo().DatePicker()
+                              .Name("StartDate")
+                              .Format(Settings.DateFormat)
+                              .Events(e => e.Change("fromDateChange"))
+                              .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                    </div>
+                    <div class="col-md-2 text-right control-label">
+                        @Helper.GetResourceString("lbl_ToDate")
+                    </div>
+                    <div class="col-md-3">
+                        @(Html.Kendo().DatePicker()
+                              .Name("EndDate")
+                              .Format(Settings.DateFormat)
+                              .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "2", style = "width: 100%" }))
+                    </div>
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-md-12 text-center">
+                    <div class="col-md-4 text-right">
+                        @Helper.GetResourceString("lbl_DiscountType") <span class="text-danger">*</span>
+                    </div>
+                    <div class="col-md-4">
+                        @(Html.Kendo().DropDownList().Name("ActionType")
+                                          .OptionLabel(@Helper.GetResourceString("plho_SelectDiscountType"))
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .Events(e=>e.Change("statusChange").DataBound("dataDiscountBound"))
+                                          .DataSource(source => source.Read(resd => resd.Action("GetDiscountTypeListForDropdown", "RAVersionTwo"))
+                                          .ServerFiltering(false))
+                                          .HtmlAttributes(new { id = "ddlDiscountType", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_DiscountType"), @style = "width:100%" }))
+                    </div>
+                </div>
+            </div>
+            <div class="row" id="geographyGrid" style="display: block">
+                <div class="text-right">
+                    <button class="k-button k-button-icontext k-grid-excel" id="GeographyBasedSkuDiscountExport" type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>
+                    @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                </div>
+                @(Html.Kendo().Grid<Adani.Solution.DTO.SkuDiscountGeographyDto>()
+                      .Name("GeographyDiscountGrid")
+                      .Columns(columns =>
+                      {
+                          columns.Bound(c => c.Id).Visible(false);
+                          columns.Bound(c => c.IsActive).Visible(false);
+                          columns.Bound(c => c.SkuDiscountHistoryId).Visible(false);
+                          //columns.Bound(c => c.Id).Title("Edit").HeaderTemplate("").Title("Action").ClientTemplate(@"<div style='text-align: center;'> #if(IsDateGreaterThanToday(ValidTo) && IsEdit) { #" + " <a title='" + @Helper.GetResourceString("msg_Edit") + "' class='icon-pencil cursor-pointer' href='" + Url.Action("GeographyBasedSkuDiscountEditRedirect", "RAVersionTwo", new { skuDiscountId = "#=Id#" }) + "' disabled='" + "disabled" + "' ></a>  #}else{# #}# </div>").Width(Settings.GridOtherColumnWidth);
+                          columns.Bound(c => c.Vertical).Title(@Helper.GetResourceString("lbl_Vertical")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                          columns.Bound(c => c.Discount).Title(@Helper.GetResourceString("lbl_Discount")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                          columns.Bound(c => c.ValidFrom).Format(Settings.GridDateFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_ValidFrom")).Width(Settings.GridColumnMaxWidth250);
+                          columns.Bound(c => c.ValidTo).Format(Settings.GridDateFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_ValidTo")).Width(Settings.GridColumnMaxWidth250);
+                          //columns.Template(c => c.IsEdit).Title(@Helper.GetResourceString("lbl_Action"))
+                          //.ClientTemplate(@"<div style='text-align: center;'>
+                          //#if(IsEdit == false ){#<div style='cursor: no-drop;'><button type='button' class='k-primary k-button' disabled>InActive</button></div>#}
+                          //else {#<button style='width: 80px;' type='button' onclick='skuDiscountGeographyBasedListIsActive(#=Id#)' class='k-primary k-button'>Edit</button>#}
+                          //#</div>").Width(Settings.GridOtherColumnWidth);
+                           //.ClientTemplate(@"<div style='text-align: center;'><button style='width: 80px;' type='button' onclick='skuDiscountGeographyBasedListIsActive(#=Id#)' class='k-primary k-button'>Edit</button></div>").Width(Settings.GridOtherColumnWidth);
+                      })
+                      .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                      .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                      .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                      .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                      .Scrollable(s => s.Enabled(true).Height("auto"))
+                      .Reorderable(reorder => reorder.Columns(true))
+                      .Resizable(resize => resize.Columns(true))
+                      .ClientDetailTemplateId("template")
+                      .Events(events => events.DataBound("dataBound"))
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      .Sort(sort => sort.Add("SkuDiscountHistoryId").Descending())
+                      .Model(model => { model.Id(p => p.SkuDiscountHistoryId); })
+                      .ServerOperation(true)
+                      .Read(read => read.Action("GetSkuDiscountHistoryGeographyListAsync", "RAVersionTwo"))))
+
+                <script id="template" type="text/kendo-tmpl">
+                    @(Html.Kendo().Grid<SkuDiscountGeographyMappingDto>()
+                          .Name("grid_#=Id#")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.SkuDiscountGeographyMappingId).Visible(false);
+                              columns.Bound(c => c.SkuId).Visible(false);
+                              columns.Bound(c => c.CityId).Visible(false);
+                              columns.Bound(c => c.UserCode).Title(@Helper.GetResourceString("lbl_UserCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.UserName).Title(@Helper.GetResourceString("lbl_UsersName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.CustomerGroup).Title(@Helper.GetResourceString("lbl_CustomerGroup")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.SkuName).Title(@Helper.GetResourceString("lbl_SkuName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.OilTypeName).Title(@Helper.GetResourceString("lbl_OilType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.PackGroup).Title(@Helper.GetResourceString("lbl_PackGroup")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.StateName).Title(@Helper.GetResourceString("lbl_State")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.DistrictName).Title(@Helper.GetResourceString("lbl_District")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.CityName).Title(@Helper.GetResourceString("lbl_CityName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("msg_Status")).ClientTemplate(@"\\#=checkIsActive(IsActive)\\#").Width(Settings.GridColumnMaxWidth);
+                          })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Selectable(selectable => selectable
+                          .Type(GridSelectionType.Row))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .Resizable(resize => resize.Columns(true))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          //.PageSize(Settings.DefaultPageSize)
+                          .Read(read => read.Action("GetSkuDiscountGeographyMappingHierarchyListById", "RAVersionTwo", new { skuDiscountId = "#=Id#" }))
+                          ).ToClientTemplate())
+                </script>
+            </div>
+
+
+            @* ------------------ User Grid -------------------*@
+
+
+            <div class="row" id="userGrid" style="display: none">
+                <div class="text-right">
+                    <button class="k-button k-button-icontext k-grid-excel" id="UserBasedSkuDiscountExport" type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>
+                    @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                </div>
+                @(Html.Kendo().Grid<Adani.Solution.DTO.SkuDiscountUserDto>()
+                              .Name("UserDiscontGrid")
+                              .Columns(columns =>
+                              {
+                                  columns.Bound(c => c.Id).Visible(false);
+                                  columns.Bound(c => c.IsActive).Visible(false);
+                                  columns.Bound(c => c.SkuDiscountHistoryId).Visible(false);
+                                  //columns.Bound(c => c.Id).Title("Edit").HeaderTemplate("").Title("Action").ClientTemplate(@"<div style='text-align: center;'> #if(IsDateGreaterThanToday(ValidTo) && IsEdit) { #" + " <a title='" + @Helper.GetResourceString("msg_Edit") + "' class='icon-pencil cursor-pointer' href='" + Url.Action("UserBasedSkuDiscountEditRedirect", "RAVersionTwo", new { skuDiscountId = "#=Id#" }) + "' disabled='" + "disabled" + "' ></a>  #}else{#  #}# </div>").Width(Settings.GridOtherColumnWidth);
+                                  columns.Bound(c => c.Vertical).Title(@Helper.GetResourceString("lbl_Vertical")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                  columns.Bound(c => c.Discount).Title(@Helper.GetResourceString("lbl_Discount")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                  columns.Bound(c => c.ValidFrom).Format(Settings.GridDateFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_ValidFrom")).Width(Settings.GridColumnMaxWidth250);
+                                  columns.Bound(c => c.ValidTo).Format(Settings.GridDateFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_ValidTo")).Width(Settings.GridColumnMaxWidth250);
+                                  //columns.Template(c => c.IsEdit).Title(@Helper.GetResourceString("lbl_Action"))
+                                  //.ClientTemplate(@"<div style='text-align: center;'>
+                                  //#if(IsEdit == false ){#<div style='cursor: no-drop;'><button type='button' class='k-primary k-button' disabled>InActive</button></div>#}
+                                  //else {#<button style='width: 80px;' type='button' onclick='skuDiscountUserBasedListIsActive(#=Id#)' class='k-primary k-button'>Edit</button>#}
+                                  //#</div>").Width(Settings.GridOtherColumnWidth);
+                                  //columns.Template(c => c.IsEdit).Title(@Helper.GetResourceString("lbl_Action"))
+                                  //.ClientTemplate(@"<div style='text-align: center;'><button style='width: 80px;' type='button' onclick='skuDiscountUserBasedListIsActive(#=Id#)' class='k-primary k-button'>Edit</button></div>").Width(Settings.GridOtherColumnWidth);
+                              })
+                              .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                              .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                              .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                              .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                              .Scrollable(s => s.Enabled(true).Height("auto"))
+                              .Reorderable(reorder => reorder.Columns(true))
+                              .Resizable(resize => resize.Columns(true))
+                              .ClientDetailTemplateId("templateforskuDiscountUser")
+                              .Events(events => events.DataBound("dataBound"))
+                              .DataSource(dataSource => dataSource
+                              .Ajax()
+                              .Sort(sort => sort.Add("SkuDiscountHistoryId").Descending())
+                              .Model(model => { model.Id(p => p.SkuDiscountHistoryId); })
+                              .ServerOperation(true)
+                              .Read(read => read.Action("GetSkuDiscountHistoryUserListAsync", "RAVersionTwo"))))
+
+                <script id="templateforskuDiscountUser" type="text/kendo-tmpl">
+                    @(Html.Kendo().Grid<SkuDiscountUserMappingDto>()
+                                  .Name("grid_#=Id#")
+                                  .Columns(columns =>
+                                  {
+                                      columns.Bound(c => c.SkuDiscountUserMappingId).Visible(false);
+                                      columns.Bound(c => c.SkuId).Visible(false);
+                                      columns.Bound(c => c.UserId).Visible(false);
+                                      columns.Bound(c => c.UserName).Title(@Helper.GetResourceString("lbl_UsersName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                      columns.Bound(c => c.UserCode).Title(@Helper.GetResourceString("lbl_UserCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                      columns.Bound(c => c.CustomerGroup).Title(@Helper.GetResourceString("lbl_CustomerGroup")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                      columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                      columns.Bound(c => c.SkuName).Title(@Helper.GetResourceString("lbl_SkuName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                      columns.Bound(c => c.OilTypeName).Title(@Helper.GetResourceString("lbl_OilType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                      columns.Bound(c => c.PackGroup).Title(@Helper.GetResourceString("lbl_PackGroup")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                      columns.Bound(c => c.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("msg_Status")).ClientTemplate(@"\\#=checkIsActive(IsActive)\\#").Width(Settings.GridColumnMaxWidth);
+                                  })
+                                  .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                  .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                  .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                  .Selectable(selectable => selectable
+                                  .Type(GridSelectionType.Row))
+                                  .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                  .Scrollable(s => s.Enabled(true).Height("auto"))
+                                  .Reorderable(reorder => reorder.Columns(true))
+                                  .Resizable(resize => resize.Columns(true))
+                                  .DataSource(dataSource => dataSource
+                                  .Ajax()
+                                  .Model(model => { model.Id(p => p.SkuDiscountUserMappingId); })
+                                  .Sort(s => s.Add("SkuDiscountUserMappingId").Descending())
+                                  .ServerOperation(true)
+                                  .Read(read => read.Action("GetSkuDiscountUserMappingHierarchyListById", "RAVersionTwo", new { skuDiscountId = "#=Id#" }))
+                                  ).ToClientTemplate())
+                </script>
+            </div>
+
+
+
+        </div>
+    </div>
+</div>
+<script>
+
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();
+
+        $('#ddlDiscountType').data("kendoDropDownList").value('@Convert.ToInt32(DiscountType.Geography)');
+
+        if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+
+        $("#geographyGrid").css("display", "block");
+        $("#userGrid").css("display", "none");
+
+        $("#UserBasedSkuDiscountExport").click(function () {
+           window.kendo.ui.progress($("#div_Progress"), true);
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("ExportSkuDiscountUserHistory", "RAVersionTwo")',
+                data: {
+                    fromDate: $("#StartDate").val(),
+                    toDate: $("#EndDate").val(),
+                },
+                success: function (responce) {
+                    if (responce.FileGuid) {
+                        window.location.href = '@Url.Action("ExcelDownload", "Base")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                    } else {
+                        ShowErrorMessage("No records found");
+                    }
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                },
+                error: function (responce) {
+                    ShowErrorMessage("File download failed");
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                }
+            });
+        });
+
+        $("#GeographyBasedSkuDiscountExport").click(function () {
+            window.kendo.ui.progress($("#div_Progress"), true);
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("ExportSkuDiscountGeographyHistory", "RAVersionTwo")',
+                data: {
+                    fromDate: $("#StartDate").val(),
+                    toDate: $("#EndDate").val(),
+                },
+                success: function (responce) {
+                    if (responce.FileGuid) {
+                        window.location.href = '@Url.Action("ExcelDownload", "Base")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                    } else {
+                        ShowErrorMessage("No records found");
+                    }
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                },
+                error: function (responce) {
+                    ShowErrorMessage("File download failed");
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                }
+            });
+        });
+
+
+        StartDateRange();
+
+    });
+
+    function dataBound(e) {
+        SetEmptyRow(e);
+        //this.expandRow(this.tbody.find("tr.k-master-row").first());   //expand first row
+    }
+
+    function checkIsActive(status) {
+        if (status) {
+            return "<center><i  class='icon-checkbox-checked2 faicon-green' ></i></center>";
+        }
+        else {
+            return "<center><i class='icon-cancel-square2 faicon-red' ></i></center>";
+        }
+    }
+
+    function fromDateChange() {
+        var endPicker = $("#EndDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            $("#EndDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+            endPicker.min(startDate);
+        }
+    }
+
+    function StartDateRange() {
+        var startDate = new Date();
+        startDate.setDate(startDate.getDate());
+        $("#StartDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+        $("#EndDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+    }
+
+    function statusChange() {
+        var selectedType = this.value();
+        if (selectedType == @Convert.ToInt32(DiscountType.Geography)) {
+            $("#geographyGrid").css("display", "block");
+            $("#userGrid").css("display", "none");
+        } else if (selectedType == @Convert.ToInt32(DiscountType.User)) {
+            $("#geographyGrid").css("display", "none");
+            $("#userGrid").css("display", "block");
+            $("#UserDiscontGrid").data("kendoGrid").dataSource.read();
+        }
+    }
+
+    function dataDiscountBound() {
+
+    }
+</script>

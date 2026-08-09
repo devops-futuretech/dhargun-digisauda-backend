@@ -1,0 +1,271 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@model Adani.Solution.DTO.AutoAllocationInputDto
+@{
+    ViewBag.Title = "AutoAllocation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="tpsfquantitylimitAutoAllocation" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_AutoAllocationList")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Qty Limit </a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_AutoAllocationList")<span class="icon-right"></span></li>
+    </ol>
+    <div style="clear:both;"></div>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="dvPageLoader">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("AutoAllocation", "Pricing", FormMethod.Post, new { id = "frmAutoAllocation", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div class="row">
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_Role")<span class="text-danger"> *</span> </label>
+                                @(Html.Kendo().MultiSelectFor(m => m.RoleIds)
+                                                      .Name("ddlRole")
+                                                      .Placeholder(@Helper.GetPlaceHolderSelectMsg("plho_SelectRole"))
+                                                      .DataTextField("Name")
+                                                      .DataValueField("Id")
+                                                      .DataSource(source => source.Read(read => read.Action("GetRoleListAsync", "Lookup"))
+                                                      .ServerFiltering(true))
+                                                      .HtmlAttributes(new { id = "ddlRole", @style = "width:100%" }))
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_AverageDays") <span class="text-danger">*</span> </label>
+                                @Html.TextBoxFor(m => m.AverageDays, new { id = "txtAverageDays", @class = "form-control", @onkeypress = "return isNumber(event);", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_AverageDays"), @maxlength = 2 })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-left">
+                                <button type="button" id="btnCancel" onclick="SearchSauda()" class="k-button k-primary custom-btns">@Helper.GetResourceString("btn_Search")</button>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <div>
+                                    <div class="text-right">
+                                        @*<button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ViewAutoAllocationList")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;*@
+                                        @*@(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))*@
+                                    </div>
+                                    @(Html.Kendo().Grid<AutoAllocationDto>().Name("ViewAutoAllocationList")
+                                                          .Columns(columns =>
+                                                          {
+                                                              columns.Bound(c => c.UserId).Visible(false);
+                                                              columns.Bound(c => c.UserName).Title(@Helper.GetResourceString("lbl_Name")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                              columns.Bound(c => c.MobileNumber).Title(@Helper.GetResourceString("lbl_MobileNumber")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                              columns.Bound(c => c.RoleName).Title(@Helper.GetResourceString("lbl_Role")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                              columns.Bound(c => c.Vertical).Title(@Helper.GetResourceString("lbl_Vertical")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                          })
+                                                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                                          .ClientDetailTemplateId("template")
+                                                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                                                          .Reorderable(reorder => reorder.Columns(true))
+                                                          .Excel(excel => excel.AllPages(true).FileName(@Helper.GetResourceString("lbl_AutoAllocationList") + " " + DateTime.Now + ".xlsx").Filterable(true))
+                                                          .DataSource(dataSource => dataSource
+                                                          .Ajax()
+                                                          .Model(model => model.Id(p => p.UserId))
+                                                          .ServerOperation(true)
+                                                          .Read(read => read.Action("GetAutoAllocationUserListAsync", "Pricing").Data("additionalParams"))))
+                                    <script id="template" type="text/kendo-tmpl">
+                                        @(Html.Kendo().Grid<AutoAllocationDetailDto>()
+                                              .Name("grid_#=UserId#")
+                                              .Columns(columns =>
+                                              {
+                                                  columns.Bound(c => c.SkuId).Visible(false);
+                                                  columns.Bound(c => c.UserId).Visible(false);
+                                                  columns.Template(@<text></text>).ClientTemplate("<div class='text-center'><input type='checkbox' \\#= IsChecked ? checked='checked':'' \\# class='chkbxAllPaymentReceived'  value=#=UserId# onclick = printSelected(\\#=getId(SkuId)\\#,#=UserId#,this); \"/></div>").Width("40px");
+                                                  columns.Bound(c => c.SkuName).Title(@Helper.GetResourceString("lbl_SkuName")).Width(Settings.GridColumnMaxWidth).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(c => c.ActualDiscount).Title(@Helper.GetResourceString("lbl_ActualQty")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                              })
+                                              .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                              //.Events(events => events.DataBound("onLiftingRequestDetailListDataBound"))
+                                              .DataSource(dataSource => dataSource
+                                              .Ajax()
+                                              .PageSize(Settings.DefaultPageSize)
+                                              .Read(read => read.Action("GetAutoAllocationDetailsByUserIdAsync", "Pricing", new { userId = "#=UserId#" }).Data("additionalsubgridParams"))
+                                              ).ToClientTemplate())
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-lg-3 col-sm-6 mb-3 ">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_ValidFrom") </label>
+                                @(Html.Kendo().DatePicker()
+                                                              .Name("StartDate")
+                                                              //.Value(Settings.DefaultDashboardStartDate)
+                                                              .Format(Settings.DateFormat)
+                                                              .Events(e => e.Change("fromChange"))
+                                                              .HtmlAttributes(new { id = "StartDate", onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3 ">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_ValidTo") </label>
+                                @(Html.Kendo().DatePicker()
+                                                              .Name("EndDate")
+                                                              //.Value(Settings.DefaultDashboardEndDate)
+                                                              .Format(Settings.DateFormat)
+                                                              .HtmlAttributes(new { id = "EndDate", onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-right">
+                                <button type="button" id="btnSave" onclick="printSelected()" class="k-button k-primary custom-btns">@Helper.GetResourceString("btn_Save")</button>
+                            </div>
+                        </div>
+                    }
+                    <!---end of form input-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ('@Model.PostMessage' !== "") {
+				if ('@Model.PostStatus' === '@true') {
+					ShowSuccessMessage('@Model.PostMessage');
+				} else {
+					ShowErrorMessage('@Model.PostMessage');
+				}
+			}
+        StartDateRange();
+        // kendo grid filter contains
+        FilterContains();
+        $("#btnSave").click(function (e) {
+            formSubmit();
+        });
+    });
+    function getId(mapId) {
+        return mapId;
+    }
+    function additionalsubgridParams() {
+        return {
+            averageDays: $("#txtAverageDays").val()
+        }
+    }
+    function printSelected(skuid, userid, a) {
+        var gridName = "#grid_" + userid;
+        var displayedData = $(gridName).data().kendoGrid.dataSource.view();
+        var selectedlist = $.grep(displayedData, function (p) { return p.SkuId == skuid && p.UserId == userid; })
+            .map(function (p) { return p; });
+
+        var form = $('#frmAutoAllocation')
+        var token = $('input[name="__RequestVerificationToken"]', form).val();
+
+        var model = {
+            UserId: selectedlist[0].UserId,
+            SkuId: selectedlist[0].SkuId,
+            ActualDiscount: selectedlist[0].ActualDiscount,
+            IsChecked: a.checked
+            };
+
+        moduleCommon.Common.AjaxCall({
+            url: "/Pricing/SetToSession",
+			type: 'POST',
+            data: { __RequestVerificationToken: token, autoAllocationDetailDto: model },
+            success: function (result) {
+                if (result.PostStatus) {
+                }
+            }
+		});
+    }
+    function formSubmit() {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        var form = $('#frmAutoAllocation')
+        var token = $('input[name="__RequestVerificationToken"]', form).val();
+
+        moduleCommon.Common.AjaxCall({
+            url: "/Pricing/SaveAutoAllocation",
+            type: 'POST',
+            data: { __RequestVerificationToken: token, validFrom: $("#StartDate").val(), ValidTo: $("#EndDate").val() },
+            success: function (result) {
+                if (result.PostStatus) {
+                    var url = '@Url.Action("AutoAllocation", "Pricing")';
+                    window.location.href = url;
+                } else {
+                    ShowErrorMessage(result.PostMessage);
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                    return false;
+                }
+            }
+        });
+    }
+    function StartDateRange() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+
+        $("#StartDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        $("#EndDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+
+        var startPicker = $("#StartDate").data("kendoDatePicker");
+        startPicker.min(dates);
+        var endPicker = $("#EndDate").data("kendoDatePicker");
+        endPicker.min(dates);
+    }
+    function SearchSauda() {
+        var errorFlag = false;
+        var errorMessage = "";
+        if ($("#ddlRole").data("kendoMultiSelect").value().length === 0) {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_Role")');
+			errorFlag = true;
+        }
+        if ($("#txtAverageDays").val() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetMsgRequired("lbl_AverageDays")');
+			errorFlag = true;
+        }
+        if (errorFlag) {
+            ShowErrorMessageLeftAlign(errorMessage);
+        }
+        else {
+            window.kendo.ui.progress($("#div_Progress"), true);
+            $.when($("#ViewAutoAllocationList").data("kendoGrid").dataSource.read()).done(function (a1) {
+                var grid = $("#ViewAutoAllocationList").data("kendoGrid");
+                $(".k-master-row").each(function (index) {
+                    grid.expandRow(this);
+                });
+                window.kendo.ui.progress($("#div_Progress"), false);
+            });
+        }
+    }
+    function additionalParams() {
+        var multi = $("#ddlRole").getKendoMultiSelect(),
+            multiDataItems = multi.dataItems(),
+            selectedRoleIds = [];
+            selectedRoleNames = [];
+
+        for (var i = 0; i < multiDataItems.length; i += 1) {
+            var currentDealer = multiDataItems[i];
+            selectedRoleIds.push(currentDealer.Id);
+            selectedRoleNames.push(currentDealer.Name);
+        }
+
+        return {
+            roleIds: selectedRoleIds.join(",")
+        }
+    }
+    function fromChange() {
+        var endPicker = $("#EndDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            $("#EndDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+            endPicker.min(startDate);
+        }
+    }
+</script>
+

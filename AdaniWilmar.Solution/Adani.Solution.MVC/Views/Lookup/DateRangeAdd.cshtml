@@ -1,0 +1,184 @@
+﻿@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@model Adani.Solution.DTO.DateRangeDTO
+@using Adani.Solution.DTO
+@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Common
+@{
+    ViewBag.Title = "DateRangeAdd";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<input type="hidden" class="currentMenu" value="masterDateRange" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_AddorUpdateDateRange")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Masters</a><span class="icon-right"></span></li>
+        @*<li><a href="DateRangeList">Sales Organization List</a><span class="icon-right"></span></li>*@
+        <li class="active">@Helper.GetResourceString("lbl_AddorUpdateDateRange")<span class="icon-right"></span></li>
+    </ol>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row" id="div_Progress">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="dvAddSubCategory">
+                <div class="col-md-12" >
+                    @using (Html.BeginForm("AddOrUpdateDateRange", "Lookup", FormMethod.Post, new { id = "frmDateRange", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.Id)
+                        <div class="row form-group">
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_FromRange") 1<span class="text-danger">*</span></label>
+                                @Html.TextBoxFor(m => m.FromRange1, new { id = "txtFromRange1", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_SAPCode"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_ToRange") 1<span class="text-danger">*</span></label>
+                                @Html.TextBoxFor(m => m.ToRange1, new { id = "txtToRange1", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Name"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_FromRange") 2<span class="text-danger">*</span></label>
+                                @Html.TextBoxFor(m => m.FromRange2, new { id = "txtFromRange2", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_SAPCode"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_ToRange") 2<span class="text-danger">*</span></label>
+                                @Html.TextBoxFor(m => m.ToRange2, new { id = "txtToRange2", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Name"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_FromRange") 3<span class="text-danger">*</span></label>
+                                @Html.TextBoxFor(m => m.FromRange3, new { id = "txtFromRange3", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_SAPCode"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_ToRange") 3<span class="text-danger">*</span></label>
+                                @Html.TextBoxFor(m => m.ToRange3, new { id = "txtToRange3", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Name"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+
+                        </div>
+                        @*<div class="row form-group">
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_FromRange") 4<span class="text-danger">*</span></label>
+                                @Html.TextBoxFor(m => m.FromRange4, new { id = "txtFromRange4", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_SAPCode"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_ToRange") 4<span class="text-danger">*</span></label>
+                                @Html.TextBoxFor(m => m.ToRange4, new { id = "txtToRange4", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Name"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+
+                        </div>*@
+                        <div class="row form-group">
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_FromRange") 4<span class="text-danger">*</span></label>
+                                @Html.TextBoxFor(m => m.FromRange4, new { id = "txtFromRange5", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Name"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+                            @*<div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">Status</label>
+                                <div class="custom_checkbox_main">
+                                    <label class="custom_checkbox">
+                                        @Html.CheckBoxFor(m => m.IsActive, new { id = "cbActiveInactive", tabindex = "2" })
+                                        <span class="checkmark check_tick"></span>
+                                        <span class="label-title">@Helper.GetResourceString("lbl_Active")</span>
+                                    </label>
+                                </div>
+                            </div>*@
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-right buttons-align">
+                                <button type="button" tabindex="4" id="btnCancel" onclick="location.href = '@Url.Action("DateRangeAdd", "Lookup")'" class="k-button k-cancel custom-btns">Cancel</button>
+
+                                <button type="button" tabindex="3" id="btnSave" class="k-primary k-button custom-btns">@(Model != null && Model.Id == 0 ? @Helper.GetResourceString("btn_SaveDateRange") : @Helper.GetResourceString("btn_UpdateDateRange")) </button>
+
+                            </div>
+                        </div>
+                    }
+
+                   
+                    <!---end of form input-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        //FilterContains();
+        window.kendo.ui.progress($("#frmDateRange"), false);
+        //$("#ViewDateRange").data("kendoGrid").dataSource.read();
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        @*if (@Model.Id== 0 && '@Model.PostMessage' == "") {
+            $("#txtFromRange1").val('');
+            $("#txtFromRange2").val('');
+            $("#txtFromRange3").val('');
+            $("#txtFromRange4").val('');
+            $("#txtToRange1").val('');
+            $("#txtToRange2").val('');
+            $("#txtToRange3").val('');
+            $("#txtToRange4").val('');
+            $("#txtFromRange5").val('');
+        } else if (@Model.Id== 0) {
+            $("#txtFromRange1").val('');
+            $("#txtFromRange2").val('');
+            $("#txtFromRange3").val('');
+            $("#txtFromRange4").val('');
+            $("#txtToRange1").val('');
+            $("#txtToRange2").val('');
+            $("#txtToRange3").val('');
+            $("#txtToRange4").val('');
+            $("#txtFromRange5").val('');
+        }*@
+
+        @*if ('@Model.Id' > 0)
+        {
+            $('#txtSAPCode').attr('readonly', 'true');
+        }
+
+        $('input[type="text"]').keypress(function (e) {
+            var code = e.keyCode || e.which;
+            if (code === 13) {
+                e.preventDefault();
+            }
+        });*@
+
+        $('#btnSave').on('click', function (e) {
+            var isValid = $('#frmDateRange').valid();
+            if (isValid) {
+                window.kendo.ui.progress($("#frmDateRange"), true);
+                $('#frmDateRange').submit();
+                
+            }
+        });
+    });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

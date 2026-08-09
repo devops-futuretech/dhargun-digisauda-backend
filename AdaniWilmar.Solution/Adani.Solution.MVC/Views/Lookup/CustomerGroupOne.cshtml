@@ -1,0 +1,116 @@
+﻿
+@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@model Adani.Solution.DTO.CustomerGroupOneDto
+@{
+    ViewBag.Title = "CustomerGroup1";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="masterCustomerGroupOne" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_AddorUpdateCustomerGroup1")</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="dvAddSubCategory">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("AddOrUpdateCustomerGroupOne", "Lookup", FormMethod.Post, new { id = "frmCustomerGroup1", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.Id)
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            @Helper.GetResourceString("lbl_GroupCode") <span class="text-danger">*</span>
+                        </div>
+                        <div class="col-md-4">
+                            @Html.TextBoxFor(m => m.GroupCode, new { id = "txtGroupCode", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_GroupCode"),@onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            @Helper.GetResourceString("lbl_GroupName") <span class="text-danger">*</span>
+                        </div>
+                        <div class="col-md-4">
+                            @Html.TextBoxFor(m => m.GroupName, new { id = "txtGroupName", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_GroupName"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                        </div>
+                    </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Active")
+                            </div>
+                            <div class="col-md-4">
+                                @Html.CheckBoxFor(m => m.IsActive, new { id = "cbActiveInactive", tabindex = "2" })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+                                <button type="button" tabindex="4" id="btnCancel" onclick="location.href = '@Url.Action("CustomerGroupOneList", "Lookup")'" class="k-button">Cancel</button>
+                               
+                                    <button type="button" tabindex="3" id="btnSave" class="k-primary k-button">@(Model != null && Model.Id == 0 ? @Helper.GetResourceString("btn_SaveCustomerGroup1") : @Helper.GetResourceString("btn_UpdateCustomerGroup1"))<i class="icon-arrow-right14 position-right"></i></button>
+                                
+                            </div>
+                        </div>
+                    }
+                    <!---end of form input-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        if ('@Model.Id' > 0)
+        {
+            $('#txtGroupCode').attr('readonly', 'true');
+        }
+
+        $('input[type="text"]').keypress(function (e) {
+            var code = e.keyCode || e.which;
+            if (code === 13) {
+                e.preventDefault();
+            }
+        });
+
+        $('#btnSave').on('click', function (e) {
+            var isValid = $('#frmCustomerGroup1').valid();
+            if (isValid) {
+                window.kendo.ui.progress($("#div_Progress"), true);
+                $('#frmCustomerGroup1').submit();
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

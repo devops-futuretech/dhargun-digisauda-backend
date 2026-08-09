@@ -1,0 +1,166 @@
+﻿@model List<Adani.Solution.DTO.SubmittedAttachmentViewDto>
+@using Kendo.Mvc.UI;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.DTO;
+@using Adani.Solution.DTO.Enums;
+@{
+	Layout = "";
+	var index = 0;
+}
+<style>
+	.attachement-title {
+		font-size: 18px;
+		font-weight: 600;
+		padding: 10px;
+	}
+</style>
+
+<div id="popupAttachmentDetails" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" onclick="popupClose();" class="close closeButton" data-dismiss="modal">&times;</button>
+				<h6 class="panel-title"><span class="text-semibold" style="color: white;">@Helper.GetResourceString("lbl_Attachments")</span></h6>
+			</div>
+			<div class="modal-body" id="dvModalBody">
+				<div>
+					@{
+						var images = Model.Where(s => s.MediaTypeId == (int)MediaType.Image);
+						var videos = Model.Where(s => s.MediaTypeId == (int)MediaType.Video);
+						var excels = Model.Where(s => s.MediaTypeId == (int)MediaType.Excel);
+						var pdfs = Model.Where(s => s.MediaTypeId == (int)MediaType.Pdf);
+						var words = Model.Where(s => s.MediaTypeId == (int)MediaType.Word);
+						var texts = Model.Where(s => s.MediaTypeId == (int)MediaType.Text);
+
+						var mediaDivId = "media" + index++;
+
+					}
+					@if (images.Any())
+					{
+						<div style="display:inline-block;width:100%;">
+							<div> <p class="attachement-title">Images</p>          </div>
+							@foreach (var mediaItem in images)
+							{
+								var mediaPath = Settings.GetAPIMediaPathFromFolder(mediaItem.FileName, (int)PageType.DynamicFormAttachments);
+								<div id="@mediaDivId" class="col-md-2 media-box">
+									<a class="Info" data-popup="lightbox" target="_blank" href="@mediaPath" rel="gallery"> <i class="icon-eye cursor-pointer faicon-red"></i> </a>
+									<img src="@mediaPath" width="200" height="200" />
+								</div>
+							}
+						</div>
+					}
+					@if (videos.Any())
+					{
+						<div style="display:inline-block;width:100%;">
+							<div> <p class="attachement-title">Videos</p></div>
+							@foreach (var mediaItem in videos)
+							{
+								var mediaPath = Settings.GetAPIMediaPathFromFolder(mediaItem.FileName, (int)PageType.DynamicFormAttachments);
+								<div id="@mediaDivId" class="col-md-2 media-box">
+									<a class="Info" href="@mediaPath" target="_blank"> <i class="icon-eye cursor-pointer faicon-red"></i> </a>
+									<video controls class="VideoInfo">
+										<source src="@mediaPath" type="video/mp4">
+									</video>
+								</div>
+							}
+						</div>
+					}
+					@if (excels.Any())
+					{
+						<div style="display:inline-block;width:100%;">
+							<div> <p class="attachement-title">Excels</p></div>
+							@foreach (var mediaItem in excels)
+							{
+								var mediaPath = Settings.GetAPIMediaPathFromFolder(mediaItem.FileName, (int)PageType.DynamicFormAttachments);
+								<div id="@mediaDivId" class="col-md-2 media-box">
+
+									<div style="height:65px" />
+									<div class="caption" style="text-align:center">
+										<div class="box"></div>
+										<h6 class="no-margin" style="margin-top: 10px !important;margin-left: 25px;">
+											<a href="#" class="text-default control-label addressLabel-bold label" style="background:#0D99BA">"@mediaItem.FileName"</a>
+											<a class="Info" href="@mediaPath" target="_blank"> <i class="icon-download cursor-pointer faicon-red"></i> </a>
+										</h6>
+									</div>
+
+
+								</div>
+							}
+						</div>
+					}
+					@if (pdfs.Any())
+					{
+						<div style="display:inline-block;width:100%;">
+							<div> <p class="attachement-title">PDFs</p></div>
+							@foreach (var mediaItem in pdfs)
+							{
+								var mediaPath = Settings.GetAPIMediaPathFromFolder(mediaItem.FileName, (int)PageType.DynamicFormAttachments);
+								<div id="@mediaDivId" class="col-md-2 media-box">
+
+									<div style="height:65px" />
+									<div class="caption" style="text-align:center">
+										<div class="box"></div>
+										<h6 class="no-margin" style="margin-top: 10px !important;margin-left: 25px;">
+											<a href="#" class="text-default control-label addressLabel-bold label" style="background:#0D99BA">"@mediaItem.FileName"</a>
+											<a class="Info" href="@mediaPath" target="_blank"> <i class="icon-download cursor-pointer faicon-red"></i> </a>
+										</h6>
+									</div>
+
+
+								</div>
+							}
+						</div>
+					}
+					@if (words.Any())
+					{
+						<div style="display:inline-block;width:100%;">
+							<div> <p class="attachement-title">Word Docs</p></div>
+							@foreach (var mediaItem in words)
+							{
+								var mediaPath = Settings.GetAPIMediaPathFromFolder(mediaItem.FileName, (int)PageType.DynamicFormAttachments);
+								<div id="@mediaDivId" class="col-md-2 media-box">
+
+									<div style="height:65px" />
+									<div class="caption" style="text-align:center">
+										<div class="box"></div>
+										<h6 class="no-margin" style="margin-top: 10px !important;margin-left: 25px;">
+											<a href="#" class="text-default control-label addressLabel-bold label" style="background:#0D99BA">"@mediaItem.FileName"</a>
+											<a class="Info" href="@mediaPath" target="_blank"> <i class="icon-download cursor-pointer faicon-red"></i> </a>
+										</h6>
+									</div>
+
+
+								</div>
+							}
+						</div>
+					}
+					@if (texts.Any())
+					{
+						<div style="display:inline-block;width:100%;">
+							<div> <p class="attachement-title">Text Files</p></div>
+							@foreach (var mediaItem in texts)
+							{
+								var mediaPath = Settings.GetAPIMediaPathFromFolder(mediaItem.FileName, (int)PageType.DynamicFormAttachments);
+								<div id="@mediaDivId" class="col-md-2 media-box">
+
+									<div style="height:65px" />
+									<div class="caption" style="text-align:center">
+										<div class="box"></div>
+										<h6 class="no-margin" style="margin-top: 10px !important;margin-left: 25px;">
+											<a href="#" class="text-default control-label addressLabel-bold label" style="background:#0D99BA">"@mediaItem.FileName"</a>
+											<a class="Info" href="@mediaPath" target="_blank"> <i class="icon-download cursor-pointer faicon-red"></i> </a>
+										</h6>
+									</div>
+
+
+								</div>
+							}
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

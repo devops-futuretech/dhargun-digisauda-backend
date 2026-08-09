@@ -1,0 +1,156 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@{
+    ViewBag.Title = "TradeTicketDetails";
+}
+
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="tpransactionTicketList" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Trade Ticket Details</h2>
+    <div style="clear:both;"></div>
+</div>
+
+
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvSecondaryFreights">
+                <div class="col-md-12">
+                    <div class="row form-group">
+                        <div class="col-md-2">
+                            Trad Ticket Number
+                        </div>
+                        <div class="col-md-3">
+                            TCD005
+                        </div>
+
+                        <div class="col-md-2">
+                            Requested Quantity
+                        </div>
+                        <div class="col-md-3">
+                            5000
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-2">
+                            Sauda Booked Quantity
+                        </div>
+                        <div class="col-md-3">
+                            4000
+                        </div>
+
+                        <div class="col-md-2">
+                            Open Quantity
+                        </div>
+                        <div class="col-md-3">
+                            2000
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+                        <div class="col-md-12">
+                            <div class="text-right">
+                                @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                            </div>
+
+                            @(Html.Kendo().Grid<SaudaListOutputDto>().Name("SaudaList")
+                                                                                       .Columns(columns =>
+                                                                                       {
+                                                                                           columns.Bound(c => c.SaudaNo).Visible(false);
+                                                                                           columns.Bound(c => c.BiddingDate).Title("Bidding Date").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion)))
+                                                                                           .Width(Settings.GridColumnMaxWidth);
+                                                                                           columns.Bound(c => c.DealerName).Title("Dealer Name").Width(Settings.GridColumnMaxWidth);
+                                                                                           columns.Bound(c => c.TotalQty).Title("Total Quantity").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                                                           columns.Bound(c => c.TotalAmt).Title("Total Amount").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                                                           columns.Template(t => t.SaudaNo).HeaderTemplate("").Title("Action").ClientTemplate("<div style='text-align: center;'><a title='" + @Helper.GetResourceString("msg_Edit") + "' class='icon-pencil cursor-pointer' href='" + Url.Action("PlantMasterEdit", "Lookup", new { plantId = "#=Id#" }) + "' ></a></div>").Width(Settings.GridOtherColumnWidth);
+                                                                                       })
+                                                                                  .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+
+                                                                          .ClientDetailTemplateId("template")
+                     .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                     .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                     .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                     .Selectable(selectable => selectable
+                     .Mode(GridSelectionMode.Multiple)
+                     .Type(GridSelectionType.Row))
+                     .Scrollable(s => s.Enabled(true).Height("auto"))
+                     .Events(events => events.DataBound("dataBound"))
+                     .Reorderable(reorder => reorder.Columns(true))
+                     .DataSource(dataSource => dataSource
+                     .Ajax()
+                     .Model(model => model.Id(m => m.SaudaNo))
+                     .ServerOperation(true)
+
+                     ).HtmlAttributes(new { @id = "grdSSaudaList" }))
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="template" type="text/kendo-tmpl">
+    @(Html.Kendo().Grid<StateDto>()
+                                            .Name("grid_#=Id#") // template expression, to be evaluated in the master context
+                                            .Columns(columns =>
+                                            {
+                                                columns.Bound(o => o.StateId).Width(110);
+                                                columns.Bound(o => o.StateName).Width(150); 
+
+                                            })
+                                            .DataSource(dataSource => dataSource
+                                                .Ajax()
+                                                .PageSize(10)
+                                                .Read(read => read.Action("GetSaudaDetails", "ReverseAuaction", new { SaudaNo = "#=SaudaNo#", isToReturnInactiveData = true }))
+                                            )
+                                            .Pageable()
+                                            .Sortable()
+                                            .ToClientTemplate()
+    )
+
+    @(Html.Kendo().Grid<SaudaDetailsListDto>().Name("grid_#=Id#")
+                                                                           .Columns(columns =>
+                                                                           {
+                                                                               columns.Bound(c => c.OilType).Title("Oil Type").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion)))
+                                                                                       .Width(Settings.GridColumnMaxWidth);
+                                                                               columns.Bound(c => c.Sku).Title("Sku").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion)))
+                                                                                       .Width(Settings.GridColumnMaxWidth);
+                                                                               columns.Bound(c => c.Qty).Title("Quantity").Width(Settings.GridColumnMaxWidth);
+                                                                               columns.Bound(c => c.Amount).Title("Amount").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                                               columns.Bound(c => c.Status).Title("Status").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+
+                                                                           })
+                                                                         .DataSource(dataSource => dataSource
+                                                .Ajax()
+                                                .PageSize(10)
+                                                .Read(read => read.Action("GetZoneMappingStateListAsync", "Lookup", new { zoneId = "#=Id#", isToReturnInactiveData = true }))
+                                            )
+                                            .Pageable()
+                                            .Sortable()
+                                            .ToClientTemplate())
+</script>
+<script>
+    function dataBound() {
+        this.expandRow(this.tbody.find("tr.k-master-row").first());
+    }
+</script>
+
+
+
+
+
+
+

@@ -1,0 +1,94 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.MVC.Models;
+@model Adani.Solution.MVC.Models.FinancialYearViewModel
+@{
+    ViewBag.Title = Helper.GetResourceString("lbl_FinancialYear");
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="configurationFinancialYear" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title"> @Helper.GetResourceString("lbl_FinancialYear")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Configurations</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_FinancialYear")<span class="icon-right"></span></li>
+    </ol>
+    @*<div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            <a href="@Url.Action("FinancialYearEditRedirect","SalesTourPlan")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&nbsp;@Helper.GetResourceString("msg_CreateFinancialYear")</a>
+        </div>
+    </div>*@
+    <div style="clear:both;"></div>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        @*<div class="panel-heading">
+        </div>*@
+        <div class="panel-body" style="display: block;">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="text-right right-buttons">
+                        <div class="export_as">
+                            <span>Export as</span>
+                            <div class="export-btns">
+                                <span class="export-link" onclick='ExportToExcel("ViewFinancialYears")' type="button">Excel</span>
+                            </div>
+                        </div>
+                        @*<button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ViewFinancialYears")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;*@
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    <div class="period-wrapper">
+                        <a href="@Url.Action("FYERedirect","SalesTourPlan")" class="k-primary k-button custom-btns"><b><i class="icon-plus"></i></b>&nbsp;@Helper.GetResourceString("msg_CreateFinancialYear")</a>
+                    </div>
+                    </div>
+                    @(Html.Kendo().Grid<FinancialYearViewModel>()
+                          .Name("ViewFinancialYears")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.Id).Visible(false);
+                              columns.Bound(c => c.Year).ClientTemplate(@"<div><a style='text-decoration: underline;'  href='" + Url.Action("FYERedirect", "SalesTourPlan", new { EncryptedId = "#=EncryptedId#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=Year#</a>  </div>").Title(@Helper.GetResourceString("lbl_Year")).Width(Settings.GridOtherColumnWidth);
+                              columns.Bound(c => c.EffectiveFrom).Title(@Helper.GetResourceString("lbl_EffectiveFrom")).Format(Settings.GridDateFormat).Width(Settings.GridOtherColumnWidth);
+                              columns.Bound(c => c.EffectiveTo).Title(@Helper.GetResourceString("lbl_EffectiveTo")).Format(Settings.GridDateFormat).Width(Settings.GridOtherColumnWidth);
+                              columns.Bound(t => t.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Active")).ClientTemplate(@"<div style='text-align: center;'> #if(IsActive == false) { #"
+                              + " <a  title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Title(@Helper.GetResourceString("msg_Status")).Width(Settings.GridButtonColumnWidth);
+                          })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Excel(excel => excel.FileName(@Helper.GetResourceString("lbl_FinancialYear") + " " + DateTime.Now + ".xlsx").AllPages(true))
+                          .Events(events => events.DataBound("onUnitOfListDataBound"))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .Resizable(resize => resize.Columns(true))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Model(model => model.Id(m => m.Id))
+                          .ServerOperation(true)
+                          .Read(read => read.Action("GetFinancialYearListAsync", "SalesTourPlan"))))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+
+        if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+		}
+
+        // kendo grid filter contains
+        FilterContains();
+
+
+    });
+
+    //Method to data bound event for owner
+    function onUnitOfListDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+</script>
+
+

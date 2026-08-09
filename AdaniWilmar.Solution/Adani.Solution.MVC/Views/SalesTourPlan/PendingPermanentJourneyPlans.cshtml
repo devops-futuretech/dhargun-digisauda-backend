@@ -1,0 +1,78 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.DTO;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Models;
+@model Adani.Solution.MVC.Models.PermanentJouneyPlanViewModel
+@{
+    ViewBag.Title = @Helper.GetResourceString("lbl_PendingPermanentJourneyPlan");
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="salestourplanPendingPermanentJourneyPlan" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_PendingPermanentJourneyPlan")</h2>
+    <div id="dateFilter" class="col-xs-9">
+
+    </div>
+    <div style="clear:both;"></div>
+</div>
+<div id="ReatailOrders" class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+
+        </div>
+        @using (Html.BeginForm("PendingPermanentJourneyPlans", "SalesTourPlan", FormMethod.Post, new { id = "frmOrders", @class = "form-validate-jquery" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="panel-body" style="display: block;">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="text-right" style="margin-bottom: 5px;">
+                            @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                        </div>
+                        @(Html.Kendo().Grid<PermanentJourneyPlansDto>()
+                                    .Name("ViewPermanentJourneyPlan")
+                                    .Columns(columns =>
+                                    {
+                                        columns.Bound(c => c.PJPId).Visible(false);
+                                        columns.Bound(c => c.FinancialYearId).Visible(false);
+                                        columns.Bound(c => c.CreatedBy).Visible(false);
+                                        columns.Bound(c => c.StatusId).Visible(false);
+                                        columns.Bound(c => c.PJPNumber).ClientTemplate(@"<div><a style='text-decoration: underline;'  href='" + Url.Action("PermanentJourneyPlanEditRedirect", "SalesTourPlan", new { id = "#=PJPId#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=PJPNumber#</a>  </div>").Title(@Helper.GetResourceString("lbl_PJPNumber")).Width(Settings.GridOtherColumnWidth);
+                                        columns.Bound(c => c.FinancialYear).Title(@Helper.GetResourceString("lbl_Year")).Width(Settings.GridOtherColumnWidth);
+                                        columns.Bound(c => c.CreatedUser).Title(@Helper.GetResourceString("lbl_CreatedBy")).Width(Settings.GridOtherColumnWidth);
+                                        columns.Bound(c => c.Status).Title(@Helper.GetResourceString("lbl_Status")).Width(Settings.GridOtherColumnWidth);
+                                    })
+                                    .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                    .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                    .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                    .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                    .Scrollable(s => s.Enabled(true).Height("auto"))
+                                    .Excel(excel => excel.FileName(@Helper.GetResourceString("lbl_PendingPermanentJourneyPlan") + " " + DateTime.Now + ".xlsx").AllPages(true))
+                                    .Reorderable(reorder => reorder.Columns(true))
+                                    .Resizable(resize => resize.Columns(true))
+                                    .DataSource(dataSource => dataSource
+                                        .Ajax()
+                                        .Model(model => model.Id(m => m.PJPId))
+                                        .ServerOperation(true)
+                                        .Read(read => read.Action("GetPendingPermanentJourneyPlanListAsync", "SalesTourPlan"))))
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+			if ('@Model.PostMessage' !== "") {
+				if ('@Model.PostStatus' === '@true') {
+					ShowSuccessMessage('@Model.PostMessage');
+				} else {
+					ShowErrorMessage('@Model.PostMessage');
+				}
+			}
+            // kendo grid filter contains
+            FilterContains();
+        });
+</script>

@@ -1,0 +1,56 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common
+
+
+@{
+    Layout = null;
+}
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvDealers">
+                <div class="col-md-12">
+                    <div class="text-right">
+                        @*<button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ViewDepots")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>*@&ensp;
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    </div>
+                    @(Html.Kendo().Grid<DepotDto>()
+                  .Name("ViewDepotGrid")
+                  .Columns(columns =>
+                  {
+                        columns.Bound(c => c.Id).Visible(false);
+                        columns.Template(@<text></text>).ClientTemplate("<div class='text-center'><input type='checkbox' #=IsChecked ? checked='checked' :'' # class='chkbxAllDealer' value=#=Id# onclick=\"findCheckedItemsSaveItToHidden(this,'#=Id#','hdSelectedDepotIds','masterCBAllDealer','chkbxAllDealer','lblDepotSelectedCount','');\" /></div>").HeaderTemplate("<div class='text-center'><input type='checkbox' id='masterCBAllDealer' onclick=\"masterfindCheckedItemsSaveItToHidden(this,'hdSelectedDepotIds','chkbxAllDealer','lblDepotSelectedCount','')\" /></div>").Width("40px");
+                        columns.Bound(c => c.Code).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_DepotCode")).Width(Settings.GridColumnMaxWidth);
+                        columns.Bound(c => c.Name).ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("DepotMasterEdit", "Lookup", new { depoId = "#=Id#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=DepotName#</a> </div>").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_DepotName")).Width(Settings.GridColumnMaxWidth);
+                        columns.Bound(c => c.Location).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_Location")).Width(Settings.GridColumnMaxWidth);
+                        columns.Bound(c => c.District).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(Helper.GetResourceString("lbl_District")).Width(Settings.GridColumnMaxWidth);
+                        columns.Bound(c => c.State).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_State")).Width(Settings.GridColumnMaxWidth);
+                        columns.Bound(c => c.Email).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_EmailId")).Width(Settings.GridColumnMaxWidth);
+                        columns.Bound(c => c.PinCode).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_Pincode")).Width(Settings.GridColumnMaxWidth);
+                        columns.Bound(c => c.AssociatedPlantName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_AssociatedPlant")).Width(Settings.GridColumnMaxWidth);
+                        columns.Template(c => c.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Active")).ClientTemplate(@"<div style='text-align: center;'>#if(IsActive){#<i class='icon-checkbox-checked2 faicon-green'></i>#}else{#<i class='icon-cancel-square2 faicon-red'></i>#}#</div>").Width(Settings.GridColumnMaxWidth);
+                        //columns.Template(t => t.Id).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Action")).ClientTemplate("<div style='text-align: center;'><a title='" + @Helper.GetResourceString("msg_Edit") + "' class='icon-pencil cursor-pointer' href='" + Url.Action("DepotMasterEdit", "Lookup", new { depoId = "#=Id#" }) + "' ></a></div>").Width(Settings.GridOtherColumnWidth);
+                        })
+                        .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                        .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                        .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                        .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))                       
+                        .Scrollable(s => s.Enabled(true).Height("auto"))                        
+                        .DataSource(dataSource => dataSource
+                        .Ajax()                        
+                        .Model(model => { model.Id(p => p.Id); })
+                        .ServerOperation(true)
+                        .Read(read => read.Action("GetDealerBrokerDepotList", "Lookup", new { isToReturnInactiveData = true }))))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

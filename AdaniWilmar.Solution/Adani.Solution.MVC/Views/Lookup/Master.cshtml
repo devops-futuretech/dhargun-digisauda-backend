@@ -1,0 +1,64 @@
+﻿@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+
+@{
+    ViewBag.Title = "Master";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="masterTest" value="dealersDealerList" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_AddOrUpdateDealer")</h2>
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="dvAddDealer">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("AddOrUpdateMaster", "Lookup", FormMethod.Post, new { id = "frmMaster", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.Hidden("DealerId")
+                        <div class="row form-group">
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_DealerName") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-4">
+                                    @Html.TextBox("DealerFirstName", null, new { @id = "txtDealerFirstName", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_DealerName"), @maxlength = (int)InputMaxLength.String })
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_GSTNumber") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-4">
+                                    @Html.TextBox("GSTNumber", null, new { id = "txtGSTNumber", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_GSTNumber"), @maxlength = (int)InputMaxLength.String })
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_ActiveInactive")
+                                </div>
+                                <div class="col-md-4">
+                                    @Html.CheckBox("IsActive", true, new { id = "cbActiveInactive" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+                                <button type="button" id="btnCancel" class="k-button">Cancel</button>
+                                <button type="button" id="btnSave" class="k-primary k-button">@(Model != null && Model.DealerId == 0 ? @Helper.GetResourceString("btn_SaveDealer") : @Helper.GetResourceString("btn_UpdateDealer"))<i class="icon-arrow-right14 position-right"></i></button>
+                            </div>
+                        </div>
+                    }
+                    <!---end of form input-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

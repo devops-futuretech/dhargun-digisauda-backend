@@ -1,0 +1,76 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common
+@model Adani.Solution.DTO.TradeTicketDetailsDto
+
+<style>
+    .error {
+        color: red !important;
+    }
+</style>
+
+
+@*<form id="frmPopUp" class="form-validate-jquery">*@
+@using (Html.BeginForm("AddOrUpdateDepotCost", "Pricing", FormMethod.Post, new { id = "frmPopUp", @class = "form-validate-jquery" }))
+{
+    @Html.HiddenFor(m => m.VerticalId, new { id = "hdnVerticalId" })
+    <div class="row form-group">
+        <div class="col-md-4 text-right">
+            @Helper.GetResourceString("lbl_OilType") <span class="text-danger">*</span>
+        </div>
+        <div class="col-md-4">
+            @(Html.Kendo().DropDownListFor(m => m.OilTypeId)
+                         .OptionLabel("Select Oil Type")
+                         .DataTextField("Name")
+                         .DataValueField("Id")
+                         .Events(e => e.Change("OilTypeChange"))
+                         //.DataSource(source => source.Read(read => read.Action("GetOilTypesBasedOnVerticalId", "Lookup").Data("oilTypeAdditionalParam"))
+                         .DataSource(source => source.Read(read => read.Action("GetTradeTicketOilTypes", "Lookup").Data("AdditionalParam"))
+                         .ServerFiltering(true))
+                         .HtmlAttributes(new { id = "OilTypeId", @class = "form-control", tabindex = "13", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilType"), @style = "width:100%" }))
+
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-md-4 text-right">
+            @Helper.GetResourceString("lbl_OilCost") (Rs.) <span class="text-danger">*</span>
+        </div>
+        <div class="col-md-4">
+            @Html.TextBoxFor(m => m.OilCost, new { id = "OilCost", tabindex = "14", @class = "form-control decimalValue", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_OilCost"), @maxlength = (int)InputMaxLength.Price })
+
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-md-4 text-right">
+            @Helper.GetResourceString("lbl_ProcessCost") (Rs.)
+        </div>
+        <div class="col-md-4">
+            @Html.TextBoxFor(m => m.ProcessCost, new { id = "ProcessCost", tabindex = "15", @class = "form-control decimalValue", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_ProcessCost"), @maxlength = (int)InputMaxLength.Price })
+
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-md-4 text-right">
+            @Helper.GetResourceString("lbl_Proporion") (%)
+        </div>
+        <div class="col-md-4">
+            @Html.TextBoxFor(m => m.Proportion, new { id = "Proportion", tabindex = "16", @class = "form-control decimalValue", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Proportion"), @maxlength = (int)InputMaxLength.Price })
+
+        </div>
+    </div>
+    <div>
+        @Html.HiddenFor(m => m.TradeTicketDetailsId)
+    </div>
+}
+
+@*</form>*@
+<script type="text/javascript">
+    function AdditionalParam() {
+        return {
+            VerticalId: $("#hdnVerticalId").val()
+        }
+    }
+
+</script>

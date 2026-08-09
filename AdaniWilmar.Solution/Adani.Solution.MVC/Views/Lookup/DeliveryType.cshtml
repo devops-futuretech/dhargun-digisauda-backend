@@ -1,0 +1,246 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@model Adani.Solution.DTO.DeliveryTypeDto
+
+@{
+    ViewBag.Title = "DeliveryType";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="seederDeliveryType" />
+<div id="main-section-header" class="row">
+    @*@Helper.GetResourceString("lbl_OilType")*@
+    <h2 id="team-efficiency" class="col-xs-3">Delivery Type</h2>
+    <div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            <a id="btnAddOilType" href="#" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_Add")</a>
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+
+            <div class="row form-group">
+                <div class="col-md-4 text-right">
+                    Type
+                </div>
+                <div class="col-md-4">
+                    @(Html.Kendo().DropDownListFor(d => d.SelectedTypeId)
+                          //.OptionLabel(@Helper.GetResourceString("plho_All"))
+                          .DataTextField("Name")
+                          .DataValueField("Id")
+                          .Events(e => e.DataBound("onDataBound").Change("typeChange"))
+                          .DataSource(source => source.Read(resd => resd.Action("GetDeliveryTypeList", "Lookup"))
+                          .ServerFiltering(false))
+                          .HtmlAttributes(new { id = "ddSelectType", tabindex = "8", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilType"), @style = "width:100%" }))
+                </div>
+                <label></label>
+            </div>
+
+            <div class="row" id="dvDealers">
+                <div class="col-md-12">
+                    <div class="text-right">
+                        <button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ViewDepots")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    </div>
+                    @(Html.Kendo().Grid<DeliveryTypeDto>()
+                          .Name("DelivartTypeGrid")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.Id).Visible(false);
+                              columns.Bound(c => c.SelectedTypeId).Visible(false);
+                              //columns.Bound(c => c.SelectedTypeName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Type").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.Name).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_Name")).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Active")).ClientTemplate(@"<div style='text-align: center;'>#if(IsActive){#<i class='icon-checkbox-checked2 faicon-green'></i>#}else{#<i class='icon-cancel-square2 faicon-red'></i>#}#</div>").Width(Settings.GridColumnMaxWidth);
+                              columns.Template(t => t.Name).Title(@Helper.GetResourceString("lbl_Edit")).ClientTemplate(@"<div style='text-align: center;'>
+                                                            <i onclick='editDelivery(this)' class='glyphicon glyphicon-pencil pointer' ></i></div>").Title(@Helper.GetResourceString("lbl_Edit")).Width(Settings.GridButtonColumnWidth);
+                          })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Events(e => e.DataBound("onDeliveryDataBound"))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Sort(sort => sort.Add("Id").Ascending())
+                          .Model(model => { model.Id(p => p.SelectedTypeId); })
+                          .ServerOperation(true)
+                          .Read(read => read.Action("GetDeliveryTypeDetailsAsync", "Lookup").Data("additionalInfo"))
+                          ))
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="addDeliveryPopoup" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            @using (Html.BeginForm("frmOilType", "Lookup", FormMethod.Post, new { id = "frmOilType", @class = "form-validate-jquery" }))
+            {
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close model-header-color" data-dismiss="modal">&times;</button>
+                        <h6 class="panel-title model-header-color"><span class="text-semibold">Add Details</span></h6>
+                    </div>
+                    <div class="modal-body">
+                        @Html.HiddenFor(m => m.Id, new { id = "txtId" })
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @*@Helper.GetResourceString("lbl_OilType")*@Type <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownListFor(d => d.SelectedTypeId)
+                                      .OptionLabel(@Helper.GetResourceString("plho_SelectType"))
+                                      .DataTextField("Name")
+                                      .DataValueField("Id")
+                                      .DataSource(source => source.Read(resd => resd.Action("GetDeliveryTypeList", "Lookup"))
+                                      .ServerFiltering(false))
+                                      .HtmlAttributes(new { id = "ddAddType", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilType"), @style = "width:100%" }))
+                            </div>
+                            <label></label>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Name") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(m => m.Name, new { id = "txtName", tabindex = "2", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Name"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_ActiveInactive")
+                            </div>
+                            <div class="col-md-4">
+                                @Html.CheckBoxFor(m => m.IsActive, new { id = "cbActiveInactive", tabindex = "3" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btnSave" tabindex = "4" type="button" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Save")</button>
+                        <button id="btnDirtyCancel" tabindex = "5" type="button" onclick="popupClose();" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Cancel")</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        // kendo grid filter contains
+        FilterContains();
+
+        //Modal popup show
+        $("#btnAddOilType").click(function () {
+            clear();
+            $(".validation-error-label").remove();
+            $("#addDeliveryPopoup").modal('show');
+        });
+
+        //Save function
+        $("#btnSave").click(function () {
+            var isValidForm = $("#frmOilType").valid();
+
+            if (isValidForm) {
+                var selectedType = $("#ddAddType").data("kendoDropDownList");
+                var data = {
+                    Id: $("#txtId").val(),
+                    SelectedTypeId: selectedType.value(),
+                    SelectedTypeName: selectedType.text(),
+                    Name: $("#txtName").val(),
+                    IsActive: $("#cbActiveInactive").is(":checked")
+                };
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("AddDeliveryDetails", "Lookup")',
+                    data: { deliveryDto: data },
+                    success: function (responce) {
+                        if ((responce) && (responce.PostStatus)) {
+                            ShowSuccessMessage(responce.PostMessage);
+                            refreshGrid();
+                        } else {
+                            ShowErrorMessage(responce.PostMessage);
+                        }
+                    }
+                })
+            } else { return false; }
+        });
+    });
+
+    //Grid edit event
+    function editDelivery(arg) {
+
+        $(".validation-error-label").remove();
+        var dataItem = $("#DelivartTypeGrid").getKendoGrid().dataItem($(arg).closest("tr"));
+
+        //Set the values to control
+        $("#txtId").val(dataItem.Id);
+        $("#txtName").val(dataItem.Name);
+        $("#cbActiveInactive").prop("checked", dataItem.IsActive);
+
+        var type = $("#ddSelectType").data("kendoDropDownList");
+        $("#ddAddType").data("kendoDropDownList").value(type.value());
+
+        $("#addDeliveryPopoup").modal('show');
+    }
+
+    //Dropdown change event
+    function typeChange() {
+        refreshGrid();
+    }
+
+    //Grid additional param pass
+    function additionalInfo() {
+        var selectedValue = 1;
+        var data = $("#ddSelectType").data("kendoDropDownList");
+
+        if (data.value()) {
+            selectedValue = Number(data.value());
+        }
+        return {
+            selectedType: selectedValue
+        }
+    }
+
+    //clear all form data
+    function clear() {
+        $("#txtId").val('');
+        $("#txtName").val('');
+        $("#cbActiveInactive").prop("checked", false);
+        $("#ddAddType").data("kendoDropDownList").value(-1);
+    }
+
+    //Refresh the grid
+    function refreshGrid() {
+        var orderGrid = $("#DelivartTypeGrid").data("kendoGrid");
+        orderGrid.dataSource.read();
+    }
+
+    function onDataBound(e) {
+        e.sender.value("1");
+    }
+
+    //Method to data bound event for owner
+    function onDeliveryDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+</script>
+
+
+
+
+
+
+

@@ -1,0 +1,492 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.MVC.Common
+@using System.Security.Claims
+@model Adani.Solution.DTO.SpecialityFatDiscountUserDto
+
+@{
+    ViewBag.Title = "SpecialityFatDiscountUser";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    var roleId = 0;
+
+    if (HttpContext.Current.User != null)
+    {
+        var identity = (ClaimsIdentity)HttpContext.Current.User.Identity;
+        roleId = Convert.ToInt32(identity.FindFirst("RoleId")?.Value);
+    }
+}
+
+<input type="hidden" class="currentMenu" value="tpsfquantitylimitUser" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">Add/Update Employee Quantity Limit</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Qty Limit </a><span class="icon-right"></span></li>
+        <li><a href="SpecialityFatDiscountUserList">Employee Quantity Limit</a><span class="icon-right"></span></li>
+        <li class="active">Add/Update Employee Quantity Limit<span class="icon-right"></span></li>
+    </ol>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="RoleLoader">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("AddOrUpdateSpecialityFatDiscountUser", "Pricing", FormMethod.Post, new { id = "frmSpecialityFatDiscountUser", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        @Html.HiddenFor(m => m.EncryptedId, new { id = "Id" })
+                        @Html.HiddenFor(m => m.ParentQuantityId, new { id = "ParentQuantityId" })
+
+
+                        <div class="row form-group">
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">
+                                    @Helper.GetResourceString("lbl_SalesOrganization") <span class="text-danger">*</span>
+                                </label>
+                                @(Html.Kendo().DropDownListFor( m=> m.SalesOrganizationId)
+                    .OptionLabel("Select Sales Organization")
+                    .DataTextField("SalesOrganizationName")
+                    .Events(e => e.Change("onSaleChange"))
+                    .DataValueField("Id")
+                    .DataSource(source => source.Read(read => read.Action("GetSalesOrganizationddl", "Lookup"))
+                    ).HtmlAttributes(new { id = "ddlSalesOrganization", tabindex = "5", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_SalesOrganization"), @style = "width:100%" })
+                )
+
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">
+                                    @Helper.GetResourceString("lbl_DistributionChannel") <span class="text-danger">*</span>
+                                </label>
+                                @(Html.Kendo().DropDownListFor(m => m.DistributionChannelId)
+                          .OptionLabel("Select Distribution")
+                          .Events(events => events.Change("onDistributionChange").DataBound("OnDistributionDataBound"))
+                          .DataTextField("DistributionChannelName")
+                          .DataValueField("Id")
+                          .DataSource(source => source.Read(read => read.Action("GetDistributionChannelddl", "Lookup").Data("distParam"))
+                          .ServerFiltering(true))
+                          .HtmlAttributes(new { id = "ddlDistributionChannel", @class = "", tabindex = "6", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_DistributionChannel"), @style = "width:100%" }))
+
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_Vertical") <span class="text-danger">*</span> </label>
+                                @(Html.Kendo().DropDownListFor(f => f.VerticleId)
+                                          .OptionLabel("Select Division")
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .Events(e => e.Change("onVerticalTypeChange"))
+                                          .DataSource(source => source.Read(resd => resd.Action("GetVerticalDetailsdd", "Lookup").Data("verticalParam"))
+                                          .ServerFiltering(false))
+                                          .HtmlAttributes(new { id = "ddVerticalType", tabindex = "5", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_VerticleType"), @style = "width:100%" }))
+
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">  @Helper.GetResourceString("lbl_OilType") <span class="text-danger">*</span> </label>
+
+                                @Html.HiddenFor(m => m.OilTypeName, new { id = "hdnOilTypeId" })
+
+                                @(Html.Kendo().DropDownListFor(m => m.OilTypeId)
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .OptionLabel(@Helper.GetResourceString("plho_SelectOilType"))
+                                          .Events(e => e.Change("onOilTypeChange"))
+                                          .DataSource(source => source.Read(read => read.Action("GetOilTypesBasedOnVerticalId", "Lookup", new { isToReturnInactiveData = false }).Data("oilTypeAdditionalInfo"))
+                                          .ServerFiltering(true))
+                                          .HtmlAttributes(new { id = "ddlOilType", @class = "", tabindex = "6", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilType"), @style = "width:100%" }))
+                            </div>
+
+                        </div>
+
+                        <div class="row form-group">
+
+                            @*<div id="divSubCategory">
+                                <div class="col-lg-3 col-sm-6 mb-3">
+                                    <label class="custom_label"> @Helper.GetResourceString("lbl_SubCategory") </label>
+                                    @(Html.Kendo().DropDownListFor(m => m.SubCategoryId)
+                                          .OptionLabel(@Helper.GetResourceString("plho_SelectSubCategory"))
+                                          .Events(e => e.Change("subCategoryChange"))
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .DataSource(source => source.Read(read => read.Action("GetSubCategoryList", "Lookup"))
+                                          .ServerFiltering(false))
+                                          .HtmlAttributes(new { id = "ddlSubCategory", tabindex = "4", @class = "", @style = "width:100%" }))
+                                </div>
+                            </div>*@
+
+                            @*<div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_Sku") <span class="text-danger">*</span> </label>*@
+                                @*@Html.HiddenFor(m => m.SkuName, new { id = "hdnSkuName" })
+                                    @(Html.Kendo().DropDownListFor(m => m.SkuId)
+                                                       .DataTextField("SkuName")
+                                                       .DataValueField("SkuId")
+                                                       .OptionLabel("Select Sku")
+                                                       .DataSource(source => source.Read(read => read.Action("GetSkusBasedOnOilType", "Lookup").Data("skuAdditionalInfo"))
+                                                       .ServerFiltering(true))
+                                                       .HtmlAttributes(new { id = "ddlSkuName", @class = "form-control", tabindex = "7", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Sku"), @style = "width:100%" }))*@
+
+                                @*@if (Model.Id == 0)
+                                {
+                                    @(Html.Kendo().MultiSelect().Name("SkuIds")
+                                              .Events(events => events.Change("onSkuChange").DataBound("OnSkuDataBound"))
+                                              .DataTextField("Name")
+                                              .DataValueField("Id")
+                                              .AutoClose(false)
+                                              .TagMode(TagMode.Single)
+                                              .MaxSelectedItems(ConfigHelper.MaxSelectedDefaultItemForMultiselect)
+                                              .DataSource(source => source.Read(read => read.Action("GetSkuBasedOnOilTypeSubCategory", "Lookup", new { IsToReturnInactiveData = false }).Data("skuAdditionalInfo"))
+                                              .ServerFiltering(false))
+                                              .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='skuSelectAll'> Select All</label> <div class=\"dropdown-header k-widget k-header\">" + "<span>Code</span>" + "<span class=\"pullLeft\">Name</span>" + "</div>")
+                                              .ItemTemplate("<span class=\" k-state-default\">#: data.Code #</span>" + "<span class=\"pullLeft k-state-default\"><h3>#: data.Name #</h3></span>")
+                                              .HtmlAttributes(new { id = "ddlSkuName", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Sku"), @style = "width:100%" }))
+                                }
+                                else
+                                {
+                                    @(Html.Kendo().MultiSelect().Name("SkuIds")
+                                              .Events(events => events.Change("onSkuChange").DataBound("OnSkuDataBound"))
+                                              .DataTextField("Name")
+                                              .DataValueField("Id")
+                                              .AutoClose(false)
+                                              .TagMode(TagMode.Single)
+                                              .MaxSelectedItems(ConfigHelper.MaxSelectedDefaultItemForMultiselect)
+                                              .DataSource(source => source.Read(read => read.Action("GetSkuBasedOnOilTypeSubCategory", "Lookup", new { IsToReturnInactiveData = false }).Data("skuAdditionalInfo"))
+                                              .ServerFiltering(false))
+                                              //.HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='skuSelectAll'> Select All</label>")
+                                              .HeaderTemplate(" <div class=\"dropdown-header k-widget k-header\">" + "<span>Code</span>" + "<span class=\"pullLeft\">Name</span>" + "</div>")
+                                              .ItemTemplate("<span class=\" k-state-default\">#: data.Code #</span>" + "<span class=\"pullLeft k-state-default\"><h3>#: data.Name #</h3></span>")
+                                              .HtmlAttributes(new { id = "ddlSkuName", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Sku"), @style = "width:100%", @readonly = "readonly" }))
+                                }
+
+                            </div>*@
+
+                            <div id="customerDiv">
+                                <div class="col-lg-3 col-sm-6 mb-3">
+                                    <label class="custom_label">  @Helper.GetResourceString("lbl_Employees") <span class="text-danger">*</span> </label>
+                                    @*@Html.HiddenFor(m => m.CustomerName, new { id = "hdnCustomerId" })*@
+
+                                    @*@(Html.Kendo().MultiSelect()
+                                        .Name("CustomerId")
+                                        .DataTextField("EmployeeName")
+                                        .DataValueField("Id")
+                                        .AutoClose(false)
+                                        .TagMode(TagMode.Single)
+                                        .DataSource(source => source.Read(read => read.Action("GetUserAssignedToAsync", "SalesTourPlan"))
+                                        .ServerFiltering(true))
+                                        .HtmlAttributes(new { id = "ddlCustomerName", @class = "", tabindex = "9", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Employees"), @style = "width:100%" }))*@
+                                    @if (Model.Id == 0)
+                                    {
+                                        @(Html.Kendo().MultiSelect().Name("CustomerId")
+                                                  .Events(events => events.Change("onEmployeeChange").DataBound("onEmployeeDataBound"))
+                                                  .DataTextField("EmployeeName")
+                                                  .DataValueField("Id")
+                                                  .AutoClose(false)
+                                                  .TagMode(TagMode.Single)
+                                                  .MaxSelectedItems(ConfigHelper.MaxSelectedDefaultItemForMultiselect)
+                                                  .DataSource(source => source.Read(read => read.Action("GetUserAssignedToAsync", "SalesTourPlan").Data("customerParam"))
+                                                  .ServerFiltering(false))
+                                                  .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='empSelectAll'> Select All</label>")
+                                                  .HtmlAttributes(new { id = "ddlCustomerName", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Sku"), @style = "width:100%" }))
+                                    }
+                                    else
+                                    {
+                                        @(Html.Kendo().MultiSelect().Name("CustomerId")
+                                                  .Events(events => events.Change("onEmployeeChange").DataBound("onEmployeeDataBound"))
+                                                  .DataTextField("EmployeeName")
+                                                  .DataValueField("Id")
+                                                  .AutoClose(false)
+                                                  .TagMode(TagMode.Multiple)
+                                                  .MaxSelectedItems(ConfigHelper.MaxSelectedDefaultItemForMultiselect)
+                                                   .DataSource(source => source.Read(read => read.Action("GetUserAssignedToAsync", "SalesTourPlan").Data("customerParam"))
+                                                  .ServerFiltering(false))
+                                                  .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='empSelectAll'> Select All</label>")
+                                                  .HtmlAttributes(new { id = "ddlCustomerName", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Sku"), @style = "width:100%", @readonly = "readonly" }))
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">  @Helper.GetResourceString("lbl_QuantityLimit") <span class="text-danger">*</span> </label>
+                                @Html.TextBoxFor(m => m.QuantityLimit, new { id = "txtDiscount", @class = "form-control decimalValue", tabindex = "10", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_QuantityLimit"), @maxlength = (int)InputMaxLength.Price })
+                            </div>
+
+                        </div>
+
+                        <div class="row form-group">
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">   @Helper.GetResourceString("lbl_ValidFrom") <span class="text-danger">*</span> </label>
+                                @(Html.Kendo().DateTimePickerFor(m => m.ValidFrom)
+                                          .Format(Settings.DateTimeFormat)
+                                          .Interval(1)
+                                          .Events(e => e.Change("fromChange"))
+                                          .HtmlAttributes(new { id = "dpFromDate", onkeydown = "return isFocus(event);", tabindex = "3", style = "width: 100%" }))
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">   @Helper.GetResourceString("lbl_ValidTo") <span class="text-danger">*</span> </label>
+                                @(Html.Kendo().DateTimePickerFor(m => m.ValidTo)
+                                          .Format(Settings.DateTimeFormat)
+                                          .Interval(1)
+                                          .HtmlAttributes(new { id = "dpToDate", onkeydown = "return isFocus(event);", tabindex = "4", style = "width: 100%" }))
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-12 text-right">
+                                <button type="button" id="btnCancel" onclick="location.href = '@Url.Action("SpecialityFatDiscountUserList", "Pricing")'" class="k-button k-cancel custom-btns">@Helper.GetResourceString("btn_Cancel")</button>
+                                @if (Helper.CheckClaims(Claims.ManageSpecialtyFatQuantityUser))
+                                {
+                                    <button type="button" id="btnSave" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Save")</button>
+                                }
+                            </div>
+                        </div>
+                    }
+                    <!---end of form input-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+
+
+        if ('@Model.Id' === '0') {
+            StartDateRange();
+        }
+
+        if ('@Model.Id' === '0') {
+            if ('@Model.Id' > 0) {
+                //formFieldReadOnly();
+            } else {
+                $("#txtDiscount").val('');
+            }
+        } else {
+            formFieldReadOnly();
+        }
+
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        //Save the form data
+        $("#btnSave").click(function () {
+            var isValidForm = $("#frmSpecialityFatDiscountUser").valid();
+
+            if (isValidForm) {
+                window.kendo.ui.progress($("#div_Progress"), true);
+                $("#frmSpecialityFatDiscountUser").submit();
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+
+
+        //$("#skuSelectAll").click(function () {
+        //    MultiSelectSelectAll("ddlSkuName", "skuSelectAll");
+        //});
+
+        $("#empSelectAll").click(function () {
+            MultiSelectSelectAll("ddlCustomerName", "empSelectAll");
+        });
+
+        var now = new Date();
+        now.setHours(23);
+        now.setMinutes(59);
+        now.setSeconds(0);
+        $("#dpToDate").data("kendoDateTimePicker").value(now);
+    });
+
+    //Readonly fields
+    function formFieldReadOnly() {
+         $("#ddVerticalType").data("kendoDropDownList").readonly(true);
+        $("#ddlSalesOrganization").data("kendoDropDownList").readonly(true);
+        $("#ddlDistributionChannel").data("kendoDropDownList").readonly(true);
+        var dropdown = $("#ddVerticalType").data("kendoDropDownList");
+        dropdown.readonly();
+        dropdown = $("#ddlOilType").data("kendoDropDownList");
+        dropdown.readonly();
+        //dropdown = $("#ddlSkuName").data("kendoMultiSelect");
+        //dropdown.readonly();
+
+        var datePicker = $("#dpFromDate").data("kendoDateTimePicker");
+        datePicker.readonly();
+        datePicker = $("#dpToDate").data("kendoDateTimePicker");
+        datePicker.readonly();
+    }
+
+    //Verticle Type Change Events
+    function onVerticalTypeChange() {
+        //clear
+        //$("#ddlSkuName").data("kendoMultiSelect").dataSource.data([]);
+        $("#ddlOilType").data("kendoDropDownList").dataSource.data([]);
+        $("#ddlOilType").data("kendoDropDownList").dataSource.read();
+        $("#ddlCustomerName").data("kendoMultiSelect").dataSource.read();
+    }
+
+    //Oiltype Change Events
+    function onOilTypeChange() {
+        //$("#ddlSkuName").data("kendoMultiSelect").dataSource.read();
+    }
+
+    //OilType loading additional parameters
+    function oilTypeAdditionalInfo() {
+        var verticleId = $("#ddVerticalType").data("kendoDropDownList").value();
+        if (!verticleId) {
+             if ('@Model.Id' != 0) {
+                verticalId = '@Model.VerticleId';
+            }
+        }
+        return {
+            verticalId: Number(verticleId)
+        }
+    }
+
+    //SkuName loading additional parameters
+    function skuAdditionalInfo() {
+        @*var oilTypeId = $("#ddlOilType").data("kendoDropDownList").value();
+        if (!oilTypeId) {
+            if ('@Model.Id' != 0) {
+                oilTypeId = '@Model.OilTypeId';
+            }
+        }
+        return {
+            oiltypeId: Number(oilTypeId)
+        }*@
+
+        var oilType = $('#ddlOilType').data("kendoDropDownList").value();
+        var subCategory = $('#ddlSubCategory').data("kendoDropDownList").value();
+
+        return {
+            oilTypeId: Number(oilType),
+            subCategoryId: Number(subCategory),
+        };
+    }
+
+
+
+    function fromChange() {
+        var endPicker = $("#dpToDate").data("kendoDateTimePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            $("#dpToDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateTimeFormat));
+            endPicker.min(startDate);
+        }
+    }
+
+    function StartDateRange() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+
+        $("#dpFromDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateTimeFormat));
+        $("#dpToDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateTimeFormat));
+
+        var endPicker = $("#dpToDate").data("kendoDateTimePicker");
+        endPicker.min(dates);
+    }
+
+    function StartDateRange() {
+        var startDate = new Date();
+        startDate.setDate(startDate.getDate());
+
+        $("#dpFromDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateTimeFormat));   //Set default date
+        var startPicker = $("#dpFromDate").data("kendoDateTimePicker");
+        startPicker.min(startDate);
+
+        var endPicker = $("#dpToDate").data("kendoDateTimePicker");                                             //Set min date
+        $("#dpToDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateTimeFormat));
+        endPicker.min(startDate);
+    }
+
+    //Sub category
+    function subCategoryChange() {
+        //$("#ddlSkuName").data("kendoMultiSelect").dataSource.read();
+    }
+
+    //function onSkuChange(e) {
+    //    MultiSelectIndividualSelect("ddlSkuName", "skuSelectAll");
+    //}
+
+    //function OnSkuDataBound(e) {
+    //    MultiSelectIndividualSelect("ddlSkuName", "skuSelectAll");
+    //}
+
+    function onEmployeeChange(e) {
+        MultiSelectIndividualSelect("ddlCustomerName", "empSelectAll");
+    }
+
+    function onEmployeeDataBound(e) {
+        MultiSelectIndividualSelect("ddlCustomerName", "empSelectAll");
+    }
+
+
+    function onSaleChange() {
+        $("#ddlDistributionChannel").data("kendoDropDownList").dataSource.read();
+    }
+    function onDistributionChange(e) {
+        $("#ddVerticalType").data("kendoDropDownList").dataSource.read();
+    }
+
+    function OnDistributionDataBound(e) {
+        var distId = $("#ddlDistributionChannel").data("kendoDropDownList").value();
+        if (distId > 0) {
+            $("#ddVerticalType").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    function verticalParam() {
+        var distId = $("#ddlDistributionChannel").data("kendoDropDownList").value();
+        return {
+            distId: Number(distId)
+        };
+    }
+
+    function distParam() {
+        var saleId = $("#ddlSalesOrganization").data("kendoDropDownList").value();
+        return {
+            saleId: Number(saleId)
+        };
+    }
+    function customerParam()
+    {
+        debugger;
+        var verticalId = 0;
+        if ($("#ddVerticalType").data("kendoDropDownList").value()) {
+            verticalId = $("#ddVerticalType").data("kendoDropDownList").value();
+        }
+        var SalesOrganizationId = 0;
+        if ($("#ddlSalesOrganization").data("kendoDropDownList").value()) {
+            SalesOrganizationId = $("#ddlSalesOrganization").data("kendoDropDownList").value();
+        }
+        var DistributionChannelId = 0;
+        if ($("#ddlDistributionChannel").data("kendoDropDownList").value()) {
+            DistributionChannelId = $("#ddlDistributionChannel").data("kendoDropDownList").value();
+        }
+        return {
+            verticalId: Number(verticalId),
+            SalesOrganizationId: SalesOrganizationId,
+            DistributionChannelId: DistributionChannelId,
+            StateId:0
+        };
+
+    }
+
+
+</script>

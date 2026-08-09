@@ -1,0 +1,553 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@model Adani.Solution.DTO.SpecialtyFatQuantityRequestDto
+
+@{
+    ViewBag.Title = "SF Quantity Request";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+
+    .k-confirm .k-window-titlebar::before {
+        content: 'Confirmation';
+    }
+
+    .k-confirm .k-window-titlebar .k-dialog-title {
+        visibility: collapse;
+    }
+</style>
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="tpsfquantitylimitRequest" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">Quantity Request Status Details@*@Helper.GetResourceString("lbl_SFQuantityRequest")*@</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#"> Qty Limit </a><span class="icon-right"></span></li>
+        <li class="active">Quantity Request Status Details<span class="icon-right"></span></li>
+    </ol>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvSFQuantityRequest">
+                <div class="row">
+                    <div class="col-lg-3 col-sm-6 mb-3 ">
+                        <label class="custom_label"> @Helper.GetResourceString("lbl_Status") </label>
+                        @(Html.Kendo().DropDownList()
+                                      .Name("Status")
+                                      .OptionLabel("Select status")
+                                      .DataTextField("Name")
+                                      .DataValueField("Id")
+                                      .Events(e => e.Change("statusChanged"))
+                                      .DataSource(source => source.Read(resd => resd.Action("GetSpecalityFatSelectiveStatus", "Pricing"))
+                                      .ServerFiltering(false))
+                                      .HtmlAttributes(new { id = "ddlStatus", @class = "form-control", tabindex = "2", @style = "width:100%" }))
+                    </div>
+
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-md-12 text-left">
+                        <button type="button" id="btnGenerateSFQuantityRequest" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Search") </button>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-12">
+                        <div class="text-right right-buttons">
+                            @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                        </div>
+                        @(Html.Kendo().Grid<SpecialtyFatQuantityRequestDto>()
+                              .Name("ViewSFQuantityRequest")
+                              .Columns(columns =>
+                              {
+                                  columns.Template(c => c.StatusId)
+                                          .ClientTemplate("" +
+                                          //"#if((StatusId == emamiGlobal.Status.RequestForApproval || StatusId == emamiGlobal.Status.Pending) && checkBoxDisable1())" +
+                                          "#if(cbShowHide1(StatusId))" +
+                                          "{#<div class='text-center'><input type='checkbox' #=IsChecked ? checked='checked' : '' # class='selectIndividualLimitRequest' onclick=\"selectIndividualLimitRequest(this);\" /></div>" +
+                                          "#}" +
+                                          //"else if((StatusId == emamiGlobal.Status.Pending || StatusId == emamiGlobal.Status.RequestForApproval) && !IsRequestedUser && checkBoxDisable2())" +
+                                          "else if(cbShowHide2(StatusId, IsRequestedUser))" +
+                                          "{#<div class='text-center'><input type='checkbox' #=IsChecked ? checked='checked' : '' # class='selectIndividualLimitRequest' onclick=\"selectIndividualLimitRequest(this);\" /></div>" +
+                                          "#}#")
+                                          .HeaderTemplate("<div class='text-center'><input type='checkbox' class='selectAllLimitRequestClass' onclick=\"selectAllLimitRequest(this)\" /></div>").Width("40px");
+                                  columns.Bound(c => c.Id).Visible(false);
+                                  columns.Bound(c => c.CreatedBy).Title(@Helper.GetResourceString("lbl_CreatedBy")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                  columns.Bound(c => c.OilTypeName).Title(@Helper.GetResourceString("lbl_OilType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                  //columns.Bound(c => c.OilTypeCode).Title("OilType Code").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                  //columns.Bound(c => c.SkuName).Title(@Helper.GetResourceString("lbl_SkuName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  //columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.Quantity).Title(@Helper.GetResourceString("lbl_RequestQuantityLimit")).Format(Settings.DecimalFormat4).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                  //columns.Bound(c => c.RemainingQuantity).Title("Remaining Quantity").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                  columns.Bound(c => c.Status).Title(@Helper.GetResourceString("lbl_Status")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              })
+                              .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                              .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                              .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                              .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                              .Selectable(selectable => selectable
+                              .Mode(GridSelectionMode.Multiple)
+                              .Type(GridSelectionType.Row))
+                              .Scrollable(s => s.Enabled(true).Height("auto"))
+                              .Events(events => events.Change("onSFQuantityRequestRequestChange").DataBound("onSFQuantityRequestRequestDataBound"))
+                              .Reorderable(reorder => reorder.Columns(true))
+                              .Resizable(resize => resize.Columns(true))
+                              .DataSource(dataSource => dataSource
+                              .Ajax()
+                              .Model(model => model.Id(m => m.Id))
+                              .Events(events => events.Error("OnSFQuantityRequestErrorHandling"))
+                              .ServerOperation(true)
+                              .Read(read => read.Action("GetSpecalityFatQuantityRequestListAsync", "Pricing").Data("AdditionalInfo"))))
+                    </div>
+                </div>
+                <div class="text-right marginT20">
+                    @if (Helper.CheckClaims(Claims.SpecialtyFatQtyApprove) || Helper.CheckClaims(Claims.SpecialtyFatQtyRequestForApprove))
+                    {
+                        <button type="submit" id="btnApproveSFQuantityRequest" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Approve") </button>
+                    }
+                    @if (Helper.CheckClaims(Claims.SpecialtyFatQtyRequestForApprove) && Model.RoleId != (int)Role.NationalTrader && Model.RoleId != (int)Role.Admin)
+                    {
+                        //<button type="submit" id="btnApproveSFQuantityRequest" class="k-primary k-button">@Helper.GetResourceString("btn_Approve") <i class="icon-arrow-right14 position-right"></i></button>
+                        <button type="submit" id="btnRequestForApproveSFQuantityRequest" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_RequestForApproval") </button>
+                    }
+                    @if (Helper.CheckClaims(Claims.SpecialtyFatQtyReject))
+                    {
+                        <button type="submit" id="btnRejectSFQuantityRequest" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Reject") </button>
+                    }
+                </div>
+                <div id="addRemarkPopoup" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+                        <!-- Modal content-->
+
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close model-header-color" data-dismiss="modal">&times;</button>
+                                <h6 class="panel-title model-header-color"><span class="text-semibold">Remark</span></h6>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row form-group">
+                                    <div class="col-md-2 text-right">
+                                        @Helper.GetResourceString("lbl_Remark") <span class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-md-8">
+                                        @Html.TextArea("Remarks", null, new { @class = "form-control", @rows = 5, @cols = 80, id = "txtRemark", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Remark"), @maxlength = (int)InputMaxLength.String })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button id="btnSave" type="button" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Save")</button>
+                                <button id="btnDirtyCancel" type="button" onclick="popupClose();" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Cancel")</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header" style="font-size:16px;color:#fff;">
+                    <button type="button" class="close" data-dismiss="modal" style="font-size: 26px;color:#fff;">&times;</button>
+                    <h4 class="modal-title">Notes:</h4>
+                </div>
+                <div class="modal-body" style="font-size: 14px;line-break: normal;line-height: 2.5;">
+                    <p>1. Sauda which has Sauda Number can only be Approve / Reject.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    var selectedIds = [];
+    var selectedRows = [];
+
+    var checkedLimitRequestIds = [];
+    $(document).ready(function () {
+
+        // kendo grid filter contains
+        FilterContains();
+
+
+         if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+
+        $("#btnApproveSFQuantityRequest").click(function (e) {
+
+            if (!(selectedIds && selectedIds.length > 0)) {
+                ShowErrorMessage("Please select a quantity request");
+                return false;
+            }
+            var messageText = ((selectedIds && selectedIds.length > 1) ? 'items' : 'item');
+            var confirmText = "<span style='font-size:large'><strong>" + selectedIds.length + " " + messageText + " selected</strong></span>" + "</br></br>Are you sure you want to <strong>Approve</strong> this " + messageText + "?";
+            kendo.confirm(confirmText).then(function () {
+                 SaveSpecialtyFatQuantityRequest('@((int)Status.Approved)');
+            }, function () {
+            });
+
+        });
+
+        $("#btnRequestForApproveSFQuantityRequest").click(function (e) {
+
+            if (!(selectedIds && selectedIds.length > 0)) {
+                ShowErrorMessage("Please select a quantity request");
+                return false;
+            }
+            var messageText = ((selectedIds && selectedIds.length > 1) ? 'items' : 'item');
+            var confirmText = "<span style='font-size:large'><strong>" + selectedIds.length + " " + messageText + " selected</strong></span>" + "</br></br>Are you sure you want to <strong>Request For Approve</strong> this " + messageText + "?";
+            kendo.confirm(confirmText).then(function () {
+                SaveSpecialtyFatQuantityRequest('@((int)Status.RequestForApproval)');
+            }, function () {
+            });
+        });
+
+        $("#btnRejectSFQuantityRequest").click(function (e) {
+
+            if (!(selectedIds && selectedIds.length > 0)) {
+                ShowErrorMessage("Please select a quantity request");
+                return false;
+            }
+            var messageText = ((selectedIds && selectedIds.length > 1) ? 'items' : 'item');
+            var confirmText = "<span style='font-size:large'><strong>" + selectedIds.length + " " + messageText + " selected</strong></span>" + "</br></br>Are you sure you want to <strong>Reject</strong> this " + messageText + "?";
+            kendo.confirm(confirmText).then(function () {
+                 RejectSpecialtyFatQuantityRequest();
+            }, function () {
+            });
+        });
+
+        $("#btnSave").click(function (e) {
+            if (!$("#txtRemark").val()) {
+                ShowErrorMessage("Please enter the reason");
+                return false;
+            }
+            SaveSpecialtyFatQuantityRequest('@((int)Status.Rejected)' );
+        });
+
+        $("#btnGenerateSFQuantityRequest").on('click', function () {
+            window.kendo.ui.progress($("#div_Progress"), true);
+
+            selectedIds = [];
+            selectedRows = [];
+            var SFQuantityRequestRequest = $("#ViewSFQuantityRequest").data("kendoGrid");
+            SFQuantityRequestRequest.dataSource.read();
+
+            window.kendo.ui.progress($("#div_Progress"), false);
+        });
+
+
+    });
+
+
+    function LimitSelectAll(ele) {
+        onSelectAllClickEvent('chkbxApproveOrReject', 'masterCBAllLimit');
+        var masterCheckBox = $(ele).is(':checked');
+        $('input:checkbox.' + 'chkbxApproveOrReject').each(function () {
+            var rValue = this.value;
+            if (masterCheckBox) {
+                if ($.inArray(rValue, checkedLimitRequestIds) > -1) {
+
+                } else {
+                    checkedLimitRequestIds.push(rValue);
+                }
+            }
+            else {
+                if ($.inArray(rValue, checkedLimitRequestIds) > -1) {
+                    checkedLimitRequestIds = jQuery.grep(checkedLimitRequestIds, function (cVaule) {
+                        return cVaule != rValue;
+                    });
+                }
+            }
+        });
+    }
+
+
+    function AdditionalInfo()
+    {
+        return {
+            StatusId: Number($("#ddlStatus").val())
+        }
+    }
+
+    function CheckedLimitRequest(ele, Id)
+    {
+        if ($(ele).is(':checked'))
+            checkedLimitRequestIds.push(Id);
+        else {
+            checkedLimitRequestIds = jQuery.grep(checkedLimitRequestIds, function (cVaule) {
+                return cVaule != Id;
+            });
+        }
+    }
+
+    function onSFQuantityRequestRequestChange(e) {
+        var selected = this.select()[0],
+            item = this.dataItem(selected);
+    }
+
+    function statusChanged(e) {
+
+    }
+
+    function RejectSpecialtyFatQuantityRequest() {
+        var remark = '';
+        if (selectedIds && selectedIds.length > 0) {
+            $('#addRemarkPopoup').modal('show');
+        }
+    }
+
+    function OnSFQuantityRequestErrorHandling(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            ShowErrorMessage(message);
+        }
+    }
+
+    function SaveSpecialtyFatQuantityRequest(statusId) {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $.ajax({
+            url: '/Pricing/ApproveorRejectSpecalityFatQuantityRequest',
+            type: 'POST',
+            data: { checkedLimitRequestIds: selectedIds, status: statusId, remark: $('#txtRemark').val()},
+            success: function (result) {
+                if (!result.PostStatus) {
+
+                    $("#masterCBAllLimit").prop('checked', false);
+                    ShowErrorMessageLeftAlign(result.PostMessage);
+                    var SaudaLimitRequest = $("#ViewSFQuantityRequest").data("kendoGrid");
+                    SaudaLimitRequest.dataSource.read();
+
+                }
+                else {
+
+                    $("#masterCBAllLimit").prop('checked', false);
+                    ShowSuccessMessage(result.PostMessage);
+                    var SaudaLimitRequest = $("#ViewSFQuantityRequest").data("kendoGrid");
+                    SaudaLimitRequest.dataSource.read();
+                }
+                selectedIds = [];
+                selectedRows = [];
+                $("#txtRemark").val('');
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+    function checkBoxDisable1() {
+
+        if ('@Helper.CheckClaims(Claims.SpecialtyFatQtyApprove)' == 'True') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function checkBoxDisable2() {
+
+        if ('@Helper.CheckClaims(Claims.SpecialtyFatQtyRequestForApprove)' == 'True') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function cbShowHide1(statusId) {
+        if ((statusId == emamiGlobal.Status.RequestForApproval || statusId == emamiGlobal.Status.Pending) && checkBoxDisable1()) {
+            $(".selectAllLimitRequestClass").show();
+            return true;
+        } else {
+            $(".selectAllLimitRequestClass").hide();
+        }
+    }
+
+    function cbShowHide2(statusId, IsRequestedUser) {
+        if ((statusId == emamiGlobal.Status.Pending || statusId == emamiGlobal.Status.RequestForApproval) && !IsRequestedUser && checkBoxDisable2()) {
+            $(".selectAllLimitRequestClass").show();
+            return true;
+        } else {
+            $(".selectAllLimitRequestClass").hide();
+        }
+    }
+
+    function selectIndividualLimitRequest(arg) {
+        gridIndividualDataSelect(arg, "ViewSFQuantityRequest", "selectAllLimitRequestClass");
+    }
+
+
+    function selectAllLimitRequest(arg) {
+        gridSelectAllData(arg, "ViewSFQuantityRequest", "selectIndividualLimitRequest")
+    }
+
+    function onSFQuantityRequestRequestDataBound(e) {
+        //Get gride object
+        gridDataBound(e, "ViewSFQuantityRequest");
+    }
+
+
+    function gridDataBound(e, gridName) {
+
+        //Get gride object
+        var gridObject = $("#" + gridName + "").data("kendoGrid");
+        var gridItems = gridObject.items();
+        var recordsOnCurrentView = gridObject.dataSource.view().length;                        //records on current view / page
+
+        if (gridItems) {
+            gridItems.each(function (index) {
+                var rowItem = gridObject.dataItem(this);
+                if (rowItem) {
+                    if (selectedIds) {
+                        var isValid = selectedIds.indexOf(rowItem.Id) !== -1;
+                        if (isValid) {
+                            rowItem.set("IsChecked", true);
+                        } else {
+                            rowItem.set("IsChecked", false);
+                        }
+                    }
+                }
+            });
+        }
+
+        var selectedRowData = $("input:checked", gridObject.tbody).closest("tr");              // Get selected rows
+        checkBoxChanges(selectedRowData, recordsOnCurrentView, "selectAllLimitRequestClass");
+    }
+
+    /*
+        Grid checkbox check and uncheck based on events
+        Checked data get and push to global array
+        UnChecked data remove from array
+        Display selected data total count for display purpose
+        */
+    function gridIndividualDataSelect(arg, gridName, headerCheckboxName) {
+
+        var gridObject = $("#" + gridName + "").data("kendoGrid");                            // Get grid object
+        var selectedRow = gridObject.dataItem($(arg).closest("tr"));
+        var recordsOnCurrentView = gridObject.dataSource.view().length;                       //records on current view / page
+        var selectedRowData = $("input:checked", gridObject.tbody).closest("tr");             // Get selected rows
+        var rowItem = gridObject.dataItem(this);
+
+        checkBoxChanges(selectedRowData, recordsOnCurrentView, headerCheckboxName);
+
+        if (selectedRow) {
+            //Event is checked
+            if ($(arg).is(':checked')) {
+
+                selectedIds.push(selectedRow.Id);
+                selectedRows.push(selectedRow);
+
+                //selectedRow.set("IsChecked", true);
+
+            } else {   //Event is unchecked
+
+                //$(arg).prop("checked", false);
+                //selectedRow.set("IsChecked", false);
+
+                if (selectedIds) {
+                    var index1 = selectedIds.indexOf(selectedRow.Id);
+                    if (index1 !== -1) {
+                        selectedIds.splice(index1, 1);
+                    }
+                }
+                if (selectedRows) {
+                    var index2 = selectedRows.findIndex(function (data) { return data.Id === selectedRow.Id });
+                    if (index2 !== -1) {
+                        selectedRows.splice(index2, 1);
+                    }
+                }
+            }
+        }
+    }
+
+
+    /*
+        Grid checkbox check and uncheck based on events
+        Checked data get and push to global array
+        UnChecked data remove from array
+        Display selected data total count for display purpose
+        */
+    function gridSelectAllData(arg, gridName, clientCheckboxName) {
+        //Get Grid object
+        var gridObject = $("#" + gridName + "").data("kendoGrid");
+        var gridData = gridObject.dataSource.data();
+
+        if ($(arg).is(':checked')) {
+            //Checkbox check
+            $("." + clientCheckboxName + "").prop("checked", true);
+
+            if (gridData) {
+                $("#" + gridName + " ." + clientCheckboxName + "").each(function () {
+                    var rowData = gridObject.dataItem($(this).closest('tr'));
+                    if (rowData) {
+                        //rowData.set("IsChecked", true);
+                        if (selectedIds) {
+                            var index1 = selectedIds.indexOf(rowData.Id);
+                            if (index1 === -1) {
+                                selectedIds.push(rowData.Id);
+                            }
+                        }
+                        if (selectedRows) {
+                            var index2 = selectedRows.findIndex(function (data) { return data.Id === rowData.Id });
+                            if (index2 === -1) {
+                                selectedRows.push(rowData);
+                            }
+                        }
+                    }
+                });
+            }
+        } else {
+            //Checkbox uncheck
+            $("." + clientCheckboxName + "").prop("checked", false);
+
+            if (gridData) {
+                $("#" + gridName + " ." + clientCheckboxName + "").each(function () {
+                    var rowData = gridObject.dataItem($(this).closest('tr'));
+                    if (rowData) {
+                        //rowData.set("IsChecked", false);
+                        if (selectedIds) {
+                            var index1 = selectedIds.indexOf(rowData.Id);
+                            if (index1 !== -1) {
+                                selectedIds.splice(index1, 1);
+                            }
+                        }
+                        if (selectedRows) {
+                            var index2 = selectedRows.findIndex(function (data) { return data.Id === rowData.Id });
+                            if (index2 !== -1) {
+                                selectedRows.splice(index2, 1);
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    //HeaderTemplate checkbox check or uncheck
+    function checkBoxChanges(selectedRows, allRowCount, checkboxName) {
+        if (selectedRows.length > 0 && allRowCount > 0 && selectedRows.length == allRowCount) {
+            $("." + checkboxName + "").prop("checked", true);
+        } else {
+            $("." + checkboxName + "").prop("checked", false);
+        }
+    }
+
+</script>
+

@@ -1,0 +1,289 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.MVC.Models;
+@model Adani.Solution.MVC.Models.RoleTypeHierarchyViewModel
+@{
+	ViewBag.Title = Helper.GetResourceString("msg_Categories");
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="RoleOrganizationHierarchy" />
+<div id="main-section-header" class="row">
+	<h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("msg_OrganizationHierarchy")</h2>
+	<div id="dateFilter" class="col-xs-9">
+
+		<div class="period-wrapper">
+
+		</div>
+	</div>
+	<div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+
+
+	<div class="panel panel-flat">
+		<div class="panel-heading">
+			@*<h6 class="panel-title"><span class="text-semibold">@Helper.GetResourceString("msg_OrganizationHierarchy")</span></h6>*@
+
+		</div>
+		<div class="panel-body" style="display: block;">
+
+			<div class="row">
+				<div class="col-md-10">
+					@using (Html.BeginForm("OrganizationHierarchy", "Role", FormMethod.Post, new { id = "frmRoleTypeOrganizationHierarchy", @class = "form-validate-jquery" }))
+					{
+						@Html.AntiForgeryToken()
+						@(Html.Kendo().Grid<RoleTypeHierarchyModel>()
+							.Name("ViewOrgHierarchy")
+							.Columns(columns =>
+							{
+								columns.Bound(c => c.Id).Visible(false);
+								columns.Bound(c => c.OrderId).Title(@Helper.GetResourceString("lbl_Level")).Width(Settings.GridLevelColumnWidth).ClientTemplate("#= renderNumber(data) #");
+								columns.Bound(c => c.Name).Title(@Helper.GetResourceString("lbl_Role")).Width(Settings.GridOtherColumnWidth);
+
+							})
+							.NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+							.Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+							.Scrollable(s => s.Enabled(true).Height("auto"))
+							.Selectable()
+							.Events(events => events.DataBound("OnOrgHierarchyListDataBound").Change("OnOrgHierarchyListChange"))
+							.Reorderable(reorder => reorder.Columns(true))
+							.Resizable(resize => resize.Columns(true))
+							.DataSource(dataSource => dataSource
+								.Ajax()
+								.Model(model => model.Id(m => m.Id))
+								.ServerOperation(true)
+								.Read(read => read.Action("GetOrgHierarchyListAsync", "Role"))))
+					}
+				</div>
+				<div class="col-md-2" style="text-align:center;margin-top:5%">
+					<div class="row" style="height:45px;">
+						<button type="button" id="btnTop" class="k-primary k-button btn-icon btn-rounded" title="@Helper.GetResourceString("lbl_Top")"><i class="icon-arrow-up15"></i></button>
+					</div>
+					<div class="row" style="height:45px;">
+						<button type="button" id="btnUp" class="k-primary k-button btn-icon btn-rounded" title="@Helper.GetResourceString("lbl_MoveUp")"><i class="icon-arrow-up16"></i></button>
+					</div>
+					<div class="row" style="height:45px;">
+						<button type="button" id="btnDown" class="k-primary k-button btn-icon btn-rounded" title="@Helper.GetResourceString("lbl_MoveDown")"><i class=" icon-arrow-down16"></i></button>
+					</div>
+					<div class="row" style="height:45px;">
+						<button type="button" id="btnBottom" class="k-primary k-button btn-icon btn-rounded" title="@Helper.GetResourceString("lbl_Bottom")"><i class="icon-arrow-down15"></i></button>
+					</div>
+				</div>
+			</div>
+			<div class="text-right marginT20">
+				<button type="submit" id="btnAddRoleTypeHierarchy" onclick="RoleTypeHierarchySubmit()" class="k-primary k-button">@Helper.GetResourceString("btn_Save") <i class="icon-arrow-right14 position-right"></i></button>
+			</div>
+		</div>
+
+	</div>
+</div>
+<div class="content main-section-content row">
+
+
+	<div class="panel panel-flat">
+		<div class="panel-heading">
+			<h6 class="panel-title"><span class="text-semibold">@Helper.GetResourceString("msg_OrganizationHierarchyChart")</span></h6>
+		</div>
+		<div class="panel-body" style="display: block;">
+
+			<div class="row">
+				<div class="col-md-12">
+					<div id="CreateWindow">
+						@{
+//Html.RenderPartial("HierarchyChartPop");
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	var rowNumber = 0;
+	var dataSelectIndex = 0;
+	var rows;
+	$(document).ready(function () {
+		//ProgressLoader(false);
+		 if ('@Model.PostMessage' !== ""){
+			   if ('@Model.PostStatus' === '@true') {
+					ShowSuccessMessage('@Model.PostMessage');
+			   } else {
+					ShowErrorMessage('@Model.PostMessage');
+				}
+		}	
+
+
+		/* move up */
+		$("#btnUp").on("click", function (idx, elem) {
+			var visibleGrid = $("#ViewOrgHierarchy").data("kendoGrid");
+			var selected = rows;
+			if (selected.length > 0) {
+				$.each(selected, function (idx, elem) {
+					var dataItem = visibleGrid.dataItem($(this));
+					var index = visibleGrid.dataSource.indexOf(dataItem);
+					if (index > 0) {
+						var newIndex = index - 1;
+						visibleGrid.dataSource.remove(dataItem);
+						visibleGrid.dataSource.insert(newIndex, dataItem);
+						visibleGrid.select("tr:eq(" + newIndex + ")");
+						rows = visibleGrid.select();
+					}
+				});
+			}
+		});
+
+		/* move down */
+		$("#btnDown").on("click", function (idx, elem) {
+			var visibleGrid = $("#ViewOrgHierarchy").data("kendoGrid");
+			var selected = rows;
+			if (selected.length > 0) {
+
+				$.each(selected, function (idx, elem) {
+					var dataItem = visibleGrid.dataItem($(this));
+					var index = visibleGrid.dataSource.indexOf(dataItem);
+					var maxIndex = visibleGrid.dataSource._data.length - 1;
+
+					if (index < maxIndex) {
+						var newIndex = index + 1;
+
+						visibleGrid.dataSource.remove(dataItem);
+						visibleGrid.dataSource.insert(newIndex, dataItem);
+						visibleGrid.select("tr:eq(" + newIndex + ")");
+						rows = visibleGrid.select();
+					}
+				});
+			}
+
+			return false;
+		});
+
+		/* move to top */
+		$("#btnTop").on("click", function (idx, elem) {
+
+			var visibleGrid = $("#ViewOrgHierarchy").data("kendoGrid");
+			var selected = rows;
+			var firstIndex = -1;
+
+			if (selected.length > 0) {
+				$.each(selected, function (idx, elem) {
+
+					if (firstIndex < 0) {
+						firstIndex = 0;
+					}
+					else {
+						firstIndex++;
+					}
+
+					var dataItem = visibleGrid.dataItem($(this));
+					var index = visibleGrid.dataSource.indexOf(dataItem);
+					var newIndex = firstIndex;
+
+					if (newIndex != index) {
+						visibleGrid.dataSource.remove(dataItem);
+						visibleGrid.dataSource.insert(newIndex, dataItem);
+						visibleGrid.select("tr:eq(" + newIndex + ")");
+						rows = visibleGrid.select();
+					}
+				});
+			}
+			return false;
+		});
+
+
+		/* move to bottom */
+		$("#btnBottom").on("click", function (idx, elem) {
+			var visibleGrid = $("#ViewOrgHierarchy").data("kendoGrid");
+			var selected = rows;
+			var lastIndex = -1;
+
+			if (selected.length > 0) {
+				if (lastIndex < 0) {
+					lastIndex = visibleGrid.dataSource._data.length - 1;
+				}
+				else {
+					lastIndex--;
+				}
+				$.each(selected, function (idx, elem) {
+					var dataItem = visibleGrid.dataItem($(this));
+					var index = visibleGrid.dataSource.indexOf(dataItem);
+					var newIndex = lastIndex;
+
+					if (newIndex != index) {
+						visibleGrid.dataSource.remove(dataItem);
+						visibleGrid.dataSource.insert(newIndex, dataItem);
+						visibleGrid.select("tr:eq(" + newIndex + ")");
+						rows = visibleGrid.select();
+					}
+				});
+			}
+
+			return false;
+		});
+
+	});
+
+	function RoleTypeHierarchySubmit() {
+		//ProgressLoader(true);
+		
+		var gridData = $("#ViewOrgHierarchy").data("kendoGrid").dataSource.data();
+		var form = $('#frmRoleTypeOrganizationHierarchy')
+		var token = $('input[name="__RequestVerificationToken"]', form).val();
+		var blkstr = [];
+		$.each(gridData, function (idx2, val2) {
+			blkstr.push(val2.Id);
+		});
+
+		$.ajax({
+			url: "/Role/OrganizationHierarchy",
+                type: 'POST',
+				data: { __RequestVerificationToken: token, roleTypeDto: blkstr },
+				success: function (result) {
+					//ProgressLoader(false);
+					if (result.PostStatus) {
+						ShowSuccessMessage(result.PostMessage);
+						var orgHierarchyGrid = $("#ViewOrgHierarchy").data("kendoGrid");
+						orgHierarchyGrid.dataSource.read();
+
+						$.ajax({
+							url: "/Role/HierarchyChartPop",
+							type: 'POST',
+							data: { __RequestVerificationToken: token, roleTypeDto: blkstr },
+							success: function (hierarchyChartPop) {
+								//ProgressLoader(false);
+								if (hierarchyChartPop !== null) {
+									$("#CreateWindow").html(hierarchyChartPop);
+								} 
+							}
+						});
+
+					} else {
+						ShowErrorMessage(result.PostMessage);
+						return false;
+					}
+				}
+            });
+	}
+
+	function renderNumber(data) {
+		return ++rowNumber;
+	}
+	//Method to data bound event for owner
+	function OnOrgHierarchyListDataBound(e) {
+		SetEmptyRow(e);
+		rowNumber = 0;
+	}
+
+	//Method to data bound event for owner
+	function OnOrgHierarchyListChange(e) {
+		rows = e.sender.select();
+		this.select("tr:eq(" + rows + ")");
+		dataSelectIndex = rows["0"].rowIndex;
+	}
+
+</script>
+
+

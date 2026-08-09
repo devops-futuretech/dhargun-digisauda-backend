@@ -1,0 +1,84 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO
+
+@{
+    ViewBag.Title = "RoleDiscountList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="pricingRoleDiscount" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_RoleDiscount")</h2>
+    @*<div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            <a href="@Url.Action("RoleDiscountEdit", "Pricing")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateDiscount")</a>
+        </div>
+    </div>*@
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvDealers">
+                <div class="col-md-12">
+                    <div class="text-right">
+                        <button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ViewDepots")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    </div>
+                    @(Html.Kendo().Grid<RoleDiscountDto>()
+                          .Name("GridRoleDiscount")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.Id).Visible(false);
+                              columns.Bound(c => c.RoleName).ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("RoleDiscountEdit", "Pricing", new { roleId = "#=Id#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=RoleName#</a> </div>").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_RoleType")).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.HbcDiscout).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Hbc").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.SpecialityFatDiscount).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Speciality Fat").Width(Settings.GridColumnMaxWidth);
+                              columns.Template(c => c.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Active")).ClientTemplate(@"<div style='text-align: center;'>#if(IsActive){#<i class='icon-checkbox-checked2 faicon-green'></i>#}else{#<i class='icon-cancel-square2 faicon-red'></i>#}#</div>").Width(Settings.GridColumnMaxWidth);
+                          })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))                          
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .Resizable(resize => resize.Columns(true))
+                          .Events(events => events.DataBound("onRoleDiscountDataBound"))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Sort(sort => sort.Add("Id").Ascending())
+                          .Model(model => { model.Id(p => p.Id); })
+                          .ServerOperation(true)
+                          .Read(read => read.Action("GetRoleDiscountListAsync", "Pricing", new { isToReturnInactiveData = true }))))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        // kendo grid filter contains
+        FilterContains();
+
+        if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+
+    });
+
+    //Method to data bound event for owner
+    function onRoleDiscountDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+</script>
+
+

@@ -1,0 +1,322 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model  TradeTicketViewDto
+@{
+    ViewBag.Title = "Reverse Auction Published Price";
+}
+
+<style>
+
+    .k-confirm .k-window-titlebar::before {
+        content: 'Publish Confirmation';
+    }
+
+    .k-confirm .k-window-titlebar .k-dialog-title {
+        visibility: collapse;
+    }
+</style>
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="publishRAPublishedPrice" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Reverse Auction Price Publish</h2>
+    @*<div id="dateFilter" class="col-xs-9">
+            <div class="period-wrapper">
+                <b><i class="icon-plus-circle2"></i></b>
+            </div>
+        </div>*@
+    <div style="clear:both;"></div>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvSecondaryFreights">
+                <div class="row form-group">
+                    <div class="col-md-4 text-right">
+                        Search Date
+                    </div>
+                    <div class="col-md-4">
+                        @(Html.Kendo().DatePicker().Name("SearchDate")
+                                                            .Format(Settings.DateFormat)
+                                                            .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-md-12 text-center">
+                        <button type="button" onclick="getRAGeneratedPrice()" class="k-primary k-button">Search</button>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="row form-group">
+                        <div class="col-md-12">
+                            <div class="text-right">
+                                @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                            </div>
+
+                            @(Html.Kendo().Grid<PricePublishesDto>()
+                                                 .Name("RAFinalPriceGrid")
+                                                 .Columns(columns =>
+                                                 {
+                                                     columns.Bound(c => c.Id).Visible(false);
+                                                     columns.Bound(c => c.SaudaBookingTypeId).Visible(false);
+                                                     columns.Bound(c => c.StatusId).Visible(false);
+                                                     columns.Bound(c => c.StartDate).Format(Settings.GridDateTimeFormat).Title("Start Date Time").Width(170);
+                                                     columns.Bound(c => c.EndDate).Format(Settings.GridDateTimeFormat).Title("End Date Time").Width(170);
+                                                     columns.Bound(c => c.BiddingWindowTiming).Title("Bidding Window Timing").Width(Settings.GridColumnMaxWidth);
+                                                     columns.Bound(c => c.Plant).Title("Plant").Width(Settings.GridColumnMaxWidth);
+                                                     columns.Bound(c => c.OilType).Title("OilType").Width(Settings.GridColumnMaxWidth);
+                                                     columns.Bound(c => c.PublishDate).Format(Settings.GridDateTimeFormat).Title("Publish Date Time").Width(170);
+                                                     columns.Bound(c => c.FinalPriceRecordCount).Title("Completed Record").Width(110);
+                                                     columns.Bound(c => c.Status).Title("Status").Width(Settings.GridOtherColumnWidth);
+                                                     columns.Template(c => c.IsPublish).HeaderTemplate("").Title("Is Publish").ClientTemplate(@"<div style='text-align: center;'>#if(IsPublish){#<i class='icon-checkbox-checked2 faicon-green'></i>#}else{#<i class='icon-cancel-square2 faicon-red'></i>#}#</div>").Width(Settings.GridOtherColumnWidth);
+                                                     columns.Template(c => c.SaudaBookingTypeId).Title("Success Data").ClientTemplate(@"<div style='text-align: center;'><i onclick='downloadSuccessData(#=Id#)' style='cursor: pointer;' class='icon-download4'></i></div>").Width(Settings.GridOtherColumnWidth);
+                                                     columns.Template(c => c.SaudaBookingTypeId).Title("Error Data").ClientTemplate(@"<div style='text-align: center;'><i onclick='downloadErrorData(this)' style='cursor: pointer;' class='icon-download4'></i></div>").Width(Settings.GridOtherColumnWidth);
+                                                     columns.Template(c => c.SaudaBookingTypeId).Title("Publish").ClientTemplate(@"#if(StatusId == 2){#<div style='text-align: center;'>#if(!IsPublish){#<button style='width: 80px;' type='button' onclick='publishRAFinalPrice(#=Id#,#=FinalPriceRecordCount#)' class='k-primary k-button'>Publish</button>#}else{#<div style='cursor: no-drop;'><button type='button' class='k-primary k-button' disabled>Published</button></div>#}#</div>#}#").Width(Settings.GridOtherColumnWidth);
+                                                 })
+                                                 .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                                 .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                                 .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                                 .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                                 .Selectable(selectable => selectable
+                                                 .Mode(GridSelectionMode.Multiple)
+                                                 .Type(GridSelectionType.Row))
+                                                 .Scrollable(s => s.Enabled(true).Height("auto"))
+                                                 .Reorderable(reorder => reorder.Columns(true))
+                                                 .Resizable(resize => resize.Columns(true))
+                                                 .DataSource(dataSource => dataSource
+                                                 .Ajax()
+                                                 .Read(read => read.Action("GetPublishedPriceDetailsAsync", "Pricing").Data("additionalParam"))
+                                                 .Model(model => model.Id(m => m.Id))
+                                                 .ServerOperation(true)))
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header" style="font-size:16px;color:#fff;">
+                    <button type="button" class="close" data-dismiss="modal" style="font-size: 26px;color:#fff;">&times;</button>
+                    <h4 class="modal-title">Bidding Window</h4>
+                </div>
+                <form id="frmBiddingWindow" class="form-validate-jquery">
+                    <div class="modal-body">
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_BiddingWindow") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownList().Name("BiddingWindow")
+                                                  .OptionLabel("Select bidding window")
+                                                  .DataTextField("Name")
+                                                  .DataValueField("Id")
+                                                  .DataSource(source => source.Read(read => read.Action("GetBiddingWindowTimingListByDateddl", "ReverseAuction").Data("additionalInfo"))
+                                                  .ServerFiltering(false))
+                                                  .HtmlAttributes(new { tabindex = "20", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_BiddingWindow"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="row form-group">
+                    <div class="col-md-12 text-center">
+                        <button id="btnSaveBiddingWindow" type="button" class="k-primary k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Save")</button>
+                        <button id="btnDirtyCancel" type="button" onclick="popupClose();" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Cancel")</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" id="" />
+</div>
+
+<script>
+
+    var publishId = 0;
+    var finalPriceRecordCount = 0;
+
+    $(document).ready(function () {
+
+        publishId = 0;
+        finalPriceRecordCount = 0;
+
+        // kendo grid filter contains
+        FilterContains();
+
+        //Set default date
+        setDefaultDate();
+
+        //Bidding window popup save
+        $("#btnSaveBiddingWindow").click(function () {
+            var isValidForm = $("#frmBiddingWindow").valid();
+            if (isValidForm) {
+                var biddingWindowName = $("#BiddingWindow").data("kendoDropDownList").text();
+                var biddingWindowId = $("#BiddingWindow").data("kendoDropDownList").value();
+                var confirmText = "Reverse Auction total final price count : <strong>" + finalPriceRecordCount + ".</strong><br> Are you sure you want to <strong>Publish</strong> this?";
+                kendo.confirm(confirmText).then(function () {
+                    ReverseAuctionFinalPricePublish(biddingWindowId);
+                }, function () {
+                });
+            } else {
+                return false;
+            }
+        });
+
+    });
+
+    //Set default date
+    function setDefaultDate() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+        $("#SearchDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+    }
+
+    //Grid data load param
+    function additionalParam() {
+        return {
+            searchDate: ($("#SearchDate").val() === "" ? new Date().toDateString() : $("#SearchDate").val()),
+            bookingTypeId: '@((Int64)Adani.Solution.DTO.Enums.SaudaBookingTypes.ReverseAuction)'
+        }
+    }
+
+    //Bidding window dropdown load param
+    function additionalInfo() {
+        var dpBiddingDate = $("#SearchDate").val();
+        return {
+            biddingDate: dpBiddingDate
+        };
+    }
+
+    function getRAGeneratedPrice() {
+        $("#RAFinalPriceGrid").data("kendoGrid").dataSource.read();
+    }
+
+
+    //(function () {
+    //    setInterval(function () { getRAGeneratedPrice(); }, 60000);
+    //})();
+
+    //Grid inside publish click event
+    function publishRAFinalPrice(Id, FinalPriceRecordCount) {
+        var confirmText = "Reverse Auction total final price count : <strong>" + FinalPriceRecordCount + ".</strong><br> Are you sure you want to <strong>Publish</strong> this?";
+        kendo.confirm(confirmText).then(function () {
+            ReverseAuctionFinalPricePublish(Id);
+        }, function () {
+        });
+    }
+
+    function ReverseAuctionFinalPricePublish(publishId) {
+
+        var inputParam = {
+            PublishId: publishId,
+            BookingTypeId:'@((Int64)Adani.Solution.DTO.Enums.SaudaBookingTypes.ReverseAuction)',
+            BiddingDate: $("#SearchDate").val()
+        };
+
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("PublishFinalPrice", "Pricing")',
+            data: { inputDto: inputParam },
+            success: function (responce) {
+                if (responce.PostStatus) {
+                    ShowSuccessMessage(responce.PostMessage);
+                    $("#RAFinalPriceGrid").data("kendoGrid").dataSource.read();
+                } else {
+                    ShowErrorMessage("Reverse Auction Final price publish error");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("Reverse Auction Final price publish error");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+    @*function ReverseAuctionFinalPricePublish(biddingWindowId) {
+
+        var inputParam = {
+            PublishId: publishId,
+            BookingTypeId:'@((Int64)Adani.Solution.DTO.Enums.SaudaBookingTypes.ReverseAuction)',
+            BiddingDate: $("#SearchDate").val(),
+            BiddingWindowId: biddingWindowId
+        };
+
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("PublishFinalPrice", "Pricing")',
+            data: { inputDto: inputParam },
+            success: function (responce) {
+                if (responce.PostStatus) {
+                    ShowSuccessMessage(responce.PostMessage);
+                    $("#RAFinalPriceGrid").data("kendoGrid").dataSource.read();
+                } else {
+                    ShowErrorMessage("Reverse Auction Final price publish error");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("Reverse Auction Final price publish error");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }*@
+
+    function downloadSuccessData(Id) {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetPublishedFinalPriceList", "Pricing")',
+            data: { publishId: Id },
+            success: function (responce) {
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Pricing")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+    function downloadErrorData(e) {
+
+        var grid = $("#RAFinalPriceGrid").data("kendoGrid");
+        var selectedRow = grid.dataItem($(e).closest("tr"));
+
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetPriceGenerateErrorList", "Pricing")',
+            data: { inputDto: JSON.parse(JSON.stringify(selectedRow)) },
+            success: function (responce) {
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Pricing")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+</script>
+

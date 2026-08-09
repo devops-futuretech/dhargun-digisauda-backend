@@ -1,0 +1,319 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model LiftingRequestWebDto
+@{
+    ViewBag.Title = "LiftingDetails";
+}
+@{
+    string btnDisable = string.Empty;
+    btnDisable = Model.StatusId == (int)Adani.Solution.DTO.Enums.Status.Pending ? "" : "disabled";
+}
+
+<style>
+    button:disabled {
+        cursor: not-allowed !important;
+        pointer-events: all !important;
+    }
+</style>
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="transactionLiftingList" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Sales Order Details</h2>
+    <div style="clear:both;"></div>
+</div>
+@using (Html.BeginForm("LiftingDetails", "ReverseAuction", FormMethod.Post, new { id = "frmLiftingRequest", @class = "form-validate-jquery" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="content main-section-content row">
+        <div class="panel panel-flat">
+            <div class="panel-heading">
+            </div>
+            <div class="panel-body" style="display: block;">
+                <div class="row" id="dvSecondaryFreights">
+                    <div class="col-md-12">
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                <label class="control-label">@Helper.GetResourceString("lbl_Dealer")</label>
+                                @Html.HiddenFor(m => m.LiftingId, new { id = "hdnId" })
+                            </div>
+                            <div class="col-md-3">
+                                <label class="control-label">@Model.Dealer</label>
+                            </div>
+
+                            <div class="col-md-2 text-right clsBold">
+                                <label class="control-label">@Helper.GetResourceString("lbl_Date")</label>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="control-label">@Model.LiftingDate.ToString("dd-MMM-yyyy")</label>
+                            </div>
+
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                <label class="control-label">@Helper.GetResourceString("lbl_PlantCode")</label>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="control-label">@Model.PlantCode</label>
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                <label class="control-label">@Helper.GetResourceString("lbl_PlantName")</label>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="control-label">@Model.PlantName</label>
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                <label class="control-label">@Helper.GetResourceString("lbl_IndentRequestNumber")</label>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="control-label">@Model.LiftingNumber</label>
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                <label class="control-label">@Helper.GetResourceString("lbl_CreatedBy")</label>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="control-label">@Model.CreatedUser</label>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                <label class="control-label">@Helper.GetResourceString("lbl_DeliveryOrderNumber")</label>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="control-label">@Model.DeliveryOrderNumber</label>
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                <label class="control-label">@Helper.GetResourceString("lbl_EnquiryNumber")</label>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="control-label">@Model.EnquiryNumber</label>
+                            </div>
+                        </div>
+                        @if (Model.ShipToParty != null)
+                        {
+                            <div class="row form-group">
+                                <div class="col-md-2 text-right clsBold">
+                                    <label class="control-label">@Helper.GetResourceString("lbl_ShipToParty")</label>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="control-label">@Model.ShipToParty</label>
+                                </div>
+
+                            </div>
+                        }
+
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                @(Html.Kendo().Grid<LiftingRequestDetailsOutputDto>()
+                                      .Name("ViewLiftingRequestDetail")
+                                      .Columns(columns =>
+                                      {
+                                          columns.Bound(c => c.Id).Visible(false);
+                                          columns.Bound(c => c.SkuName).HtmlAttributes(new { @title = "#=SkuName#" }).Title(@Helper.GetResourceString("lbl_SkuName")).Width(Settings.GridColumnMaxWidth);
+                                          columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Width(Settings.GridColumnMaxWidth);
+                                          columns.Bound(c => c.OilType).HtmlAttributes(new { @title = "#=OilType#" }).Title(@Helper.GetResourceString("lbl_OilType")).Width(Settings.GridOtherColumnWidth);
+                                          columns.Bound(c => c.LiftingQuantityCase).Title(@Helper.GetResourceString("lbl_TotalQuantity")).Width(Settings.GridOtherColumnWidth);
+                                          columns.Bound(c => c.LiftingQuantity).Title(@Helper.GetResourceString("lbl_TotalQuantityInMT")).Width(Settings.GridOtherColumnWidth);
+                                      })
+                                      .BindTo(Model.LiftingRequestDetailList)
+                                      .EnableCustomBinding(true)
+                                      .Editable(editable => editable.Mode(GridEditMode.InCell))
+                                      .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                      .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                      .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                      .Scrollable(s => s.Enabled(true).Height("auto"))
+                                      .Reorderable(reorder => reorder.Columns(true))
+                                      .Resizable(resize => resize.Columns(true))
+                                      //.ClientDetailTemplateId("SaudaOrderLiftingRequest")
+                                      .DataSource(dataSource => dataSource
+                                          .Ajax()
+                                          .Model(model =>
+                                          {
+                                              model.Id(m => m.Id);
+                                              model.Field(p => p.SkuName).Editable(false);
+                                              model.Field(p => p.OilType).Editable(false);
+                                              model.Field(p => p.LiftingQuantity).Editable(false);
+                                          })
+                                      ))
+                            </div>
+                        </div>
+
+                        @if (Model.IsInvoiceExist)
+                        {
+                            <div class="row form-group">
+                                <div class="col-md-2 text-left clsBold">
+                                    <label class="control-label">Invoice Details</label>
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-12">
+                                    @(Html.Kendo().Grid<InvoiceLiftingRequestDto>()
+                                      .Name("ViewInvoiceDetail")
+                                      .Columns(columns =>
+                                      {
+                                          columns.Bound(c => c.Id).Visible(false);
+                                          columns.Bound(c => c.InvoiceNumber).Title("Invoice Number").Width(Settings.GridColumnMaxWidth);
+                                          columns.Bound(c => c.InvoiceDate).Format(Settings.GridDateFormat).Title("Invoice Date").Width(Settings.GridColumnMaxWidth);
+                                          columns.Bound(c => c.TotalAmount).Title("Total Amount").Width(Settings.GridOtherColumnWidth);
+                                          //columns.Bound(c => c.LiftingQuantity).Title(@Helper.GetResourceString("lbl_TotalQuantity")).Width(Settings.GridOtherColumnWidth);
+                                          //columns.Bound(c => c.LiftingQuantityCase).Title(@Helper.GetResourceString("lbl_TotalQuantityInMT")).Width(Settings.GridOtherColumnWidth);
+                                      })
+                                      .BindTo(Model.InvoiceList)
+                                      .EnableCustomBinding(true)
+                                      .Editable(editable => editable.Mode(GridEditMode.InCell))
+                                      .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                      .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                      .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                      .Scrollable(s => s.Enabled(true).Height("auto"))
+                                      .Reorderable(reorder => reorder.Columns(true))
+                                      .Resizable(resize => resize.Columns(true))
+                                      .ClientDetailTemplateId("SkuDetailsLiftingRequest")
+                                      .DataSource(dataSource => dataSource
+                                          .Ajax()
+                                          .Model(model =>
+                                          {
+                                              model.Id(m => m.Id);
+                                              model.Field(p => p.InvoiceNumber).Editable(false);
+                                              model.Field(p => p.InvoiceDate).Editable(false);
+                                              model.Field(p => p.TotalAmount).Editable(false);
+                                          })
+                                      ))
+                                </div>
+                            </div>
+
+                            <script id="SkuDetailsLiftingRequest" type="text/kendo-tmpl">
+            @(Html.Kendo().Grid<LiftingRequestDetailsOutputDto>()
+                                     .Name("grid_#=Id#")
+                                     .Columns(columns =>
+                                     {
+                                         columns.Bound(c => c.Id).Visible(false);
+                                         columns.Bound(c => c.SkuName).HtmlAttributes(new { @title = "\\#= SkuName \\#" }).Title(@Helper.GetResourceString("lbl_SkuName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                         columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                         columns.Bound(c => c.LiftingQuantity).Title(@Helper.GetResourceString("lbl_TotalQuantity")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                         columns.Bound(c => c.LiftingQuantityCase).Title(@Helper.GetResourceString("lbl_TotalQuantityInMT")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                         //columns.Bound(c => c.StatusName).Title(@Helper.GetResourceString("lbl_Status")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                     })
+                                     .Selectable(selectable => selectable
+                                     .Type(GridSelectionType.Row))
+                                     .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                     .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                     .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                     .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                     .Scrollable(s => s.Enabled(true).Height("auto"))
+                                     .Reorderable(reorder => reorder.Columns(true))
+                                     .Resizable(resize => resize.Columns(true))
+                                     .DataSource(dataSource => dataSource
+                                     .Ajax()
+                                     .PageSize(Settings.DefaultPageSize)
+                                     .Read(read => read.Action("GetSaudaOrderLiftingRequestDetails", "ReverseAuction", new { liftingRequestDetailId = "#=Id#" }))
+                                     ).ToClientTemplate())
+                            </script>
+                        }
+                        @*<div class="row form-group">
+                            <label class="control-label col-lg-1">@Helper.GetResourceString("lbl_Remarks")</label>
+                            <div class="col-lg-11">
+                                @Html.TextAreaFor(m => m.Remarks, new { id = "txtRemarks", @class = "k-textarea", @maxlength = (int)InputMaxLength.TextAreaString })
+                            </div>
+                        </div>*@
+                        @*<div class="row form-group">
+                            <div class="text-center">
+                                <button type="button" @btnDisable id="btnApproved" class="k-primary k-button">@Helper.GetResourceString("btn_Approved")</button>
+                                <button type="button" @btnDisable id="btnRejected" class="k-primary k-button">@Helper.GetResourceString("btn_Rejected")</button>
+                            </div>
+                        </div>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+<script>
+    $(document).ready(function () {
+
+        FilterContains();
+
+        if ('@Model.StatusId' == emamiGlobal.Status.Pending) {
+            $("#txtRemarks").prop('readonly', false);
+        } else {
+            $("#txtRemarks").prop('readonly', true);
+        }
+
+        $("#btnApproved").click(function (e) {
+            
+            var form = $('#frmLiftingRequest')
+            var token = $('input[name="__RequestVerificationToken"]', form).val();
+            var selectedOrders = [];
+
+            selectedOrders.push($("#hdnId").val());
+            var model = {
+                LiftingIds: selectedOrders,
+                StatusId: emamiGlobal.Status.Approved,
+                Remarks: $("#txtRemarks").val()
+            };
+
+            window.kendo.ui.progress($("#div_Progress"), true);
+            moduleCommon.Common.AjaxCall({
+                url: "/ReverseAuction/LiftingRequestStatusChanges",
+					type: 'POST',
+                data: { __RequestVerificationToken: token, liftingRequestStatusChange: model },
+					success: function (result) {
+						if (result.PostStatus) {
+							 ShowSuccessMessage(result.PostMessage);
+                            setTimeout(function () { window.location.href = '@Url.Action("LiftingList", "ReverseAuction")'; }, 1300);		
+						} else {
+							ShowErrorMessage(result.PostMessage);
+                        }
+                        window.kendo.ui.progress($("#div_Progress"), false);
+					}
+				});
+        });
+
+        $("#btnRejected").click(function (e) {
+
+            var form = $('#frmLiftingRequest')
+            var token = $('input[name="__RequestVerificationToken"]', form).val();
+            var selectedOrders = [];
+
+            if (!$("#txtRemarks").val()) {
+                ShowErrorMessage("Please enter the reason");
+                return false;
+            }
+
+            selectedOrders.push($("#hdnId").val());
+            var model = {
+                LiftingIds: selectedOrders,
+                StatusId: emamiGlobal.Status.Rejected,
+                Remarks: $("#txtRemarks").val()
+            };
+
+            window.kendo.ui.progress($("#div_Progress"), true);
+            moduleCommon.Common.AjaxCall({
+                    url: "/ReverseAuction/LiftingRequestStatusChanges",
+				    type: 'POST',
+                    data: { __RequestVerificationToken: token, liftingRequestStatusChange: model },
+					success: function (result) {
+                        if (result.PostStatus) {
+                            ShowSuccessMessage(result.PostMessage);
+                            setTimeout(function () { window.location.href = '@Url.Action("LiftingList", "ReverseAuction")'; }, 1300);							
+						} else {
+							ShowErrorMessage(result.PostMessage);							
+                        }
+                        window.kendo.ui.progress($("#div_Progress"), false);
+					}
+				});
+        });
+    });
+    function onFinalPricingtDataBound(e) {
+        FilterContains();
+        SetEmptyRow(e);
+    }
+</script>

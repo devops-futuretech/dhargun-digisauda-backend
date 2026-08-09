@@ -1,0 +1,306 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+
+@{
+    ViewBag.Title = "UserBasedSchemeDiscountList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="ra2SchemeDiscountUserBased" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_UserBasedSchemeDiscount")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#"> Scheme Discount</a><span class="icon-right"></span></li>
+        <li class="active"> @Helper.GetResourceString("lbl_UserBasedSchemeDiscount") <span class="icon-right"></span></li>
+    </ol>
+    @*<div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            @if (Helper.CheckClaims(Claims.ManageRADiscounts))
+            {
+                <a href="@Url.Action("UserBasedSchemeDiscountEditRedirect", "RAVersionTwo")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateUserBasedSchemeDiscount")</a>
+            }
+        </div>
+    </div>*@
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row">
+                <div class="row form-group">
+                    <div class="col-lg-3 col-sm-6 mb-3 ">
+                        <label class="custom_label">  @Helper.GetResourceString("lbl_FromDate") </label>
+                        @(Html.Kendo().DatePicker()
+                              .Name("StartDate")
+                              .Format(Settings.DateFormat)
+                              .Events(e => e.Change("fromDateChange"))
+                              .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                    </div>
+                    <div class="col-lg-3 col-sm-6 mb-3 ">
+                        <label class="custom_label"> @Helper.GetResourceString("lbl_ToDate") </label>
+                        @(Html.Kendo().DatePicker()
+                              .Name("EndDate")
+                              .Format(Settings.DateFormat)
+                              .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "2", style = "width: 100%" }))
+                    </div>
+                </div>
+            </div>
+            <div class="row" id="dvDealers">
+                <div class="text-right right-buttons">
+                    <div class="export_as">
+                        <span>Export as</span>
+                        <div class="export-btns">
+                            <span class="export-link" id="UserBasedSchemeDiscountExport" type="button">Excel</span>
+                        </div>
+                    </div>
+                    @*<button class="k-button k-button-icontext k-grid-excel" id="UserBasedSchemeDiscountExport" type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>*@
+                    @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    <div class="period-wrapper">
+                        @if (Helper.CheckClaims(Claims.ManageDiscounts))
+                        {
+                            <a href="@Url.Action("UserBasedSchemeDiscountEditRedirect", "RAVersionTwo")" class="k-primary k-button custom-btns"><b><i class="icon-plus"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateUserBasedSchemeDiscount")</a>
+                        }
+                    </div>
+                </div>
+                @(Html.Kendo().Grid<Adani.Solution.DTO.SchemeDiscountUserDto>()
+                      .Name("ViewUserBasedSchemeDiscount")
+                      .Columns(columns =>
+                      {
+                          columns.Bound(c => c.Id).Visible(false);
+                          columns.Bound(c => c.IsActive).Visible(false);
+                          columns.Bound(c => c.Name).Title(@Helper.GetResourceString("lbl_SchemeName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                          columns.Bound(c => c.Vertical).Title(@Helper.GetResourceString("lbl_Vertical")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                          //columns.Bound(c => c.Id).Title("Edit").HeaderTemplate("").Title("Action").ClientTemplate(@"<div style='text-align: center;'> #if(IsDateGreaterThanToday(ValidTo) && IsEdit) { #" + " <a title='" + @Helper.GetResourceString("msg_Edit") + "' class='icon-pencil cursor-pointer' href='" + Url.Action("UserBasedSchemeDiscountEditRedirect", "RAVersionTwo", new { schemeDiscountId = "#=Id#" }) + "' disabled='" + "disabled" + "' ></a>  #}else{#  #}# </div>").Width(Settings.GridOtherColumnWidth);
+                          columns.Bound(c => c.Discount).Title(@Helper.GetResourceString("lbl_Discount")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                          columns.Bound(c => c.ValidFrom).Format(Settings.GridDateFormat).Title(@Helper.GetResourceString("lbl_ValidFrom")).Width(Settings.GridColumnMaxWidth250);
+                          columns.Bound(c => c.ValidTo).Format(Settings.GridDateFormat).Title(@Helper.GetResourceString("lbl_ValidTo")).Width(Settings.GridColumnMaxWidth250);
+                          columns.Template(c => c.IsActive).Title(@Helper.GetResourceString("lbl_Action"))
+                          //.ClientTemplate(@"<div style='text-align: center;'>
+                          //#if(IsEdit == false ){#<div style='cursor: no-drop;'><button type='button' class='k-primary k-button' disabled>InActive</button></div>#}
+                          //else {#<button style='width: 80px;' type='button' onclick='schemeDiscountUserBasedListIsActive(#=Id#)' class='k-primary k-button'>Edit</button>#}
+                          //#</div>").Width(Settings.GridOtherColumnWidth);
+                          .ClientTemplate(@"<div style='text-align: center;'><button style='width: 80px;' type='button' onclick='schemeDiscountUserBasedListIsActive(#=Id#)' class='k-primary k-button'>Edit</button></div>").Width(Settings.GridOtherColumnWidth);
+                      })
+                      .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                      .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                      .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                      .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                      .Scrollable(s => s.Enabled(true).Height("auto"))
+                      .Reorderable(reorder => reorder.Columns(true))
+                      .Resizable(resize => resize.Columns(true))
+                      .ClientDetailTemplateId("template")
+                      .Events(events => events.DataBound("dataBound"))
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      .Sort(sort => sort.Add("Id").Descending())
+                      .Model(model => { model.Id(p => p.Id); })
+                      .ServerOperation(true)
+                      .Read(read => read.Action("GetUserBasedSchemeDiscountListAsync", "RAVersionTwo"))))
+
+                <script id="template" type="text/kendo-tmpl">
+                    @(Html.Kendo().Grid<SchemeDiscountUserMappingDto>()
+                          .Name("grid_#=Id#")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.SchemeDiscountUserMappingId).Visible(false);
+                              columns.Bound(c => c.SkuId).Visible(false);
+                              columns.Bound(c => c.UserId).Visible(false);
+                              columns.Bound(c => c.UserCode).Title(@Helper.GetResourceString("lbl_UserCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.UserName).Title(@Helper.GetResourceString("lbl_UsersName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.CustomerGroup).Title(@Helper.GetResourceString("lbl_CustomerGroup")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.SkuName).Title(@Helper.GetResourceString("lbl_SkuName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.OilTypeName).Title(@Helper.GetResourceString("lbl_OilType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.PackGroup).Title(@Helper.GetResourceString("lbl_PackGroup")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("msg_Status")).ClientTemplate(@"\\#=checkIsActive(IsActive)\\#").Width(Settings.GridColumnMaxWidth);
+                          })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Selectable(selectable => selectable
+                          .Type(GridSelectionType.Row))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .Resizable(resize => resize.Columns(true))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          //.PageSize(Settings.DefaultPageSize)
+                          .Read(read => read.Action("GetSchemeDiscountUserHierarchyListById", "RAVersionTwo", new { schemeDiscountId = "#=Id#" }))
+                          ).ToClientTemplate())
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="EditPartial" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h6 class="panel-title"><span class="text-semibold">Scheme Details</span></h6>
+            </div>
+            <div class="modal-body">
+                <div id="viewVolumes"></div>
+                @Html.Partial("DiscountEditPartial")
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-12 text-center">
+                    <button type="button" tabindex="8" id="btnCancel" data-dismiss="modal" class="k-button">@Helper.GetResourceString("btn_Cancel")</button>
+                    @if (Helper.CheckClaims(Claims.ManageDiscounts))
+                    {
+                        <button type="button" tabindex="9" id="btnSave" class="k-primary k-button"> @Helper.GetResourceString("btn_Save")<i class="icon-arrow-right14 position-right"></i></button>
+                    }
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();
+
+        if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+
+        $("#UserBasedSchemeDiscountExport").click(function () {
+            window.kendo.ui.progress($("#div_Progress"), true);  
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("ExportSchemeDiscountUser", "RAVersionTwo")',
+                data: {
+                    fromDate: $("#StartDate").val(),
+                    toDate: $("#EndDate").val(),
+                },
+                success: function (responce) {                    
+                    if (responce.FileGuid) {
+                        window.location.href = '@Url.Action("ExcelDownload", "Base")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                    } else {
+                        ShowErrorMessage("No records found");
+                    }
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                },
+                error: function (responce) {
+                    ShowErrorMessage("File download failed");
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                }
+            });
+        });
+
+        $("#btnSave").click(function () {            
+            var model = {
+                Id: $("#hdnId").val(),
+                ValidTo: $("#dpToDate").data("kendoDatePicker").value().toDateString(),
+                ValidFrom: $("#dpFromDate").data("kendoDatePicker").value().toDateString(),
+                IsActive: document.getElementById("cbActiveInactive").checked,
+                DiscountType: '@Convert.ToInt32(RADiscountTypes.SchemeDiscountUser)'
+            };
+            window.kendo.ui.progress($("#div_Progress"), true);
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("UpdateDiscountAndBenefitByIsActive", "RAVersionTwo")',
+                data: { inputDto : model},
+                success: function (result) {
+                   if (result && result.PostStatus) {
+                            ShowSuccessMessage('@Helper.GetResourceString("msg_SchemeDiscountUpdateSuccess")')
+                       $("#ViewUserBasedSchemeDiscount").data("kendoGrid").dataSource.read();
+                   } else {
+                       ShowErrorMessage('An error occurred while update the scheme discount details')
+                   }
+                },
+                error: function () {
+                    ShowErrorMessage('An error occurred while update the scheme discount details')
+                },
+                complete: function () {  
+                    $("#EditPartial").modal("hide");
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                }
+            });            
+        });
+
+        StartDateRange();
+    });
+
+    function dataBound(e) {
+        SetEmptyRow(e);
+        //this.expandRow(this.tbody.find("tr.k-master-row").first());   //expand first row
+    }
+
+    function fromDateChange() {
+        var endPicker = $("#EndDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            $("#EndDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+            endPicker.min(startDate);
+        }
+    }
+
+    function StartDateRange() {
+        var startDate = new Date();
+        startDate.setDate(startDate.getDate());
+
+        $("#StartDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+        //var startPicker = $("#StartDate").data("kendoDatePicker");
+        //startPicker.min(startDate);
+
+        var endPicker = $("#EndDate").data("kendoDatePicker");
+        $("#EndDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+        //endPicker.min(startDate);
+    }
+
+
+    function schemeDiscountUserBasedListIsActive(Id)
+    {
+        var grid = $("#ViewUserBasedSchemeDiscount").data("kendoGrid")
+        var dataItem = $("#ViewUserBasedSchemeDiscount").data("kendoGrid").dataSource.get(Id);
+        var row = $("#ViewUserBasedSchemeDiscount").data("kendoGrid").tbody.find("tr[data-uid='" + dataItem.uid + "']")
+        var gridItem = grid.dataItem(row);
+
+        $("#hdnId").val(Id);
+        $("#dpFromDate").kendoDatePicker({
+            value: kendo.parseDate(gridItem.ValidFrom),
+            format: emamiGlobal.constant.DateFormat,
+            min: kendo.parseDate(gridItem.ValidFrom)
+        });
+        $("#dpToDate").kendoDatePicker({
+            value: kendo.parseDate(gridItem.ValidTo),
+            format: emamiGlobal.constant.DateFormat,
+            min: kendo.parseDate(gridItem.ValidFrom)
+        });
+        
+        $("#EditPartial").modal("show");
+        document.getElementById("cbActiveInactive").checked = gridItem.IsActive;        
+    }
+
+    function defaultDateChange() {
+        var DatePicker = $("#dpToDate").kendoDatePicker().data("kendoDatePicker");
+        var today = new Date();
+        var day = today.getDate();
+        var month = today.getMonth();
+        var year = today.getFullYear();
+        DatePicker.min(new Date(year, month, day));
+    }
+</script>
+
+
+
+
+
+
+
+
+

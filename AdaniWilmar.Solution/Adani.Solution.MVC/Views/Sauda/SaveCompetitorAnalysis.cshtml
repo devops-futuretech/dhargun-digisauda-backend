@@ -1,0 +1,189 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@model Adani.Solution.DTO.CompetitorAnalysisDto
+@{
+    ViewBag.Title = "CompetitorAnalysis";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="transactionCompetitorAnalysis" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_AddOrUpdateCompetitorAnalysis")</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="dvAddCompetitorAnalysis">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("AddOrUpdateCompetitorAnalysis", "Sauda", FormMethod.Post, new { id = "frmCompetitorAnalysis", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.Id)
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Vertical") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownListFor(m => m.VerticalId)
+                                     .OptionLabel(@Helper.GetResourceString("plho_SelectVertical"))
+                                     .DataTextField("Name")
+                                     .DataValueField("Id")
+                                     .Events(e => e.Change("onVerticalTypeChange").DataBound("verticleDataBound"))
+                                     .DataSource(source => source.Read(resd => resd.Action("GetVerticalDetailsdd", "Lookup"))
+                                     .ServerFiltering(false))
+                                     .HtmlAttributes(new { id = "ddlVertical", @class = "", tabindex = "9", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Vertical"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_OilType") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownListFor(m => m.OilTypeId)
+                                     .OptionLabel(@Helper.GetResourceString("plho_SelectOilType"))
+                                     .DataTextField("Name")
+                                     .DataValueField("Id")
+                                     .Events(e => e.Change("onOilTypeChange").DataBound("onOilTypeDataBound"))
+                                     .DataSource(source => source.Read(read => read.Action("GetOilTypesBasedOnVerticalId", "Lookup", new { isToReturnInactiveData = false }).Data("oilTypeAdditionalInfo"))
+                                     .ServerFiltering(true))
+                                     .HtmlAttributes(new { id = "ddlOilType", @class = "", tabindex = "8", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilType"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Sku") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownListFor(m => m.SkuId)
+                                    .DataTextField("Name")
+                                    .DataValueField("Id")
+                                    .OptionLabel(@Helper.GetResourceString("plho_SelectSku"))
+                                    .DataSource(source => source.Read(read => read.Action("GetSkusBasedOnOilTypeId", "Lookup").Data("skuAdditionalInfo")).ServerFiltering(true))
+                                    .HtmlAttributes(new { id = "ddlSku", @class = "", tabindex = "8", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Sku"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Competitor") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownListFor(m => m.CompetitorId)
+                                    .OptionLabel("Select Competitor")
+                                     .DataTextField("Name")
+                                     .DataValueField("Id")
+                                     .DataSource(source => source.Read(read => read.Action("GetCompetitorListddlAsync", "Sauda", new { isToReturnInactiveData = false }))
+                                     .ServerFiltering(true))
+                                     .HtmlAttributes(new { id = "ddlCompetitor", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Competitor"), tabindex = "8", @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                Emami Price (Rs.) <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(m => m.EmamiPrice, new { id = "txtCostOrMT", tabindex = "3", @class = "form-control", @onkeypress = "return isNumber(event);", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_CostOrMT"), @maxlength = (int)InputMaxLength.Price })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+                                @*@if (Helper.CheckClaims(Claims.ManageCompetitor))
+                                {*@
+                                    <button type="button" id="btnSave" class="k-primary k-button">save Competitor Analysis</button>
+                                @*}*@
+                            </div>
+                        </div>
+                    }
+                    <!---end of form input-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        $('input[type="text"]').keypress(function (e) {
+            var code = e.keyCode || e.which;
+            if (code === 13) {
+                e.preventDefault();
+            }
+        });
+
+        $('#btnSave').on('click', function (e) {
+            var isValid = $('#frmCompetitorAnalysis').valid();
+            if (isValid) {
+                window.kendo.ui.progress($("#dvCompetitorAnalysis"), true);
+                $('#frmCompetitorAnalysis').submit();
+                window.kendo.ui.progress($("#dvCompetitorAnalysis"), false);
+            }
+        });
+        
+    });
+
+     //Oiltype Change Events
+    function onOilTypeChange() {
+        $("#ddlSku").data("kendoDropDownList").dataSource.read();
+    }
+
+    function skuAdditionalInfo() {
+        var oilTypeId = $('#ddlOilType').data("kendoDropDownList").value();
+        return {
+            oilTypeId: Number(oilTypeId),
+            isToReturnInactiveData: false
+        };
+    }
+
+
+    function onOilTypeDataBound() {
+        if ('@Model.Id' > 0) {
+            $("#ddlSku").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    function onVerticalTypeChange() {
+        $("#ddlOilType").data("kendoDropDownList").dataSource.read();
+    }
+
+    //Verticle data onBound events
+    function verticleDataBound() {
+        if ('@Model.Id' > 0) {
+            $("#ddlOilType").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    function oilTypeAdditionalInfo() {
+        var verticalId = $("#ddlVertical").data("kendoDropDownList").value();
+        return {
+            verticalId: Number(verticalId)
+        };
+    }
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+

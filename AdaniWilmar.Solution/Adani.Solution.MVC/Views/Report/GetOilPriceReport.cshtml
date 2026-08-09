@@ -1,0 +1,173 @@
+﻿
+@{
+    ViewBag.Title = "GetUserAttendence";
+    Layout = "";
+}
+
+
+<style>
+    .tbl-container {
+        /*overflow-x: scroll;*/
+        margin: 0px;
+        /*margin-left: 210px;*/
+    }
+
+    /*.headcol {
+        position: absolute;
+        width: 225px;
+        left: 0;
+        text-align: left;
+        text-indent: 8px;
+        padding: 15px;
+        text-align: center;
+    }*/
+    .headcol {
+        text-align:center;
+    }
+   
+    th{
+        font-weight:bold;
+
+    }
+    #OilTypeReport > thead > tr > th, #OilTypeReport > tbody > tr > td {
+        border: 1px solid #ccc !important;
+        width: 15px;
+        height: 45px;
+    }
+</style>
+<style>
+    .rotate {
+        /* Something you can count on */
+        /*height: 110px;*/
+        /*width: 40px;
+        white-space: nowrap;*/
+        /*transform: rotate(315deg);*/
+    }
+
+    th.rotate > div {
+        /* transform: rotate(270deg); */
+        width: 135px;
+        position: relative;
+      
+        text-align: center;
+    }
+
+        th.rotate > div > span {
+            border-bottom: 1px solid #ccc;
+            padding: 5px 10px;
+        }
+
+    .aligncenter {
+        text-align: center;
+        font-size: 10px;
+        /*border: 1px solid #ccc;*/
+    }
+</style>
+
+
+
+@{ var index = 0; }
+
+@{ if (Model != null)
+    { <div class="panel panel-flat">
+            <div class="panel-heading">
+                @*<h6 class="panel-title"><span class="text-semibold">@Helper.GetResourceString("msg_UnitOfSale")</span></h6>*@
+            </div>
+            <div class="panel-body" style="display: block;">
+                @if (Model.Columns.Count > 0)
+                {
+                    <div class="box box-primary">
+                        <div class="box-header container"><h3></h3></div>
+
+                        <div class="box-body container" style="position: relative;margin: 0 auto;">
+                            <div class="colors-def">
+                            </div>
+                            <div style="margin-top:10px;"></div>
+                            <div style="margin-bottom: 10px;direction: ltr;"> <input type="button" class="k-primary k-button" onclick="tableToExcel('OilTypeReport', 'OilTypeReport','OilTypeReport.xls')" value="Export to Excel" /></div>
+                            <div class="tbl-container">
+
+                                <table border="1" id="OilTypeReport">
+                                    <thead>
+                                        <tr>
+                                            @foreach (System.Data.DataColumn col in Model.Columns)
+                                            {
+                                                if (index == 0)
+                                                {
+                                                    <th class="tbl-border headcol" style="text-align:center;min-width: 150px;"><div>Sku Name</div></th>
+                                                    index = 1;
+                                                }
+                                                else
+                                                {
+
+                                                    <th class="rotate"><div> @col.Caption) </div></th>
+
+                                                }
+                                            }
+                                        </tr>
+                                    </thead>
+                                    <tbody class="tbl-border">
+
+                                        @foreach (System.Data.DataRow row in Model.Rows)
+                                        {
+                                            index = 0;
+                                            <tr>
+                                                @foreach (var cell in row.ItemArray)
+                                                {
+                                                    if (index == 0)
+                                                    {
+                                                <td class="tbl-border headcol">@cell.ToString()</td>
+                                                        index = 1;
+                                                    }
+                                                    else
+                                                    {
+                                                        <td class="aligncenter">
+                                                            @cell.ToString()
+                                                        </td>
+                                                    }
+                                                }
+
+                                            </tr>
+                                            index = 1;
+                                        }
+                                    </tbody>
+                                </table>
+
+
+                            </div>
+                            <div style="margin-top:50px;"></div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div style="font-size: 25px;text-align: center;"><h7>No Data Available</h7></div>
+                }
+            </div>
+        </div>
+    }
+
+
+}
+
+<script type="text/javascript">
+    var tableToExcel = (function () {
+        var uri = 'data:application/vnd.ms-excel;base64,'
+            , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
+            , base64 = function (s) { return window.btoa(unescape(encodeURIComponent(s))) }
+            , format = function (s, c) { return s.replace(/{(\w+)}/g, function (m, p) { return c[p]; }) }
+        return function (table, name, fileName) {
+            if (!table.nodeType) table = document.getElementById(table)
+            var ctx = { worksheet: name || 'Worksheet', table: table.innerHTML }
+
+            var link = document.createElement("A");
+            link.href = uri + base64(format(template, ctx));
+            link.download = fileName || 'Workbook.xls';
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    })();
+
+
+</script>

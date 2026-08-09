@@ -1,0 +1,442 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.MVC.Common;
+@model Adani.Solution.DTO.ConversionFormulaDto
+
+@{
+    ViewBag.Title = "ConversionFormula";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .k-grid {
+        width: 60%;
+    }
+
+    .text-box single-line {
+        width: 90% !important;
+    }
+</style>
+
+<input type="hidden" class="currentMenu" value="RA2ConversionFormulaList" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_AddUpdateConversionFormula")</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="divLoader">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("AddorUpdateConversionFormula", "ReverseAuction", FormMethod.Post, new { id = "frmConversionFromula", @class = "form-validate-jquery" }))
+                    {
+                        @*@Html.AntiForgeryToken()*@
+
+                        @Html.HiddenFor(m => m.Id, new { id = "hdnId" })
+
+                        @Html.HiddenFor(m => m.Id)
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Vertical") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownListFor(m => m.VerticalId)
+                                            .OptionLabel(@Helper.GetResourceString("plho_SelectVertical"))
+                                            .DataTextField("Name")
+                                            .DataValueField("Id")
+                                            .Events(e => e.Change("onVerticalTypeChange").DataBound("onVerticleDataBound"))
+                                            .DataSource(source => source.Read(resd => resd.Action("GetVerticalDetailsdd", "Lookup"))
+                                            .ServerFiltering(false))
+                                            .HtmlAttributes(new { id = "ddlVertical", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Vertical"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_OilType")
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownListFor(m => m.OilTypeId)
+                                           .DataTextField("Name")
+                                           .DataValueField("Id")
+                                           .OptionLabel(@Helper.GetResourceString("plho_SelectOilType"))
+                                           .Events(e => e.Change("onOilTypeChange").DataBound("onOilTypeDataBound"))
+                                           .DataSource(source => source.Read(read => read.Action("GetOilTypesBasedOnVerticalId", "Lookup", new { isToReturnInactiveData = false }).Data("oilTypeAdditionalInfo"))
+                                           .ServerFiltering(true))
+                                           .HtmlAttributes(new { id = "ddlOilType", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilType"), tabindex = "2", @style = "width:100%" }))
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_PackGroup") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownListFor(m => m.PackGroupId)
+                                           .OptionLabel(@Helper.GetResourceString("plho_SelectOilPackingType"))
+                                           .DataTextField("Name")
+                                           .DataValueField("Id")
+                                           .Events(e => e.Change("onPackGroupChange").DataBound("onPackGroupDataBound"))
+                                           .DataSource(source => source.Read(read => read.Action("GetOilPackingTypeListAsync", "Lookup", new { isToReturnInactiveData = true }))
+                                           .ServerFiltering(true))
+                                           .HtmlAttributes(new { id = "ddlOilPackingType", @class = "", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilPackingType"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_BaseSku") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownListFor(m => m.SkuId)
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .Events(e => e.Change("onBaseSkuChange"))
+                                          .OptionLabel(@Helper.GetResourceString("plho_SelectSku"))
+                                          .DataSource(source => source.Read(read => read.Action("GetBaseSkuList", "ReverseAuction").Data("skuAdditionalInfo")).ServerFiltering(true))
+                                          .HtmlAttributes(new { id = "ddlSku", @class = "", tabindex = "5", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_BaseSku"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Active")
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().CheckBoxFor(m => m.IsActive).Name("IsActive").HtmlAttributes(new { id = "cbIsActive", tabindex = "5" }))
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+                                <button type="button" tabindex="4" id="btnAddConvertionFormula" class="k-primary k-button">@Helper.GetResourceString("lbl_AddConversionFormula")<i class="icon-arrow-right14 position-right"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="row" align="center">
+                            <div class="col-md-12">
+                                <div class="text-right">
+                                </div>
+                                @(Html.Kendo().Grid<Adani.Solution.DTO.ConversionFormulaDetailsGridDto>()
+                                          .Name("GridConversionFormulaDetails")
+                                          .Columns(columns =>
+                                          {
+                                              columns.Bound(c => c.Id).Visible(false);
+                                              columns.Bound(c => c.SkuId).Visible(false);
+                                              columns.Template(t => t.Id).Title(@Helper.GetResourceString("lbl_Action")).ClientTemplate(@"<div style='text-align: center;'><i style='padding - left:25px;' onclick='editConversionFormula(this)' class='glyphicon glyphicon-pencil pointer' ></i><i onclick='deleteConversionFormula(this)' class='glyphicon glyphicon-remove'></i></div>").Width(Settings.GridFilterColumnWidth);
+                                              columns.Bound(c => c.SkuName).Title(@Helper.GetResourceString("lbl_DerivedSku")).Width(Settings.GridColumnMaxWidth250);
+                                              columns.Bound(c => c.Formula).Title(@Helper.GetResourceString("lbl_Formula")).Width(Settings.GridColumnMaxWidth);
+                                          })
+                                          .NoRecords(@Helper.GetResourceString("lbl_Norecordsfound"))
+                                          .HtmlAttributes(new { style = "height: 350px;" })
+                                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                                          .Resizable(resize => resize.Columns(true))
+                                          .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .Read(read => read.Action("GetConversionFormulaDetailsAsync", "ReverseAuction", new { conversionFormulaId = Model.Id }))
+                                          ))
+                            </div>
+                        </div>
+                        <div class="row form-group"></div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+                                <button type="button" tabindex="5" onclick="location.href = '@Url.Action("ConversionFormulaList", "ReverseAuction")'" class="k-button">@Helper.GetResourceString("btn_Cancel")</button>
+                                @if (Helper.CheckClaims(Claims.ManageRAMasters))
+                                {
+                                    <button type="button" tabindex="4" id="btnSaveConversionFormula" class="k-primary k-button">@(Model != null && Model.Id == 0 ? @Helper.GetResourceString("btn_Save") : @Helper.GetResourceString("btn_Update"))<i class="icon-arrow-right14 position-right"></i></button>
+                                }
+                            </div>
+                        </div>
+                    }
+                    <!---end of form input-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("_ConversionFormulaDetail")
+
+<div id="kWindow">
+    <h2>@Helper.GetResourceString("msg_DeleteConversionFormula")</h2>
+    <div class="col-md-12 text-center">
+        <button id="yes" class="k-primary k-button">Yes</button>
+        <button id="no" class="k-primary k-button">No</button>
+    </div>
+</div>
+
+<script>
+     var windowDelete;
+    $(document).ready(function () {
+
+        windowDelete = $("#kWindow").kendoWindow({
+            title: "Delete confirmation",
+            modal: true,
+            visible: false,
+            resizable: false,
+            width: 300
+        }).data("kendoWindow");
+
+        // kendo grid filter contains
+        FilterContains();
+        addFormulaButtonEnableDisable();
+
+        $("#gridUid").val('');
+
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        if ('@Model.Id' === '0') {
+            $("#ddlVertical").data("kendoDropDownList").value('@Convert.ToInt32(Vertical.Hbc)');
+        }
+
+        //Save Volume capacity
+        $("#btnSaveConversionFormula").click(function () {
+
+            var isValidForm = $("#frmConversionFromula").valid();
+            if (isValidForm) {
+                var formulaList = JSON.parse(JSON.stringify($("#GridConversionFormulaDetails").data("kendoGrid").dataSource.data()));
+                if (formulaList.length == 0) {
+                    ShowErrorMessage("Please add conversion formula");
+                    return false;
+                }
+                var model = {
+                    Id: $("#hdnId").val(),
+                    VerticalId: $("#ddlVertical").data("kendoDropDownList").value(),
+                    OilTypeId: $("#ddlOilType").data("kendoDropDownList").value(),
+                    PackGroupId: $("#ddlOilPackingType").data("kendoDropDownList").value(),
+                    SkuId: $("#ddlSku").data("kendoDropDownList").value(),
+                    IsActive: $("#cbIsActive").is(":checked"),
+                    ConversionFormulaDetailsDto: formulaList
+                };
+                window.kendo.ui.progress($("#divLoader"), true);
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("AddorUpdateConversionFormula", "ReverseAuction")',
+                    data: { inputDto: model },
+                    success: function (responce) {
+                        if (responce.PostStatus == true) {
+                            ShowSuccessMessage(responce.PostMessage);
+                            setTimeout(function () {
+                                window.kendo.ui.progress($("#divLoader"), false);
+                                window.location.href = '@Url.Action("ConversionFormulaList", "ReverseAuction")';
+                            }, 1500);
+                        } else {
+                            ShowErrorMessage(responce.PostMessage);
+                            window.kendo.ui.progress($("#divLoader"), false);
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        ShowErrorMessage("Error.");
+                        window.kendo.ui.progress($("#divLoader"), false);
+                    }
+                });
+            }
+        });
+
+        //Add Conversion Fromula popup to grid
+        $("#btnFormulaAdd").click(function () {
+
+            var isExists = false;
+            if (!$("#ddlDerivedSku").data("kendoDropDownList").value()) {
+                ShowErrorMessage("Please select Derived Sku.");
+                return false;
+            }
+
+            if (!$("#txtFormula").val()) {
+                ShowErrorMessage("Please enter the formula.");
+                return false;
+            }
+
+            var regex = /^(BASESKU)((\s*)[+\-\*\/](\s)*[0-9]+(\.\d+)?)+$/;
+            //if (!$("#txtFormula").val().match(regex)) {
+            //    ShowErrorMessage("Formula is not in correct pattern.");
+            //    return false;
+            //}
+
+            var conversionFormulaGrid = $("#GridConversionFormulaDetails").data("kendoGrid");
+            if (conversionFormulaGrid) {
+                var ddlDerivedSku = $("#ddlDerivedSku").data("kendoDropDownList");
+                var formula = $("#txtFormula").val();
+                if (ddlDerivedSku && formula) {
+                    var uid = $("#gridUid").val();
+                    if (uid) {
+                        //Update based on uid
+                        if (conversionFormulaGrid && conversionFormulaGrid.dataSource.data().length > 0) {
+                            var row = conversionFormulaGrid.tbody.find("tr[data-uid='" + uid + "']");
+                            var dataItem = conversionFormulaGrid.dataItem(row);
+                            dataItem.set("SkuId", ddlDerivedSku.value());
+                            dataItem.set("SkuName", ddlDerivedSku.text());
+                            dataItem.set("Formula", formula);
+                        }
+                    } else {
+                        //Add, Check : SKU already added or not
+                        if (conversionFormulaGrid && conversionFormulaGrid.dataSource.data().length > 0) {
+                            isExists = conversionFormulaGrid.dataSource.data().some(f => f.SkuId == ddlDerivedSku.value());
+                        }
+                        if (isExists) {
+                            ShowErrorMessage(ddlDerivedSku.text() + " already added.");
+                        } else {
+                            conversionFormulaGrid.dataSource.add({
+                                SkuId: ddlDerivedSku.value(),
+                                SkuName: ddlDerivedSku.text(),
+                                Formula: formula
+                            });
+                        }
+                    }
+                }
+            }
+
+        });
+
+        //Add conversion formula popup show
+        $("#btnAddConvertionFormula").click(function () {
+
+            setLabelItems();
+            $("#ddlDerivedSku").data("kendoDropDownList").value('');
+            $("#txtFormula").val('');
+            $("#gridUid").val('');
+            $("#addConversionFormulaPopup").modal("show");
+        });
+
+    });
+
+    //AddFormula button disable and enable
+    function addFormulaButtonEnableDisable() {
+        if ($("#ddlVertical").data("kendoDropDownList").value() > 0 && $("#ddlOilType").data("kendoDropDownList").value() > 0 &&
+            $("#ddlOilPackingType").data("kendoDropDownList").value() > 0 && $("#ddlSku").data("kendoDropDownList").value() > 0) {
+            $("#btnAddConvertionFormula").prop('disabled', false);
+        } else {
+            $("#btnAddConvertionFormula").prop('disabled', true);
+        }
+    }
+
+    //Edit conversion formula
+    function editConversionFormula(arg) {
+        $("#gridUid").val('');
+        var dataItem = $("#GridConversionFormulaDetails").data("kendoGrid").dataItem($(arg).closest("tr"));
+        if (dataItem) {
+            setLabelItems();
+            $("#gridUid").val(dataItem.uid);
+            $("#ddlDerivedSku").data("kendoDropDownList").value(dataItem.SkuId);
+            $("#txtFormula").val(dataItem.Formula);
+            $("#addConversionFormulaPopup").modal("show");
+        }
+    }
+
+    //Display selected item's to label
+    function setLabelItems() {
+        $("#lblVertical").text($("#ddlVertical").data("kendoDropDownList").value() > 0 ? $("#ddlVertical").data("kendoDropDownList").text() : '');
+        $("#lblOilType").text($("#ddlOilType").data("kendoDropDownList").value() > 0 ? $("#ddlOilType").data("kendoDropDownList").text() : '');
+        $("#lblPackGroup").text($("#ddlOilPackingType").data("kendoDropDownList").value() > 0 ? $("#ddlOilPackingType").data("kendoDropDownList").text() : '');
+        $("#lblBaseSku").text($("#ddlSku").data("kendoDropDownList").text());
+    }
+
+    //Remove row from grid
+    function deleteConversionFormula(e) {
+         var grid = $("#GridConversionFormulaDetails").data("kendoGrid");
+         var row = $(e).closest("tr");
+
+         windowDelete.center().open();
+         $("#yes").click(function () {
+            grid.removeRow(row);
+            windowDelete.close();
+         });
+
+         $("#no").click(function () {
+            windowDelete.close();
+         });
+
+    }
+
+    // ----------------------Vertical ------------------------------
+
+    function onVerticalTypeChange() {
+        $("#ddlOilType").data("kendoDropDownList").dataSource.read();
+        addFormulaButtonEnableDisable();
+    }
+
+    function onVerticleDataBound() {
+        debugger;
+        if ('@Model.Id' > 0 || $("#ddlVertical").data("kendoDropDownList").value() > 0) {
+            $("#ddlOilType").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    // ----------------------OilType---------------------------------
+
+    function onOilTypeChange() {
+        $("#ddlSku").data("kendoDropDownList").dataSource.read();
+    }
+
+    function oilTypeAdditionalInfo() {
+        var verticalId = $("#ddlVertical").val();
+        return {
+            verticalId: Number(verticalId)
+        };
+    }
+
+    //Vertical
+    function onVerticalTypeChange() {
+        $("#ddlOilType").data("kendoDropDownList").dataSource.read();
+    }
+
+    //Oiltype Change Events
+
+
+    function onOilTypeDataBound() {
+        if ('@Model.Id' > 0) {
+            $("#ddlSku").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    //Pack Group
+    function onPackGroupChange() {
+        $("#ddlSku").data("kendoDropDownList").dataSource.read();
+        addFormulaButtonEnableDisable();
+    }
+
+    function onPackGroupDataBound() {
+        if ('@Model.Id' > 0) {
+            $("#ddlSku").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    //Base SKU
+    function skuAdditionalInfo() {
+
+        var oilType = $('#ddlOilType').data("kendoDropDownList").value();
+        var packGroup = $('#ddlOilPackingType').data("kendoDropDownList").value();
+
+        return {
+            oilTypeId: Number(oilType),
+            packGroupId: Number(packGroup)
+        };
+    }
+
+    function onBaseSkuChange() {
+        $("#ddlDerivedSku").data("kendoDropDownList").dataSource.read();
+        addFormulaButtonEnableDisable();
+    }
+
+    //Derived SKU
+    function derivedSkuAdditionalInfo() {
+
+        var oilType = $('#ddlOilType').data("kendoDropDownList").value();
+        var packGroup = $('#ddlOilPackingType').data("kendoDropDownList").value();
+
+        return {
+            oilTypeId: Number(oilType),
+            packGroupId: Number(packGroup)
+        };
+    }
+
+
+</script>
+
+
+

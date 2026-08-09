@@ -1,0 +1,445 @@
+﻿@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Models;
+@using Kendo.Mvc.UI
+@using Adani.Solution.DTO.Enums;
+@model Adani.Solution.MVC.Models.RoleTypeClaimUpdateViewModel
+
+@{
+    ViewBag.Title = @Helper.GetResourceString("lbl_EditRoleType");
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .fix-column {
+        float: left;
+    }
+
+    .thead {
+        height: 40px;
+        white-space: nowrap;
+        font-size: 0;
+    }
+
+        .thead > span {
+            display: inline-block;
+            width: 200px;
+            line-height: 40px;
+            box-shadow: inset 0 0 1px 0 rgba(0,0,0,.3);
+            background-color: #ECECEC;
+            text-align: center;
+            color: #000000;
+            font-size: 14px;
+            padding: 2px 4px;
+        }
+
+    .trow {
+        white-space: nowrap;
+    }
+
+        .trow > span {
+            display: inline-block;
+            width: 200px;
+            box-shadow: inset 0 0 1px 0 rgba(0,0,0,.3);
+            line-height: 40px;
+            height: 40px;
+            text-align: center;
+            font-size: 14px;
+            padding: 2px 4px;
+        }
+
+    .tbody {
+        height: 300px;
+        overflow: auto;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+        font-size: 0;
+    }
+
+    .fix-column > .tbody {
+        overflow: hidden;
+        /*padding-bottom: 50px;*/
+    }
+        /*.fix-column > .tbody > .trow:last-child {margin-bottom: 50px;}*/
+
+        .fix-column > .tbody > .trow {
+            margin-top: -50px;
+            margin-bottom: 50px;
+        }
+
+            .fix-column > .tbody > .trow:first-child {
+                margin-top: 0px;
+            }
+
+    .rest-columns {
+        /*width: 350px;*/
+    }
+
+        .rest-columns > .thead {
+            /*padding-right: 50px;*/
+            overflow: hidden;
+        }
+            /*.rest-columns > .thead > :last-child {margin-right: 50px;}*/
+            .rest-columns > .thead > span {
+                margin-right: 50px;
+                margin-left: -50px;
+            }
+
+            .rest-columns > .thead > :first-child {
+                margin-left: 0px;
+            }
+
+    .modal-title {
+        color: white !important;
+    }
+
+    .modal-header .close {
+        margin-top: -23px !important;
+    }
+
+    .inputsearch {
+        margin-bottom: 10px !important;
+        padding: 8px !important;
+        border: solid !important;
+    }
+</style>
+
+<input type="hidden" class="currentMenu" value="roleType" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_RoleTypes")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#"> Organizations </a><span class="icon-right"></span></li>
+        <li class="active"> Role Types <span class="icon-right"></span></li>
+    </ol>
+    @*<div id="dateFilter" class="col-xs-9">*@
+
+    @*<div class="period-wrapper">*@
+    @*href="@Url.Action("RoleType", "Role")"*@
+    @*@if (Helper.CheckClaims(Claims.ManageRoles))
+        {
+            <a id="createRole" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateRoleType")</a>
+        }*@
+    @*</div>*@
+
+    @*</div>*@
+    <div style="clear:both;"></div>
+</div>
+
+
+<!-- /page header -->
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <!--<div class="panel-heading">-->
+            @*<h6 class="panel-title"><span class="text-semibold">@Helper.GetResourceString("lbl_RoleTypes")</span></h6>*@
+        <!--</div>-->
+        <div class="panel-body" style="display: block;height:500px;" id="divLoader">
+            @*<p class="content-group-lg"></p>*@
+
+            @using (Html.BeginForm("UpdateRoleType", "Role", FormMethod.Post, new { id = "frmRoleTypeUpdates", @class = "form-validate-jquery" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.SearchText, new { Id = "SearchText" })
+                @Html.HiddenFor(m => m.IsSearch, new { Id = "IsSearch" })
+                <div class="input-group">
+                    <input class="inputsearch" type="search" id="inputSearch" placeholder="Search.." value="@Model.SearchText">
+                    <button id="search-button" type="button" class="k-primary k-button" style="padding:10px;" onclick="search()">
+                        <i class="glyphicon glyphicon-search"></i>
+                    </button>
+                </div>
+                <div class="table-responsive tbl-container" style="height:450px;">
+                    <div class="total-wrapper">
+                        <div class="fix-column">
+                            <div class="thead">
+                                <span style="padding: 0px;border: 1px solid #fff;">Role Type</span>
+                            </div>
+                            <div class="tbody">
+                                @foreach (var item in Model.SystemRoleTypeClaimsDto.SystemRoleTypes)
+                                {<div class="trow Kendo-Grid-Editable">
+                                        <span id="@item.RoleTypeId">
+                                            @item.RoleTypeName
+                                            <i class="glyphicon glyphicon-pencil" style="cursor:pointer;" onclick='editRole(@item.RoleTypeId,"@item.RoleTypeName")'></i>
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="rest-columns">
+                            <div class="thead">
+                                @for (var i = 0; i < Model.SystemRoleTypeClaimsDto.SystemClaims.Count; i++)
+                                {
+                                    <span>@Model.SystemRoleTypeClaimsDto.SystemClaims[i].Name</span>
+
+                                }
+                                <span>Delete</span>
+                            </div>
+                            <div class="tbody">
+                                @foreach (var item in Model.SystemRoleTypeClaimsDto.SystemRoleTypes)
+                                {
+                                    var roleTypeClaims = item.Claims;
+                                    var roleType = new RoleTypeUpdateViewModel();
+                                    var isManageOrganization = false;
+                                    roleType.RoleTypeId = item.RoleTypeId;
+                                    roleType.RoleTypeName = item.RoleTypeName;
+                                    Model.RoleTypeUpdate.Add(roleType);
+                                    var isClaimsDelete = "IsClaimsDelete" + item.RoleTypeId;
+
+                                    <div class="trow">
+                                        @Html.HiddenFor(m => m.RoleTypeUpdate[Model.RoleTypeUpdate.Count - 1].RoleTypeId)
+                                        @Html.HiddenFor(m => m.RoleTypeUpdate[Model.RoleTypeUpdate.Count - 1].RoleTypeName)
+                                        @Html.HiddenFor(m => m.RoleTypeUpdate[Model.RoleTypeUpdate.Count - 1].IsDelete, new { id = @isClaimsDelete })
+
+                                        @for (var i = 0; i < Model.SystemRoleTypeClaimsDto.SystemClaims.Count; i++)
+                                        {
+                                            @*<span>@Model.SystemRoleTypeClaimsDto.SystemClaims[i].Name</span>*@
+                                            var claims = new RoleTypeViewModel();
+                                            claims.ClaimId = Model.SystemRoleTypeClaimsDto.SystemClaims[i].ClaimId;
+                                            claims.Name = Model.SystemRoleTypeClaimsDto.SystemClaims[i].Name;
+                                            var isClaims = roleTypeClaims.Where(m => m.ClaimId == claims.ClaimId).ToList();
+                                            if (isClaims != null && isClaims.Any())
+                                            {
+                                                claims.IsClaim = true;
+                                            }
+                                            var roleTypeUpdate = Model.RoleTypeUpdate.FirstOrDefault(m => m.RoleTypeId == item.RoleTypeId);
+                                            if (roleTypeUpdate != null)
+                                            {
+                                                var isClaimsEdit = roleTypeUpdate.ClaimDto.FirstOrDefault(m => m.ClaimId == claims.ClaimId && m.IsClaim == true);
+                                                if (isClaimsEdit != null)
+                                                {
+                                                    claims.IsClaim = true;
+                                                }
+                                            }
+                                            Model.RoleTypeUpdate[Model.RoleTypeUpdate.Count - 1].ClaimDto.Add(claims);
+                                            var chkClaims = "chkClaims" + i + claims.ClaimId + item.RoleTypeId;
+                                            var chkClass = "chkAll" + item.RoleTypeId;
+
+                                            <span>
+                                                @Html.HiddenFor(m => m.RoleTypeUpdate[Model.RoleTypeUpdate.Count - 1].ClaimDto[i].ClaimId)
+                                                @Html.HiddenFor(m => m.RoleTypeUpdate[Model.RoleTypeUpdate.Count - 1].ClaimDto[i].Name)
+                                                @if ((int)Claims.ManageOrganization == Model.RoleTypeUpdate[Model.RoleTypeUpdate.Count - 1].ClaimDto[i].ClaimId)
+                                                {
+                                                    @(Html.Kendo().CheckBoxFor(m => m.RoleTypeUpdate[Model.RoleTypeUpdate.Count - 1].ClaimDto[i].IsClaim).Enable(false).HtmlAttributes(new { id = @chkClaims, onclick = "onDisableAllCheckboxClickEvent('" + chkClass + "','" + chkClaims + "')" }))
+                                                    if (Model.RoleTypeUpdate[Model.RoleTypeUpdate.Count - 1].ClaimDto[i].IsClaim)
+                                                    {
+                                                        isManageOrganization = true;
+                                                    }
+                                                }
+                                                else if (isManageOrganization)
+                                                {
+                                                    @(Html.Kendo().CheckBoxFor(m => m.RoleTypeUpdate[Model.RoleTypeUpdate.Count - 1].ClaimDto[i].IsClaim).Enable(false).Checked(false).HtmlAttributes(new { id = @chkClaims, @class = @chkClass }))
+                                                }
+                                                else
+                                                {
+                                                    @(Html.Kendo().CheckBoxFor(m => m.RoleTypeUpdate[Model.RoleTypeUpdate.Count - 1].ClaimDto[i].IsClaim).Enable(false).HtmlAttributes(new { id = @chkClaims, @class = @chkClass }))
+                                                }
+
+                                            </span>
+
+
+                                        }
+                                        if (!item.IsPrime)
+                                        {
+                                        var chkClaimsDelete = "chkClaimsDelete" + item.RoleTypeId;
+                                        <span>
+                                            <a href="#" onclick="onDeleteClickEvent('@item.RoleTypeId')"><i class="icon-cancel-square2 faicon-red"></i></a>
+                                        </span>
+                                        @*@(Html.Kendo().CheckBox().Name("chkRoleTypeDelete").HtmlAttributes(new { id = @chkClaimsDelete, onclick = "onDeleteClickEvent('" + item.RoleTypeId + "')" }))*@
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="text-right marginT20">
+                            @if (Helper.CheckClaims(Claims.ManageRoles))
+                            {
+                                <button type="submit" id="btnAddRoleType" class="k-primary k-button">@Helper.GetResourceString("btn_Save") <i class="icon-arrow-right14 position-right"></i></button>
+                            }
+                        </div>*@
+                </div>
+
+            }
+
+            <div class="modal fade" id="addRoleType">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <h4 class="modal-title font16">@Helper.GetResourceString("lbl_UpdateClaims")</h4>
+                            <button type="button" class="close" data-dismiss="modal" id="btnCancel">&times;</button>
+                        </div>
+                        @using (Html.BeginForm("UpdateRoleType", "Role", FormMethod.Post, new { id = "frmRoleTypeUpdate", @class = "form-validate-jquery" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <!-- Modal body -->
+                            <div class="modal-body px-4">
+                                <div class="row form-group">
+                                    @Html.HiddenFor(m => m.RoleTypeId, new { id = "roleId" })
+                                    <div class="col-sm-6 mb-3">
+                                        <label class="custom_label">
+                                            @Helper.GetResourceString("lbl_RoleType") <span class="text-danger">*</span>
+                                        </label>
+                                        @Html.TextBoxFor(m => m.RoleTypeName, new { id = "txtrole", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_DirectPartyCode"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                                    </div>
+
+                                    <div class="col-sm-6 mb-3">
+                                        <label class="custom_label"> @Helper.GetResourceString("lbl_Permissions") <span class="text-danger">*</span> </label>
+
+                                        @(Html.Kendo().MultiSelectFor(m => m.ClaimIds)
+                                      .DataTextField("Name")
+                                      .DataValueField("Id")
+                                      .Filter(FilterType.Contains)
+                                      .AutoClose(false)
+                                      .TagMode(TagMode.Single)
+                                      .Events(e => e.Change("onClaimsChange"))
+                                      .DataSource(source => source.Read(read => read.Action("GetClaimsListAsync", "Role"))
+                                      .ServerFiltering(false))
+                                      .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='claimSelectAll'> Select All</label>")
+                                      .HtmlAttributes(new { id = "ddlClaims", @class = "form-control", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Permissions"), @style = "width:100%" }))
+
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <!-- Modal footer -->
+                    <div class="modal-footer border border-0">
+                        @*<button type="button" class="button btn-primary px-4 py-2 border border-0 rounded btn-0 float-right button btn-secondary-alert-color px-4 py-2 border border-0 rounded btn-0 float-right" id="btnSave">@Helper.GetResourceString("btn_Save")</button>
+        <button type="button" class=" button btn-secondary-alert-color px-4 py-2 border border-0 rounded btn-0 float-right" id="btnClose">@Helper.GetResourceString("btn_Close")</button>*@
+
+                        <button class="k-button k-cancel custom-btns" id="btnClose">@Helper.GetResourceString("btn_Close")</button>
+
+                        @if (Helper.CheckClaims(Claims.ManageRoles))
+                        {
+                            <button id="btnAddRoleType" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Save")</button>
+                        }
+
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+	$(document).ready(function () {
+		//ProgressLoader(false);
+		 if ('@Model.PostMessage' !== ""){
+			   if ('@Model.PostStatus' === '@true') {
+					ShowSuccessMessage('@Model.PostMessage');
+				} else {
+					ShowErrorMessage('@Model.PostMessage');
+				}
+		}
+		 $("#btnAddRoleType").click(function (e) {
+			RoleTypeSubmit();
+        });
+
+        @*$("form :input").change(function () {
+            isFormChanged('isChanged');
+        });
+
+        $("#createRole").click(function () {
+            isFormChangeOrNot("@Url.Action("RoleType", "Role")");
+        });*@
+
+        $("#claimSelectAll").click(function () {
+            MultiSelectSelectAll("ddlClaims", "claimSelectAll");
+        });
+
+	});
+
+    function onClaimsChange() {
+        MultiSelectIndividualSelect("ddlClaims", "claimSelectAll");
+    }
+
+	function RoleTypeSubmit() {
+
+		var isValid = $("#frmRoleTypeUpdate").valid();
+        if (isValid) {
+            window.kendo.ui.progress($("#divLoader"), true);
+            $('#frmRoleTypeUpdate').submit();
+            //window.kendo.ui.progress($("#divLoader"), false);
+		}
+	}
+
+    function onDeleteClickEvent(deleteId) {
+
+        if ($('#IsClaimsDelete' + deleteId).val().toLowerCase() == "true") {
+            $('#IsClaimsDelete' + deleteId).val(false);
+        }
+        else {
+            $('#IsClaimsDelete' + deleteId).val(true);
+        }
+
+        window.kendo.ui.progress($("#div_Progress"), true);
+        var form = $('#frmRoleTypeUpdates')
+        var token = $('input[name="__RequestVerificationToken"]', form).val();
+
+        $.ajax({
+            url: '/Role/RoleTypeDelete',
+            type: 'POST',
+            data: { __RequestVerificationToken: token, roleTypeId: deleteId },
+            success: function (result) {
+                window.kendo.ui.progress($("#div_Progress"), false);
+
+                if (!result.PostStatus) {
+                    ShowErrorMessage(result.PostMessage);
+                    return false;
+                }
+                else {
+                    var url = '@Url.Action("UpdateRoleType", "Role")';
+                    window.location.href = url;
+                }
+            }
+        });
+    }
+
+    function editRole(Id, Name) {
+        var claims = [];
+        $.ajax({
+            type: 'Post',
+             url: '@Url.Action("GetClaimsbyRoleTypeId", "Role")',
+             data: {
+                 RoleId : Id
+             },
+             success: function (response) {
+                 for (let i = 0; i < response.Result.length; i++) {
+                     claims.push(response.Result[i].ClaimId);
+                 }
+                 $("#ddlClaims").data("kendoMultiSelect").value(claims);
+                 $("#txtrole").val(Name);
+                 $("#roleId").val(Id);
+                 $("#addRoleType").modal('show');
+             }
+         });
+    }
+
+    function search() {
+        var data = $("#inputSearch").val();
+        $("#SearchText").val(data);
+        $("#IsSearch").val(true);
+        var isValid = $("#frmRoleTypeUpdates").valid();
+        if (isValid) {
+            window.kendo.ui.progress($("#divLoader"), true);
+            $('#frmRoleTypeUpdates').submit();
+            //window.kendo.ui.progress($("#divLoader"), false);
+        }
+    }
+
+
+    $('#btnClose').on('click', function (e) {
+        window.location.reload();
+    });
+
+
+</script>
+<script>
+    onload = function () {
+        var fcBody = document.querySelector(".fix-column > .tbody"),
+            rcBody = document.querySelector(".rest-columns > .tbody"),
+            rcHead = document.querySelector(".rest-columns > .thead");
+        rcBody.addEventListener("scroll", function () {
+            fcBody.scrollTop = this.scrollTop;
+            rcHead.scrollLeft = this.scrollLeft;
+        }, { passive: true });
+    };
+</script>

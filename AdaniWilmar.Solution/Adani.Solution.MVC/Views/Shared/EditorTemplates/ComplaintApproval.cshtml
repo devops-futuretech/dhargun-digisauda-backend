@@ -1,0 +1,9 @@
+﻿@using Kendo.Mvc.UI
+
+@(Html.Kendo().DropDownList()
+    .Name("ApprovalStatus")
+    .DataSource(d => d.Read(r => r.Action("GetComplaintApprove", "Lookup")))
+    .DataValueField("Name")
+    .DataTextField("Name")
+    .Value("1")
+)

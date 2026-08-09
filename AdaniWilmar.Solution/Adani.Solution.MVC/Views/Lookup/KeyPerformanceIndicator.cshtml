@@ -1,0 +1,114 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@model Adani.Solution.DTO.KeyPerformanceDto
+@{
+    ViewBag.Title = "KeyPerformanceIndicator";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/Content/Kendo/kendo.common-material.min.css" rel="stylesheet" />
+
+<style>
+    .k-link{
+        color:black !important;
+    }
+</style>
+
+<input type="hidden" class="currentMenu" value="configurationKeyPerformanceIndicator" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_AddUpdateCreatekeyPerformance")</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="dvPageLoader">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("AddOrUpdateKeyPerformanceIndicator", "Lookup", FormMethod.Post, new { id = "frmKeyPerformanceIndicator", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.Id)
+
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Role")<span class="text-danger"> *</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownListFor(m => m.RoleId)
+                                    .OptionLabel(@Helper.GetResourceString("plho_SelectRole"))
+                                    .DataTextField("Name")
+                                    .DataValueField("Id")
+                                    .DataSource(source => source.Read(read => read.Action("GetRoleListAsync", "Lookup"))
+                                    .ServerFiltering(true))
+                                    .HtmlAttributes(new { id = "ddlRole", tabindex = "1", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Role"), @style = "width:100%" }))
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Content") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-8">
+                                @(Html.Kendo().EditorFor(x => x.Content).Encode(true)
+                                   .HtmlAttributes(new { id = "keContent", tabindex = "2", style = "height:300px", aria_label = "editor", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Content"), })   /**/
+                                   .Value(@<text></text>)
+                                )
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Active")
+                            </div>
+                            <div class="col-md-4">
+                                @*@Html.CheckBoxFor(m => m.IsActive, new { id = "cbActiveInactive", tabindex = "5", })*@
+                                @(Html.Kendo().CheckBoxFor(m => m.IsActive).Name("IsActive").HtmlAttributes(new { id = "cbIsActive", tabindex = "3" }))
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+                                <button type="button" tabindex = "5" id="btnCancel" onclick="location.href ='@Url.Action("KeyPerformanceIndicatorList", "Lookup")'" class="k-button">@Helper.GetResourceString("btn_Cancel")</button>
+                                <button type="button" tabindex = "4" id="btnSave" class="k-primary k-button">@Helper.GetResourceString("btn_Save")<i class="icon-arrow-right14 position-right"></i></button>
+                            </div>
+                        </div>
+                    }
+                    <!---end of form input-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        $("#btnSave").click(function () {
+            var isValidForm = $("#frmKeyPerformanceIndicator").valid();
+            if (isValidForm) {
+                window.kendo.ui.progress($("#dvPageLoader"), true);
+                $("#frmKeyPerformanceIndicator").submit();
+                window.kendo.ui.progress($("#dvPageLoader"), false);
+            }
+        });
+
+    });
+</script>
+
+
+
+
+

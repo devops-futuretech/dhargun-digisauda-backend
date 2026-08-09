@@ -1,0 +1,588 @@
+﻿@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@model Adani.Solution.DTO.RetailerDto
+@{
+    ViewBag.Title = "Retailer";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="masterRetailer" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_AddOrUpdateRetailer")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Masters</a><span class="icon-right"></span></li>
+        <li><a href="RetailerList">@Helper.GetResourceString("lbl_Retailers")</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_AddOrUpdateRetailer")<span class="icon-right"></span></li>
+    </ol>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="dvRetailer">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("AddOrUpdateRetailer", "Lookup", FormMethod.Post, new { id = "frmRetailer", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.Id)
+
+                        <div class="row form-group">
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_RetailerCode") @*<span class="text-danger">*</span>*@ </label>
+                                @Html.TextBoxFor(m => m.Code, new { id = "txtCode", tabindex = "1", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_RetailerCode"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_AccountName") <span class="text-danger">*</span> </label>
+                                @Html.TextBoxFor(m => m.Name, new { id = "txtName", tabindex = "2", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_RetailerName"), @onkeydown = "return isAlphabets(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+
+
+                            @*<div class="row form-group">
+                                    <div class="col-lg-3 col-sm-6 mb-3">
+                                        @Helper.GetResourceString("lbl_VisitDay") @*<span class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        @Html.TextBoxFor(m => m.VisitDay, new { id = "txtVisitDay", tabindex = "3", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_VisitDay"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                                    </div>
+
+                                    <div class="col-lg-3 col-sm-6 mb-3">
+                                        @Helper.GetResourceString("lbl_DistributorSalesMan") @*<span class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        @Html.TextBoxFor(m => m.DistributorSalesMan, new { id = "txtDistributorSalesMan", tabindex = "4", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_DistributorSalesMan"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                                    </div>
+                                </div>*@
+
+                            @*<div class="row form-group">
+                                    <div class="col-lg-3 col-sm-6 mb-3">
+                                        @Helper.GetResourceString("lbl_DistributorSalesManCode") @*<span class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        @Html.TextBoxFor(m => m.DistributorSalesManCode, new { id = "txtDistributorSalesManCode", tabindex = "5", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_DistributorSalesManCode"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                                    </div>
+
+                                    <div class="col-lg-3 col-sm-6 mb-3">
+                                        @Helper.GetResourceString("lbl_DistributorCode") @*<span class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        @Html.TextBoxFor(m => m.DistributorCode, new { id = "txtDistributorCode", tabindex = "6", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_DistributorCode"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                                    </div>
+                                </div>*@
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_DistributorName") @*<span class="text-danger">*</span>*@ </label>
+                                @Html.TextBoxFor(m => m.DistributorName, new { id = "txtDistributorName", tabindex = "3", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_DistributorName"), @onkeydown = "return isAlphabets(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_MobileNumber") @*<span class="text-danger">*</span>*@ </label>
+                                @Html.TextBoxFor(m => m.MobileNumber, new { id = "txtMobileNumber", tabindex = "4", @class = "form-control", @onkeypress = "return isNumber(event);", data_msg_required = Helper.GetMsgRequired("lbl_MobileNumber"), @maxlength = (int)InputMaxLength.MobileNumber })
+                            </div>
+
+                        </div>
+
+                        @*<div class="row form-group">
+                                <div class="col-lg-3 col-sm-6 mb-3">
+                                    @Helper.GetResourceString("lbl_ASOASEname") @*<span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @Html.TextBoxFor(m => m.ASOASEname, new { id = "txtASOASEname", tabindex = "9", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_ASOASEname"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                                </div>
+
+                                <div class="col-lg-3 col-sm-6 mb-3">
+                                    @Helper.GetResourceString("lbl_ASOASECode") @*<span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @Html.TextBoxFor(m => m.ASOASECode, new { id = "txtASOASECode", tabindex = "8", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_ASOASECode"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                                </div>
+                            </div>*@
+
+                        <div class="row form-group">
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_AccountManager") @*<span class="text-danger">*</span>*@ </label>
+                                @Html.TextBoxFor(m => m.AccountManager, new { id = "txtAccountManager", tabindex = "5", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_AccountManager"), @onkeydown = "return isAlphabets(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">  @Helper.GetResourceString("lbl_AccountType") @*<span class="text-danger">*</span>*@ </label>
+                                @Html.TextBoxFor(m => m.AccountType, new { id = "txtAccountType", tabindex = "6", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_AccountType"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_AreaName") @*<span class="text-danger">*</span>*@ </label>
+                                @Html.TextBoxFor(m => m.AreaName, new { id = "txtAreaName", tabindex = "7", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_AreaName"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_OwnersName") @*<span class="text-danger">*</span>*@ </label>
+                                @Html.TextBoxFor(m => m.OwnersName, new { id = "txtOwnersName", tabindex = "8", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_OwnersName"), @onkeydown = "return isAlphabets(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+
+                        </div>
+
+                        <div class="row form-group">
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_DecisionMakerName") @*<span class="text-danger">*</span>*@ </label>
+                                @Html.TextBoxFor(m => m.DecisionMakerName, new { id = "txtDecisionMakerName", tabindex = "9", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_DecisionMakerName"), @onkeydown = "return isAlphabets(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_DecisionMakerNumber") @*<span class="text-danger">*</span>*@ </label>
+                                @Html.TextBoxFor(m => m.DecisionMakerNumber, new { id = "txtDecisionMakerNumber", tabindex = "10", @class = "form-control", @onkeypress = "return isNumber(event);", data_msg_required = Helper.GetMsgRequired("lbl_DecisionMakerNumber"), @maxlength = (int)InputMaxLength.MobileNumber })
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">  @Helper.GetResourceString("lbl_ChefName") @*<span class="text-danger">*</span>*@ </label>
+                                @Html.TextBoxFor(m => m.ChefName, new { id = "txtChefName", tabindex = "11", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_ChefName"), @onkeydown = "return isAlphabets(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_ChefNumber") @*<span class="text-danger">*</span>*@ </label>
+                                @Html.TextBoxFor(m => m.ChefNumber, new { id = "txtChefNumber", tabindex = "12", @class = "form-control", @onkeypress = "return isNumber(event);", data_msg_required = Helper.GetMsgRequired("lbl_ChefNumber"), @maxlength = (int)InputMaxLength.MobileNumber })
+                            </div>
+
+                        </div>
+
+                        <div class="row form-group">
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_Longitude") @*<span class="text-danger">*</span>*@ </label>
+                                @Html.TextBoxFor(m => m.Longitude, new { id = "txtLongitude", tabindex = "13", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_Longitude"), @onkeydown = "return negativeDecimalValue(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_Latitude") @*<span class="text-danger">*</span>*@ </label>
+                                @Html.TextBoxFor(m => m.Latitude, new { id = "txtLatitude", tabindex = "14", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_Latitude"), @onkeydown = "return negativeDecimalValue(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_Email") @*<span class="text-danger">*</span>*@ </label>
+                                @Html.TextBoxFor(m => m.Email, new { id = "txtEmail", tabindex = "15", data_msg_required = Helper.GetMsgRequired("lbl_Email"), @class = "form-control", @maxlength = (int)InputMaxLength.String })
+                            </div>
+
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_SPFZone") @*<span class="text-danger">*</span>*@ </label>
+                                @(Html.Kendo().DropDownListFor(m => m.ZoneId)
+                                                     .OptionLabel(@Helper.GetResourceString("plho_SelectZone"))
+                                                     .DataTextField("Name")
+                                                     .DataValueField("Id")
+                                                     .Events(e => e.Change("onZoneChange"))
+                                                     .DataSource(source => source.Read(read => read.Action("GetZoneListddl", "Lookup", new { isToReturnInactiveData = false }))
+                                                     .ServerFiltering(false))
+                                                     .HtmlAttributes(new { id = "ddlZone", @class = "", tabindex = "16", data_msg_required = Helper.GetSelectMsgRequired("lbl_Zone"), @style = "width:100%" }))
+                            </div>
+
+                        </div>
+
+                        <div class="row form-group">
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_State") @*<span class="text-danger">*</span>*@ </label>
+                                @(Html.Kendo().DropDownListFor(m => m.StateId)
+                                                    .OptionLabel(@Helper.GetResourceString("plho_SelectState"))
+                                                    .Events(events => events.Change("onStateChange").DataBound("OnStateDataBound"))
+                                                    .DataTextField("StateName")
+                                                    .DataValueField("StateId")
+                                                    .DataSource(source => source.Read(read => read.Action("GetZoneMappedStatesddl", "Lookup").Data("stateLoadParam"))
+                                                    .ServerFiltering(false))
+                                                    .HtmlAttributes(new { id = "ddlState", tabindex = "17", @class = "", data_msg_required = Helper.GetSelectMsgRequired("lbl_State"), @style = "width:100%" }))
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_Territory") @*<span class="text-danger">*</span>*@ </label>
+                                @(Html.Kendo().DropDownListFor(m => m.TerritoryId)
+                                                    .OptionLabel(@Helper.GetResourceString("plho_SelectTerritory"))
+                                                    .DataTextField("Name")
+                                                    .DataValueField("Id")
+                                                    .Events(e => e.Change("territoryChange").DataBound("OnTerritoryDataBound"))
+                                                    .DataSource(source => source.Read(read => read.Action("GerTerritoryStateBase", "Lookup").Data("territoryAdditionalInfo"))
+                                                    .ServerFiltering(false))
+                                                    .HtmlAttributes(new { id = "ddlTerritory", tabindex = "18", @class = "", data_msg_required = Helper.GetSelectMsgRequired("lbl_Territory"), @style = "width:100%" }))
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_District") @*<span class="text-danger">*</span>*@ </label>
+                                @(Html.Kendo().DropDownListFor(m => m.DistrictId)
+                                                    .OptionLabel(@Helper.GetResourceString("plho_SelectDistrict"))
+                                                    .Events(events => events.Change("onDistrictChange").DataBound("OnDistrictDataBound"))
+                                                    .DataTextField("DistrictName")
+                                                    .DataValueField("DistrictId")
+                                                    .DataSource(source => source.Read(read => read.Action("GetDistrictListBaseTerritory", "Lookup").Data("additionalDistrictByStateInfo"))
+                                                    .ServerFiltering(false))
+                                                    .HtmlAttributes(new { id = "ddlDistrict", tabindex = "19", @class = "", data_msg_required = Helper.GetSelectMsgRequired("lbl_District"), @style = "width:100%" }))
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_City") @*<span class="text-danger">*</span>*@ </label>
+                                @(Html.Kendo().DropDownListFor(m => m.CityId)
+                                                    .OptionLabel(@Helper.GetResourceString("plho_SelectCity"))
+                                                    .DataTextField("CityName")
+                                                    .DataValueField("CityId")
+                                                    .DataSource(source => source.Read(read => read.Action("GetCityListByDistrictName", "Lookup").Data("additionalCityByDistrictInfo"))
+                                                    .ServerFiltering(false))
+                                                    .HtmlAttributes(new { id = "ddlCity", tabindex = "20", @class = "", data_msg_required = Helper.GetSelectMsgRequired("lbl_City"), @style = "width:100%" }))
+                            </div>
+
+                        </div>
+
+                        <div class="row form-group">
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_Pincode") @*<span class="text-danger">*</span>*@ </label>
+                                @Html.TextBoxFor(m => m.Pincode, new { id = "txtPinCode", tabindex = "21", @class = "form-control", @onkeypress = "return isNumber(event);", data_msg_required = Helper.GetMsgRequired("lbl_Pincode"), @maxlength = (int)InputMaxLength.Pincode })
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_Address") @*<span class="text-danger">*</span>*@ </label>
+                                @Html.TextAreaFor(m => m.Address, new { id = "txtAddress", tabindex = "22", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_Address"), @maxlength = (int)InputMaxLength.TextAreaString })
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">  @Helper.GetResourceString("lbl_FreightZone") @*<span class="text-danger">*</span>*@ </label>
+                                @(Html.Kendo().DropDownListFor(m => m.FreightZoneId)
+                                      .OptionLabel(@Helper.GetResourceString("plho_SelectFreightZone"))
+                                      .DataTextField("Name")
+                                      .DataValueField("Id")
+                                      .Events(e => e.Change("onFreightZoneChange"))
+                                      //.DataSource(source => source.Read(read => read.Action("GetFreightZoneListByDepotIds", "Lookup").Data("freightZoneAdditionalInfo"))
+                                      .DataSource(source => source.Read(read => read.Action("GetFreightZoneListddlByStateZoneAsync", "Lookup").Data("freightZoneAdditionalInfo"))
+                                      .ServerFiltering(false))
+                                      .HtmlAttributes(new { id = "ddlFreightZone", tabindex = "23", @class = "", data_msg_required = Helper.GetSelectMsgRequired("lbl_FreightZone"), @style = "width:100%" }))
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_FreightRoute") @*<span class="text-danger">*</span>*@ </label>
+                                @(Html.Kendo().DropDownListFor(m => m.FreightRouteId)
+                                                    .OptionLabel(@Helper.GetResourceString("plho_SelectFreightRoute"))
+                                                    .DataTextField("Name")
+                                                    .DataValueField("Id")
+                                                    .Events(e => e.Change("onFreightRouteChange"))
+                                                    .DataSource(source => source.Read(read => read.Action("GetFreightRouteListByZone", "Lookup").Data("freightRouteAdditionalInfo"))
+                                                    .ServerFiltering(false))
+                                                    .HtmlAttributes(new { id = "ddlFreightRoute", tabindex = "24", @class = "", data_msg_required = Helper.GetSelectMsgRequired("lbl_FreightRoute"), @style = "width:100%" }))
+                            </div>
+
+                        </div>
+
+                        <div class="row form-group">
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_SalesOrganization") @*<span class="text-danger">*</span>*@ </label>
+                                @(Html.Kendo().DropDownList()
+                    .Name("ddlSalesOrganization")
+                    .OptionLabel(@Helper.GetResourceString("plho-SelectSales"))
+                    .DataTextField("SalesOrganizationName")
+                    .Events(e => e.Change("onSaleChange"))
+                    .DataValueField("Id")
+                    .DataSource(source => source.Read(read => read.Action("GetSalesOrganizationddl", "Lookup"))
+                    ).HtmlAttributes(new { tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_SalesOrganization"), @style = "width:100%" })
+                )
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_DistributionChannel") @*<span class="text-danger">*</span>*@ </label>
+                                @(Html.Kendo().DropDownList()
+                           .Name("ddlDistributionChannel")
+                          .OptionLabel(@Helper.GetResourceString("plho-SelectDistChannel"))
+                          .Events(events => events.Change("onDistributionChange").DataBound("OnDistributionDataBound"))
+                          .DataTextField("DistributionChannelName")
+                          .DataValueField("Id")
+                          .DataSource(source => source.Read(read => read.Action("GetDistributionChannelddl", "Lookup").Data("distParam"))
+                          .ServerFiltering(true))
+                          .HtmlAttributes(new { @class = "", tabindex = "5", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_DistributionChannel"), @style = "width:100%" }))
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_VerticleType") <span class="text-danger">*</span> </label>
+                                @(Html.Kendo().DropDownListFor(m => m.VerticalId)
+                                              .Name("ddVerticalType")
+                          .OptionLabel(@Helper.GetResourceString("plho_SelectVertical"))
+                          .DataTextField("Name")
+                          .DataValueField("Id")
+                          .DataSource(source => source.Read(read => read.Action("GetVerticalDetailsdd", "Lookup").Data("verticalParam"))
+                          .ServerFiltering(true))
+                          .HtmlAttributes(new { @class = "", tabindex = "5", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_VerticleType"), @style = "width:100%" }))
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_Dealer") @*<span class="text-danger">*</span>*@ </label>
+                                @(Html.Kendo().DropDownListFor(m => m.DealerId)
+                                              .OptionLabel(@Helper.GetResourceString("plho_SelectDealer"))
+                                              .DataTextField("Name")
+                                              .DataValueField("Id")
+                                              .DataSource(source => source.Read(resd => resd.Action("GetDealerDetailsddl", "Lookup").Data("DealerAdditionalInfo"))
+                                              .ServerFiltering(false))
+                                              .HtmlAttributes(new { id = "ddlDealer", tabindex = "26", @class = "", data_msg_required = Helper.GetSelectMsgRequired("lbl_Dealer"), @style = "width:100%" }))
+                            </div>
+
+                        </div>
+
+                        <div class="row form-group">
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+
+                                <label class="custom_label">Status</label>
+                                <div class="custom_checkbox_main">
+                                    <label class="custom_checkbox">
+                                        @Html.CheckBoxFor(m => m.IsActive, new { id = "cbActiveInactive", tabindex = "27" })
+                                        <span class="checkmark check_tick"></span>
+                                        <span class="label-title">@Helper.GetResourceString("lbl_Active")</span>
+                                    </label>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-12 text-right buttons-align">
+                                <button type="button" id="btnCancel" tabindex="29" onclick="location.href = '@Url.Action("RetailerList", "Lookup")'" class="k-button k-cancel custom-btns">Cancel</button>
+                                @if (Helper.CheckClaims(Claims.ManageMaster))
+                                {
+                                    <button type="button" id="btnSave" tabindex="28" class="k-primary k-button custom-btns">@(Model != null && Model.Id == 0 ? @Helper.GetResourceString("btn_SaveRetailer") : @Helper.GetResourceString("btn_UpdateRetailer")) </button>
+                                }
+                            </div>
+                        </div>
+                    }
+                    <!---end of form input-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function ()
+    {
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        if ('@Model.Id' > 0)
+        {
+            $('#txtCode').attr('readonly', 'true');
+        }
+
+        $('input[type="text"]').keypress(function (e) {
+            var code = e.keyCode || e.which;
+            if (code === 13) {
+                e.preventDefault();
+            }
+        });
+
+        $('#btnSave').on('click', function (e)
+        {
+            var isValid = $('#frmRetailer').valid();
+            if (isValid)
+            {
+                window.kendo.ui.progress($("#dvRetailer"), true);
+                $('#frmRetailer').submit();
+                window.kendo.ui.progress($("#dvRetailer"), false);
+            }
+        });
+    });
+
+    function ImportPincodeOnFocusOut(event) {
+        var error = $("#txtPincode-error").text();
+        var pincodeValue = $("#" + event.currentTarget.id).val();
+        if (pincodeValue!=="" && error === "") {
+
+            var pincodeFlag = PincodeValidation(pincodeValue, '@Helper.GetResourceString("msg_PincodeError")');
+
+            if (pincodeFlag) {
+                GetAddressByPincode(pincodeValue);
+            }
+        }
+    }
+
+    function GetAddressByPincode(pincode)
+    {
+        window.kendo.ui.progress($("#dvRetailer"), true);
+        if (pincode !== "") {
+            moduleCommon.Common.AjaxCall({
+                type: 'Post',
+                url: "@Url.Action("GetAddressByPincode", "Lookup")",
+                data: {
+                    pincode: pincode
+                },
+                success: function (result) {
+                    if (result !== null && result.PostStatus) {
+                        $("#txtDistrict").val(result.DistrictName);
+                        $("#hdnDistrictId").val(result.DistrictId);
+                        $("#txtState").val(result.StateName);
+                        window.kendo.ui.progress($("#dvRetailer"), false);
+                    }
+                    else {
+                        if (result.PostStatusMessage !== "")
+                            ShowErrorMessage(result.PostStatusMessage);
+                        else
+                            ShowErrorMessage('@Helper.GetResourceString("msg_PincodeError")');
+
+                        ClearAddressFields();
+                        $(window).scrollTop(0);
+                        window.kendo.ui.progress($("#dvRetailer"), false);
+                    }
+                },
+                error: function (result) {
+                    ShowErrorMessage('@Helper.GetResourceString("msg_PincodeError")');
+                    ClearAddressFields();
+                    $(window).scrollTop(0);
+                    window.kendo.ui.progress($("#dvRetailer"), false);
+                }
+            });
+        }
+        window.kendo.ui.progress($("#dvRetailer"), false);
+    }
+
+    function ClearAddressFields() {
+        $("#txtCity").val("");
+        $("#hdnCityId").val("");
+        $("#txtDistrict").val("");
+        $("#hdnDistrictId").val("");
+    }
+
+    //State
+    function onStateChange(e) {
+        $("#ddlTerritory").data("kendoDropDownList").dataSource.read();
+        $("#ddlFreightZone").data("kendoDropDownList").dataSource.read();
+    }
+
+    function OnStateDataBound(e) {
+        var stateId = $("#ddlState").data("kendoDropDownList").value();
+        if (stateId > 0) {
+            $("#ddlTerritory").data("kendoDropDownList").dataSource.read();
+            $("#ddlFreightZone").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    //Territory
+    function territoryAdditionalInfo() {
+        return {
+            stateId: Number($("#ddlState").val())
+        }
+    }
+
+    function territoryChange() {
+        $("#ddlDistrict").data("kendoDropDownList").dataSource.read();
+    }
+
+    function OnTerritoryDataBound() {
+        var territoryId = Number($("#ddlTerritory").val());
+        if (territoryId > 0) {
+            $("#ddlDistrict").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    //District
+    function onDistrictChange(e) {
+        $("#ddlCity").data("kendoDropDownList").dataSource.read();
+    }
+
+    function OnDistrictDataBound(e) {
+        var districtId = $("#ddlDistrict").data("kendoDropDownList").value();
+        if (districtId > 0) {
+            $("#ddlCity").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    function additionalDistrictByStateInfo() {
+        return {
+            territoryId: Number($("#ddlTerritory").val())
+        };
+    }
+
+    //City
+    function additionalCityByDistrictInfo() {
+        var districtId = $("#ddlDistrict").data("kendoDropDownList").value();
+        return {
+            districtId: districtId
+        };
+    }
+
+
+    //Freight
+    function onFreightZoneChange() {
+        $("#ddlFreightRoute").data("kendoDropDownList").dataSource.read();
+        $("#ddlDealer").data("kendoDropDownList").dataSource.read();
+    }
+
+    function onFreightRouteChange() {
+         $("#ddlDealer").data("kendoDropDownList").dataSource.read();
+    }
+
+    function freightZoneAdditionalInfo() {
+        var ddlZone = $("#ddlZone").data("kendoDropDownList").value();
+        var ddlState = $("#ddlState").data("kendoDropDownList").value();
+        return {
+            zoneId: Number(ddlZone),
+            stateId: Number(ddlState)
+        };
+    }
+
+    function freightRouteAdditionalInfo() {
+        var ddlFreightZone = $("#ddlFreightZone").data("kendoDropDownList").value();
+        return {
+            zoneId: Number(ddlFreightZone)
+        };
+    }
+
+
+    function DealerAdditionalInfo()
+    {
+        var ddlFreightZone = $("#ddlFreightZone").data("kendoDropDownList").value();
+        var ddlFreightRoute = $("#ddlFreightRoute").data("kendoDropDownList").value();
+        return {
+            freightzoneId: Number(ddlFreightZone),
+            freightrouteId: Number(ddlFreightRoute)
+        };
+    }
+
+    //Zone
+    function onZoneChange() {
+        $("#ddlState").data("kendoDropDownList").dataSource.read();
+    }
+
+    //State load param
+    function stateLoadParam() {
+        var zoneId = $("#ddlZone").data("kendoDropDownList").value();
+        return {
+            zoneId: zoneId
+        }
+    }
+
+    function onSaleChange() {
+        $("#ddlDistributionChannel").data("kendoDropDownList").dataSource.read();
+    }
+    function onDistributionChange(e) {
+        $("#ddVerticalType").data("kendoDropDownList").dataSource.read();
+
+    }
+
+    function OnDistributionDataBound(e) {
+        var distId = $("#ddlDistributionChannel").data("kendoDropDownList").value();
+        if (distId > 0) {
+            $("#ddVerticalType").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    function verticalParam() {
+        var distId = $("#ddlDistributionChannel").data("kendoDropDownList").value();
+        return {
+            distId: Number(distId)
+        };
+    }
+
+    function distParam() {
+        var saleId = $("#ddlSalesOrganization").data("kendoDropDownList").value();
+        return {
+            saleId: Number(saleId)
+        };
+    }
+
+</script>
+
+
+

@@ -1,0 +1,267 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+
+@{
+    ViewBag.Title = "GSTList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="ra2gst" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_GST")</h2>
+    <div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            @if (Helper.CheckClaims(Claims.GST))
+            {
+                <a href="@Url.Action("GSTEditRedirect", "RAVersionTwo")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateGST")</a>
+            }
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+
+            <div class="row">
+                <div class="row form-group">
+                    <div class="col-md-2 text-right control-label">
+                        @Helper.GetResourceString("lbl_FromDate")
+                    </div>
+                    <div class="col-md-3">
+                        @(Html.Kendo().DatePicker()
+                                      .Name("StartDate")
+                                      .Format(Settings.DateFormat)
+                                      .Events(e => e.Change("fromDateChange"))
+                                      .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                    </div>
+                    <div class="col-md-2 text-right control-label">
+                        @Helper.GetResourceString("lbl_ToDate")
+                    </div>
+                    <div class="col-md-3">
+                        @(Html.Kendo().DatePicker()
+                                      .Name("EndDate")
+                                      .Format(Settings.DateFormat)
+                                      .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "2", style = "width: 100%" }))
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" id="dvDealers">
+
+                <div class="text-right">
+                    <button class="k-button k-button-icontext k-grid-excel" onclick='excelExport()' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;
+                    @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                </div>
+                @(Html.Kendo().Grid<GstDto>()
+                          .Name("ViewGST")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.Id).Visible(false);
+                              columns.Bound(c => c.ValidFrom).Format(Settings.GridDateFormat).Title(@Helper.GetResourceString("lbl_ValidFrom")).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.ValidTo).Format(Settings.GridDateFormat).Title(@Helper.GetResourceString("lbl_ValidTo")).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.CGST).Title(@Helper.GetResourceString("lbl_CGST")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.SGST).Title(@Helper.GetResourceString("lbl_SGST")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.IGST).Title(@Helper.GetResourceString("lbl_IGST")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Template(c => c.IsActive).Title(@Helper.GetResourceString("lbl_Action"))
+                                 .ClientTemplate(@"<div style='text-align: center;'><button style='width: 80px;' type='button' onclick='gstEdit(#=Id#)' class='k-primary k-button'>Edit</button></div>").Width(Settings.GridOtherColumnWidth);
+
+                          })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Selectable(selectable => selectable
+                          .Mode(GridSelectionMode.Multiple)
+                          .Type(GridSelectionType.Row))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .Resizable(resize => resize.Columns(true))
+                          .ClientDetailTemplateId("template")
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Model(model => model.Id(p => p.Id))
+                          .ServerOperation(true)
+                          .Read(read => read.Action("GetGSTListAsync", "RAVersionTwo"))))
+
+                <script id="template" type="text/kendo-tmpl">
+                    @(Html.Kendo().Grid<GstDto>()
+                  .Name("grid_#=Id#")
+                  .Columns(columns =>
+                  {
+                      columns.Bound(c => c.SourceStateName).Title(@Helper.GetResourceString("lbl_SourceStateName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                      columns.Bound(c => c.DestinationStateName).Title(@Helper.GetResourceString("lbl_DestinationStateName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                      columns.Bound(c => c.DepotName).Title("Plant Name").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                      columns.Bound(c => c.OilType).Title(@Helper.GetResourceString("lbl_OilType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                      columns.Bound(t => t.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Active")).ClientTemplate(@"<div style='text-align: center;'> #if(!IsActiveBasedOnValidTo(ValidTo,IsActive)) { #"
+                                                                         + " <a  title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Width(Settings.GridColumnMaxWidth);
+                  })
+                  .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                  .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                  .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                  .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                  .Selectable(selectable => selectable
+                  .Mode(GridSelectionMode.Multiple)
+                  .Type(GridSelectionType.Row))
+                  .Scrollable(s => s.Enabled(true).Height("auto"))
+                  .Reorderable(reorder => reorder.Columns(true))
+                  .Resizable(resize => resize.Columns(true))
+                  .DataSource(dataSource => dataSource
+                  .Ajax()
+                  .Model(model => model.Id(p => p.Id))
+                  .ServerOperation(true)
+                  .Read(read => read.Action("GetGSTListByIdAsync", "RAVersionTwo", new { parentId = "#=Id#" }))).ToClientTemplate())
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="EditPartial" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h6 class="panel-title"><span class="text-semibold">GST Details</span></h6>
+            </div>
+            <div class="modal-body">
+                <div id="viewVolumes"></div>
+                @Html.Partial("DiscountEditPartial")
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-12 text-center">
+                    <button type="button" tabindex="8" id="btnCancel" data-dismiss="modal" class="k-button">@Helper.GetResourceString("btn_Cancel")</button>
+                    @if (Helper.CheckClaims(Claims.GST))
+                    {
+                        <button type="button" tabindex="9" id="btnSave" class="k-primary k-button"> @Helper.GetResourceString("btn_Save")<i class="icon-arrow-right14 position-right"></i></button>
+                    }
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();        
+
+        if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+
+        StartDateRange();
+
+        $("#btnSave").click(function () {
+            var model = {
+                Id: $("#hdnId").val(),
+                ValidTo: $("#dpToDate").data("kendoDatePicker").value().toDateString(),
+                ValidFrom: $("#dpFromDate").data("kendoDatePicker").value().toDateString(),
+                IsActive: document.getElementById("cbActiveInactive").checked,
+                DiscountType: '@Convert.ToInt32(RADiscountTypes.GST)'
+            };
+            window.kendo.ui.progress($("#div_Progress"), true);
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("UpdateDiscountAndBenefitByIsActive", "RAVersionTwo")',
+                data: { inputDto : model},
+                success: function (result) {
+                    if (result && result.PostStatus) {
+                        ShowSuccessMessage('@Helper.GetResourceString("msg_GSTUpdateSuccess")')
+                        $("#ViewGST").data("kendoGrid").dataSource.read();
+                    } else {
+                        ShowErrorMessage('An error occurred while update the GST details')
+                    }
+                },
+                error: function () {
+                    ShowErrorMessage('An error occurred while update the GST details')
+                },
+                complete: function () {
+                    $("#EditPartial").modal("hide");
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                }
+            });            
+        });
+    });
+
+    function dataBound(e) {
+        SetEmptyRow(e);
+        //this.expandRow(this.tbody.find("tr.k-master-row").first());   //expand first row
+    }
+
+
+    function excelExport() {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $.ajax({
+            type: 'Post',
+            url: '@Url.Action("ExportGST", "RAVersionTwo")',
+            data: {
+                fromDate: $("#StartDate").val(),
+                toDate: $("#EndDate").val(),
+            },
+            success: function (responce) {
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Pricing")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+    function gstEdit(Id) {
+        var grid = $("#ViewGST").data("kendoGrid")
+        var dataItem = $("#ViewGST").data("kendoGrid").dataSource.get(Id);
+        var row = $("#ViewGST").data("kendoGrid").tbody.find("tr[data-uid='" + dataItem.uid + "']")
+        var gridItem = grid.dataItem(row);
+
+        $("#hdnId").val(Id);
+        $("#dpFromDate").kendoDatePicker({
+            value: kendo.parseDate(gridItem.ValidFrom),
+            format: emamiGlobal.constant.DateFormat,
+            min: kendo.parseDate(gridItem.ValidFrom)
+        });
+        $("#dpToDate").kendoDatePicker({
+            value: kendo.parseDate(gridItem.ValidTo),
+            format: emamiGlobal.constant.DateFormat,
+            min: kendo.parseDate(gridItem.ValidFrom)
+        });
+        document.getElementById("cbActiveInactive").checked = gridItem.IsActive;
+        $("#EditPartial").modal("show");
+    }    
+
+    function fromDateChange() {
+        var endPicker = $("#EndDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            $("#EndDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+            endPicker.min(startDate);
+        }
+    }
+
+    function StartDateRange() {
+        var startDate = new Date();
+        startDate.setDate(startDate.getDate());
+
+        $("#StartDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+        $("#EndDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+    }
+
+</script>
+

@@ -1,0 +1,179 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@model Adani.Solution.DTO.TickerDto
+@{
+
+    ViewBag.Title = "Ticker List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="configurationTickerList" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">Ticker</h2>
+    @*<div id="dateFilter" class="col-xs-9">
+            <div class="period-wrapper">
+            </div>
+        </div>*@
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Configurations</a><span class="icon-right"></span></li>
+        <li><a href="TickerList">Ticker</a><span class="icon-right"></span></li>
+        <li class="active">Ticker<span class="icon-right"></span></li>
+    </ol>
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvDealers">
+                <div class="col-md-12">
+                    <div class="text-left">
+                        @using (Html.BeginForm("AddorUpdateTicker", "ReverseAuction", FormMethod.Post, new { id = "frmTicker", @class = "form-validate-jquery" }))
+                        {
+                            <div class="demo-section k-content">
+                                @Html.HiddenFor(model => model.EncryptedId)
+
+                                <div class="row form-group">
+                                    <div class="col-lg-3 col-sm-6 mb-3">
+                                        <label class="custom_label"> @Html.Label("Date") </label>
+                                        @(Html.Kendo().DatePickerFor(m => m.TickerDate)
+                                              .Min(DateTime.Now)
+                                              .Format(Settings.DateFormat)
+                                              .HtmlAttributes(new { @id = "tickerDate", tabindex = "1", @class = "from-control", @required = "required", @style = "width:100%" }))
+                                    </div>
+
+                                    <div class="col-lg-5 col-sm-6 mb-3">
+                                        <label class="custom_label">@Html.Label("From & To Time") </label>
+                                        <div class="row">
+                                            <div class="col-xs-6 col-sm-6 p-0 pb-2 custom-time-slct">
+                                                @(Html.Kendo().TimePickerFor(s => s.FromHours)
+                                              .Name("FromHours")
+                                              .Min("6:00 AM")
+                                              .Max("11:30 PM")
+                                              .Format("HH:mm")
+                                              .Events(e => e.Change("startChange")).HtmlAttributes(new { style = "width: 100%", tabindex = "2", onkeydown = "return isFocus(event);" }))
+                                            </div>
+
+                                            <div class="col-xs-6 col-sm-6 p-0 pb-2 custom-time-slct">
+                                                @(Html.Kendo().TimePickerFor(s => s.ToHours)
+                                              .Name("ToHours")
+                                              .Min("6:00 AM")
+                                              .Max("11:30 PM")
+                                              .Format("HH:mm")
+                                              .HtmlAttributes(new { style = "width: 100%", tabindex = "3", onkeydown = "return isFocus(event);" }))
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @*<div class="row form-group">
+            <div class="col-lg-3 col-sm-6 mb-3">
+                @Html.Label("Is Last Window")
+            </div>
+            <div class="col-md-4">
+                @(Html.Kendo().CheckBoxFor(m => m.IsLastWindowPerDay).Name("IsLastWindowPerDay").HtmlAttributes(new { id = "cbIsLastWindow" }))
+            </div>
+        </div>*@
+
+                                    <div class="col-lg-3 col-sm-6 mb-3">
+                                        <label class="custom_label"> @Helper.GetResourceString("lbl_Content") </label>
+                                        @Html.TextAreaFor(m => m.Content, new { id = "txtContent", tabindex = "4", @class = "form-control", @maxlength = (int)InputMaxLength.TextAreaString })
+                                    </div>
+                                    @*<div class="col-lg-3 col-sm-6 mb-3">
+                                        <label class="custom_label"> @Helper.GetResourceString("lbl_Color") </label>
+                                        @Html.TextBoxFor(m => m.Content, new { id = "txtColor", tabindex = "5", @class = "form-control", @maxlength = (int)InputMaxLength.TextAreaString })
+                                    </div>*@
+                                    <div class="col-lg-3 col-sm-6 mb-3">
+                                        <label class="custom_label"> @Helper.GetResourceString("lbl_Color") </label>
+                                        @Html.TextBoxFor(m => m.Color, new { id = "txtColor", tabindex = "5", @class = "form-control", @maxlength = (int)InputMaxLength.LatLong, type = "color" , style = "width: 100px;" })
+                                    </div>
+                                </div>
+
+                                <div class="row form-group">
+                                    <div class="col-lg-3 col-sm-6 mb-3">
+                                        <label class="custom_label">Status</label>
+                                        <div class="custom_checkbox_main">
+                                            @(Html.Kendo().CheckBoxFor(m => m.IsActive).Name("IsActive").HtmlAttributes(new { id = "cbIsActive", tabindex = "5" }))
+                                            <span class="label-title">@Helper.GetResourceString("lbl_Active")</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12 text-right">
+                                    <button type="button" tabindex="7" id="btnCancel" onclick="location.href = '@Url.Action("TickerList", "ReverseAuction")'" class="k-button k-cancel custom-btns">@Helper.GetResourceString("btn_Cancel")</button>
+                                    <button type="button" tabindex="6" id="btnSave" class="k-primary k-button custom-btns">Save</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+
+       if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+         if ('@Model.Id' === '0') {
+            var dates = new Date();
+            dates.setDate(dates.getDate());
+             $("#tickerDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+
+        }
+
+        $("#btnSave").on('click', function () {
+            var date = $("#tickerDate").data("kendoDatePicker").value();
+            //if (date) {
+            if ($("#FromHours").data("kendoTimePicker").value()) {
+                if ($("#ToHours").data("kendoTimePicker").value()) {
+                    var isValid = $("#frmTicker").valid();
+                    if (isValid) {
+                        // Animate loader
+                        window.kendo.ui.progress($("#div_Progress"), true);
+                        $("#frmTicker").submit();
+                    }
+                }
+                else {
+                    ShowErrorMessage("Invalid End Time");
+                    return false;
+                }
+            }
+            else {
+                ShowErrorMessage("Invalid Start Time");
+                return false;
+            }
+            //}
+
+            //else {
+            //    ShowErrorMessage("Invalid Date");
+            //    return false;
+            //}
+        });
+    });
+    function startChange() {
+
+        var startTime = this.value(),
+            endPicker = $("#ToHours").data("kendoTimePicker");
+
+        if (startTime) {
+            startTime = new Date(startTime);
+            //endPicker.max(startTime);
+            startTime.setMinutes(startTime.getMinutes() + this.options.interval);
+            endPicker.min(startTime);
+            endPicker.value(startTime);
+        }
+    }
+</script>

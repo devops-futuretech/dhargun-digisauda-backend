@@ -1,0 +1,163 @@
+﻿@using Kendo.Mvc.UI;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.MVC.Models;
+@model Adani.Solution.MVC.Models.FinancialYearViewModel
+@{
+    ViewBag.Title = Helper.GetResourceString("lbl_FinancialYear");
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="configurationFinancialYear" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title"> @Helper.GetResourceString("lbl_FinancialYear")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Configurations</a><span class="icon-right"></span></li>
+        <li><a href="FinancialYears">@Helper.GetResourceString("lbl_FinancialYear")</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_FinancialYear")<span class="icon-right"></span></li>
+    </ol>
+    <div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+            @*<h6 class="panel-title"><span class="text-semibold">@Helper.GetResourceString("msg_UnitOfSale")</span></h6>*@
+        </div>
+        <div class="panel-body" style="display: block;">
+            <p class="content-group-lg"></p>
+
+            @using (Html.BeginForm("FinancialYear", "SalesTourPlan", FormMethod.Post, new { id = "frmFinancialYear", @class = "form-validate-jquery" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.EncryptedId, new { id = "hdnId" })
+                <fieldset class="content-group">
+
+                    <div class="row form-group">
+                        <div class="col-lg-3 col-sm-6 mb-3">
+                            <label class="custom_label">@Helper.GetResourceString("lbl_CalendarDuaration")</label>
+                            @Html.TextBoxFor(m => m.Year, new { id = "txtName", tabindex = "1", required = "required", @class = "k-textbox", data_msg_required = Helper.GetMsgRequired("lbl_Name"), @maxlength = (int)InputMaxLength.String })
+                        </div>
+
+                        <div class="col-lg-3 col-sm-6 mb-3">
+                            <label class="custom_label">@Helper.GetResourceString("lbl_EffectiveFrom")</label>
+
+                            @(Html.Kendo().DatePickerFor(m => m.EffectiveFrom)
+                                  .Name("dpFromDate")
+                                  .Format(Settings.DateFormat)
+                                  .Events(e => e.Change("fromChange"))
+                                  //.Value(DateTime.Now)
+                                  .HtmlAttributes(new { id = "dpFromDate", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_EffectiveFrom"), style = "width: 100%" }))
+                        </div>
+
+                        <div class="col-lg-3 col-sm-6 mb-3">
+                            <label class="custom_label"> @Helper.GetResourceString("lbl_EffectiveTo")</label>
+                            @(Html.Kendo().DatePickerFor(m => m.EffectiveTo)
+                                  .Name("dpToDate")
+                                  .Format(Settings.DateFormat)
+                                  //.Value(DateTime.Now)
+                                  .HtmlAttributes(new { id = "dpToDate", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_EffectiveTo"), style = "width: 100%" }))
+                        </div>
+
+                        <div class="col-lg-3 col-sm-6 mb-3">
+                            <label class="custom_label">Status</label>
+                            @*<label class="custom_label"> @Helper.GetResourceString("lbl_Active")</label>*@
+                            <div class="">
+                                @(Html.Kendo().CheckBoxFor(m => m.IsActive).Name("cbIsActive").HtmlAttributes(new { id = "cbIsActive", tabindex = "4" }))
+                                <span class="label-title">@Helper.GetResourceString("lbl_Active")</span>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="text-right">
+                    <button type="button" tabindex="6" id="btnCancel" onclick="location.href = '@Url.Action("FinancialYears", "SalesTourPlan")'" class="k-button k-cancel custom-btns">@Helper.GetResourceString("btn_Cancel")</button>
+                    <button type="button" tabindex="5" id="btnFinancialYear" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Save") </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+
+        if ('@Model.Id' === '0') {
+            StartDateRange();
+        }
+
+        //ProgressLoader(false);
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+        $("#btnFinancialYear").click(function (e) {
+			formSubmit();
+		});
+    });
+
+    function formSubmit() {
+        //      $('#frmFinancialYear').submit();
+        //      var isValid = $("#frmFinancialYear").valid();
+        //if (isValid) {
+        //	// Animate loader
+        //          window.kendo.ui.progress($("#div_Progress"), true);
+        //}
+        window.kendo.ui.progress($("#div_Progress"), true);
+        var form = $('#frmFinancialYear')
+        var token = $('input[name="__RequestVerificationToken"]', form).val();
+
+        var model = {
+            Year: $("#txtName").val(),
+            EffectiveFrom: $("#dpFromDate").val(),
+            EffectiveTo: $("#dpToDate").val(),
+            IsActive: $('#cbIsActive').is(':checked'),
+            EncryptedId: $("#hdnId").val()
+        };
+        moduleCommon.Common.AjaxCall({
+            url: "/SalesTourPlan/FinancialYear",
+            type: 'POST',
+            data: { __RequestVerificationToken: token, financialyearViewModel: model },
+            success: function (result) {
+                if (result.PostStatus) {
+                    var url = '@Url.Action("FinancialYears", "SalesTourPlan")';
+                    window.location.href = url;
+                } else {
+                    ShowErrorMessage(result.PostMessage);
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                    return false;
+                }
+            }
+        });
+    }
+
+    function StartDateRange() {
+
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+
+        $("#dpFromDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        $("#dpToDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+
+        var endPicker = $("#dpToDate").data("kendoDatePicker");
+        endPicker.min(dates);
+    }
+
+    function fromChange() {
+        var endPicker = $("#dpToDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            $("#dpToDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+            endPicker.min(startDate);
+        }
+    }
+</script>

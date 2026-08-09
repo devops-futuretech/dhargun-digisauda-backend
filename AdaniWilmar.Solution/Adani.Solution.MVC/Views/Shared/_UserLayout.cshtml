@@ -1,0 +1,105 @@
+﻿@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewBag.Title - @Helper.GetResourceString("msg_EmamiBrowserTitle")</title>
+    @{ var version = ConfigHelper.Version;}
+
+    <!-- Global stylesheets -->
+    <link rel="icon" type="image/x-icon" href="~/images/favicon.ico">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700,900" rel="stylesheet" type="text/css">
+    <link href="~/Content/icons/icomoon/styles.css?v=@version" rel="stylesheet" type="text/css">
+    <link href="~/Content/new-icons/new_icomoon.css?v=@version" rel="stylesheet" type="text/css">
+    <link href="~/Content/bootstrap.css?v=@version" rel="stylesheet" type="text/css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="~/Content/Kendo/kendo.all.css?v=@version" rel="stylesheet" type="text/css">
+    <link href="~/Content/Site.css?v=@version" rel="stylesheet" type="text/css">
+    <link href="~/Content/Style.css?v=@version" rel="stylesheet" type="text/css">
+    <link href="~/Content/Menu.css?v=@version" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    @Scripts.Render("~/bundles/jquery")
+
+    <script type="text/javascript" src="~/Scripts/validate.min.js?v=@version"></script>
+    <script type="text/javascript" src="~/Scripts/bootstrap.js?v=@version"></script>
+    <script type="text/javascript" src="~/Scripts/menu.js?v=@version"></script>
+    <script type="text/javascript" src="~/Scripts/emamiCommon.js"></script>
+    <script type="text/javascript" src="~/Scripts/globalSettings.js?v=@version"></script>
+    <script type="text/javascript" src="~/Scripts/form.validation.js?v=@version"></script>
+
+    <script type="text/javascript" src="~/Scripts/Kendo/kendo.all.min.js?v=@version"></script>
+    <script type="text/javascript" src="~/Scripts/Kendo/kendo.aspnetmvc.min.js?v=@version"></script>
+    <script type="text/javascript" src="~/Scripts/Kendo/jszip.js?v=@version"></script>
+    <script type="text/javascript" src="~/Scripts/moduleCommon.js?v=@version"></script>
+
+    <!-- /theme JS files -->
+</head>
+
+<body class="pace-done">
+
+
+    <!-- Main navbar -->
+    <div>
+        @*<div class="navbar-header">
+                <a class="navbar-brand" href="@Url.Action("Login","User")"><img src="" alt="">GMSales</a>
+                <ul class="nav navbar-nav visible-xs-block">
+                    <li><a data-toggle="collapse" data-target="#navbar-mobile"><i class="icon-tree5"></i></a></li>
+                    <li><a class="sidebar-mobile-main-toggle"><i class="icon-paragraph-justify3"></i></a></li>
+                </ul>
+            </div>*@
+        @*<div class="navbar-collapse collapse" id="navbar-mobile">
+
+            </div>*@
+    </div>
+    <!-- /main navbar -->
+    <!-- Page container -->
+    <div class="page-container">
+        <!-- Page content -->
+        <div class="page-content">
+
+            <!-- Main content -->
+            <div class="" id="div_Progress">
+
+                <div id="dvAlert"> </div>
+                <!-- Content area -->
+
+                <div class="content loginContent">
+                    <div>
+                        @RenderBody()
+                    </div>
+                    <!-- Footer -->
+                    @*<div class="footer text-muted text-right">
+                            &copy; 2018. <a class="a-ChangePassword" href="#">GMSales</a> by <a class="a-ChangePassword" href="#" target="_blank">Impiger Technologies</a>
+                        </div>*@
+                    <!-- /footer -->
+                </div>
+                <!-- /content area -->
+
+
+            </div>
+            <!-- /footer -->
+            <!-- /content area -->
+        </div>
+        <!-- /main content -->
+    </div>
+    <!-- /page content -->
+    <!-- /page container -->
+
+
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle=offcanvas]').click(function () {
+                $('.row-offcanvas').toggleClass('active');
+            });
+        });
+    </script>
+
+</body>
+</html>

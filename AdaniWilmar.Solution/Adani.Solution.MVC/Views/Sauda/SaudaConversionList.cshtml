@@ -1,0 +1,337 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using System.Security.Claims
+@{
+    ViewBag.Title = @Helper.GetResourceString("lbl_SaudaConversionOrExtension");
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<input type="hidden" class="currentMenu" value="tptransactionSaudaConversion" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_SaudaConversionList")</h2>
+    <div id="dateFilter" class="col-xs-9">
+        @*<div class="period-wrapper">
+                @if (Helper.CheckClaims(Claims.ManageDiscounts))
+                {
+                    <a href="@Url.Action("DiscountUserEditRedirect", "Pricing")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateDiscount")</a>
+                }
+            </div>*@
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+@using (Html.BeginForm("SaudhaDetails", "ReverseAuction", FormMethod.Post, new { id = "frmSaudhaConversionList", @class = "form-validate-jquery" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="content main-section-content row">
+        <div class="panel panel-flat">
+            <div class="panel-heading">
+            </div>
+            <div class="panel-body" style="display: block;">
+                <div class="row" id="UpdateSaudhaConversionStatus">
+
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right">
+                            @Helper.GetResourceString("lbl_FromDate")
+                        </div>
+                        <div class="col-md-3">
+                            @(Html.Kendo().DatePicker().Name("FromDate")
+                          //.Format(Settings.DateFormat)
+                          .Events(e => e.Change("fromChange"))
+                          .HtmlAttributes(new { id = "dpFromDate", onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                        </div>
+
+                        <div class="col-md-2 text-right">
+                            @Helper.GetResourceString("lbl_ToDate")
+                        </div>
+                        <div class="col-md-3">
+                            @(Html.Kendo().DatePicker().Name("ToDate")
+                          //.Format(Settings.DateFormat)
+                          .HtmlAttributes(new { id = "dpToDate", onkeydown = "return isFocus(event);", tabindex = "2", style = "width: 100%" }))
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right">
+                            @Helper.GetResourceString("lbl_Status")
+                        </div>
+                        <div class="col-md-3">
+                            @(Html.Kendo().DropDownList()
+                                  .Name("Status")
+                                  .OptionLabel("Select status")
+                                  .DataTextField("Name")
+                                  .DataValueField("Id")
+                                  .Events(e => e.Change("statusChanged"))
+                                  .DataSource(source => source.Read(resd => resd.Action("GetPendingApprovedRejectedStatusddl", "Lookup"))
+                                  .ServerFiltering(false))
+                                  .HtmlAttributes(new { id = "ddlStatus", @class = "form-control", tabindex = "3", @style = "width:100%" }))
+                            <label id="lblStatus" class="field-validation-error" style="display: none;">@Helper.GetSelectMsgRequired("lbl_Status")</label>
+                        </div>
+
+                        <div class="col-md-2 text-right">
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" tabindex = "4" onclick="SaudaConvertionSearch()" class="k-primary k-button">@Helper.GetResourceString("btn_Search")</button>
+                        </div>
+                    </div>
+
+                    @*<div class="row form-group">
+                        <div class="col-md-12 text-center">
+                            <button type="button" onclick="SaudaConvertionSearch()" class="k-primary k-button">Search</button>
+                        </div>
+                    </div>*@
+
+                    <div class="col-md-12">
+                        <div class="text-right">
+                            <button class="k-button k-button-icontext k-grid-excel" onclick="ExportExcel()" type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;
+                            @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                        </div>
+                        @(Html.Kendo().Grid<SaudaConversionListDto>()
+                              .Name("GridSaudaConversion")
+                              .Columns(columns =>
+                              {
+                                  columns.Bound(c => c.Id).Visible(false);
+                                  columns.Bound(c => c.DealerId).Visible(false);
+                                  columns.Template(@<text></text>)
+                                  .ClientTemplate("#if(StatusId == emamiGlobal.Status.Pending)" +
+                                        "{# <input type='checkbox' class='chkbxAllPaymentReceived'  value=#=Id# onclick=\"findCheckedItemsSaveItToHidden(this,'#=Id#','hdSelectedIds','masterCBAllPaymentReceived','chkbxAllPaymentReceived','lblPaymentReceivedSelectedCount');\"/> #}#")
+                                  .HeaderTemplate("<div class='text-center' style = 'margin-left: 7px;'><input type='checkbox' id='masterCBAllPaymentReceived' onclick=\"masterfindCheckedItemsSaveItToHidden(this,'hdSelectedIds','chkbxAllPaymentReceived','lblPaymentReceivedSelectedCount')\"/></div>").Width("40px");
+                                  columns.Bound(c => c.DealerName).Title(@Helper.GetResourceString("lbl_DealerName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.SaudaId).Title(@Helper.GetResourceString("lbl_SaudaNumber")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.ExpiryDate).Title(@Helper.GetResourceString("lbl_ExpiryDate")).Format(Settings.GridDateFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.ExtendToDate).Title(@Helper.GetResourceString("lbl_ExtendToDate")).Format(Settings.GridDateFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.IsConversion).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_IsConversion")).ClientTemplate(@"<div style='text-align: center;'> #if(IsConversion == false) { #"
+                                                                     + " <a  title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.StatusName).Title(@Helper.GetResourceString("lbl_Status")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound("").ClientTemplate(@"<div style='text-align: center;'> <a style='text-decoration: underline;' href='" + Url.Action("SaudaConversionEdit", "Sauda", new { saudaConvertionId = "#=Id#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'><span class='glyphicon glyphicon-eye-open'></span></a> </div>").Title("Action").Width(Settings.GridColumnMaxWidth);
+                              })
+                              .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                              .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                              .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                              .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                              .Scrollable(s => s.Enabled(true).Height("auto"))
+                              .Reorderable(reorder => reorder.Columns(true))
+                              .Resizable(resize => resize.Columns(true))
+                              .Events(events => events.DataBound("onSaudaConvertionDataBound"))
+                              .ClientDetailTemplateId("saudaConvertionTemplate")
+                              .DataSource(dataSource => dataSource
+                              .Ajax()
+                              .Sort(sort => sort.Add("Id").Ascending())
+                              .Model(model => { model.Id(p => p.Id); })
+                              .ServerOperation(true)
+                              .Read(read => read.Action("GetSaudaConversionList", "Sauda").Data("additionalParam"))))
+                    </div>
+                </div>
+            </div>
+            <div class="row form-group" id="divSave">
+                <div class="col-lg-12" id="divRemarks">
+                    <label class="control-label col-lg-1">@Helper.GetResourceString("lbl_Remarks")</label>
+                    <div class="col-lg-11">
+                        @Html.TextArea("Remarks", "", new { id = "txtRemarks", tabindex = "5", @class = "k-textarea", @maxlength = (int)InputMaxLength.TextAreaString })
+                    </div>
+                </div>
+            </div>
+            <div class="row form-group" id="divSave">
+                <div class="text-center row">
+                    @if (Helper.CheckClaims(Claims.ApproveSaudaConversion))
+                    {
+                        <button type="button" tabindex = "6" id="btnApproved" class="k-primary k-button">@Helper.GetResourceString("btn_Approve")</button>
+                        <button type="button" tabindex = "7" id="btnRejected" class="k-button">@Helper.GetResourceString("btn_Reject")</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@Html.Hidden("hdSelectedIds")
+
+<script id="saudaConvertionTemplate" type="text/kendo-tmpl">
+    @(Html.Kendo().Grid<Adani.Solution.DTO.SaudaOrderDetails>()
+          .Name("grid_#=Id#")
+          .Columns(columns =>
+          {
+              columns.Bound(c => c.SkuName).Title(@Helper.GetResourceString("lbl_SkuName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+              columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+              columns.Bound(c => c.QuotedPrice).Title(@Helper.GetResourceString("lbl_FinalPrice")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+              columns.Bound(c => c.BidQuantity).Title(@Helper.GetResourceString("lbl_QuantityPerMT")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+              columns.Bound(c => c.BidQuantityCases).Title(@Helper.GetResourceString("lbl_QuantityPerCase")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+              columns.Bound(c => c.BidPricePerCase).Title(@Helper.GetResourceString("lbl_PricePerCase")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+              columns.Bound(c => c.BidPrice).Title(@Helper.GetResourceString("lbl_Price")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+          })
+          .DataSource(dataSource => dataSource
+              .Ajax()
+              .PageSize(10)
+              .Read(read => read.Action("GetSaudaConversionDetails", "Sauda", new { saudaConvertionId = "#=Id#" }))
+          )
+          .Pageable()
+          .Sortable()
+          .ToClientTemplate())
+</script>
+
+<script>
+
+    $(document).ready(function () {
+
+        //kendo grid filter contains
+        FilterContains();
+
+        $("#btnApproved").val(emamiGlobal.Status.Approved);
+        $("#btnRejected").val(emamiGlobal.Status.Rejected);
+
+        //Set default date
+        StartDateRange();
+
+        if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+
+
+        $("#btnApproved,#btnRejected").click(function (e) {
+            
+            var form = $('#frmSaudhaConversionList');
+            var token = $('input[name="__RequestVerificationToken"]', form).val();
+            var statusId = parseInt($(this).val());
+
+            var gridData = $("#GridSaudaConversion").data("kendoGrid").dataSource.data();
+            if (gridData.length === 0) {
+                ShowErrorMessage("Please select any record");
+                return false;
+            }
+
+            var selectedOrders = [];
+            if ($("#hdSelectedIds").val()) {
+                selectedOrders = $("#hdSelectedIds").val().split(",");
+            }
+
+            if (!(selectedOrders.length > 0)) {
+                ShowErrorMessage("Please select any record");
+                return false;
+            }
+
+            if (statusId == emamiGlobal.Status.Rejected && !$("#txtRemarks").val()) {
+                ShowErrorMessage("Please enter the reason");
+                return false;
+            }
+
+            var model = {
+                SaudaIds: selectedOrders,
+                Remarks: $("#txtRemarks").val(),
+                StatusId: statusId
+            };
+
+            window.kendo.ui.progress($("#div_Progress"), true);
+            moduleCommon.Common.AjaxCall({
+                url: '@Url.Action("UpdateSaudhaConversionStatus", "Sauda")',
+				type: 'POST',
+                data: { __RequestVerificationToken: token, saudaUpdateDto: model },
+				success: function (result) {
+                    if (result.PostStatus) {
+                        ShowSuccessMessage(result.PostMessage);
+                        setTimeout(function () { window.location.href = '@Url.Action("SaudaConversionList", "Sauda")'; }, 1300);
+					} else {
+						ShowErrorMessage(result.PostMessage);
+                    }
+                    window.kendo.ui.progress($("#div_Progress"), false);
+				}
+			});
+        });
+        
+    });
+
+    function onSaudaConvertionDataBound(e) {
+        SetEmptyRow(e);
+        //this.expandRow(this.tbody.find("tr.k-master-row").first());
+
+        var selectedOrders = [];
+        if ($("#hdSelectedIds").val()) {
+            selectedOrders = $("#hdSelectedIds").val().split(",");
+        }
+
+        $("#masterCBAllPaymentReceived").prop('checked', false);
+        $('input:checkbox.' + 'chkbxAllPaymentReceived').each(function () {
+            if ($.inArray(this.value, selectedOrders) > -1) {
+                this.checked = true;
+            }
+            else {
+                this.checked = false;
+            }
+        });
+    }
+
+    function additionalParam() {
+        var statusId = Number($("#ddlStatus").val());
+        return {
+            fromDate: $("#dpFromDate").val(),
+            todate: $("#dpToDate").val(),
+            statusId: statusId
+        };
+    } 
+
+    function fromChange() {
+        var endPicker = $("#dpToDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            $("#dpToDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+            endPicker.min(startDate);
+        }
+    }
+
+    function StartDateRange() {
+        //var endPicker = $("#dpToDate").data("kendoDatePicker"),
+        //    startDate = $("#dpToDate").val();
+        //if (startDate) {
+        //    startDate = new Date(startDate);
+        //    $("#dpToDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+        //    endPicker.min(startDate);
+        //}
+
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+
+        $("#dpFromDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        $("#dpToDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+
+        var endPicker = $("#dpToDate").data("kendoDatePicker");
+        endPicker.min(dates);
+    }
+
+    function SaudaConvertionSearch() {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        selectAllHideShow();
+        $("#GridSaudaConversion").data("kendoGrid").dataSource.read();
+        window.kendo.ui.progress($("#div_Progress"), false);
+    }
+
+    function statusChanged() {
+        var statusId = Number($("#ddlStatus").val());
+        //$("#hdSelectedIds").val('');
+        //$("#masterCBAllPaymentReceived").prop("checked", false);
+
+        //if (statusId == emamiGlobal.Status.Pending) {
+        //    $("#btnApproved,#btnRejected,#btnHold").attr("disabled", false);
+        //} else {
+        //    $("#btnApproved,#btnRejected,#btnHold").attr("disabled", true);
+        //}
+    }
+
+    function ExportExcel() {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        if ($("#dpToDate").val() != "NaN-M-0NaN")
+            location.href = '@Url.Action("GenerateExcelSaudaConversionAsync", "Sauda")?fromDate=' + $("#dpFromDate").val() + '&toDate=' + $("#dpToDate").val() + '&statusId=' + Number($("#ddlStatus").val())
+        else
+            ShowErrorMessage("Please select date range - ToDate");
+        window.kendo.ui.progress($("#div_Progress"), false);
+    }
+
+    function selectAllHideShow() {
+        var statusId = Number($("#ddlStatus").val());
+        if (statusId == emamiGlobal.Status.Pending) { $("#masterCBAllPaymentReceived").show(); } else { $("#masterCBAllPaymentReceived").hide(); }
+    }
+</script>
+
+

@@ -1,0 +1,99 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+
+@{
+    ViewBag.Title = "GamificationDashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="ConfigurationGamificationDashboard" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_GamificationDashboard")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Configurations</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_GamificationDashboard")<span class="icon-right"></span></li>
+    </ol>
+   
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+       
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvDealers">
+                <div class="col-md-12">
+                    <div class="text-right right-buttons">
+                       
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+
+                      
+                    </div>
+
+                    @(Html.Kendo().Grid<GamificationDashboardDto>()
+                          .Name("GridGamificationDashboard")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.Id).Visible(false);
+                              columns.Bound(c => c.DistributorCode).ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("GamificationDashboardRedirect", "Lookup", new { EncryptedId = "#=Id#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=DistributorCode#</a> </div>").Title("Distributor Name").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.DistributorTargetMT).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Target (MT)").Width(Settings.GridColumnMaxWidth).Format("{0:0.###}");
+                              columns.Bound(c => c.DistributorAchievementTillN1MT).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Achievement (MT)").Width(Settings.GridColumnMaxWidth).Format("{0:0.###}");
+                              columns.Bound(c => c.RemainingTargetToAchieveMT).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Balance Target (MT)").Width(Settings.GridColumnMaxWidth).Format("{0:0.###}");
+                              columns.Bound(c => c.EarnedPoints).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Points Earned").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.CurrentSlab).HtmlAttributes(new { @title = "#=CurrentSlab#" }).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Current Slab").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.NextHigherSlab).HtmlAttributes(new { @title = "#=NextHigherSlab#" }).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Next Slab").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.PointsToBeEarnedToReachNextHigherSlab).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Balance Point for next slab").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.TotalEarningsInRs).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Total Earning (Rs.)").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.SpecialBonusMessage).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Message").Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(c => c.WholePointsStructure).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("WholePoints Structure").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Active")).ClientTemplate(@"<div style='text-align: center;'>#if(IsActive){#<i class='icon-green_ckbox_tick faicon-green'><span class='path1'></span><span class='path2'></span></i>#}else{#<i class='icon-red_ckbox_tick faicon-red'><span class='path1'></span><span class='path2'></span></i>#}#</div>").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.IsDiamond).HeaderTemplate("").Title("IsDiamond").ClientTemplate(@"<div style='text-align: center;'>#if(IsDiamond){#<i class='icon-green_ckbox_tick faicon-green'><span class='path1'></span><span class='path2'></span></i>#}else{#<i class='icon-red_ckbox_tick faicon-red'><span class='path1'></span><span class='path2'></span></i>#}#</div>").Width(Settings.GridColumnMaxWidth);
+                              //columns.Template(t => t.Name).Title(@Helper.GetResourceString("lbl_Edit")).ClientTemplate(@"<div style='text-align: center;'>
+                              //                                  <i onclick='editOil(this)' class='icon-edit pointer' ></i></div>").Title(@Helper.GetResourceString("lbl_Edit")).Width(Settings.GridButtonColumnWidth);
+                          })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Resizable(resize => resize.Columns(true))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          //.Excel(excel => excel.AllPages(true).FileName(@Helper.GetResourceString("lbl_OilType") + " " + DateTime.Now + ".xlsx").Filterable(true))
+                          //.Events(events => events.DataBound("onOiltypeDataBound"))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          //.Sort(sort => sort.Add("Id").Ascending())
+                          //.Model(model => { model.Id(p => p.Id); })
+                          .ServerOperation(true)
+                          .Read(read => read.Action("GetGamificationDashboardAsync", "Lookup"))))
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+
+    $(document).ready(function () {
+
+        FilterContains();
+    });
+
+    //Refresh the grid
+    function refreshGrid() {
+        var orderGrid = $("#GridGamificationDashboard").data("kendoGrid");
+        orderGrid.dataSource.read();
+    }
+
+</script>
+
+
+
+
+

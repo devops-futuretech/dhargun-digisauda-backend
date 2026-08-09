@@ -1,0 +1,936 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{DCDB5BE7-C0B2-4C41-85C7-ED819CD8FB06}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Adani.Solution.Data</RootNamespace>
+    <AssemblyName>Adani.Solution.Data</AssemblyName>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>
+    </DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=19f9d7d4cc76b670, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFrameworkDbModelStore.1.1\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.BulkInsert, Version=0.0.0.0, Culture=neutral, PublicKeyToken=19f9d7d4cc76b670, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFrameworkDbModelStore.BulkInsert.1.5\lib\Net45\EntityFramework.BulkInsert.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.Extensions, Version=0.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.Extensions.0.0.2\lib\net40\EntityFramework.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.MappingAPI, Version=0.0.0.0, Culture=neutral, PublicKeyToken=19f9d7d4cc76b670, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFrameworkDbModelStore.MappingAPI.1.1\lib\net45\EntityFramework.MappingAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=19f9d7d4cc76b670, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFrameworkDbModelStore.1.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="GMCore.Helper">
+      <HintPath>..\GMCoreComponents\GMCore.Helper.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.IO, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.4.3.0\lib\net462\System.IO.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Net" />
+    <Reference Include="System.Net.Http, Version=4.1.1.3, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.4.3.4\lib\net46\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Extensions, Version=2.2.29.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.Formatting.Extension.5.2.3.0\lib\System.Net.Http.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.Formatting.Extension.5.2.3.0\lib\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Primitives, Version=4.2.29.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.Formatting.Extension.5.2.3.0\lib\System.Net.Http.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.4.3.0\lib\net462\System.Runtime.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Algorithms, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Algorithms.4.3.0\lib\net463\System.Security.Cryptography.Algorithms.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Encoding, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Encoding.4.3.0\lib\net46\System.Security.Cryptography.Encoding.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Primitives, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Primitives.4.3.0\lib\net46\System.Security.Cryptography.Primitives.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.X509Certificates, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.X509Certificates.4.3.0\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ChequeInventoryDetail.cs" />
+    <Compile Include="CustomerAccountStatement.cs" />
+    <Compile Include="DatabaseContextMigrations\202210070843189_Intial_SetUp.cs" />
+    <Compile Include="DatabaseContextMigrations\202210070843189_Intial_SetUp.Designer.cs">
+      <DependentUpon>202210070843189_Intial_SetUp.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202210090620162_RemovedTerritoryIdDistrictsTable.cs" />
+    <Compile Include="DatabaseContextMigrations\202210090620162_RemovedTerritoryIdDistrictsTable.Designer.cs">
+      <DependentUpon>202210090620162_RemovedTerritoryIdDistrictsTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202210090959401_RemovedLiterConversionOilTypeTable.cs" />
+    <Compile Include="DatabaseContextMigrations\202210090959401_RemovedLiterConversionOilTypeTable.Designer.cs">
+      <DependentUpon>202210090959401_RemovedLiterConversionOilTypeTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202210091013314_RemovedColumnOilType.cs" />
+    <Compile Include="DatabaseContextMigrations\202210091013314_RemovedColumnOilType.Designer.cs">
+      <DependentUpon>202210091013314_RemovedColumnOilType.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202210091438598_UserTableColumnsRemoved.cs" />
+    <Compile Include="DatabaseContextMigrations\202210091438598_UserTableColumnsRemoved.Designer.cs">
+      <DependentUpon>202210091438598_UserTableColumnsRemoved.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202210120508052_AddSalesOrgDistChannelInTarget.cs" />
+    <Compile Include="DatabaseContextMigrations\202210120508052_AddSalesOrgDistChannelInTarget.Designer.cs">
+      <DependentUpon>202210120508052_AddSalesOrgDistChannelInTarget.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202210130749551_ShiptoPartyCodeAdd.cs" />
+    <Compile Include="DatabaseContextMigrations\202210130749551_ShiptoPartyCodeAdd.Designer.cs">
+      <DependentUpon>202210130749551_ShiptoPartyCodeAdd.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202211151317293_MTPRemoveHeadquarters.cs" />
+    <Compile Include="DatabaseContextMigrations\202211151317293_MTPRemoveHeadquarters.Designer.cs">
+      <DependentUpon>202211151317293_MTPRemoveHeadquarters.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202211171218040_AddBdoId.cs" />
+    <Compile Include="DatabaseContextMigrations\202211171218040_AddBdoId.Designer.cs">
+      <DependentUpon>202211171218040_AddBdoId.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202211220500048_AddedSpecialRateRequestIdInSaudaTable.cs" />
+    <Compile Include="DatabaseContextMigrations\202211220500048_AddedSpecialRateRequestIdInSaudaTable.Designer.cs">
+      <DependentUpon>202211220500048_AddedSpecialRateRequestIdInSaudaTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202211231303169_AddedSalesOrgDistChnlDivInInvoicesTable.cs" />
+    <Compile Include="DatabaseContextMigrations\202211231303169_AddedSalesOrgDistChnlDivInInvoicesTable.Designer.cs">
+      <DependentUpon>202211231303169_AddedSalesOrgDistChnlDivInInvoicesTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202211290503076_AddedCombinationInLiftingRequestDetailsTable.cs" />
+    <Compile Include="DatabaseContextMigrations\202211290503076_AddedCombinationInLiftingRequestDetailsTable.Designer.cs">
+      <DependentUpon>202211290503076_AddedCombinationInLiftingRequestDetailsTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202211290526113_AddUserReportingToMappingtable.cs" />
+    <Compile Include="DatabaseContextMigrations\202211290526113_AddUserReportingToMappingtable.Designer.cs">
+      <DependentUpon>202211290526113_AddUserReportingToMappingtable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202212301243213_Pending_Contract_Create_Date_add.cs" />
+    <Compile Include="DatabaseContextMigrations\202212301243213_Pending_Contract_Create_Date_add.Designer.cs">
+      <DependentUpon>202212301243213_Pending_Contract_Create_Date_add.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202301171329111_stp-foreignkeyremove.cs" />
+    <Compile Include="DatabaseContextMigrations\202301171329111_stp-foreignkeyremove.Designer.cs">
+      <DependentUpon>202301171329111_stp-foreignkeyremove.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202303310351172_AddImagePathToUser.cs" />
+    <Compile Include="DatabaseContextMigrations\202303310351172_AddImagePathToUser.Designer.cs">
+      <DependentUpon>202303310351172_AddImagePathToUser.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202304210854426_AddStateInDiscountUser.cs" />
+    <Compile Include="DatabaseContextMigrations\202304210854426_AddStateInDiscountUser.Designer.cs">
+      <DependentUpon>202304210854426_AddStateInDiscountUser.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202307110818444_AddedTableForSaudaBookingConfiguration.cs" />
+    <Compile Include="DatabaseContextMigrations\202307110818444_AddedTableForSaudaBookingConfiguration.Designer.cs">
+      <DependentUpon>202307110818444_AddedTableForSaudaBookingConfiguration.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202307120640017_addedDateFieldInSaudaConfigTable.cs" />
+    <Compile Include="DatabaseContextMigrations\202307120640017_addedDateFieldInSaudaConfigTable.Designer.cs">
+      <DependentUpon>202307120640017_addedDateFieldInSaudaConfigTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202307240711529_AddedOilTypeIdsFieldInSaudaConfigtable.cs" />
+    <Compile Include="DatabaseContextMigrations\202307240711529_AddedOilTypeIdsFieldInSaudaConfigtable.Designer.cs">
+      <DependentUpon>202307240711529_AddedOilTypeIdsFieldInSaudaConfigtable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202311291151430_UserIdsAddedInSaudaConfig.cs" />
+    <Compile Include="DatabaseContextMigrations\202311291151430_UserIdsAddedInSaudaConfig.Designer.cs">
+      <DependentUpon>202311291151430_UserIdsAddedInSaudaConfig.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202312041033235_LineMasterPage.cs" />
+    <Compile Include="DatabaseContextMigrations\202312041033235_LineMasterPage.Designer.cs">
+      <DependentUpon>202312041033235_LineMasterPage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202401051004438_NewStatusAddInLift.cs" />
+    <Compile Include="DatabaseContextMigrations\202401051004438_NewStatusAddInLift.Designer.cs">
+      <DependentUpon>202401051004438_NewStatusAddInLift.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202401121044208_CompletedDoNumbers.cs" />
+    <Compile Include="DatabaseContextMigrations\202401121044208_CompletedDoNumbers.Designer.cs">
+      <DependentUpon>202401121044208_CompletedDoNumbers.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202402010402489_SalesRegisterData.cs" />
+    <Compile Include="DatabaseContextMigrations\202402010402489_SalesRegisterData.Designer.cs">
+      <DependentUpon>202402010402489_SalesRegisterData.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202402031426271_SalesRegisterDataAddMorefields.cs" />
+    <Compile Include="DatabaseContextMigrations\202402031426271_SalesRegisterDataAddMorefields.Designer.cs">
+      <DependentUpon>202402031426271_SalesRegisterDataAddMorefields.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202402221312595_SaudaTypeAdded.cs" />
+    <Compile Include="DatabaseContextMigrations\202402221312595_SaudaTypeAdded.Designer.cs">
+      <DependentUpon>202402221312595_SaudaTypeAdded.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202403050450032_SalesShiptoprtyAdd.cs" />
+    <Compile Include="DatabaseContextMigrations\202403050450032_SalesShiptoprtyAdd.Designer.cs">
+      <DependentUpon>202403050450032_SalesShiptoprtyAdd.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202405091306588_UserLoginHistory Added.cs" />
+    <Compile Include="DatabaseContextMigrations\202405091306588_UserLoginHistory Added.Designer.cs">
+      <DependentUpon>202405091306588_UserLoginHistory Added.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202405091327172_QPSDiscountColAdd.cs" />
+    <Compile Include="DatabaseContextMigrations\202405091327172_QPSDiscountColAdd.Designer.cs">
+      <DependentUpon>202405091327172_QPSDiscountColAdd.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202405101328306_qpsdiscountadded.cs" />
+    <Compile Include="DatabaseContextMigrations\202405101328306_qpsdiscountadded.Designer.cs">
+      <DependentUpon>202405101328306_qpsdiscountadded.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202405301134554_QPSDiscountSkuMappingandQPSSlabDetails.cs" />
+    <Compile Include="DatabaseContextMigrations\202405301134554_QPSDiscountSkuMappingandQPSSlabDetails.Designer.cs">
+      <DependentUpon>202405301134554_QPSDiscountSkuMappingandQPSSlabDetails.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202406061041196_QpsDiscountSkumappingtablemodified.cs" />
+    <Compile Include="DatabaseContextMigrations\202406061041196_QpsDiscountSkumappingtablemodified.Designer.cs">
+      <DependentUpon>202406061041196_QpsDiscountSkumappingtablemodified.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202406250954559_OilPackGroupTypeColumnAdd.cs" />
+    <Compile Include="DatabaseContextMigrations\202406250954559_OilPackGroupTypeColumnAdd.Designer.cs">
+      <DependentUpon>202406250954559_OilPackGroupTypeColumnAdd.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202406251117439_TickerColorColumnAdd.cs" />
+    <Compile Include="DatabaseContextMigrations\202406251117439_TickerColorColumnAdd.Designer.cs">
+      <DependentUpon>202406251117439_TickerColorColumnAdd.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202408290725165_Gamification_Dashboard_Details_Table.cs" />
+    <Compile Include="DatabaseContextMigrations\202408290725165_Gamification_Dashboard_Details_Table.Designer.cs">
+      <DependentUpon>202408290725165_Gamification_Dashboard_Details_Table.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202409020905538_ComplaintManagement_Entities_Added.cs" />
+    <Compile Include="DatabaseContextMigrations\202409020905538_ComplaintManagement_Entities_Added.Designer.cs">
+      <DependentUpon>202409020905538_ComplaintManagement_Entities_Added.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202409051233247_FormUsers_Add.cs" />
+    <Compile Include="DatabaseContextMigrations\202409051233247_FormUsers_Add.Designer.cs">
+      <DependentUpon>202409051233247_FormUsers_Add.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202409021056113_Gamification_Dashboards_Table_Update.cs" />
+    <Compile Include="DatabaseContextMigrations\202409021056113_Gamification_Dashboards_Table_Update.Designer.cs">
+      <DependentUpon>202409021056113_Gamification_Dashboards_Table_Update.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202409040642344_Gamification_Dashboard_Details_Table_Update.cs" />
+    <Compile Include="DatabaseContextMigrations\202409040642344_Gamification_Dashboard_Details_Table_Update.Designer.cs">
+      <DependentUpon>202409040642344_Gamification_Dashboard_Details_Table_Update.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202409090755221_SubmittedFormDetailsScheduleDemoUserMappingstable.cs" />
+    <Compile Include="DatabaseContextMigrations\202409090755221_SubmittedFormDetailsScheduleDemoUserMappingstable.Designer.cs">
+      <DependentUpon>202409090755221_SubmittedFormDetailsScheduleDemoUserMappingstable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202409101235481_Tan_Number_User_Table_Update.cs" />
+    <Compile Include="DatabaseContextMigrations\202409101235481_Tan_Number_User_Table_Update.Designer.cs">
+      <DependentUpon>202409101235481_Tan_Number_User_Table_Update.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202409111457044_RemoveRetailersForeignKey.cs" />
+    <Compile Include="DatabaseContextMigrations\202409111457044_RemoveRetailersForeignKey.Designer.cs">
+      <DependentUpon>202409111457044_RemoveRetailersForeignKey.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202409161647079_FormsTableRoleIdscolumnAdd.cs" />
+    <Compile Include="DatabaseContextMigrations\202409161647079_FormsTableRoleIdscolumnAdd.Designer.cs">
+      <DependentUpon>202409161647079_FormsTableRoleIdscolumnAdd.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202409130516549_AddedQPSIdWithDiscountField.cs" />
+    <Compile Include="DatabaseContextMigrations\202409130516549_AddedQPSIdWithDiscountField.Designer.cs">
+      <DependentUpon>202409130516549_AddedQPSIdWithDiscountField.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202409261403167_QuestionMastertableTextlengthcolumnadd.cs" />
+    <Compile Include="DatabaseContextMigrations\202409261403167_QuestionMastertableTextlengthcolumnadd.Designer.cs">
+      <DependentUpon>202409261403167_QuestionMastertableTextlengthcolumnadd.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202409271213016_QPSDiscountChangeColInSaudaOrder.cs" />
+    <Compile Include="DatabaseContextMigrations\202409271213016_QPSDiscountChangeColInSaudaOrder.Designer.cs">
+      <DependentUpon>202409271213016_QPSDiscountChangeColInSaudaOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202410081230131_AddOpenSalesOrderQuantityInPendingContract.cs" />
+    <Compile Include="DatabaseContextMigrations\202410081230131_AddOpenSalesOrderQuantityInPendingContract.Designer.cs">
+      <DependentUpon>202410081230131_AddOpenSalesOrderQuantityInPendingContract.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202410231245380_RequestedDiscountDateAdd.cs" />
+    <Compile Include="DatabaseContextMigrations\202410231245380_RequestedDiscountDateAdd.Designer.cs">
+      <DependentUpon>202410231245380_RequestedDiscountDateAdd.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202410301032531_SaudaOrdersTableIsReportingtoAllocationColmAdd.cs" />
+    <Compile Include="DatabaseContextMigrations\202410301032531_SaudaOrdersTableIsReportingtoAllocationColmAdd.Designer.cs">
+      <DependentUpon>202410301032531_SaudaOrdersTableIsReportingtoAllocationColmAdd.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202501281317101_SAPEmailStatementMigration.cs" />
+    <Compile Include="DatabaseContextMigrations\202501281317101_SAPEmailStatementMigration.Designer.cs">
+      <DependentUpon>202501281317101_SAPEmailStatementMigration.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202501310531574_SAPEmailStatementStatsfield.cs" />
+    <Compile Include="DatabaseContextMigrations\202501310531574_SAPEmailStatementStatsfield.Designer.cs">
+      <DependentUpon>202501310531574_SAPEmailStatementStatsfield.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202502190936085_SaudaOrdersTableAddPRGSTandPRAmount.cs" />
+    <Compile Include="DatabaseContextMigrations\202502190936085_SaudaOrdersTableAddPRGSTandPRAmount.Designer.cs">
+      <DependentUpon>202502190936085_SaudaOrdersTableAddPRGSTandPRAmount.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202505111524550_CrossAndUpsellMigration.cs" />
+    <Compile Include="DatabaseContextMigrations\202505111524550_CrossAndUpsellMigration.Designer.cs">
+      <DependentUpon>202505111524550_CrossAndUpsellMigration.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202505191204174_CrossAndUpsellContgractMigration.cs" />
+    <Compile Include="DatabaseContextMigrations\202505191204174_CrossAndUpsellContgractMigration.Designer.cs">
+      <DependentUpon>202505191204174_CrossAndUpsellContgractMigration.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202506030650376_GeographyDiscountPackGroupMigration.cs" />
+    <Compile Include="DatabaseContextMigrations\202506030650376_GeographyDiscountPackGroupMigration.Designer.cs">
+      <DependentUpon>202506030650376_GeographyDiscountPackGroupMigration.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202506100450059_GeographyDiscountIsActivceMigration.cs" />
+    <Compile Include="DatabaseContextMigrations\202506100450059_GeographyDiscountIsActivceMigration.Designer.cs">
+      <DependentUpon>202506100450059_GeographyDiscountIsActivceMigration.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202507110700007_Add PackType column in DiscountGeographies.cs" />
+    <Compile Include="DatabaseContextMigrations\202507110700007_Add PackType column in DiscountGeographies.Designer.cs">
+      <DependentUpon>202507110700007_Add PackType column in DiscountGeographies.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202507111103425_Add columns in DiscountGeographyImportStatus.cs" />
+    <Compile Include="DatabaseContextMigrations\202507111103425_Add columns in DiscountGeographyImportStatus.Designer.cs">
+      <DependentUpon>202507111103425_Add columns in DiscountGeographyImportStatus.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202507150307402_CrossAnUpsellOilTypeChanges.cs" />
+    <Compile Include="DatabaseContextMigrations\202507150307402_CrossAnUpsellOilTypeChanges.Designer.cs">
+      <DependentUpon>202507150307402_CrossAnUpsellOilTypeChanges.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202511131004093_BaselineMigrationDelta.cs" />
+    <Compile Include="DatabaseContextMigrations\202511131004093_BaselineMigrationDelta.Designer.cs">
+      <DependentUpon>202511131004093_BaselineMigrationDelta.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202511131116442_ShiftSaudaValidityPeriodAndPlantAtDivisionLevel.cs" />
+    <Compile Include="DatabaseContextMigrations\202511131116442_ShiftSaudaValidityPeriodAndPlantAtDivisionLevel.Designer.cs">
+      <DependentUpon>202511131116442_ShiftSaudaValidityPeriodAndPlantAtDivisionLevel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202511260531083_AddSaudaSalesAreaRestrictionsTable.cs" />
+    <Compile Include="DatabaseContextMigrations\202511260531083_AddSaudaSalesAreaRestrictionsTable.Designer.cs">
+      <DependentUpon>202511260531083_AddSaudaSalesAreaRestrictionsTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202512101337347_DiscountAutomationChanges.cs" />
+    <Compile Include="DatabaseContextMigrations\202512101337347_DiscountAutomationChanges.Designer.cs">
+      <DependentUpon>202512101337347_DiscountAutomationChanges.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202512160715101_AddSaudaModificaitonTables.cs" />
+    <Compile Include="DatabaseContextMigrations\202512160715101_AddSaudaModificaitonTables.Designer.cs">
+      <DependentUpon>202512160715101_AddSaudaModificaitonTables.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202512181045299_AddPricingFieldsInSaudaModification.cs" />
+    <Compile Include="DatabaseContextMigrations\202512181045299_AddPricingFieldsInSaudaModification.Designer.cs">
+      <DependentUpon>202512181045299_AddPricingFieldsInSaudaModification.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202602251355476_SaudaOrdersAddColumnToStorePriceBeforeSAPDiscount.cs" />
+    <Compile Include="DatabaseContextMigrations\202602251355476_SaudaOrdersAddColumnToStorePriceBeforeSAPDiscount.Designer.cs">
+      <DependentUpon>202602251355476_SaudaOrdersAddColumnToStorePriceBeforeSAPDiscount.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\202607100058548_AddDistributorStockEntryTables.cs" />
+    <Compile Include="DatabaseContextMigrations\202607100058548_AddDistributorStockEntryTables.Designer.cs">
+      <DependentUpon>202607100058548_AddDistributorStockEntryTables.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseContextMigrations\MigrationConfiguration.cs" />
+    <Compile Include="DatabaseContext\AdaniContext.cs" />
+    <Compile Include="DatabaseContext\IAdaniContext.cs" />
+    <Compile Include="Entities\AccountStatement.cs" />
+    <Compile Include="Entities\AdditionalCost.cs" />
+    <Compile Include="Entities\AnswerOption.cs" />
+    <Compile Include="Entities\Answers.cs" />
+    <Compile Include="Entities\Attachment.cs" />
+    <Compile Include="Entities\AudioFileDetailsForActiveCustomers.cs" />
+    <Compile Include="Entities\BaseGroupMargin.cs" />
+    <Compile Include="Entities\BaseGroupMarginStates.cs" />
+    <Compile Include="Entities\BaseSkuPrice.cs" />
+    <Compile Include="Entities\BaseSkuPriceDetails.cs" />
+    <Compile Include="Entities\BdoChoosenDealerDetailsDuringCall.cs" />
+    <Compile Include="Entities\BdoCompetitor.cs" />
+    <Compile Include="Entities\BdoCompetitorSku.cs" />
+    <Compile Include="Entities\Benefits.cs" />
+    <Compile Include="Entities\BenefitTypes.cs" />
+    <Compile Include="Entities\BiddingWindow.cs" />
+    <Compile Include="Entities\BiddingWindowCustomerGroup.cs" />
+    <Compile Include="Entities\BiddingWindowNotificationTiming.cs" />
+    <Compile Include="Entities\BiddingWindowStatus.cs" />
+    <Compile Include="Entities\BiddingWindowVolumeCapacity.cs" />
+    <Compile Include="Entities\Bulletin.cs" />
+    <Compile Include="Entities\BulletinMedia.cs" />
+    <Compile Include="Entities\Competitor.cs" />
+    <Compile Include="Entities\CompetitorAnalysis.cs" />
+    <Compile Include="Entities\CompetitorAnalysisApproval.cs" />
+    <Compile Include="Entities\CompetitorAnalysisDetails.cs" />
+    <Compile Include="Entities\CompetitorSku.cs" />
+    <Compile Include="Entities\CompletedDoNumbers.cs" />
+    <Compile Include="Entities\ConfigurationForVerticalsAndEmails.cs" />
+    <Compile Include="Entities\CustomerGroupFive.cs" />
+    <Compile Include="Entities\CustomerLedgerDetails.cs" />
+    <Compile Include="Entities\CustomerTruckCapacityMapping.cs" />
+    <Compile Include="Entities\ConsentImageDetailsForCustomers.cs" />
+    <Compile Include="Entities\DateRange.cs" />
+    <Compile Include="Entities\DiscountGeographyImportStatus.cs" />
+    <Compile Include="Entities\DistributionChannel.cs" />
+    <Compile Include="Entities\DistributorStockEntry.cs" />
+    <Compile Include="Entities\DistributorStockEntryDetail.cs" />
+    <Compile Include="Entities\FillerSkuBasedOnDealer.cs" />
+    <Compile Include="Entities\Form.cs" />
+    <Compile Include="Entities\FormQuestion.cs" />
+    <Compile Include="Entities\FormStatus.cs" />
+    <Compile Include="Entities\FormUser.cs" />
+    <Compile Include="Entities\FreightRoute.cs" />
+    <Compile Include="Entities\FreightZone.cs" />
+    <Compile Include="Entities\GamificationDashboard.cs" />
+    <Compile Include="Entities\GPSTracking.cs" />
+    <Compile Include="Entities\Line.cs" />
+    <Compile Include="Entities\OverduePayment.cs" />
+    <Compile Include="Entities\QpsDiscount.cs" />
+    <Compile Include="Entities\QPSDiscountSkuMapping.cs" />
+    <Compile Include="Entities\QPSSlabDetails.cs" />
+    <Compile Include="Entities\QuestionMaster.cs" />
+    <Compile Include="Entities\QuestionType.cs" />
+    <Compile Include="Entities\RAMaterialCost.cs" />
+    <Compile Include="Entities\Retailer.cs" />
+    <Compile Include="Entities\SalesDocumentType.cs" />
+    <Compile Include="Entities\SalesOrganization.cs" />
+    <Compile Include="Entities\SAPEmailStatement.cs" />
+    <Compile Include="Entities\SaudaApproval.cs" />
+    <Compile Include="Entities\SaudaAudioFileMapping.cs" />
+    <Compile Include="Entities\SaudaBookingConfiguration.cs" />
+    <Compile Include="Entities\SaudaConditionalBookingConfiguration.cs" />
+    <Compile Include="Entities\SaudaConditionalBookingMandatorySkuMapping.cs" />
+    <Compile Include="Entities\SaudaConditionalBookingZoneStateMapping.cs" />
+    <Compile Include="Entities\SaudaConditionalBookingEssentialSkuMapping.cs" />
+    <Compile Include="Entities\SaudaLimitHistory.cs" />
+    <Compile Include="Entities\SaudaModification.cs" />
+    <Compile Include="Entities\SaudaModificationApproval.cs" />
+    <Compile Include="Entities\SaudaModificationItem.cs" />
+    <Compile Include="Entities\SaudaModificationLine.cs" />
+    <Compile Include="Entities\SaudaModificationOldItem .cs" />
+    <Compile Include="Entities\SaudaSalesAreaRestriction.cs" />
+    <Compile Include="Entities\ScheduleDemoUser.cs" />
+    <Compile Include="Entities\ScheduleDemoUserMapping.cs" />
+    <Compile Include="Entities\SlabDiscountDetails.cs" />
+    <Compile Include="Entities\SpecialRatePricingHistory.cs" />
+    <Compile Include="Entities\ContentType.cs" />
+    <Compile Include="Entities\ConversionFormula.cs" />
+    <Compile Include="Entities\ConversionFormulaDetails.cs" />
+    <Compile Include="Entities\CounterBidJump.cs" />
+    <Compile Include="Entities\CounterBidNotification.cs" />
+    <Compile Include="Entities\CreditNote.cs" />
+    <Compile Include="Entities\CustomerGroups.cs" />
+    <Compile Include="Entities\CustomerGroupDetails.cs" />
+    <Compile Include="Entities\CustomerLedger.cs" />
+    <Compile Include="Entities\CustomerShipToPartyMapping.cs" />
+    <Compile Include="Entities\DeleteListCreation.cs" />
+    <Compile Include="Entities\DerivedGroupMargin.cs" />
+    <Compile Include="Entities\FeedbackRequest.cs" />
+    <Compile Include="Entities\FeedbackType.cs" />
+    <Compile Include="Entities\Gst.cs" />
+    <Compile Include="Entities\GuaranteePriceJump.cs" />
+    <Compile Include="Entities\Holiday.cs" />
+    <Compile Include="Entities\Invoice.cs" />
+    <Compile Include="Entities\InvoiceDetail.cs" />
+    <Compile Include="Entities\IssueComment.cs" />
+    <Compile Include="Entities\MediaType.cs" />
+    <Compile Include="Entities\Notification.cs" />
+    <Compile Include="Entities\NotificationHistory.cs" />
+    <Compile Include="Entities\PricingBackup.cs" />
+    <Compile Include="Entities\RaNotificationDetails.cs" />
+    <Compile Include="Entities\Notifications.cs" />
+    <Compile Include="Entities\OilTransferCost.cs" />
+    <Compile Include="Entities\PendingContract.cs" />
+    <Compile Include="Entities\PercentileNumber.cs" />
+    <Compile Include="Entities\PremiumGeography.cs" />
+    <Compile Include="Entities\PriceGenerate.cs" />
+    <Compile Include="Entities\PriceGenerateDetail.cs" />
+    <Compile Include="Entities\PriceNotifyConfiguration.cs" />
+    <Compile Include="Entities\PricePublish.cs" />
+    <Compile Include="Entities\PricingLive.cs" />
+    <Compile Include="Entities\Questions.cs" />
+    <Compile Include="Entities\RaNotification.cs" />
+    <Compile Include="Entities\RaSaudaConfiguration.cs" />
+    <Compile Include="Entities\RoleHierarchy.cs" />
+    <Compile Include="Entities\SalesRegister.cs" />
+    <Compile Include="Entities\SalesTourPlanMtpHistory.cs" />
+    <Compile Include="Entities\SalesTourPlanPcpHistory.cs" />
+    <Compile Include="Entities\SaudaQuantityConfiguration.cs" />
+    <Compile Include="Entities\SchemeDiscountHistory.cs" />
+    <Compile Include="Entities\SaudaBiddingCart.cs" />
+    <Compile Include="Entities\SaudaBiddingCartHeader.cs" />
+    <Compile Include="Entities\SchemeDiscountGeography.cs" />
+    <Compile Include="Entities\SchemeDiscountGeographyMapping.cs" />
+    <Compile Include="Entities\SaudaConversionSku.cs" />
+    <Compile Include="Entities\SaudaConversionSkuDetail.cs" />
+    <Compile Include="Entities\SaudaConversionType.cs" />
+    <Compile Include="Entities\SaudaConversionUnitAndDifferenceRate.cs" />
+    <Compile Include="Entities\SaudaConversionUnitAndDifferenceRateDetail.cs" />
+    <Compile Include="Entities\SaudaExtension.cs" />
+    <Compile Include="Entities\SaudaExtensionDetailsApproval.cs" />
+    <Compile Include="Entities\SpecalityFatDiscountGeography.cs" />
+    <Compile Include="Entities\SpecalityFatDiscountUser.cs" />
+    <Compile Include="Entities\SpecialRate.cs" />
+    <Compile Include="Entities\SpecialRateApproval.cs" />
+    <Compile Include="Entities\SpecialtyFatQuantityRequest.cs" />
+    <Compile Include="Entities\SpecialtyFatQuantityRequestUserDetail.cs" />
+    <Compile Include="Entities\Status.cs" />
+    <Compile Include="Entities\Audit.cs" />
+    <Compile Include="Entities\Auditable.cs" />
+    <Compile Include="Entities\BdoCompetitorAttachments.cs" />
+    <Compile Include="Entities\BiddingWindowTiming.cs" />
+    <Compile Include="Entities\BookingType.cs" />
+    <Compile Include="Entities\City.cs" />
+    <Compile Include="Entities\Claim.cs" />
+    <Compile Include="Entities\Configuration.cs" />
+    <Compile Include="Entities\ContractType.cs" />
+    <Compile Include="Entities\CushionMargin.cs" />
+    <Compile Include="Entities\DayOfWeekName.cs" />
+    <Compile Include="Entities\DealerLocation.cs" />
+    <Compile Include="Entities\DeliveryPriority.cs" />
+    <Compile Include="Entities\Country.cs" />
+    <Compile Include="Entities\Depot.cs" />
+    <Compile Include="Entities\DepotCost.cs" />
+    <Compile Include="Entities\DetentionCost.cs" />
+    <Compile Include="Entities\DiscountGeography.cs" />
+    <Compile Include="Entities\DiscountSku.cs" />
+    <Compile Include="Entities\DiscountUsers.cs" />
+    <Compile Include="Entities\District.cs" />
+    <Compile Include="Entities\EmailTemplate.cs" />
+    <Compile Include="Entities\Entity.cs" />
+    <Compile Include="Entities\EntityLong.cs" />
+    <Compile Include="Entities\KeyPerformanceIndicator.cs" />
+    <Compile Include="Entities\LiftingRequestDetails.cs" />
+    <Compile Include="Entities\LiftingRequestStatus.cs" />
+    <Compile Include="Entities\MarketScenario.cs" />
+    <Compile Include="Entities\MaterialType.cs" />
+    <Compile Include="Entities\MonthlyPlanDeviations.cs" />
+    <Compile Include="Entities\MonthlyPlanDeviationStatus.cs" />
+    <Compile Include="Entities\PendingSaudaRemarks.cs" />
+    <Compile Include="Entities\PremiumDiscount.cs" />
+    <Compile Include="Entities\Pricing.cs" />
+    <Compile Include="Entities\FinancialYear.cs" />
+    <Compile Include="Entities\Headquarters.cs" />
+    <Compile Include="Entities\HoneycombCost.cs" />
+    <Compile Include="Entities\IncoTerms.cs" />
+    <Compile Include="Entities\LiftingRequest.cs" />
+    <Compile Include="Entities\LoadCapacityConversion.cs" />
+    <Compile Include="Entities\MaterialCost.cs" />
+    <Compile Include="Entities\Month.cs" />
+    <Compile Include="Entities\MonthlyTourPlanApprovalInformation.cs" />
+    <Compile Include="Entities\MonthlyTourPlanDetails.cs" />
+    <Compile Include="Entities\MonthlyTourPlans.cs" />
+    <Compile Include="Entities\MonthlyTourPlanStatus.cs" />
+    <Compile Include="Entities\PackGroup.cs" />
+    <Compile Include="Entities\OilType.cs" />
+    <Compile Include="Entities\PackingCost.cs" />
+    <Compile Include="Entities\PackType.cs" />
+    <Compile Include="Entities\PermanentJourneyPlanApprovalInformation.cs" />
+    <Compile Include="Entities\PermanentJourneyPlanDetails.cs" />
+    <Compile Include="Entities\PermanentJourneyPlans.cs" />
+    <Compile Include="Entities\PermanentJourneyPlanStatus.cs" />
+    <Compile Include="Entities\PickingPoint.cs" />
+    <Compile Include="Entities\PlantDepotMapping.cs" />
+    <Compile Include="Entities\PricingUpdateFrequency.cs" />
+    <Compile Include="Entities\PrimaryDiscountSku.cs" />
+    <Compile Include="Entities\PremiumUser.cs" />
+    <Compile Include="Entities\PrimaryFreight.cs" />
+    <Compile Include="Entities\ProfitMargin.cs" />
+    <Compile Include="Entities\ProspectiveDealer.cs" />
+    <Compile Include="Entities\ProspectiveDealerAttachment.cs" />
+    <Compile Include="Entities\QuantityType.cs" />
+    <Compile Include="Entities\RaMargin.cs" />
+    <Compile Include="Entities\Reasons.cs" />
+    <Compile Include="Entities\Region.cs" />
+    <Compile Include="Entities\Remarks.cs" />
+    <Compile Include="Entities\Role.cs" />
+    <Compile Include="Entities\RoleClaim.cs" />
+    <Compile Include="Entities\RoleDiscount.cs" />
+    <Compile Include="Entities\RoleType.cs" />
+    <Compile Include="Entities\RoleTypeClaim.cs" />
+    <Compile Include="Entities\SapStatus.cs" />
+    <Compile Include="Entities\Sauda.cs" />
+    <Compile Include="Entities\SaudaConversion.cs" />
+    <Compile Include="Entities\SaudaConversionOrder.cs" />
+    <Compile Include="Entities\SaudaBookingType.cs" />
+    <Compile Include="Entities\SaudaLimit.cs" />
+    <Compile Include="Entities\SaudaOrder.cs" />
+    <Compile Include="Entities\SaudaOrderLiftingRequestMapping.cs" />
+    <Compile Include="Entities\SaudaStatus.cs" />
+    <Compile Include="Entities\SaudaType.cs" />
+    <Compile Include="Entities\SchemeCost.cs" />
+    <Compile Include="Entities\SecondaryFreight.cs" />
+    <Compile Include="Entities\Sku.cs" />
+    <Compile Include="Entities\SkuUomMapping.cs" />
+    <Compile Include="Entities\SubCategory.cs" />
+    <Compile Include="Entities\SubmittedForm.cs" />
+    <Compile Include="Entities\SubmittedFormAnswerOption.cs" />
+    <Compile Include="Entities\SubmittedFormDetails.cs" />
+    <Compile Include="Entities\SubmittedFormQuestion.cs" />
+    <Compile Include="Entities\Support.cs" />
+    <Compile Include="Entities\SupportAttachment.cs" />
+    <Compile Include="Entities\Territory.cs" />
+    <Compile Include="Entities\Ticker.cs" />
+    <Compile Include="Entities\TodayPricing.cs" />
+    <Compile Include="Entities\TodayPricingBackup.cs" />
+    <Compile Include="Entities\TPNotificationDetails.cs" />
+    <Compile Include="Entities\TradeTicket.cs" />
+    <Compile Include="Entities\TradeTicketDetails.cs" />
+    <Compile Include="Entities\TradeTicketOilType.cs" />
+    <Compile Include="Entities\TransportMode.cs" />
+    <Compile Include="Entities\State.cs" />
+    <Compile Include="Entities\Taluk.cs" />
+    <Compile Include="Entities\Uom.cs" />
+    <Compile Include="Entities\User.cs" />
+    <Compile Include="Entities\UserAttendance.cs" />
+    <Compile Include="Entities\UserCreditMaster.cs" />
+    <Compile Include="Entities\UserCustomerMapping.cs" />
+    <Compile Include="Entities\UserCustomerSaudaTarget.cs" />
+    <Compile Include="Entities\UserCustomerSalesTarget.cs" />
+    <Compile Include="Entities\UserCustomerTarget.cs" />
+    <Compile Include="Entities\UserDepotMapping.cs" />
+    <Compile Include="Entities\UserDivisionDepotMapping.cs" />
+    <Compile Include="Entities\UserDivisionMapping.cs" />
+    <Compile Include="Entities\UserIncoTerms.cs" />
+    <Compile Include="Entities\UserLoginHistory.cs" />
+    <Compile Include="Entities\UserOilTypeTarget.cs" />
+    <Compile Include="Entities\UserReportingToMapping.cs" />
+    <Compile Include="Entities\UserRole.cs" />
+    <Compile Include="Entities\UserSkuTarget.cs" />
+    <Compile Include="Entities\VehicleLodability.cs" />
+    <Compile Include="Entities\Division.cs" />
+    <Compile Include="Entities\Vertical.cs" />
+    <Compile Include="Entities\VerticalDetail.cs" />
+    <Compile Include="Entities\VolumeLoadability.cs" />
+    <Compile Include="Entities\WholesellerBdo.cs" />
+    <Compile Include="Entities\WholeSellerSalesDetail.cs" />
+    <Compile Include="Entities\Zone.cs" />
+    <Compile Include="Entities\ZoneStateMapping.cs" />
+    <Compile Include="Enum\ActionType.cs" />
+    <Compile Include="Enum\BusinessType.cs" />
+    <Compile Include="Enum\DecimalPrecisionAttribute.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Seeder\BenefitTypes.cs" />
+    <Compile Include="Seeder\BiddingWindowStatus.cs" />
+    <Compile Include="Seeder\BookingType.cs" />
+    <Compile Include="Seeder\City.cs" />
+    <Compile Include="Seeder\ConfigurationForVerticalsAndEmails.cs" />
+    <Compile Include="Seeder\ContentType.cs" />
+    <Compile Include="Seeder\DistributionChannel.cs" />
+    <Compile Include="Seeder\FeedbackType.cs" />
+    <Compile Include="Seeder\Holiday.cs" />
+    <Compile Include="Seeder\MediaType.cs" />
+    <Compile Include="Seeder\QuestionType.cs" />
+    <Compile Include="Seeder\RoleHierarchy.cs" />
+    <Compile Include="Seeder\SalesOrganization.cs" />
+    <Compile Include="Seeder\SaudaConversionType.cs" />
+    <Compile Include="Seeder\Status.cs" />
+    <Compile Include="Seeder\Claim.cs" />
+    <Compile Include="Seeder\Configuration.cs" />
+    <Compile Include="Seeder\ContractType.cs" />
+    <Compile Include="Seeder\Country.cs" />
+    <Compile Include="Seeder\DayOfWeek.cs" />
+    <Compile Include="Seeder\DeliveryPriority.cs" />
+    <Compile Include="Seeder\Depot.cs" />
+    <Compile Include="Seeder\District.cs" />
+    <Compile Include="Seeder\EmailTemplate.cs" />
+    <Compile Include="Seeder\IncoTerms.cs" />
+    <Compile Include="Seeder\ISeeder.cs" />
+    <Compile Include="Seeder\LiftingRequestStatus.cs" />
+    <Compile Include="Seeder\MaterialType.cs" />
+    <Compile Include="Seeder\Month.cs" />
+    <Compile Include="Seeder\MonthlyPlanDeviation.cs" />
+    <Compile Include="Seeder\MTPStatus.cs" />
+    <Compile Include="Seeder\PackGroup.cs" />
+    <Compile Include="Seeder\OilType.cs" />
+    <Compile Include="Seeder\PackType.cs" />
+    <Compile Include="Seeder\PickingPoint.cs" />
+    <Compile Include="Seeder\PJPStatus.cs" />
+    <Compile Include="Seeder\Role.cs" />
+    <Compile Include="Seeder\RoleClaim.cs" />
+    <Compile Include="Seeder\RoleType.cs" />
+    <Compile Include="Seeder\RoleTypeClaim.cs" />
+    <Compile Include="Seeder\SaudaBookingType.cs" />
+    <Compile Include="Seeder\SaudaStatus.cs" />
+    <Compile Include="Seeder\Sku.cs" />
+    <Compile Include="Seeder\SkuUomMapping.cs" />
+    <Compile Include="Seeder\State.cs" />
+    <Compile Include="Seeder\SubCategory.cs" />
+    <Compile Include="Seeder\Territory.cs" />
+    <Compile Include="Seeder\TradeTicketOilType.cs" />
+    <Compile Include="Seeder\TransportMode.cs" />
+    <Compile Include="Seeder\Uom.cs" />
+    <Compile Include="Seeder\User.cs" />
+    <Compile Include="Seeder\UserRole.cs" />
+    <Compile Include="Seeder\Division.cs" />
+    <Compile Include="Seeder\DivisionDetails.cs" />
+    <Compile Include="Seeder\Zone.cs" />
+    <Compile Include="Seeder\ZoneStateMapping.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DatabaseContextMigrations\202210070843189_Intial_SetUp.resx">
+      <DependentUpon>202210070843189_Intial_SetUp.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202210090620162_RemovedTerritoryIdDistrictsTable.resx">
+      <DependentUpon>202210090620162_RemovedTerritoryIdDistrictsTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202210090959401_RemovedLiterConversionOilTypeTable.resx">
+      <DependentUpon>202210090959401_RemovedLiterConversionOilTypeTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202210091013314_RemovedColumnOilType.resx">
+      <DependentUpon>202210091013314_RemovedColumnOilType.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202210091438598_UserTableColumnsRemoved.resx">
+      <DependentUpon>202210091438598_UserTableColumnsRemoved.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202210120508052_AddSalesOrgDistChannelInTarget.resx">
+      <DependentUpon>202210120508052_AddSalesOrgDistChannelInTarget.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202210130749551_ShiptoPartyCodeAdd.resx">
+      <DependentUpon>202210130749551_ShiptoPartyCodeAdd.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202211151317293_MTPRemoveHeadquarters.resx">
+      <DependentUpon>202211151317293_MTPRemoveHeadquarters.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202211171218040_AddBdoId.resx">
+      <DependentUpon>202211171218040_AddBdoId.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202211220500048_AddedSpecialRateRequestIdInSaudaTable.resx">
+      <DependentUpon>202211220500048_AddedSpecialRateRequestIdInSaudaTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202211231303169_AddedSalesOrgDistChnlDivInInvoicesTable.resx">
+      <DependentUpon>202211231303169_AddedSalesOrgDistChnlDivInInvoicesTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202211290503076_AddedCombinationInLiftingRequestDetailsTable.resx">
+      <DependentUpon>202211290503076_AddedCombinationInLiftingRequestDetailsTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202211290526113_AddUserReportingToMappingtable.resx">
+      <DependentUpon>202211290526113_AddUserReportingToMappingtable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202212301243213_Pending_Contract_Create_Date_add.resx">
+      <DependentUpon>202212301243213_Pending_Contract_Create_Date_add.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202301171329111_stp-foreignkeyremove.resx">
+      <DependentUpon>202301171329111_stp-foreignkeyremove.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202303310351172_AddImagePathToUser.resx">
+      <DependentUpon>202303310351172_AddImagePathToUser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202304210854426_AddStateInDiscountUser.resx">
+      <DependentUpon>202304210854426_AddStateInDiscountUser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202307110818444_AddedTableForSaudaBookingConfiguration.resx">
+      <DependentUpon>202307110818444_AddedTableForSaudaBookingConfiguration.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202307120640017_addedDateFieldInSaudaConfigTable.resx">
+      <DependentUpon>202307120640017_addedDateFieldInSaudaConfigTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202307240711529_AddedOilTypeIdsFieldInSaudaConfigtable.resx">
+      <DependentUpon>202307240711529_AddedOilTypeIdsFieldInSaudaConfigtable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202311291151430_UserIdsAddedInSaudaConfig.resx">
+      <DependentUpon>202311291151430_UserIdsAddedInSaudaConfig.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202312041033235_LineMasterPage.resx">
+      <DependentUpon>202312041033235_LineMasterPage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202401051004438_NewStatusAddInLift.resx">
+      <DependentUpon>202401051004438_NewStatusAddInLift.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202401121044208_CompletedDoNumbers.resx">
+      <DependentUpon>202401121044208_CompletedDoNumbers.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202402010402489_SalesRegisterData.resx">
+      <DependentUpon>202402010402489_SalesRegisterData.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202402031426271_SalesRegisterDataAddMorefields.resx">
+      <DependentUpon>202402031426271_SalesRegisterDataAddMorefields.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202402221312595_SaudaTypeAdded.resx">
+      <DependentUpon>202402221312595_SaudaTypeAdded.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202403050450032_SalesShiptoprtyAdd.resx">
+      <DependentUpon>202403050450032_SalesShiptoprtyAdd.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202405091306588_UserLoginHistory Added.resx">
+      <DependentUpon>202405091306588_UserLoginHistory Added.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202405091327172_QPSDiscountColAdd.resx">
+      <DependentUpon>202405091327172_QPSDiscountColAdd.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202405101328306_qpsdiscountadded.resx">
+      <DependentUpon>202405101328306_qpsdiscountadded.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202405301134554_QPSDiscountSkuMappingandQPSSlabDetails.resx">
+      <DependentUpon>202405301134554_QPSDiscountSkuMappingandQPSSlabDetails.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202406061041196_QpsDiscountSkumappingtablemodified.resx">
+      <DependentUpon>202406061041196_QpsDiscountSkumappingtablemodified.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202406250954559_OilPackGroupTypeColumnAdd.resx">
+      <DependentUpon>202406250954559_OilPackGroupTypeColumnAdd.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202406251117439_TickerColorColumnAdd.resx">
+      <DependentUpon>202406251117439_TickerColorColumnAdd.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202408290725165_Gamification_Dashboard_Details_Table.resx">
+      <DependentUpon>202408290725165_Gamification_Dashboard_Details_Table.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202409020905538_ComplaintManagement_Entities_Added.resx">
+      <DependentUpon>202409020905538_ComplaintManagement_Entities_Added.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202409051233247_FormUsers_Add.resx">
+      <DependentUpon>202409051233247_FormUsers_Add.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202409021056113_Gamification_Dashboards_Table_Update.resx">
+      <DependentUpon>202409021056113_Gamification_Dashboards_Table_Update.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202409040642344_Gamification_Dashboard_Details_Table_Update.resx">
+      <DependentUpon>202409040642344_Gamification_Dashboard_Details_Table_Update.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202409090755221_SubmittedFormDetailsScheduleDemoUserMappingstable.resx">
+      <DependentUpon>202409090755221_SubmittedFormDetailsScheduleDemoUserMappingstable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202409101235481_Tan_Number_User_Table_Update.resx">
+      <DependentUpon>202409101235481_Tan_Number_User_Table_Update.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202409111457044_RemoveRetailersForeignKey.resx">
+      <DependentUpon>202409111457044_RemoveRetailersForeignKey.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202409130516549_AddedQPSIdWithDiscountField.resx">
+      <DependentUpon>202409130516549_AddedQPSIdWithDiscountField.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202409161647079_FormsTableRoleIdscolumnAdd.resx">
+      <DependentUpon>202409161647079_FormsTableRoleIdscolumnAdd.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202409261403167_QuestionMastertableTextlengthcolumnadd.resx">
+      <DependentUpon>202409261403167_QuestionMastertableTextlengthcolumnadd.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202409271213016_QPSDiscountChangeColInSaudaOrder.resx">
+      <DependentUpon>202409271213016_QPSDiscountChangeColInSaudaOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202410081230131_AddOpenSalesOrderQuantityInPendingContract.resx">
+      <DependentUpon>202410081230131_AddOpenSalesOrderQuantityInPendingContract.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202410231245380_RequestedDiscountDateAdd.resx">
+      <DependentUpon>202410231245380_RequestedDiscountDateAdd.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202410301032531_SaudaOrdersTableIsReportingtoAllocationColmAdd.resx">
+      <DependentUpon>202410301032531_SaudaOrdersTableIsReportingtoAllocationColmAdd.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202501281317101_SAPEmailStatementMigration.resx">
+      <DependentUpon>202501281317101_SAPEmailStatementMigration.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202501310531574_SAPEmailStatementStatsfield.resx">
+      <DependentUpon>202501310531574_SAPEmailStatementStatsfield.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202502190936085_SaudaOrdersTableAddPRGSTandPRAmount.resx">
+      <DependentUpon>202502190936085_SaudaOrdersTableAddPRGSTandPRAmount.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202505111524550_CrossAndUpsellMigration.resx">
+      <DependentUpon>202505111524550_CrossAndUpsellMigration.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202505191204174_CrossAndUpsellContgractMigration.resx">
+      <DependentUpon>202505191204174_CrossAndUpsellContgractMigration.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202506030650376_GeographyDiscountPackGroupMigration.resx">
+      <DependentUpon>202506030650376_GeographyDiscountPackGroupMigration.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202506100450059_GeographyDiscountIsActivceMigration.resx">
+      <DependentUpon>202506100450059_GeographyDiscountIsActivceMigration.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202507150307402_CrossAnUpsellOilTypeChanges.resx">
+      <DependentUpon>202507150307402_CrossAnUpsellOilTypeChanges.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202507110700007_Add PackType column in DiscountGeographies.resx">
+      <DependentUpon>202507110700007_Add PackType column in DiscountGeographies.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202507111103425_Add columns in DiscountGeographyImportStatus.resx">
+      <DependentUpon>202507111103425_Add columns in DiscountGeographyImportStatus.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202511131004093_BaselineMigrationDelta.resx">
+      <DependentUpon>202511131004093_BaselineMigrationDelta.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202511131116442_ShiftSaudaValidityPeriodAndPlantAtDivisionLevel.resx">
+      <DependentUpon>202511131116442_ShiftSaudaValidityPeriodAndPlantAtDivisionLevel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202511260531083_AddSaudaSalesAreaRestrictionsTable.resx">
+      <DependentUpon>202511260531083_AddSaudaSalesAreaRestrictionsTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202512101337347_DiscountAutomationChanges.resx">
+      <DependentUpon>202512101337347_DiscountAutomationChanges.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202512160715101_AddSaudaModificaitonTables.resx">
+      <DependentUpon>202512160715101_AddSaudaModificaitonTables.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202512181045299_AddPricingFieldsInSaudaModification.resx">
+      <DependentUpon>202512181045299_AddPricingFieldsInSaudaModification.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202602251355476_SaudaOrdersAddColumnToStorePriceBeforeSAPDiscount.resx">
+      <DependentUpon>202602251355476_SaudaOrdersAddColumnToStorePriceBeforeSAPDiscount.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseContextMigrations\202607100058548_AddDistributorStockEntryTables.resx">
+      <DependentUpon>202607100058548_AddDistributorStockEntryTables.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Adani.Solution.DTO\Adani.Solution.DTO.csproj">
+      <Project>{D64CBBE6-FCD5-401A-B313-AC7ADCB00F03}</Project>
+      <Name>Adani.Solution.DTO</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

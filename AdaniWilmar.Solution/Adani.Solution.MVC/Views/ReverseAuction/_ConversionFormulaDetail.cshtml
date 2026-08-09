@@ -1,0 +1,84 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.MVC.Common;
+@model Adani.Solution.DTO.ConversionFormulaDto
+
+<div id="addConversionFormulaPopup" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        @using (Html.BeginForm("Save", "ReverseAuction", FormMethod.Post, new { id = "frmConversionFormulaDetails", @class = "form-validate-jquery" }))
+        {
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close model-header-color" data-dismiss="modal">&times;</button>
+                    <h6 class="panel-title model-header-color"><span class="text-semibold">Add Conversion Formula</span></h6>
+                </div>
+                <div class="modal-body">
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            @Helper.GetResourceString("lbl_Vertical")
+                        </div>
+                        <div class="col-md-4">
+                            <span id="lblVertical"></span>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            @Helper.GetResourceString("lbl_OilType")
+                        </div>
+                        <div class="col-md-4">
+                            <span id="lblOilType"></span>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            @Helper.GetResourceString("lbl_PackType")
+                        </div>
+                        <div class="col-md-4">
+                            <span id="lblPackGroup"></span>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            @Helper.GetResourceString("lbl_BaseSku")
+                        </div>
+                        <div class="col-md-4">
+                            <span id="lblBaseSku"></span>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            @Helper.GetResourceString("lbl_DerivedSku") <span class="text-danger">*</span>
+                        </div>
+                        <div class="col-md-4">
+                            @(Html.Kendo().DropDownList().Name("DerivedSkuId")
+                               .OptionLabel(@Helper.GetResourceString("plho_SelectSku"))
+                               .DataTextField("Name")
+                               .DataValueField("Id")
+                               .DataSource(source => source.Read(read => read.Action("GetDerivedBaseSkuList", "ReverseAuction").Data("derivedSkuAdditionalInfo"))
+                               .ServerFiltering(false))
+                               .HtmlAttributes(new { id = "ddlDerivedSku", @class = "", tabindex = "1", @style = "width:100%" }))
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            @Helper.GetResourceString("lbl_Formula") <span class="text-danger">*</span>
+                        </div>
+                        <div class="col-md-4">
+                            @Html.TextBox("Formula", "", new { id = "txtFormula", @class = "form-control", @maxlength = (int)InputMaxLength.TextAreaString }) BASESKU*1.67 + 135
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-12 text-center">
+                            <button id="btnDirtyCancel" type="button" tabindex="5" onclick="popupClose();" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Cancel")</button>
+                            <button id="btnFormulaAdd" type="button" tabindex="4" class="k-primary k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Save")</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="gridUid" />
+                </div>
+            </div>
+        }
+    </div>
+</div>
+

@@ -1,0 +1,155 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+
+@{
+    ViewBag.Title = "NotificationList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="configurationNotification" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">Notification List</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Configurations</a><span class="icon-right"></span></li>
+        <li class="active">Notification List<span class="icon-right"></span></li>
+    </ol>
+    @*<div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            <a href="@Url.Action("NotificationEditRedirect", "Lookup")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateNotification")</a>
+        </div>
+    </div>*@
+    <div style="clear:both;"></div>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        @*<div class="panel-heading">
+        </div>*@
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvPercentileNumber">
+                <div class="text-right right-buttons">
+                    <div class="export_as">
+                        <span>Export as</span>
+                        <div class="export-btns">
+                            <span class="export-link" id="NotificationExport" type="button">Excel</span>
+                        </div>
+                    </div>
+                    @*<button class="k-button k-button-icontext k-grid-excel" id="NotificationExport" type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>*@
+                    @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    <div class="period-wrapper">
+                        <a href="@Url.Action("NotERedirect", "Lookup")" class="k-primary k-button custom-btns"><b><i class="icon-plus"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateNotification")</a>
+                    </div>
+                </div>
+                @(Html.Kendo().Grid<NotificationsDto>()
+                                      .Name("ViewNotification")
+                                      .Columns(columns =>
+                                      {
+                                          columns.Bound(c => c.Id).Visible(false);
+                                          columns.Bound(c => c.Id).Title("Edit").HeaderTemplate("").Title("Action").ClientTemplate("<div style='text-align: center;'><a   title='" + @Helper.GetResourceString("msg_Edit") + "' class='icon-pencil cursor-pointer' href='" + Url.Action("NotERedirect", "Lookup", new { EncryptedId = "#=EncryptedId#" }) + "' ></a></div>").Width(Settings.GridFilterColumnWidth);
+                                          columns.Bound(c => c.NotificationActions).Title(@Helper.GetResourceString("lbl_NotificationAction")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                         
+                                          columns.Bound(c => c.SMS).HeaderTemplate("").Title("SMS").ClientTemplate(@"<div style='text-align: center;'> #if(SMS == false) { #"
+                                                                              + " <a  title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Width(Settings.GridButtonColumnWidth);
+                                          columns.Bound(c => c.IsEmail).HeaderTemplate("").Title("Email").ClientTemplate(@"<div style='text-align: center;'> #if(IsEmail == false) { #"
+                                                                              + " <a  title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Width(Settings.GridButtonColumnWidth);
+                                          columns.Bound(c => c.InAppNotification).HeaderTemplate("").Title("In App Notification").ClientTemplate(@"<div style='text-align: center;'> #if(InAppNotification == false) { #"
+                                                                              + " <a  title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Width(Settings.GridButtonColumnWidth);
+                                          //columns.Bound(c => c.IsActive).HeaderTemplate("").Title("IsActive").ClientTemplate(@"<div style='text-align: center;'> #if(!IsActiveBasedOnValidTo(ValidTo,IsActive)) { #"
+                                          //+ " <a  title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Width(Settings.GridButtonColumnWidth);
+                                      })
+                                      .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                      .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                      .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                      .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                      .Scrollable(s => s.Enabled(true).Height("auto"))
+                                      .Reorderable(reorder => reorder.Columns(true))
+                                      .Resizable(resize => resize.Columns(true))
+                                      .ClientDetailTemplateId("template")
+                                      .Events(events => events.DataBound("dataBound"))
+                                      .DataSource(dataSource => dataSource
+                                      .Ajax()
+                                      .Sort(sort => sort.Add("Id").Descending())
+                                      .Model(model => { model.Id(p => p.Id); })
+                                      .ServerOperation(true)
+                                      .Read(read => read.Action("GetTPNotificationListAsync", "Lookup"))))
+
+                <script id="template" type="text/kendo-tmpl">
+                    @(Html.Kendo().Grid<NotificationDetailDto>()
+                          .Name("grid_#=Id#")
+                          .Columns(columns =>
+                          {
+                          columns.Bound(c => c.NotificationId).Visible(false);
+                          columns.Bound(c => c.IsActive).Visible(false);
+                         
+                          //columns.Bound(c => c.NotificationAction).Title(@Helper.GetResourceString("lbl_NotificationAction")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                          columns.Bound(c => c.CustomerName).Title(@Helper.GetResourceString("lbl_Dealer")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                          columns.Bound(c => c.State).Title(@Helper.GetResourceString("lbl_State")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                          columns.Bound(c => c.District).Title(@Helper.GetResourceString("lbl_District")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                         
+                          //columns.Bound(c => c.IsActive).HeaderTemplate("").Title("Status").ClientTemplate(@"<div style='text-align: center;'> #if(checkStatus(IsActive = c.IsActive)) { #"
+                          //+ " <a  title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Width(Settings.GridButtonColumnWidth);
+                          //columns.Bound(o => o.IsActive).Title("Status").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                          //columns.Bound(o => o.IsActive).ClientTemplate("\\#: checkStatus(IsActive) \\#").Width(Settings.GridButtonColumnWidth);;
+                        })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Selectable(selectable => selectable
+                          .Type(GridSelectionType.Row))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true)
+                          .PageSizes(Settings.GridPageSizes))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .Resizable(resize => resize.Columns(true))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Read(read => read.Action("GetTPNotificationDetailsById", "Lookup", new { tpNotificationId = "#=Id#" }))
+                          ).ToClientTemplate())
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();
+
+         if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+
+        $("#NotificationExport").click(function () {
+            window.kendo.ui.progress($("#div_Progress"), true);
+          $.ajax({
+                type: "POST",
+                url: '@Url.Action("ExportTPNotificationList", "Lookup")',
+                data: { isToReturnInactiveData: true },
+                success: function (responce) {
+                    if (responce.FileGuid) {
+                        window.location.href = '@Url.Action("ExcelDownload", "Base")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                    } else {
+                        ShowErrorMessage("No records found");
+                    }
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                },
+                error: function (responce) {
+                    ShowErrorMessage("File download failed");
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                }
+            });
+        });
+
+    });
+
+    function dataBound(e) {
+        SetEmptyRow(e);
+        //this.expandRow(this.tbody.find("tr.k-master-row").first());   //expand first row
+    }
+
+    function checkStatus(isActive) {
+        alert(isActive);
+    }
+</script>

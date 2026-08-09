@@ -1,0 +1,241 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model ReportInputDto
+@{
+    ViewBag.Title = "CostChangeReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="reportCostChangeReport" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Cost Margin Report</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvCostMarginReport">
+                <div class="col-md-12">
+                    <form id="frmCostMarginReport" class="form-validate-jquery" onsubmit="GetCostMarginPrice(this)">
+
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right">
+                                @Helper.GetResourceString("lbl_Vertical") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-3">
+                                @(Html.Kendo().DropDownListFor(f => f.VerticalId)
+                                                              .OptionLabel(@Helper.GetResourceString("plho_SelectVertical"))
+                                                              .DataTextField("Name")
+                                                              .DataValueField("Id")
+                                                              .Events(e => e.Change("onVerticalTypeChange"))
+                                                              .DataSource(source => source.Read(read =>
+                                                              read.Action("GetVerticalDetailsdd", "Lookup"))
+                                                              .ServerFiltering(false))
+                                                              .HtmlAttributes(new
+                                                              {
+                                                                  id = "ddlVertical",
+                                                                  @class = "",
+                                                                  tabindex = "2",
+                                                                  required = "required",
+                                                                  data_msg_required = Helper.GetSelectMsgRequired("lbl_Vertical"),
+                                                                  @style = "width:100%"
+                                                              }))
+                            </div>
+                            <div class="col-md-2 text-right">
+                                Cost Type <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-3">
+                                @(Html.Kendo().DropDownListFor(s => s.CostType)
+                                                .OptionLabel("Select")
+                                                .DataTextField("Name")
+                                                .DataValueField("Id")
+                                                .BindTo(new List<DropDownDto>() {
+                                                
+                                                    new DropDownDto() { Id = 1, Name = "Process Cost" } ,
+                                                    new DropDownDto() { Id = 2, Name = "HoneyComb Cost" },
+                                                    new DropDownDto() { Id = 3, Name = "Scheme Cost" },
+                                                    new DropDownDto() { Id = 4, Name = "Cushion Margin Cost" },
+                                                })
+                                                .HtmlAttributes(new
+                                                {
+                                                    id = "ddlCostType",
+                                                    @class = "",
+                                                    required = "required",
+                                                    data_msg_required = Helper.GetSelectMsgRequired("lbl_Vertical"),
+                                                    @style = "width:100%"
+                                                }))
+
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right">
+                                @Helper.GetResourceString("lbl_OilType") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-3">
+                                @(Html.Kendo().DropDownListFor(m => m.OilTypeId)
+                                                              .OptionLabel(@Helper.GetResourceString("plho_SelectOilType"))
+                                                              .DataTextField("Name")
+                                                              .DataValueField("Id")
+                                                              .Events(e => e.Change("onOiltypeChange"))
+                                                              .DataSource(source => source.Read(read =>
+                                                              read.Action("GetOilTypesBasedOnVerticalId", "Lookup", new { isToReturnInactiveData = false })
+                                                              .Data("oilTypeAdditionalInfo"))
+                                                              .ServerFiltering(true))
+                                                              .HtmlAttributes(new
+                                                              {
+                                                                  id = "ddlOilType",
+                                                                  @class = "",
+                                                                  tabindex = "3",
+                                                                  required = "required",
+                                                                  data_msg_required = Helper.GetSelectMsgRequired("lbl_OilType"),
+                                                                  @style = "width:100%"
+                                                              }))
+                            </div>
+
+                            <div class="col-md-2 text-right">
+                                @Helper.GetResourceString("lbl_Sku") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-3">
+                                @(Html.Kendo().MultiSelectFor(m => m.SkuId)
+                                                             .DataTextField("SkuName")
+                                                             .DataValueField("SkuId")
+                                                             .DataSource(source => source.Read(read =>
+                                                             read.Action("GetSkusBasedOnOilType", "Lookup").Data("skuAdditionalInfo"))
+                                                             .ServerFiltering(true))
+                                                             .HtmlAttributes(new
+                                                             {
+                                                                 id = "ddlSkuName",
+                                                                 @class = "form-control",
+                                                                 tabindex = "7",
+                                                                 data_msg_required = Helper.GetSelectMsgRequired("lbl_Sku"),
+                                                                 @style = "width:100%"
+                                                             }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right control-label">
+                                @Helper.GetResourceString("lbl_FromDate")
+                            </div>
+                            <div class="col-md-3">
+                                @(Html.Kendo().DatePickerFor(s => s.FromDate)
+                                                             .Events(e => e.Change("fromChange"))
+                                                             .HtmlAttributes(new
+                                                             {
+                                                                 id = "StartDate",
+                                                                 onkeydown = "return isFocus(event);",
+                                                                 tabindex = "1",
+                                                                 style = "width: 100%"
+                                                             }))
+                            </div>
+                            <div class="col-md-2 text-right control-label">
+                                @Helper.GetResourceString("lbl_ToDate")
+                            </div>
+                            <div class="col-md-3">
+                                @(Html.Kendo().DatePickerFor(s => s.ToDate)
+                                                              .Enable(false)
+                                                              .HtmlAttributes(new
+                                                              {
+                                                                  id = "EndDate",
+                                                                  onkeydown = "return isFocus(event);",
+                                                                  tabindex = "1",
+                                                                  style = "width: 100%"
+                                                              }))
+                            </div>
+                        </div>
+                        <div style="display:none">
+                            <input type="hidden" name="SkuIds" />
+                        </div>
+                        <div class="form-group row text-center">
+                            <button type="submit" id="btnSave" class="k-primary k-button">Get Oil Price<i class="icon-arrow-right14 position-right"></i></button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="Report"> 
+
+    </div>
+
+</div>
+<script>
+
+    function onVerticalTypeChange() {
+        $("#ddlOilType").data("kendoDropDownList").dataSource.read();
+    }
+
+
+    //Oiltype Change Events
+    function onOiltypeChange() {
+        
+        $("#ddlSkuName").data("kendoMultiSelect").dataSource.read();
+        $("#ddlSkuName").data("kendoMultiSelect").value(0);
+    }
+
+    function oilTypeAdditionalInfo() {
+        var verticalId = $("#ddlVertical").data("kendoDropDownList").value();
+        return {
+            verticalId: Number(verticalId)
+        };
+    }
+    function skuAdditionalInfo() {
+        var oilTypeId = $("#ddlOilType").data("kendoDropDownList").value();
+        return {
+            oiltypeId: oilTypeId
+        }
+    }
+
+    function fromChange() {
+        var endPicker = $("#EndDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate() + 30);
+            $("#EndDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+            endPicker.value(startDate);
+        }
+    }
+    function GetCostMarginPrice() {
+        event.preventDefault();
+        var formdata = {};
+        $("#frmCostMarginReport").serializeArray().map(function (item) {
+            if (formdata[item.name]) {
+                if (typeof (formdata[item.name]) === "string") { 
+                    formdata[item.name] = [formdata[item.name]];
+                }
+                formdata[item.name].push(item.value);
+            } else {
+                formdata[item.name] = item.value;
+            }
+        });       
+        var todate = $("#EndDate").val();
+        formdata["ToDate"] = todate;
+       
+
+        $.ajax('@Url.Action("GetCostChangeReport", "Report")', {
+            type: 'POST',  // http method
+            data: formdata,  // data to submit
+            success: function (data, status, xhr) {
+                $("#Report").empty();
+                $("#Report").html(data); 
+            },
+            error: function (jqXhr, textStatus, errorMessage) {
+                $("#Report").empty();
+                $("#Report").html("Request Failed");
+            }
+        });
+
+    }
+
+
+</script>

@@ -1,0 +1,64 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1401
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adani.Solution.API", "Adani.Solution.API\Adani.Solution.API.csproj", "{145DBD3B-8037-4877-AECC-86DC8352CADD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adani.Solution.Data", "Adani.Solution.Data\Adani.Solution.Data.csproj", "{DCDB5BE7-C0B2-4C41-85C7-ED819CD8FB06}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adani.Solution.DTO", "Adani.Solution.DTO\Adani.Solution.DTO.csproj", "{D64CBBE6-FCD5-401A-B313-AC7ADCB00F03}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adani.Solution.MVC", "Adani.Solution.MVC\Adani.Solution.MVC.csproj", "{8BC7B589-E761-4E73-8061-4E92BECBF28D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adani.Solution.Service", "Adani.Solution.Service\Adani.Solution.Service.csproj", "{8767E0A4-E946-4895-9C88-B5591DA6313C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GMCoreComponents", "GMCoreComponents", "{23593AAD-5DE5-4FB7-AB49-2C82DBF6B931}"
+	ProjectSection(SolutionItems) = preProject
+		GMCoreComponents\EPPlus.dll = GMCoreComponents\EPPlus.dll
+		GMCoreComponents\GMCore.Authenticate.dll = GMCoreComponents\GMCore.Authenticate.dll
+		GMCoreComponents\GMCore.Helper.dll = GMCoreComponents\GMCore.Helper.dll
+		GMCoreComponents\GMCore.Logger.dll = GMCoreComponents\GMCore.Logger.dll
+		GMCoreComponents\Kendo.Mvc.dll = GMCoreComponents\Kendo.Mvc.dll
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adani.Solution.Console", "Adani.Solution.Pricing\Adani.Solution.Console.csproj", "{58BCCF59-28AD-4701-A8EE-3FAB9D03DA4F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{145DBD3B-8037-4877-AECC-86DC8352CADD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{145DBD3B-8037-4877-AECC-86DC8352CADD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{145DBD3B-8037-4877-AECC-86DC8352CADD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{145DBD3B-8037-4877-AECC-86DC8352CADD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCDB5BE7-C0B2-4C41-85C7-ED819CD8FB06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCDB5BE7-C0B2-4C41-85C7-ED819CD8FB06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCDB5BE7-C0B2-4C41-85C7-ED819CD8FB06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCDB5BE7-C0B2-4C41-85C7-ED819CD8FB06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D64CBBE6-FCD5-401A-B313-AC7ADCB00F03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D64CBBE6-FCD5-401A-B313-AC7ADCB00F03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D64CBBE6-FCD5-401A-B313-AC7ADCB00F03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D64CBBE6-FCD5-401A-B313-AC7ADCB00F03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BC7B589-E761-4E73-8061-4E92BECBF28D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BC7B589-E761-4E73-8061-4E92BECBF28D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BC7B589-E761-4E73-8061-4E92BECBF28D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BC7B589-E761-4E73-8061-4E92BECBF28D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8767E0A4-E946-4895-9C88-B5591DA6313C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8767E0A4-E946-4895-9C88-B5591DA6313C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8767E0A4-E946-4895-9C88-B5591DA6313C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8767E0A4-E946-4895-9C88-B5591DA6313C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58BCCF59-28AD-4701-A8EE-3FAB9D03DA4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58BCCF59-28AD-4701-A8EE-3FAB9D03DA4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58BCCF59-28AD-4701-A8EE-3FAB9D03DA4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58BCCF59-28AD-4701-A8EE-3FAB9D03DA4F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3E6661DB-2F38-412F-AFBA-73232AFCFB09}
+	EndGlobalSection
+EndGlobal

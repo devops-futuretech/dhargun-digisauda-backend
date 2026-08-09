@@ -1,0 +1,406 @@
+﻿@using Adani.Solution.DTO;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.MVC.Helpers;
+@using System.Security.Claims
+@using System.Linq;
+@using Adani.Solution.DTO.Enums;
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewBag.Title - @Helper.GetResourceString("msg_EmamiBrowserTitle")</title>
+    @{ var version = ConfigHelper.Version;}
+    <link rel="icon" type="image/x-icon" href="~/images/favicon.ico">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700,900" rel="stylesheet" type="text/css">
+    <link href="~/Content/icons/icomoon/styles.css?v=@version" rel="stylesheet" type="text/css">
+    <link href="~/Content/new-icons/new_icomoon.css?v=@version" rel="stylesheet" type="text/css">
+    <link href="~/Content/bootstrap.css?v=@version" rel="stylesheet" type="text/css">
+    <link href="~/Content/Kendo/kendo.all.css?v=@version" rel="stylesheet" type="text/css">
+    @Scripts.Render("~/bundles/jquery")
+    <link href="~/Content/Site.css?v=@version" rel="stylesheet" type="text/css">
+    <link href="~/Content/Style.css?v=@version" rel="stylesheet" type="text/css">
+    <link href="~/Content/Menu.css?v=@version" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+    <script type="text/javascript" src="~/Scripts/validate.min.js?v=@version"></script>
+
+    <script type="text/javascript" src="~/Scripts/bootstrap.js?v=@version"></script>
+    <script type="text/javascript" src="~/Scripts/menu.js?v=@version"></script>
+    <script type="text/javascript" src="~/Scripts/emamiCommon.js"></script>
+    <script type="text/javascript" src="~/Scripts/globalSettings.js?v=@version"></script>
+    <script type="text/javascript" src="~/Scripts/form.validation.js?v=@version"></script>
+
+    <script type="text/javascript" src="~/Scripts/Kendo/kendo.all.min.js?v=@version"></script>
+    <script type="text/javascript" src="~/Scripts/Kendo/kendo.aspnetmvc.min.js?v=@version"></script>
+    <script type="text/javascript" src="~/Scripts/Kendo/jszip.js?v=@version"></script>
+    <script type="text/javascript" src="~/Scripts/moduleCommon.js?v=@version"></script>
+</head>
+
+<body class="pace-done">
+    @{
+
+        var username = string.Empty;
+        var profileName = string.Empty;
+        //var profileUrl = string.Empty;
+        var userid = string.Empty;
+        var roleId = 0;
+        var controllerName = "Home";
+        var actionName = "Index";
+        //var verticalId = 0;
+
+        if (HttpContext.Current.User != null)
+        {
+            var identity = (ClaimsIdentity)HttpContext.Current.User.Identity;
+            username = identity.FindFirst("Username")?.Value;
+            userid = identity.FindFirst("UserId")?.Value;
+            roleId = Convert.ToInt32(identity.FindFirst("RoleId")?.Value);
+            profileName = identity.FindFirst("ProfileName")?.Value;
+            //profileUrl = identity.FindFirst("ProfilePath")?.Value;
+
+            //verticalId = Convert.ToInt32(identity.FindFirst("VerticalId")?.Value);
+
+            // if (roleId == (int)Role.System)
+            // {
+            //     controllerName = "Home";
+            //     actionName = "DataUpload";
+            // }
+        }
+    }
+
+    <!-- Main navbar -->
+    <div class="navbar">
+        <div class="navbar-header">
+            <a class="navbar-brand title-color navbar-fontsize" href="@Url.Action(actionName, controllerName)"><img src="~/images/dashboard_logo_with_bg.png" alt=""></a>
+            <ul class="nav navbar-nav visible-xs-block">
+                <li><a data-toggle="collapse" data-target="#navbar-mobile"><i class="icon-tree5"></i></a></li>
+                <li><a class="sidebar-mobile-main-toggle"><i class="icon-menu"></i></a></li>
+            </ul>
+
+        </div>
+        <div class="navbar-collapse collapse top-bar" id="navbar-mobile">
+            <ul class="nav navbar-nav">
+                <li><a class="sidebar-control sidebar-main-toggle hidden-xs"><i class="icon-menu"></i></a></li>
+                <li class="dropdown">
+                    <div class="dropdown-menu dropdown-content">
+                        <div class="dropdown-content-heading">
+                            Git updates
+                            <ul class="icons-list">
+                                <li><a href="#"><i class="icon-sync"></i></a></li>
+                            </ul>
+                        </div>
+                        <div class="dropdown-content-footer">
+                            <a href="#" data-popup="tooltip" title="All activity"><i class="icon-menu display-block"></i></a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <div class="nav navbar-nav navbar-fontsize" style="margin: 10px 0">Digital Sauda Application  @*<span style="padding-left: 33px; color: red;">Under Development</span>*@</div>
+            @*@if (Session["UserClaims"] != null && (Session["UserClaims"] as System.Collections.Generic.List<Adani.Solution.DTO.UserClaimsDto>
+                ).FirstOrDefault(s => s.Name == "Manage Organization").IsApplied && TempData["SuccessMessage"] != null)
+                {*@
+
+            @*<div class="nav navbar-nav navbar-right" style="margin: 20px 18px;">
+                    <a href="#" id="helpModal" title="Help"><i class="icon-help"></i></a>
+                </div>
+                <div class="nav navbar-nav navbar-right" style="margin: 20px 0px;">
+                    <span>@username&nbsp;</span>
+                    <a href="@Url.Action("Logout", "User")" title="Logout"><i class="icon-switch2 logouticon-green"></i></a>
+                </div>*@
+
+            @*}
+                else
+                {
+                <div class="nav navbar-nav navbar-right" style="margin: 20px 40px;">
+                    <span>@username&nbsp;</span>
+                    <a href="@Url.Action("Logout", "User" )" title="Logout"><i class="icon-switch2 logouticon-green"></i></a>
+                </div>
+                }*@
+
+            <div class="header-right">
+                <div class="panel-default">
+                    @*<div class="panel-body notification-top">
+                            <div class="btn-group pull-right top-head-dropdown">
+                                <button type="button" class="btn btn-default dropdown-toggle noti-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="icon-notification"></i> <span class="noti-nos">3</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li>
+                                        <a href="#" class="top-text-block">
+                                            <div class="top-text-heading">You have <b>3 new themes</b> trending</div>
+                                            <div class="top-text-light">15 minutes ago</div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="top-text-block">
+                                            <div class="top-text-heading">Sample Title</div>
+                                            <div class="top-text-light">2 hours ago</div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="top-text-block">
+                                            <div class="top-text-heading">You have new trending</div>
+                                            <div class="top-text-light">4 hours ago</div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <div class="loader-topbar"></div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>*@
+                    <div class="profile-corner panel-body">
+                        <div class="nav-item dropdown">
+                            <a href="#" data-toggle="dropdown" class="nav-link nav-link-sm dropdown-toggle user-action float-right">
+                                <img src="~/images/user-image.png" class="profile" id="profilephoto" width="60px" height="50px" alt="profile" />
+                                <span class="username-area">
+                                    <span class="userNameText">@username</span>
+                                    <span class="designa">  </span>
+                                </span>
+                                <span class="caret"></span>
+                            </a>
+                            <div class="dropdown-menu">
+                                <a href="#" id="profileImage" class="dropdown-item"><i class="icon-user"></i> Profile</a>
+                                <div class="dropdown-divider"></div>
+                                <a href="@Url.Action("Logout", "User")" class="dropdown-item" title="Logout"><i class="icon-switch2"></i> Logout</a>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+    <!-- /main navbar -->
+    <!-- Page container -->
+    <div class="page-container">
+        <!-- Page content -->
+        <div class="page-content">
+            <!-- Main sidebar -->
+            <div class="sidebar sidebar-main">
+                <div class="sidebar-content">
+                    <!-- User menu -->
+                    <!-- /user menu -->
+                    <!-- Main navigation -->
+                    <div class="sidebar-category sidebar-category-visible">
+                        <div id="layoutMenu" class="category-content no-padding">
+                            @Html.Partial("CommonMenus")
+                            @Html.Partial("TPmenus")
+                            @Html.Partial("RAmenus")
+                        </div>
+                    </div>
+                    <!-- /main navigation -->
+                </div>
+            </div>
+            @Html.Hidden("hdnIsValidIMEI_msg", @Helper.GetResourceString("msg_InValidIEMI"))
+            <!-- /main sidebar -->
+            <!-- Main content -->
+            <div class="content-wrapper" id="div_Progress">
+
+                <div id="dvAlert"><div class="notify_message"></div> </div>
+                <!--Content area -->
+                @RenderBody()
+                <!-- Footer -->
+                <div class="footer text-muted">
+                </div>
+                <!-- /footer -->
+                <!-- /content area -->
+            </div>
+            <!-- /main content -->
+        </div>
+        <!-- /page content -->
+    </div>
+    <!-- /page container -->
+    @*dirty tracking confirmation popup*@
+    <div id="confirmationPopoup" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close model-header-color" data-dismiss="modal">&times;</button>
+                    <h6 class="panel-title model-header-color"><span class="text-semibold">@Helper.GetResourceString("lbl_dirtyConfirmationHeader")</span></h6>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            @Helper.GetResourceString("msg_dirtyConfirmationMessage")
+                            @*You have pending unsaved changes. If you navigate away from this page without first saving your data, the changes will be lost.*@
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btnDirtyOk" type="button" class="k-button" data-dismiss="modal">Ok</button>
+                    <button id="btnDirtyCancel" type="button" onclick="popupClose();" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Cancel")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header" style="font-size:16px;color:#fff;">
+                    <button type="button" class="close" data-dismiss="modal" style="font-size: 26px;color:#fff;">&times;</button>
+                    <h4 class="modal-title">Precautionary Steps before booking Sauda:</h4>
+                </div>
+                <div class="modal-body" style="font-size: 14px;line-break: normal;line-height: 2.5;">
+                    <p>1. Need to create or import the geographical data (Zone,State,Territory,District and City).</p>
+                    <p>2. Need to create or import the freight zone and freight route.</p>
+                    <p>3. Need to create the Headquarters for EAL user creation.</p>
+                    <p>4. After plant & depot integrated from SAP, Need to map the plant and Depot in DS portal</p>
+                    <p>5. After SKU integrated from SAP, Need to update the  following fields : Pack Size, Pack Size Quantity, Sub Category, Pack Group,Process cost (Required for Specialty fat)</p>
+                    <p>6. Ingredient master for specialty fat to be included and mapped with SKU</p>
+                    <p>7. After Customer and broker integrated from SAP, Need to update the following fields:  SaudaValidityPeriod,Incoterms,TransportModeId,SaudaBookingTypeId,SaudaLimit, Plant, Depot, freight Zone freight Route</p>
+                    <p>8. After update the customer and Broker, Need to map the dealer/broker with plant/Depot.</p>
+                    <p>9. Create the EAL user and map the StateTrader with respective dealer/broker.</p>
+                    <p>10. Need to update the density for liter conversion in oil type.</p>
+                    <p>11. Configure the Role Hierarchy.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="userProfileImage" class="modal fade" role="dialog">
+        <div id="uploadErrorMsg" class="alert alert-danger" style="display:none;"></div>
+
+
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close closeDealer" data-dismiss="modal">&times;</button>
+                    <h6 class="panel-title"><span class="text-semibold">Upload Profile Image</span></h6>
+                </div>
+                @using (Html.BeginForm("ProfileUpload", "Lookup", FormMethod.Post, new { id = "frmUploadProfilePhoto", @class = "form-validate-jquery" }))
+                {
+                    <div class="row form-group" id="dvIssueAttachments">
+                        <div class="col-lg-3 col-sm-6 mb-3">
+                            <label class="custom_label">   Media <span class="text-danger"></span>  </label>
+                            @(Html.Kendo().Upload()
+                       .Name("files").Multiple(false)
+                       .HtmlAttributes(new { id = "fpMediaImage", tabindex = "5",/*required = "required",*/ aria_label = "files", accept = "image/*" }))
+                            <label style="font-size: 12px; font-weight: bold !important;"> File format must be jpeg, png, jpg </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" onclick="popupClose();" class="k-button closeDealer custom-btns k-cancel" data-dismiss="modal">@Helper.GetResourceString("btn_Close")</button>
+                        <button type="submit" id="btnSave" tabindex="23" class="k-button k-cancel custom-btns">Upload</button>
+                    </div>
+                }
+
+            </div>
+            @*<button type="button" id="btnSave" tabindex="22" class="k-primary k-button custom-btns">@(Model != null && Model.Id == 0 ? @Helper.GetResourceString("btn_SaveUser") : @Helper.GetResourceString("btn_UpdateUser"))</button>*@
+
+
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle=offcanvas]').click(function () {
+                $('.row-offcanvas').toggleClass('active');
+            });
+
+            $('#profileImage').on('click', function (e) {
+                $('#userProfileImage').modal('show');
+            });
+
+            //$("#btnSave").click(function () {
+            //    var isValidForm = $("#frmIssueRegister").valid();
+            //    if (isValidForm) {
+            //        window.kendo.ui.progress($("#div_Progress"), true);
+            //        $("#frmIssueRegister").submit();
+            //        //window.kendo.ui.progress($("#div_Progress"), false);
+            //    }
+            //});
+            isFormChanged('isNotChanged');
+
+            $("#layoutMenu").on("click", "a", function (event) {
+                event.preventDefault();
+                if ($(this).attr("href")) {
+                    isFormChangeOrNot($(this).attr("href"));
+                }
+            });
+
+            $("#btnDirtyOk").click(function () {
+                isFormChanged('isNotChanged');
+                window.location.href = $("#btnDirtyOk").val();
+            });
+
+            $.ajax({
+                type: 'Get',
+                url: '@Url.Action("GetProfileImageUrl", "Lookup")',
+                success: function (response) {
+                    if (response.PostStatus) {
+                        console.log(response);
+                        if (response.ProfilePath == null) {
+                            $("#profilephoto").attr("src", "/images/user-image.png");
+                        } else {
+                            $("#profilephoto").attr("src", response.ProfilePath);
+                        }
+
+                } else {
+                    $("#profilephoto").attr("src", "/images/user-image.png");
+                }
+            },
+                error: function (responce) {
+                    $("#profilephoto").attr("src", "/images/user-image.png");
+            }
+        });
+
+            $("#helpModal").click(function () {
+                //$('#myModal').modal({
+                //    show: 'true'
+                //});
+            });
+        });
+    </script>
+    <style>
+        .k-grid-pager {
+            padding: 1px !important;
+        }
+
+        .modal-dialog {
+            width: 70%;
+        }
+    </style>
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <script>
+        $(document).ready(function () {
+            var message = '@TempData["ErrorMessage"]';
+            $('#globalErrorMsg').text(message).fadeIn();
+
+            // Optional: auto-hide after 5 seconds
+            setTimeout(function () {
+                $('#globalErrorMsg').fadeOut();
+            }, 5000);
+        });
+        </script>
+    }
+    <style>
+        #globalErrorMsg {
+            font-size: 14px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+    </style>
+
+
+
+    <div id="globalErrorMsg" class="alert alert-danger" style="display:none; position: fixed; top: 70px; right: 20px; z-index: 1050; min-width: 250px;"></div>
+
+</body>
+</html>

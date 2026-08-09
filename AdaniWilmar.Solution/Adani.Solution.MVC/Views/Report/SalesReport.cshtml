@@ -1,0 +1,247 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+
+@{
+    ViewBag.Title = "SalesReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="reportSalesReport" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_SalesReport")</h2>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvSpecialRate">
+
+                <div class="row form-group">
+                    <div class="col-md-2 text-right control-label">
+                        @Helper.GetResourceString("lbl_FromDate") <span class="text-danger">*</span>
+                    </div>
+                    <div class="col-md-3">
+                        @(Html.Kendo().DatePicker()
+                              .Name("StartDate")
+                              .Value(DateTime.Now)
+                              .Format(Settings.DateFormat)
+                              .Events(e => e.Change("fromDateChange"))
+                              .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_FromDate") }))
+                    </div>
+                    <div class="col-md-2 text-right control-label">
+                        @Helper.GetResourceString("lbl_ToDate") <span class="text-danger">*</span>
+                    </div>
+                    <div class="col-md-3">
+                        @(Html.Kendo().DatePicker()
+                              .Name("EndDate")
+                              .Value(DateTime.Now)
+                              .Format(Settings.DateFormat)
+                              .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "2", style = "width: 100%", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_ToDate") }))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-2 text-right control-label">
+                        @Helper.GetResourceString("lbl_State") <span class="text-danger">*</span>
+                    </div>
+                    <div class="col-md-3">
+                        @(Html.Kendo().MultiSelect().Name("StateId")
+                                      .Events(events => events.Change("onStateChange").DataBound("onStateDataBound"))
+                                      .Placeholder(@Helper.GetResourceString("plho_SelectState"))
+                                      .DataTextField("StateName")
+                                      .DataValueField("StateId")
+                                      .AutoClose(false)
+                                      .TagMode(TagMode.Single)
+                                      //.MaxSelectedItems(ConfigHelper.MaxSelectedOneItemForMultiselect)
+                                      .DataSource(source => source.Read(read => read.Action("GetStateListAsync", "Lookup", new { isToReturnInactiveData = false }))
+                                      .ServerFiltering(false))
+                                      .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='stateSelectAll'> Select All</label>")
+                                      .HtmlAttributes(new { id = "ddlState", @class = "", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_State"), @style = "width:100%" }))
+                    </div>
+
+                    <div class="col-md-2 text-right control-label">
+                        @Helper.GetResourceString("lbl_SalesPerson") <span class="text-danger">*</span>
+                    </div>
+                    <div class="col-md-3">
+                        @(Html.Kendo().MultiSelect().Name("BDOId")
+                                      .Events(events => events.Change("onBDOChange").DataBound("onBDODataBound"))
+                                      .Placeholder(@Helper.GetResourceString("plho_SelectSalesPerson"))
+                                      .DataTextField("Name")
+                                      .DataValueField("Id")
+                                      .AutoClose(false)
+                                      .TagMode(TagMode.Single)
+                                      //.MaxSelectedItems(ConfigHelper.MaxSelectedOneItemForMultiselect)
+                                      .DataSource(source => source.Read(read => read.Action("GetBDOListddlAsync", "Lookup").Data("additionalParamBDO"))
+                                      .ServerFiltering(false))
+                                      .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='bdoSelectAll'> Select All</label>")
+                                      .HtmlAttributes(new { id = "ddlBDO", @class = "", tabindex = "4", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_SalesPerson"), @style = "width:100%" }))
+                    </div>
+
+                </div>
+
+                <div class="row form-group">
+                    
+                    <div class="col-md-2 text-right control-label">
+                        @Helper.GetResourceString("lbl_OilPackingType") 
+                    </div>
+                    <div class="col-md-3">
+                        @(Html.Kendo().DropDownList().Name("PackgroupId")
+                      .OptionLabel(@Helper.GetResourceString("plho_All"))
+                      .DataTextField("Name")
+                      .DataValueField("Id")
+                      .DataSource(source => source.Read(read => read.Action("GetOilPackingTypeListAsync", "Lookup", new { isToReturnInactiveData = true }))
+                      .ServerFiltering(true))
+                      .HtmlAttributes(new { id = "ddlOilPackingType", tabindex = "5", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilPackingType"), @style = "width:100%" }))
+                    </div>   
+
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-12 text-center">
+                        <button type="button" tabindex="4" id="btnGenerateReport" class="k-primary k-button">Generate Report<i class="icon-arrow-right14 position-right"></i></button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        $("#btnGenerateReport").click(function () {
+            var errorFlag = false;
+            var errorMessage = "";
+
+            if ($("#ddlState").data("kendoMultiSelect").value() == "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_State")');
+			errorFlag = true;
+            }
+            if ($("#ddlBDO").data("kendoMultiSelect").value() == "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_SalesPerson")');
+			errorFlag = true;
+            }
+        if (errorFlag) {
+            ShowErrorMessageLeftAlign(errorMessage);
+        }
+        else {
+            downloadSalesReport();
+        }
+        });
+
+        $("#stateSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlState", "stateSelectAll");
+            $("#ddlBDO").data("kendoMultiSelect").dataSource.read();
+        });
+
+        $("#bdoSelectAll").click(function () {
+            MultiSelectCheckUnCheckBDO("ddlBDO", "bdoSelectAll");
+        });
+    });
+
+    function onStateChange(e) {
+        MultiSelectEvents("ddlState", "stateSelectAll");
+        $("#ddlBDO").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function onStateDataBound(e) {
+        MultiSelectEvents("ddlState", "stateSelectAll");
+    }
+
+    function onBDOChange(e) {
+        MultiSelectEvents("ddlBDO", "bdoSelectAll");
+    }
+
+    function onBDODataBound(e) {
+        MultiSelectEvents("ddlBDO", "bdoSelectAll");
+    }
+
+    function additionalParamBDO() {
+        if ($("#ddlState").val()) {
+            return {
+                stateIds: $("#ddlState").val().join()
+            }
+        }
+    }
+
+    function MultiSelectCheckUnCheck(DropDownName, CheckBoxName) {
+        var dropdown = $("#" + DropDownName + "").data("kendoMultiSelect");
+        if (dropdown) {
+            var allIds = dropdown.dataSource.data().map(function (dataItem) { return dataItem.StateId; });            //Select all ids from dropdown
+            if ($("#" + CheckBoxName + "").is(":checked")) {
+                dropdown.value(allIds);
+            } else {
+                dropdown.value([]);
+            }
+        }
+    }
+
+    function MultiSelectCheckUnCheckBDO(DropDownName, CheckBoxName) {
+        var dropdown = $("#" + DropDownName + "").data("kendoMultiSelect");
+        if (dropdown) {
+            var allIds = dropdown.dataSource.data().map(function (dataItem) { return dataItem.Id; });            //Select all ids from dropdown
+            if ($("#" + CheckBoxName + "").is(":checked")) {
+                dropdown.value(allIds);
+            } else {
+                dropdown.value([]);
+            }
+        }
+    }
+
+    function MultiSelectEvents(DropDownName, CheckBoxName) {
+        var dropdown = $("#" + DropDownName + "").data("kendoMultiSelect");
+        if (dropdown) {
+            var selectedValueCount = dropdown.value().length;                                   //Selected value length
+            var totalValueCount = dropdown.dataSource.data().length;                            //Dropdown total value count
+            if (selectedValueCount > 0 && totalValueCount > 0 && selectedValueCount === totalValueCount) {
+                $("#" + CheckBoxName + "").prop("checked", true);
+            } else {
+                $("#" + CheckBoxName + "").prop("checked", false);
+            }
+        }
+    }
+
+    function fromDateChange() {
+        var endPicker = $("#EndDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            $("#EndDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+            endPicker.min(startDate);
+        }
+    }
+
+    function setCurrentDate() {
+    }
+
+    function downloadSalesReport(Id) {
+
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SalesExportAsync", "Report")',
+            data: {
+                FromDate: $("#StartDate").val(),
+                ToDate: $("#EndDate").val(),
+                BDOIds: $("#ddlBDO").val(),
+                PackTypeId: $("#ddlOilPackingType").val(),
+            },
+            success: function (responce) {
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Report")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+</script>

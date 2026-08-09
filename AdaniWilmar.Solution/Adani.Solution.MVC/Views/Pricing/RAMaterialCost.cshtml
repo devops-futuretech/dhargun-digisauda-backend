@@ -1,0 +1,299 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@model Adani.Solution.DTO.RAMaterialCostDto
+@{
+    ViewBag.Title = "RAMaterialCost";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="ra2RAMaterialCost" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_AddOrUpdateRAMaterialCost")</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="dvRAMaterialCost">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("AddOrUpdateRAMaterialCost", "Pricing", FormMethod.Post, new { id = "frmRAMaterialCost", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.Id)
+
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Vertical") <span class="text-danger">*</span>
+                            </div>
+                            @if (Model.RoleId == (long)Role.Admin)
+                            {
+                                <div class="col-md-4">
+                                    @(Html.Kendo().DropDownListFor(m => m.VerticalId)
+                                      .OptionLabel(@Helper.GetResourceString("plho_SelectVertical"))
+                                      .DataTextField("Name")
+                                      .DataValueField("Id")
+                                      .Events(e => e.Change("onVerticalTypeChange").DataBound("verticleDataBound"))
+                                      .DataSource(source => source.Read(resd => resd.Action("MaterialCostGetVerticalDetailsdd", "Lookup"))
+                                      .ServerFiltering(false))
+                                      .HtmlAttributes(new { id = "ddlVertical", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Vertical"), @style = "width:100%" }))
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-md-4">
+                                    @(Html.Kendo().DropDownListFor(m => m.VerticalId)
+                                      .OptionLabel(@Helper.GetResourceString("plho_SelectVertical"))
+                                      .DataTextField("Name")
+                                      .DataValueField("Id")
+                                      .Value(Model.VerticalId.ToString())
+                                      .Events(e => e.Change("onVerticalTypeChange").DataBound("verticleDataBound"))
+                                      .DataSource(source => source.Read(resd => resd.Action("MaterialCostGetVerticalDetailsdd", "Lookup"))
+                                      .ServerFiltering(false))
+                                      .HtmlAttributes(new { id = "ddlVertical", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Vertical"), @style = "width:100%", @readonly = "readonly" }))
+                                </div>
+                            }
+
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_OilType") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownListFor(m => m.OilTypeId)
+                                      .OptionLabel(@Helper.GetResourceString("plho_SelectOilType"))
+                                      .DataTextField("Name")
+                                      .DataValueField("Id")
+                                      .DataSource(source => source.Read(read => read.Action("MaterialCostGetOilTypesBasedOnVerticalId", "Lookup", new { isToReturnInactiveData = false }).Data("oilTypeAdditionalInfo"))
+                                      .ServerFiltering(true))
+                                      .HtmlAttributes(new { id = "ddlOilType", @class = "", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilType"), @style = "width:100%" }))
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Plant") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownListFor(m => m.PlantId)
+                                      .OptionLabel(@Helper.GetResourceString("plho_SelectPlant"))
+                                      .DataTextField("Name")
+                                      .DataValueField("Id")
+                                      .DataSource(source => source.Read(read => read.Action("GetPlantListddlAsync", "Lookup"))
+                                      .ServerFiltering(false))
+                                      .HtmlAttributes(new { id = "ddlPlant", @class = "", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Plant"), @style = "width:100%" }))
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_RatePerMT") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(m => m.RateOrMT, new { id = "txtRateOrMT", tabindex = "4", @class = "form-control decimalValue", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_RateOrMT"), @maxlength = (int)InputMaxLength.Price })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_ValidFrom") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DateTimePickerFor(m => m.ValidFrom)
+                                      .Format(Settings.DateTimeFormat)
+                                      .Interval(1)
+                                      .Events(e => e.Change("fromChange"))
+                                      .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "5", style = "width: 100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_ValidTo") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DateTimePickerFor(m => m.ValidTo)
+                                      .Format(Settings.DateTimeFormat)
+                                      .Interval(1)
+                                      .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "6", style = "width: 100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+                                <button type="button" tabindex="8" id="btnCancel" onclick="location.href = '@Url.Action("RAMaterialCostList", "Pricing")'" class="k-button">Cancel</button>
+                                @if (Helper.CheckClaims(Claims.ManageRAMasters))
+                                {
+                                    <button type="button" tabindex="7" id="btnSave" class="k-primary k-button">@(Model != null && Model.Id == 0 ? @Helper.GetResourceString("btn_SaveRAMaterialCost") : @Helper.GetResourceString("btn_UpdateRAMaterialCost"))<i class="icon-arrow-right14 position-right"></i></button>
+                                }
+                            </div>
+                        </div>
+                    }
+                    <!---end of form input-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        if ('@Model.VerticalId' > 0) {
+            $("#ddlVertical").data("kendoDropDownList").readonly(true);
+        }
+
+        $('input[type="text"]').keypress(function (e) {
+            var code = e.keyCode || e.which;
+            if (code === 13) {
+                e.preventDefault();
+            }
+        });
+
+        $('#btnSave').on('click', function (e) {
+            var isValid = $('#frmRAMaterialCost').valid();
+            if (isValid) {
+                window.kendo.ui.progress($("#dvRAMaterialCost"), true);
+                $('#frmRAMaterialCost').submit();
+                window.kendo.ui.progress($("#dvRAMaterialCost"), false);
+            }
+        });
+
+        if ('@Model.Id' === '0') {
+            //var dates = new Date();
+            //dates.setDate(dates.getDate());
+            //$("#dpToDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+            //$("#dpFromDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+            $("#gridHide").hide();
+
+            if ('@Model.RateOrMT' === '0') {
+                $("#txtRateOrMT").val('');
+            }
+            StartDateRange();
+        }
+        else {
+            StartDateRangeOnUpdate();
+        }
+    });
+
+
+    function fromChange() {
+        var endPicker = $("#ValidTo").data("kendoDateTimePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate());
+
+            startDate.setHours("23");
+            startDate.setMinutes("59");
+            endPicker.min(startDate);
+            endPicker.max(startDate);
+            $("#ValidTo").val(kendo.toString(startDate, emamiGlobal.constant.DateTimeFormat));
+            $("#ValidTo").attr("readonly", true);
+        }
+    }
+
+    //function endChange() {
+    //    var startPicker = $("#ValidFrom").data("kendoDateTimePicker"),
+    //        endDate = this.value();
+
+    //    if (endDate) {
+    //        endDate = new Date(endDate);
+    //        endDate.setDate(endDate.getDate());
+    //        startPicker.min(endDate);
+    //    }
+    //}
+
+    //function fromChange() {
+    //    var endPicker = $("#ValidTo").data("kendoDateTimePicker"),
+    //       startDate = this.value();
+
+    //   if (startDate) {
+    //       startDate = new Date(startDate);
+    //       //startDate.setMinutes(startDate.getMinutes() + this.options.interval);
+    //       $("#ValidTo").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+    //       //var maxDate = new Date(startDate);
+    //       //maxDate.setDate(maxDate.getDate() + 7);
+    //       endPicker.min(startDate);
+    //       //endPicker.max(maxDate);
+    //   }
+    //}
+
+    function StartDateRange() {
+        var startDate = new Date();
+        startDate.setDate(startDate.getDate());
+        //startDate.setMinutes(startDate.getMinutes() + this.options.interval);
+        $("#ValidFrom").val(kendo.toString(startDate, emamiGlobal.constant.DateTimeFormat));
+
+        //Set default date
+        var startPicker = $("#ValidFrom").data("kendoDateTimePicker");
+        startPicker.min(startDate);
+
+        var endPicker = $("#ValidTo").data("kendoDateTimePicker");
+        startDate.setHours("23");
+        startDate.setMinutes("59");
+        endPicker.min(startDate);
+        endPicker.max(startDate);
+        $("#ValidTo").val(kendo.toString(startDate, emamiGlobal.constant.DateTimeFormat));
+        $("#ValidTo").attr("readonly", true);
+    }
+
+    function StartDateRangeOnUpdate() {
+        var endPicker = $("#ValidTo").data("kendoDateTimePicker"),
+            startDate = $("#ValidFrom").data("kendoDateTimePicker").value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate());
+            $("#ValidFrom").val(kendo.toString(startDate, emamiGlobal.constant.DateTimeFormat));
+
+            var startPicker = $("#ValidFrom").data("kendoDateTimePicker");
+            startPicker.min(startDate);
+            //startDate.setMinutes(startDate.getMinutes());
+
+            startDate.setHours("23");
+            startDate.setMinutes("59");
+            endPicker.min(startDate);
+            endPicker.max(startDate);
+            $("#ValidTo").attr("readonly", true);
+        }
+    }
+
+    function onVerticalTypeChange() {
+        $("#ddlOilType").data("kendoDropDownList").dataSource.read();
+    }
+
+    //Verticle data onBound events
+    function verticleDataBound() {
+        if ('@Model.Id' > 0) {
+            $("#ddlOilType").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    function oilTypeAdditionalInfo() {
+        var verticalId = $("#ddlVertical").data("kendoDropDownList").value();
+        return {
+            verticalId: Number(verticalId)
+        };
+    }
+
+</script>
+
+
+
+
+
+
+
+
+

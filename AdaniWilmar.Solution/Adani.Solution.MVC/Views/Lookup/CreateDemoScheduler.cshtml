@@ -1,0 +1,207 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@model Adani.Solution.DTO.ScheduleDemoOutputDto
+@{
+    ViewBag.Title = "Schedule Demo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="cmsdemoschedule" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_ScheduleDemo")</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvDemo">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("CreateDemoScheduler", "Lookup", FormMethod.Post, new { id = "frmdemo", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.DemoId, new { id = "txtDemoId" })
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right">
+                                @Helper.GetResourceString("lbl_ComplaintFormName") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownListFor(m => m.ComplaintFormId)
+                                          .OptionLabel(@Helper.GetResourceString("plho_SelectComplaint"))
+                                          .DataTextField("FormName")
+                                          .DataValueField("FormId")
+                                          .Events(e => e.Change("onComplaintChange").DataBound("ComplaintDataBound"))
+                                          .DataSource(source => source.Read(read => read.Action("GetOpenComplaintForms", "Lookup"))
+                                          .ServerFiltering(true))
+                                          .HtmlAttributes(new { id = "ddlForm", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_ComplaintFormName"), @style = "width:100%" }))
+                            </div>
+                            <div class="col-md-2 text-right">
+                                @Helper.GetResourceString("lbl_Demodate") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DatePickerFor(m => m.DemoDateTime)
+                                            .Format(Settings.DateFormat)
+                                            .Min(Settings.DefaultDashboardEndDate)
+                                            .Events(e => e.Change("OnDemoDateChange"))
+                                            .HtmlAttributes(new { id = "dtpDemoDate", onkeydown = "return isFocus(event);", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Demodate"), style = "width: 100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right">
+                                @Helper.GetResourceString("lbl_UnderstandingFormName") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownListFor(m => m.UnderstandingFormId)
+                                      .OptionLabel(@Helper.GetResourceString("plho_SelectUnderstanding"))
+                                      .DataTextField("Name")
+                                      .DataValueField("Id")
+                                      .DataSource(source => source.Read(read => read.Action("GetUnderstandingFormsBasedOnComplaintForm", "Lookup").Data("understandingFormAdditionalInfo"))
+                                      .ServerFiltering(true))
+                                      .HtmlAttributes(new { id = "ddlUnderstandingForm", @class = "", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_UnderstandingFormName"), @style = "width:100%" }))
+                            </div>
+                            <div class="col-md-2 text-right">
+                                @Helper.GetResourceString("lbl_EALUsers") @*<span class="text-danger">*</span>*@
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().MultiSelectFor(m => m.EALUserId)
+                                          .Placeholder(@Helper.GetResourceString("plho_SelectEalUser"))
+                                          .DataTextField("UserName")
+                                          .DataValueField("UserId")
+                                          .DataSource(source => source.Read(read => read.Action("GetAvailableEALUser", "Lookup").Data("additionalEALuserParam"))
+                                          .ServerFiltering(false))
+                                          .HtmlAttributes(new { id = "ddlEALUser", @class = "", tabindex = "5", data_msg_required = Helper.GetSelectMsgRequired("lbl_EALUsers"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                            <div class="row form-group">
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_Demonstrator") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-4">
+                                    @(Html.Kendo().DropDownListFor(m => m.DemonstratorId)
+                                          .OptionLabel(@Helper.GetResourceString("plho_SelectDemonstator"))
+                                          .DataTextField("UserName")
+                                          .DataValueField("UserId")
+                                          .DataSource(source => source.Read(read => read.Action("GetAvailableDemonstrator", "Lookup").Data("additionalDemonstratorParam"))
+                                          .ServerFiltering(true))
+                                          .HtmlAttributes(new { id = "ddlDemonstrator", @class = "", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Demonstrator"), @style = "width:100%" }))
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_DemoIncharge") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-4">
+                                    @(Html.Kendo().DropDownListFor(m => m.DemoInchargeId)
+                                          .OptionLabel(@Helper.GetResourceString("plho_SelectDemoIncharge"))
+                                          .DataTextField("UserName")
+                                          .DataValueField("UserId")
+                                          .DataSource(source => source.Read(read => read.Action("GetAvailableDemoIncharge", "Lookup").Data("additionalDemoInchargeParam"))
+                                          .ServerFiltering(false))
+                                          .HtmlAttributes(new { id = "ddlDemoIncharge", @class = "", tabindex = "4", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_DemoIncharge"), @style = "width:100%" }))
+                                </div>
+                            </div>
+                            <div class="row form-group">
+
+                                @if (Model.DemoId != 0)
+                                {
+                                    <div class="col-md-2 text-right">
+                                        @Helper.GetResourceString("lbl_ActiveInactive")
+                                    </div>
+
+                                    <div class="col-md-1">
+                                        @Html.CheckBoxFor(m => m.IsActive, new { id = "cbActiveInactive", tabindex = "5" })
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-md-12 text-center">
+                                    <button type="button" id="btnCancel" tabindex="6" onclick="location.href = '@Url.Action("DemoScheduler", "Lookup")'" class="k-button">Cancel</button>
+                                    @if (Helper.CheckClaims(Claims.ManageComplaints))
+                                    {
+                                        <button type="button" id="btnSave" tabindex="7" class="k-primary k-button">@(Model != null && Model.ComplaintFormId == 0 ? @Helper.GetResourceString("lbl_Schedule") : @Helper.GetResourceString("lbl_UpdateSchedule"))<i class="icon-arrow-right14 position-right"></i></button>
+                                    }
+                                </div>
+                            </div>
+                            }
+                        </div>
+                    </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+        if ('@Model.DemoId' == 0) {
+            SetDateTime();
+        }
+        $('#btnSave').on('click', function (e) {
+            var isValid = $('#frmdemo').valid();
+            if (isValid) {               
+                window.kendo.ui.progress($("#div_Progress"), true);
+                $('#frmdemo').submit();               
+            }
+        });
+    });
+
+	function SetDateTime() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+
+		$("#dtpDemoDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+		OnDemoDateChange();
+    }
+	function additionalDemonstratorParam() {
+        return {
+            DemoDateTime: $("#dtpDemoDate").val(),
+            DemoId: $("#txtDemoId").val()
+        };
+    }
+    function additionalDemoInchargeParam() {
+        return {
+            DemoDateTime: $("#dtpDemoDate").val(),
+            DemoId: $("#txtDemoId").val()
+        };
+    }
+    function additionalEALuserParam() {
+        return {
+            DemoDateTime: $("#dtpDemoDate").val(),
+            DemoId: $("#txtDemoId").val()
+        };
+    }
+
+    function OnDemoDateChange() {
+        $("#ddlDemonstrator").data("kendoDropDownList").dataSource.read();
+        $("#ddlDemoIncharge").data("kendoDropDownList").dataSource.read();
+        $("#ddlEALUser").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function onComplaintChange() {
+        $("#ddlUnderstandingForm").data("kendoDropDownList").dataSource.read();
+    }
+
+    function ComplaintDataBound() {
+        if ('@Model.DemoId' > 0) {
+            $("#ddlUnderstandingForm").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    function understandingFormAdditionalInfo() {
+        var complaintId = $("#ddlForm").data("kendoDropDownList").value();
+        return {
+            complaintId: Number(complaintId)
+        };
+    }
+
+</script>
+

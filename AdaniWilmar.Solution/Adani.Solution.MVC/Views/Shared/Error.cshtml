@@ -1,0 +1,177 @@
+﻿@{
+    ViewBag.Title = "Error";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewBag.Title - Adani</title>
+    <!-- Global stylesheets -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700,900" rel="stylesheet" type="text/css">
+    <link href="~/Content/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+    <link href="~/Content/bootstrap.css" rel="stylesheet" type="text/css">
+    <link href="~/Content/Site.css" rel="stylesheet" type="text/css">
+    <link href="~/Content/Style.css" rel="stylesheet" type="text/css">
+    <link href="~/Content/Menu.css" rel="stylesheet" type="text/css">
+
+    <link href="@Url.Content("~/Content/Kendo/kendo.all.css")" rel="stylesheet" />
+
+    @Scripts.Render("~/bundles/jquery")
+
+    <script type="text/javascript" src="~/Scripts/validate.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/bootstrap.js"></script>
+    <script type="text/javascript" src="~/Scripts/menu.js"></script>
+    <script type="text/javascript" src="~/Scripts/emamiCommon.js"></script>
+    <script type="text/javascript" src="~/Scripts/globalSettings.js"></script>
+    <script type="text/javascript" src="~/Scripts/form.validation.js"></script>
+
+    <script type="text/javascript" src="~/Scripts/Kendo/kendo.all.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/Kendo/kendo.aspnetmvc.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/Kendo/jszip.js"></script>
+    <script type="text/javascript" src="~/Scripts/moduleCommon.js"></script>
+
+    <!-- /theme JS files -->
+</head>
+
+
+<body class="pace-done">
+    <!-- Main navbar -->
+
+
+
+
+
+    <div class="navbar navbar-inverse">
+        <div class="navbar-header">
+            <a class="navbar-brand title-color navbar-fontsize" href="@Url.Action("Login","User")"><img src="~/images/login_logo.png" alt=""></a>
+            <ul class="nav navbar-nav visible-xs-block">
+                <li><a data-toggle="collapse" data-target="#navbar-mobile"><i class="icon-tree5"></i></a></li>
+                <li><a class="sidebar-mobile-main-toggle"><i class="icon-paragraph-justify3"></i></a></li>
+            </ul>
+
+        </div>
+        <div class="navbar-collapse collapse" id="navbar-mobile">
+        </div>
+    </div>
+
+
+
+    <div class="page-container">
+        <!-- Page content -->
+        <div class="page-content">
+
+            <!-- Main content -->
+            <div class="content-wrapper" id="div_Progress">
+
+                <div id="dvAlert"> </div>
+                <!-- Content area -->
+
+                <div class="content">
+
+                    <div class="register-box">
+                        <div style="float:left;width:100%;padding: 30px 0px;text-align:center;height:100%;">
+                            <img src="~/images/login_logo.png" width="100" />
+                            <h2 class="registrationTitle" style="margin-top:20px;margin-bottom:30px;">OOPS!!</h2>
+                            <p class="registrationSubtitle" style="line-height:21px;">Some error has occured . Please try after some time or contact the admin</p>
+                            <br />
+                            <a href="@Url.Action("Login", "User")" class="btn-play">Back to Login</a>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="footer text-muted text-center">
+                        &copy; @DateTime.Now.Year <a href="@Url.Action("Login", "User")">Adani</a> by <a href="https://www.impigertech.com/" target="_blank">Impiger Technologies</a>
+                    </div>
+                    <!-- /footer -->
+                </div>
+                <!-- /content area -->
+
+
+            </div>
+            <!-- /footer -->
+            <!-- /content area -->
+        </div>
+        <!-- /main content -->
+    </div>
+
+
+
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle=offcanvas]').click(function () {
+                $('.row-offcanvas').toggleClass('active');
+            });
+        });
+    </script>
+</body>
+
+
+<!--if (Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["ShowErrorDetailsMode"]))
+{
+    <div class="register-box">
+        <div style="float:left;width:100%;padding: 30px 0px;text-align:center;height:100%;">
+
+            if (!string.IsNullOrEmpty(ViewBag.ErrorDetails))
+            {
+                <p class="registrationSubtitle" style="line-height:21px; font-size:15px;">
+                    <span style="font-weight:bold;"> Error Details:</span> <br />
+                    @ViewBag.ErrorDetails
+                </p>
+            }
+
+            if (!string.IsNullOrEmpty(ViewBag.ErrorException))
+            {
+
+                <p class="registrationSubtitle" style="line-height:21px; font-size:15px;">
+                    <span style="font-weight:bold;"> Error Exception:</span> <br />
+                    @ViewBag.ErrorException
+                </p>
+            }-->
+
+            @*@if (!string.IsNullOrEmpty(ViewBag.InnerException))
+                {
+                    <p class="registrationSubtitle" style="line-height:21px; font-size:15px;">
+                        <span style="font-weight:bold;"> Inner Exception:</span> <br />
+                        @ViewBag.InnerException
+                    </p>
+                }
+
+                @if (!string.IsNullOrEmpty(ViewBag.SourceException))
+                {
+                    <p class="registrationSubtitle" style="line-height:21px; font-size:15px;">
+                        <span style="font-weight:bold;"> Source Exception:</span> <br />
+                        @ViewBag.SourceException
+                    </p>
+                }
+
+
+
+                @if (!string.IsNullOrEmpty(ViewBag.TargetSiteException))
+                {
+                    <p class="registrationSubtitle" style="line-height:21px; font-size:15px;">
+                        <span style="font-weight:bold;"> Target Site Exception:</span> <br />
+                        @ViewBag.TargetSiteException
+                    </p>
+                }
+
+                @if (!string.IsNullOrEmpty(ViewBag.StackTraceException))
+                {
+                    <p class="registrationSubtitle" style="line-height:21px; font-size:15px;">
+                        <span style="font-weight:bold;"> Stack Trace Exception:</span> <br />
+                        @ViewBag.StackTraceException
+                    </p>
+                }*@
+
+            <!--<br />
+            <a href="@Url.Action("Login", "User")" class="btn-play">Back to Login</a>
+        </div>
+    </div>
+
+}
+else
+{-->
+</html>
+

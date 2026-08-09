@@ -1,0 +1,267 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@{
+    ViewBag.Title = "Issue List";
+}
+
+<style>
+    .k-confirm .k-window-titlebar::before {
+        content: 'Confirmation';
+    }
+
+    .k-confirm .k-window-titlebar .k-dialog-title {
+        visibility: collapse;
+    }
+</style>
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="supportIssueList" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_IssueList")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Support</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_IssueList")<span class="icon-right"></span></li>
+    </ol>
+    <div style="clear:both;"></div>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;" id="pageLoader">
+            <div class="row" id="dvSecondaryFreights">
+                <div class="row form-group">
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <label class="custom_label">  @Helper.GetResourceString("lbl_FromDate") </label>
+                        @(Html.Kendo().DatePicker().Name("FromDate")
+                                                              .Format(Settings.DateFormat)
+                                                              .Events(e => e.Change("fromChange"))
+                                                              .HtmlAttributes(new { id = "dpFromDate", onkeydown = "return isFocus(event);", tabindex = "5", style = "width: 100%" }))
+                    </div>
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <label class="custom_label">  @Helper.GetResourceString("lbl_ToDate") </label>
+                        @(Html.Kendo().DatePicker().Name("ToDate")
+                                                              .Format(Settings.DateFormat)
+                                                              .HtmlAttributes(new { id = "dpToDate", onkeydown = "return isFocus(event);", tabindex = "6", style = "width: 100%" }))
+                    </div>
+
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <label class="custom_label"> @Helper.GetResourceString("lbl_QueryFrom") </label>
+                        @(Html.Kendo().DropDownList()
+                                                              .Name("QueryFrom")
+                                                              .OptionLabel(@Helper.GetResourceString("plho_SelectQueryFrom"))
+                                                              .DataTextField("Name")
+                                                              .DataValueField("Id")
+                                                              .DataSource(source => source.Read(resd => resd.Action("GetQueryFromListForDropdown", "Support"))
+                                                              .ServerFiltering(false))
+                                                              .HtmlAttributes(new { id = "ddlQueryFrom", @class = "form-control", tabindex = "4", @style = "width:100%" }))
+                        <label id="lblQueryFrom" class="field-validation-error" style="display: none;">@Helper.GetSelectMsgRequired("lbl_QueryFrom")</label>
+                    </div>
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <label class="custom_label"> @Helper.GetResourceString("lbl_RaisedBy") </label>
+                        @(Html.Kendo().DropDownList()
+                                                              .Name("RaisedBy")
+                                                              .OptionLabel(@Helper.GetResourceString("plho_SelectRaisedBy"))
+                                                              .DataTextField("Name")
+                                                              .DataValueField("Id")
+                                                              .DataSource(source => source.Read(resd => resd.Action("GetRaisedByListForDropdown", "Support"))
+                                                              .ServerFiltering(false))
+                                                              .HtmlAttributes(new { id = "ddlRaisedBy", @class = "form-control", tabindex = "4", @style = "width:100%" }))
+                        <label id="lblRaisedBy" class="field-validation-error" style="display: none;">@Helper.GetSelectMsgRequired("lbl_RaisedBy")</label>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-12 text-center">
+                        <button type="button" tabindex="7" onclick="SearchIssue()" class="k-primary k-button custom-btns">Search</button>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="text-right right-buttons">
+                        <div class="export_as">
+                            <span>Export as</span>
+                            <div class="export-btns">
+                                <span class="export-link" onclick='ExportToExcel()' type="button">Excel</span>
+                            </div>
+                        </div>
+                        @* <button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ViewIssueList")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;*@
+                        @*<button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel()' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;*@
+
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    </div>
+                    @(Html.Kendo().Grid<IssueRegisterDto>().Name("ViewIssueList")
+                                                                          .Columns(columns =>
+                                                                          {
+                                                                              //columns.Bound(c => c.Id).Visible(true).Width(Settings.GridOtherColumnWidth);
+                                                                              columns.Bound(c => c.Id).Visible(false);
+                                                                              columns.Bound(c => c.StatusId).Visible(false);
+                                                                              columns.Bound("").ClientTemplate(@"<div style='text-align: center;'> <a style='text-decoration: underline;' href='" + Url.Action("IssueDetailsEdit", "Support", new { supportId = "#=Id#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'><span class='glyphicon glyphicon-eye-open'></span></a> </div>").Title("Action").Width(Settings.GridColumnMaxWidth);
+                                                                              columns.Bound(c => c.Id).Title(@Helper.GetResourceString("lbl_IssueId")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                                              columns.Bound(c => c.CreatedDateTime).Format(Settings.GridDateTimeFormat).Title(@Helper.GetResourceString("lbl_CreatedDateTime")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                                              columns.Bound(c => c.Description).Title(@Helper.GetResourceString("lbl_Description")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                                              //columns.Bound(c => c.IssueFromDevice).Title(@Helper.GetResourceString("lbl_QueryFrom")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                                              columns.Bound(c => c.Feature).Title(@Helper.GetResourceString("lbl_Feature")).Format(Settings.DecimalFormat4).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                                              columns.Bound(c => c.Component).Title(@Helper.GetResourceString("lbl_Component")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                                              columns.Bound(c => c.Impact).Title(@Helper.GetResourceString("lbl_Impact")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                                              columns.Bound(c => c.IssueRaisedByUserName).Title(@Helper.GetResourceString("lbl_IssueRaisedBy")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                                              columns.Bound(c => c.State).Title(@Helper.GetResourceString("lbl_StateOfUser")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                                              columns.Bound(c => c.Status).Title(@Helper.GetResourceString("lbl_Status")).Format(Settings.GridDateTimeFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                                              columns.Bound(c => c.ResolvedDateTime).Title(@Helper.GetResourceString("lbl_ResolutionDateTime")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                                                              columns.Bound(c => c.TimeTakenToResolve).Title(@Helper.GetResourceString("lbl_TimeTakenForResolution")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                                              //columns.Bound(c => c.SLA).Title(@Helper.GetResourceString("lbl_SLA")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                                              //columns.Bound(c => c.IssueComments).Title(@Helper.GetResourceString("lbl_Comments")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                                          })
+                                                                          .ClientDetailTemplateId("template")
+                                                                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                                                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                                                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                                                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                                                          .Selectable(selectable => selectable
+                                                                          .Mode(GridSelectionMode.Multiple)
+                                                                          .Type(GridSelectionType.Row))
+                                                                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                                                                          .Excel(excel => excel.AllPages(true).FileName(@Helper.GetResourceString("lbl_IssueListReport") + " " + DateTime.Now + ".xlsx").Filterable(true))
+                                                                          .Resizable(resize => resize.Columns(true))
+                                                                          .Reorderable(reorder => reorder.Columns(true))
+                                                                          .DataSource(dataSource => dataSource
+                                                                          .Ajax()
+                                                                          .Model(model => model.Id(p => p.Id))
+                                                                          .ServerOperation(true)
+                                                                          .Read(read => read.Action("GetSupportIssueListAsync", "Support").Data("additionalParams"))))
+                    @*.Read(read => read.Action("GetSupportIssueListWithCmtsAsync", "Support").Data("additionalParams"))))*@
+
+                    <script id="template" type="text/kendo-tmpl">
+                        @(Html.Kendo().Grid<IssueCommentsDto>()
+                                                                              .Name("grid_#=Id#") // template expression, to be evaluated in the Support context
+                                                                              .Columns(columns =>
+                                                                              {
+                                                                                  columns.Bound(o => o.SupportId).Visible(false);
+                                                                                  columns.Bound(o => o.CommentId).Visible(false);
+                                                                                  columns.Bound(o => o.UserId).Visible(false);
+                                                                                  columns.Bound(o => o.Comments).Title(@Helper.GetResourceString("lbl_Comments")).Width(Settings.GridColumnMaxWidth);
+                                                                                  columns.Bound(o => o.CommentedDate).Format(Settings.GridDateTimeFormat).Title(@Helper.GetResourceString("lbl_CommentedDate")).Width(Settings.GridColumnMaxWidth);
+                                                                                  columns.Bound(o => o.CommentedBy).Title(@Helper.GetResourceString("lbl_CommentedBy")).Width(Settings.GridColumnMaxWidth);
+
+                                                                              })
+                                                                              .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                                                              .Sortable()
+                                                                              .Pageable()
+                                                                              .DataSource(dataSource => dataSource
+                                                                              .Ajax()
+                                                                              .PageSize(10)
+                                                                              .Read(read => read.Action("GetIssueCommentsListAsync", "Support", new { supportId = "#=Id#", isToReturnInactiveData = true })))
+                                                                              .Pageable()
+                                                                              .Scrollable(s => s.Enabled(true).Height("auto"))
+                                                                              .Resizable(resize => resize.Columns(true))
+                                                                              .Reorderable(reorder => reorder.Columns(true))
+                                                                              .HtmlAttributes(new { style = "width:50%; " })
+                                                                              .ToClientTemplate()
+                        )
+
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Hidden("hdSelectedIds")
+<script>
+
+    var arrIssueData = {};
+
+    $(document).ready(function () {
+
+        if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+		}
+        // kendo grid filter contains
+        FilterContains();
+
+        //Fill default date
+        fillDefaultDate();
+        SearchIssue();
+    });
+
+    function fillDefaultDate() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+        $("#dpToDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        $("#dpFromDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+
+        StartDateRange();
+    }
+
+    function fromChange() {
+        var endPicker = $("#dpToDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            $("#dpToDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+            endPicker.min(startDate);
+        }
+    }
+
+    function StartDateRange() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+
+        $("#dpFromDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        $("#dpToDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+
+        var endPicker = $("#dpToDate").data("kendoDatePicker");
+        endPicker.min(dates);
+    }
+
+    function additionalParams() {
+        //var checkedVal = Number($('input[name=BookingType]:checked').val());
+        //var statusId = Number($("#ddlIssueStatus").val());
+        return {
+            FromDate: $("#dpFromDate").val(),
+            Todate: $("#dpToDate").val(),
+            QueryFrom: $("#ddlQueryFrom").val(),
+            RaisedBy: $("#ddlRaisedBy").val()
+        };
+    }
+
+    function SearchIssue() {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $("#ViewIssueList").data("kendoGrid").dataSource.read();
+        window.kendo.ui.progress($("#div_Progress"), false);
+    }
+
+    function ExportToExcel() {
+
+        debugger;
+        window.kendo.ui.progress($("#div_Progress"), true);
+        var data = {
+            IsToReturnInactiveData: true,
+            FromDate: $("#dpFromDate").val(),
+            ToDate: $("#dpToDate").val(),
+            QueryFrom: $("#ddlQueryFrom").val(),
+            RaisedBy: $("#ddlRaisedBy").val()
+        };
+        $.ajax({
+            type: 'Post',
+            url: '@Url.Action("ExportSupportIssues", "Support")',
+            data: { inputDto: data },
+            success: function (responce) {
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Base")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+</script>
+

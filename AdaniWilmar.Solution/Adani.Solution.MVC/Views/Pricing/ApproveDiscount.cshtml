@@ -1,0 +1,204 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO
+
+@{
+    ViewBag.Title = "ApproveDiscount";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="discountApprove" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Approve Discounts</h2>
+    <div id="dateFilter" class="col-xs-9">
+        @*<div class="period-wrapper">
+            <a href="@Url.Action("RequestDiscountEdit", "Pricing")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_AddRequestDiscounts")</a>
+        </div>*@
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+
+            <div class="row form-group">
+                <div class="col-md-4 text-right">
+                    @Helper.GetResourceString("lbl_Role")<span class="text-danger">*</span>
+                </div>
+                <div class="col-md-4">
+                    @(Html.Kendo().DropDownList()
+                          .Name("RoleId")
+                          .DataTextField("Name")
+                          .DataValueField("Id")
+                          .OptionLabel(@Helper.GetResourceString("plho_SelectRole"))
+                          .Events(e => e.Change("onRoleChange"))
+                          .DataSource(source => source.Read(read => read.Action("GetRolesAsync", "Role"))
+                          .ServerFiltering(true))
+                          .HtmlAttributes(new { id = "ddlRole", @class = "form-control", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Role"), @style = "width:100%" }))
+
+                </div>
+            </div>
+
+            <div class="row" id="dvDealers">
+                <div class="col-md-12">
+                    <div class="text-right">
+                        <button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ViewDepots")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    </div>
+                    @(Html.Kendo().Grid<RequestDisocuntDto>()
+                          .Name("GridApproveDiscount")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.Id).Visible(false);
+                              columns.Bound(c => c.RoleId).Visible(false);
+                                  //columns.Bound(c => c.RoleName).ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("RoleDiscountsEdit", "Pricing", new { roleDiscountId = "#=RoleId#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=RoleName#</a> </div>").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_RoleName")).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.OilTypeName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_OilType")).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.SkuName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_SkuName")).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.ActualDiscount).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Requested Discount").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.RequestedDiscount).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_ActualDiscount")).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound("").ClientTemplate(@"<div style='text-align: center;'> <span style='text-decoration: underline;' onclick='approvePopup(#=Id#)' class='icon-home8'></span></div>").Title("Action").Width(Settings.GridColumnMaxWidth);
+                          })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Events(events => events.DataBound("onDataBoundSetEmptyRow"))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Sort(sort => sort.Add("Id").Ascending())
+                          .Model(model => { model.Id(p => p.Id); })
+                          .ServerOperation(true)
+                          .Read(read => read.Action("GetRequestedDiscountDetailListAsync", "Pricing").Data("additionalParams"))))
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="approvename" value="" id="txtHiddenId" />
+        <input type="hidden" name="cancelname" value="" id="txtReasonTypeId" />
+    </div>
+
+    <div id="reasonPopup" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            @using (Html.BeginForm("frmOilType", "Lookup", FormMethod.Post, new { id = "frmOilType", @class = "form-validate-jquery" }))
+            {
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close model-header-color" data-dismiss="modal">&times;</button>
+                        <h6 class="panel-title model-header-color"><span id="lblReasonHeader" class="text-semibold">Confirmation</span></h6>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row form-group">
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                Reason <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-8">
+                                @Html.TextArea("Reason", "", new { id = "txtReason", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Name"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        @if (Helper.CheckClaims(Claims.ApproveDiscount))
+                        {
+                            <button id="btnSave" type="button" class="k-button" data-dismiss="modal">Approve</button>
+                            <button id="btnCancel" type="button" class="k-button" data-dismiss="modal">Cancel</button>
+                        }                    
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        // kendo grid filter contains
+        FilterContains();
+
+        $("#txtHiddenId").val('');
+        $("#txtReasonTypeId").val('');
+
+        if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+
+        $("#btnSave").click(function () {      
+            $("#txtReasonTypeId").val(1)
+            approveSave();
+        });
+
+        $("#btnCancel").click(function () { 
+            $("#txtReasonTypeId").val(2);
+            approveSave();
+        });
+    });
+
+    function approveSave() {
+
+        var reason = $("#txtReason").val();
+        if (!reason) {
+            ShowErrorMessage("Reason is required");
+            return false;
+        }
+        $.ajax({
+                type: "Post",
+                url: '@Url.Action("ApproveRequestDiscount", "Pricing")',
+                data: { id: $("#txtHiddenId").val(), reason: $("#txtReason").val(), reasonType: $("#txtReasonTypeId").val()},
+                success: function (responce) {
+                    if ((responce) && (responce.PostStatus)) {
+                        ShowSuccessMessage(responce.PostMessage);
+                        refreshGrid();
+                    } else {
+                        ShowErrorMessage(responce.PostMessage);
+                    }
+                }
+            });
+    }
+
+    //Method to data bound event for owner
+    function onDataBoundSetEmptyRow(e) {
+        SetEmptyRow(e);
+    }
+
+    function onRoleChange() {
+        refreshGrid();
+    }
+
+    function refreshGrid() {        
+        $("#GridApproveDiscount").data("kendoGrid").dataSource.read();
+    }
+
+    function additionalParams() { 
+        
+        var selectedRoleId = $("#ddlRole").data("kendoDropDownList").value();
+        if (selectedRoleId) {
+            return {        
+                isToReturnInactiveData: false,
+                roleId: Number(selectedRoleId)
+            }
+        }
+    }
+
+    function approvePopup(data) {              
+        $("#txtHiddenId").val(data);   
+        $("#txtReason").val('');
+        $("#reasonPopup").modal('show');
+    }
+
+
+
+</script>
+
+
+
+

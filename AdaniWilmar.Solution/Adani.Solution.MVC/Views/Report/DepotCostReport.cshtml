@@ -1,0 +1,186 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@model Adani.Solution.DTO.ExcelReportFilterDto
+@{
+    ViewBag.Title = "DepotCostReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="reportDepotCostReport" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="mqin-title">Depot Cost Report</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Report</a><span class="icon-right"></span></li>
+        <li class="active">Depot Cost Report<span class="icon-right"></span></li>
+    </ol>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvSpecialRate">
+                <div class="row form-group">
+                    <div class="col-lg-3 col-sm-6 mb-3 ">
+                        <label class="custom_label"> @Helper.GetResourceString("lbl_FromDate") </label>
+                        @(Html.Kendo().DatePicker()
+                                            .Name("StartDate")
+                                            .Value(DateTime.Now)
+                                            .Format(Settings.DateFormat)
+                                            .Events(e => e.Change("fromDateChange"))
+                                            .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                    </div>
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <label class="custom_label"> @Helper.GetResourceString("lbl_ToDate") </label>
+                        @(Html.Kendo().DatePicker()
+                                            .Name("EndDate")
+                                            .Value(DateTime.Now)
+                                            .Format(Settings.DateFormat)
+                                            .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "2", style = "width: 100%" }))
+                    </div>
+
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <label class="custom_label">
+                            @Helper.GetResourceString("lbl_SalesOrganization") <span class="text-danger">*</span>
+                        </label>
+                        @(Html.Kendo().DropDownList()
+                    .Name("ddlSalesOrganization")
+                    .OptionLabel("Select Sales Organization")
+                    .DataTextField("SalesOrganizationName")
+                    .Events(e => e.Change("onSaleChange"))
+                    .DataValueField("Id")
+                    .DataSource(source => source.Read(read => read.Action("GetSalesOrganizationddl", "Lookup"))
+                    ).HtmlAttributes(new { tabindex = "5", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_SalesOrganization"), @style = "width:100%" })
+                )
+
+                    </div>
+
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <label class="custom_label">
+                            @Helper.GetResourceString("lbl_DistributionChannel") <span class="text-danger">*</span>
+                        </label>
+                        @(Html.Kendo().DropDownList()
+                           .Name("ddlDistributionChannel")
+                          .OptionLabel("Select Distribution")
+                          .Events(events => events.Change("onDistributionChange").DataBound("OnDistributionDataBound"))
+                          .DataTextField("DistributionChannelName")
+                          .DataValueField("Id")
+                          .DataSource(source => source.Read(read => read.Action("GetDistributionChannelddl", "Lookup").Data("distParam"))
+                          .ServerFiltering(true))
+                          .HtmlAttributes(new { @class = "", tabindex = "6", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_DistributionChannel"), @style = "width:100%" }))
+
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <label class="custom_label">  @Helper.GetResourceString("lbl_Vertical") <span class="text-danger"></span> </label>
+                        @if (Model.RoleId == (long)Role.Admin || Model.RoleId == (long)Role.SubAdmin)
+                        {
+                            //<div class="col-md-3">
+                            @(Html.Kendo().DropDownList().Name("VerticalId")
+                                                  .OptionLabel(@Helper.GetResourceString("plho_All"))
+                                                  .DataTextField("Name")
+                                                  .DataValueField("Id")
+                                                  .DataSource(source => source.Read(resd => resd.Action("GetVerticalDetailsdd", "Lookup").Data("verticalParam"))
+                                                  .ServerFiltering(false))
+                                                  .HtmlAttributes(new { id = "ddlVertical", tabindex = "5", @class = "", @style = "width:100%" }))
+                            // </div>
+                        }
+                        else
+                        {
+                            // <div class="col-md-3">
+                            @(Html.Kendo().DropDownList().Name("VerticalId")
+                                                  .OptionLabel(@Helper.GetResourceString("plho_All"))
+                                                  .DataTextField("Name")
+                                                  .DataValueField("Id")
+                                                  .Value(Model.VerticalId.ToString())
+                                                  .DataSource(source => source.Read(resd => resd.Action("GetVerticalDetailsdd", "Lookup").Data("verticalParam"))
+                                                  .ServerFiltering(false))
+                                                  .HtmlAttributes(new { id = "ddlVertical", tabindex = "5", @class = "", @style = "width:100%", @readonly = "readonly" }))
+                            //</div>
+                        }
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-12 text-right">
+                        <button type="button" tabindex="4" id="btnGenerateReport" class="k-primary k-button custom-btns">Generate Report </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    $(document).ready(function () {
+        setFromToDateRange("StartDate", "EndDate", emamiGlobal.constant.ReportDateRange);
+        $("#btnGenerateReport").click(function () {
+            downloadSaudaReport();
+        });
+    });
+
+    function fromDateChange() {
+        setToDateRange("StartDate", "EndDate", emamiGlobal.constant.ReportDateRange);
+    }
+
+    function downloadSaudaReport(Id) {
+        var verticalId = 0;
+        if ($("#ddlVertical").val() != "") {
+            verticalId = $("#ddlVertical").val();
+        }
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetDepotCostReport", "Report")',
+            data: {
+                fromDate: $("#StartDate").data("kendoDatePicker").value().toDateString(),
+                toDate: $("#EndDate").data("kendoDatePicker").value().toDateString(),
+                verticalIds: verticalId
+            },
+            success: function (responce) {
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Pricing")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+    function onSaleChange() {
+        $("#ddlDistributionChannel").data("kendoDropDownList").dataSource.read();
+    }
+    function onDistributionChange(e) {
+        $("#ddlVertical").data("kendoDropDownList").dataSource.read();
+    }
+
+    function OnDistributionDataBound(e) {
+        var distId = $("#ddlDistributionChannel").data("kendoDropDownList").value();
+        if (distId > 0) {
+            $("#ddlVertical").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    function verticalParam() {
+        var distId = $("#ddlDistributionChannel").data("kendoDropDownList").value();
+        return {
+            distId: Number(distId)
+        };
+    }
+
+    function distParam() {
+        var saleId = $("#ddlSalesOrganization").data("kendoDropDownList").value();
+        return {
+            saleId: Number(saleId)
+        };
+    }
+
+</script>

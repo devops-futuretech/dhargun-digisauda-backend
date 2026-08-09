@@ -1,0 +1,102 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.DTO;
+@using Adani.Solution.MVC.Models;
+@model Adani.Solution.DTO.UserCustomerSalesTargetDto
+@{
+    ViewBag.Title = "UserCustomerSalesTargetList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="targetUserassignedCustomerTarget" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_AssignedCustomerTarget")</h2>
+    <div id="dateFilter" class="col-xs-9">
+
+    </div>
+    <div style="clear:both;"></div>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="text-right">
+                        @*<button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ViewCategory")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>*@&ensp;
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    </div>
+                    @(Html.Kendo().Grid<UserCustomerSalesTargetDto>()
+                                                  .Name("ViewHeadquarters")
+                                                  .Columns(columns =>
+                                                  {
+                                                      columns.Bound(c => c.AssignedToId).Visible(false);
+                                                      columns.Bound(c => c.FinancialYearId).Visible(false);
+                                                      columns.Bound(c => c.AssignedToUser).Title(@Helper.GetResourceString("lbl_AssignedTo")).Width(Settings.GridOtherColumnWidth);
+                                                          //.ClientTemplate(@"<div><a style='text-decoration: underline;'  href='" + Url.Action("UserCustomerSalesTargetEditRedirect", "Target", new { userid = "#=AssignedToId#", financialyearid = "#=FinancialYearId#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=AssignedToUser#</a>  </div>")
+                                                          columns.Bound(c => c.FinancialYear).Title(@Helper.GetResourceString("lbl_CalendarDuaration")).Width(Settings.GridOtherColumnWidth);
+                                                  })
+                                                  .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                                  .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                                  .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                                  .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                                  .Scrollable(s => s.Enabled(true).Height("auto"))
+                                                  .ClientDetailTemplateId("template")
+                                                  .Reorderable(reorder => reorder.Columns(true))
+                                                  .Resizable(resize => resize.Columns(true))
+                                                  .DataSource(dataSource => dataSource
+                                                  .Ajax()
+                                                  .Model(model => model.Id(m => m.Id))
+                                                  .ServerOperation(true)
+                                                  .Read(read => read.Action("GetAssignedCustomerTargetListAsync", "Target"))))
+
+                    <script id="template" type="text/kendo-tmpl">
+                        @(Html.Kendo().Grid<UserTargetDetailDto>()
+                                              .Name("grid_#=AssignedToId#_#=FinancialYearId#")
+                                              .Columns(columns =>
+                                              {
+                                                  columns.Bound(c => c.Id).Visible(false);
+                                                  columns.Bound(c => c.MonthId).Visible(false);
+                                                  columns.Bound(c => c.Month).Title(@Helper.GetResourceString("lbl_Month")).Width(Settings.GridOtherColumnWidth);
+                                                  columns.Bound(c => c.SalesTarget).Title(@Helper.GetResourceString("lbl_Target")).Width(Settings.GridOtherColumnWidth);
+                                              })
+                                              .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                              .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                              .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                              .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                              .Scrollable(s => s.Enabled(true).Height("auto"))
+                                              .Reorderable(reorder => reorder.Columns(true))
+                                              .Resizable(resize => resize.Columns(true))
+                                              .DataSource(dataSource => dataSource
+                                              .Ajax()
+                                              .PageSize(10)
+                                              .Read(read => read.Action("GetUserCustomerTargetDetailListAsync", "Target", new { userid = "#=AssignedToId#", financialyearid = "#=FinancialYearId#" }))
+                                              )
+                                              .Sortable()
+                                              .ToClientTemplate())
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        if ('@TempData["SuccessMessage"]' !== "") {
+            ShowSuccessMessage('@TempData["SuccessMessage"]');
+        } else if ('@TempData["ErrorMessage"]' !== "") {
+            ShowErrorMessage('@TempData["ErrorMessage"]');
+        }
+
+        // kendo grid filter contains
+        FilterContains();
+    });
+
+    //Method to data bound event for owner
+    function OnCategoryListDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+</script>

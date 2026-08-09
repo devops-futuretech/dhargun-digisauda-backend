@@ -1,0 +1,1577 @@
+﻿@using Kendo.Mvc.UI;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.MVC.Models;
+@using System.Configuration;
+@using Adani.Solution.DTO;
+@model Adani.Solution.MVC.Models.PermanentJouneyPlanViewModel
+@{
+    ViewBag.Title = Helper.GetResourceString("msg_Product");
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="salestourplanPermanentJourneyPlan" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_PermanentJourneyPlan")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Sales Tour Plan</a><span class="icon-right"></span></li>
+        <li><a href="PermanentJourneyPlans">@Helper.GetResourceString("lbl_PermanentJourneyPlan")</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_PermanentJourneyPlan")<span class="icon-right"></span></li>
+    </ol>
+    <div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+<input type="hidden" id="hdnassignrowindex" value="-1" />
+
+<div class="panel-body" style="display: block;">
+    <p class="content-group-lg"></p>
+    @using (Html.BeginForm("PermanentJourneyPlan", "SalesTourPlan", FormMethod.Post, new { id = "frmPermanentJourneyPlan", @class = "form-validate-jquery" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.EncryptedId, new { id = "hdnPJPId" })
+
+        <div class="row form-group">
+            <div class="col-lg-12">
+                <div id="divAdd">
+                    <div class="row form-group">
+                        <div class="row form-group">
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_CalendarDuaration")</label>
+                                @(Html.Kendo().DropDownListFor(m => m.FinancialYearId)
+.Name("ddlYear")
+.OptionLabel(@Helper.GetPlaceHolderSelectMsg("lbl_Year"))
+.DataTextField("Year")
+.DataValueField("Id")
+.DataSource(source => source.Read(read => read.Action("GetActiveFinancialYearListAsync", "SalesTourPlan"))
+.ServerFiltering(true))
+.HtmlAttributes(new { id = "ddlYear", onchange = "setFinancialYeardateRange()", @class = "", @tabindex = "1", @style = "width:100%" }))
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_EffectiveFrom")</label>
+                                @(Html.Kendo().DatePickerFor(m => m.EffectiveFrom)
+//.Name("StartDate")
+//.Value(Settings.DefaultDashboardStartDate)
+.Format(Settings.DateFormat)
+//.Events(e => e.Change("fromdateChange"))
+.HtmlAttributes(new { id = "StartDate", onchange = "fromdateChange()", onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_EffectiveTo")</label>
+                                @(Html.Kendo().DatePickerFor(m => m.EffectiveTo)
+//.Name("EndDate")
+//.Value(Settings.DefaultDashboardEndDate)
+.Format(Settings.DateFormat)
+.HtmlAttributes(new { id = "EndDate", onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_State")</label>
+                                @(Html.Kendo().DropDownList().Name("StateId")
+.OptionLabel(@Helper.GetResourceString("plho_SelectState"))
+.Events(events => events.Change("onStateChange"))
+.DataTextField("StateName")
+.DataValueField("StateId")
+.DataSource(source => source.Read(read => read.Action("GetStateListAsync", "Lookup"))
+.ServerFiltering(false))
+.HtmlAttributes(new { id = "ddlState", tabindex = "2", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_State"), @style = "width:100%" }))
+
+                            </div>
+                        </div>
+
+                        
+                        <div class="row form-group">
+
+                            @*<div class="col-lg-3 col-sm-6 mb-3">
+                                        <label class="custom_label">@Helper.GetResourceString("lbl_Territory")</label>
+                                        @(Html.Kendo().DropDownList().Name("TerritoryId")
+        .OptionLabel(@Helper.GetResourceString("plho_SelectTerritory"))
+        .Events(events => events.Change("territoryChange"))
+        .DataTextField("Name")
+        .DataValueField("Id")
+        .DataSource(source => source.Read(read => read.Action("GerTerritoryStateBase", "Lookup").Data("territoryAdditionalInfo"))
+        .ServerFiltering(false))
+        .HtmlAttributes(new { id = "ddlTerritory", tabindex = "3", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Territory"), @style = "width:100%" }))
+
+                                    </div>*@
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_District")</label>
+                                @(Html.Kendo().DropDownList().Name("DistrictId")
+.OptionLabel(@Helper.GetResourceString("plho_SelectDistrict"))
+.Events(events => events.Change("onDistrictChange"))
+.DataTextField("DistrictName")
+.DataValueField("DistrictId")
+.DataSource(source => source.Read(read => read.Action("GetDistrictListBaseTerritory", "Lookup").Data("additionalDistrictByTerritoryInfo"))
+.ServerFiltering(false))
+.HtmlAttributes(new { id = "ddlDistrict", tabindex = "4", @class = "", data_msg_required = Helper.GetSelectMsgRequired("lbl_District"), @style = "width:100%" }))
+
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_City")</label>
+                                @(Html.Kendo().DropDownList().Name("CityId")
+.OptionLabel(@Helper.GetResourceString("plho_SelectCity"))
+.Events(events => events.Change("onCityChange"))
+.DataTextField("CityName")
+.DataValueField("CityId")
+.DataSource(source => source.Read(read => read.Action("GetCityListByDistrictName", "Lookup").Data("additionalCityByDistrictInfo"))
+.ServerFiltering(false))
+.HtmlAttributes(new { id = "ddlCity", tabindex = "5", @class = "", data_msg_required = Helper.GetSelectMsgRequired("lbl_City"), @style = "width:100%" }))
+
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">In HQ / No Visit</label>
+
+                                @(Html.Kendo().DropDownList()
+.Name("HQNoVisit")
+.DataTextField("CityName")
+.DataValueField("CityId")
+.OptionLabel(@Helper.GetResourceString("plho_Select"))
+.DataTextField("Name")
+.DataValueField("Id")
+.Events(e => e.Change("onHQNoVisitchange").DataBound("onHQNoVisitBound"))
+.DataSource(source => source.Read(read => read.Action("GetSTPVisitType", "SalesTourPlan"))
+.ServerFiltering(false))
+.HtmlAttributes(new { style = "width: 100%", id = "ddlHQNoVisit" }))
+
+                            </div>
+                           
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_Dealer")</label>
+
+                                @*@(Html.Kendo().AutoComplete()
+            .Name("ddlRetailer")
+            .Filter("startswith")
+            .Placeholder(@Helper.GetPlaceHolderSelectMsg("lbl_Dealer"))
+            .DataTextField("Name")
+            .DataSource(source => source.Read(read => read.Action("GetSalesReportingToUsersByCityId", "Role").Data("additionalCityInfo"))
+            )
+            .HtmlAttributes(new { id = "ddlRetailer", tabindex = "6", ondblclick = "ListAllDealers()", @style = "width:100%" }))*@
+
+                                @(Html.Kendo().MultiSelect().Name("ddlRetailer")
+.DataTextField("Name")
+.DataValueField("Id")
+.Events(events => events.DataBound("onDealerDataBound"))
+.AutoClose(false)
+.TagMode(TagMode.Single).Filter("contains")
+.MaxSelectedItems(ConfigHelper.MaxSelectedOneItemForMultiselect)
+.DataSource(source => source.Read(read => read.Action("GetSalesReportingToUsersByCityId", "Role"))
+.ServerFiltering(false))
+.HtmlAttributes(new { id = "ddlRetailer", tabindex = "6", @class = "", @style = "width:100%" }))
+
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+
+                            @*<div class="col-lg-3 col-sm-6 mb-3">
+            <label class="custom_label">@Helper.GetResourceString("lbl_NoOfSubDealer")</label>
+            <div class="col-lg-8">
+                @Html.TextBoxFor(m => m.NoOfSubDealer, new { id = "txtNoOfSubDealer", tabindex = "7", required = "required", @class = "k-textbox", @onkeypress = "return isNumber(event);", data_msg_required = Helper.GetMsgRequired("lbl_NoOfSubDealer"), @maxlength = (int)InputMaxLength.TelephoneCode })
+            </div>
+        </div>*@
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_NoOfSubDealer")</label>
+
+                                @Html.TextBoxFor(m => m.NoOfSubDealer, new { id = "txtNoOfSubDealer", tabindex = "7", required = "required", @class = "form-control", @onkeypress = "return isNumber(event);", data_msg_required = Helper.GetMsgRequired("lbl_NoOfSubDealer"), @maxlength = (int)InputMaxLength.TelephoneCode })
+
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_NoOfWholeSeller")</label>
+
+                                @Html.TextBoxFor(m => m.NoOfWholeSeller, new { id = "txtNoOfWholeSeller", tabindex = "8", required = "required", @class = "form-control", @onkeypress = "return isNumber(event);", data_msg_required = Helper.GetMsgRequired("lbl_NoOfWholeSeller"), @maxlength = (int)InputMaxLength.TelephoneCode })
+
+                            </div>
+
+
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_NoOfVisit")</label>
+
+                                @Html.TextBoxFor(m => m.NoOfVisit, new { id = "txtNoOfVisit", tabindex = "9", required = "required", @class = "form-control decimalValue", data_msg_required = Helper.GetMsgRequired("lbl_NoOfVisit"), @maxlength = 5 })
+
+                            </div>
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">@Helper.GetResourceString("lbl_Remarks")</label>
+
+                                @Html.TextArea("txtPCPRemarks", new { id = "txtPCPRemarks", tabindex = "10", @class = "form-control", @maxlength = (int)InputMaxLength.Remarks })
+
+                            </div>
+                        </div>
+                       
+                    </div>
+                   
+                    @*<div class="row form-group">
+                            <div class="col-lg-12">
+                                <div class="col-lg-12">
+                                    <button type="button" tabindex="10" id="btnAdd" onclick="AddToGrid();" class="k-primary k-button k-centered">@Helper.GetResourceString("lbl_Add")</button>
+                                </div>
+                            </div>
+                        </div>*@
+                    <div class="row form-group">
+                        <div class="col-md-12 text-right">
+                            <button type="button" tabindex="10" id="btnAdd" onclick="AddToGrid();" class="k-primary k-button custom-btns">@Helper.GetResourceString("lbl_Add")</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-12">
+                        @(Html.Kendo().Grid<PermanentJourneyPlanDetailsDto>()
+      .Name("ViewRetailers")
+      .Columns(columns =>
+      {
+          columns.Bound(c => c.Id).Visible(false);
+          columns.Bound(c => c.FinancialYearId).Visible(false);
+          columns.Bound(c => c.IsDataChanged).Visible(false);
+          columns.Bound(c => c.FinancialYear).Title(@Helper.GetResourceString("lbl_Year")).Width(Settings.GridOtherColumnWidth);
+          columns.Bound(c => c.EffectiveFrom).Title(@Helper.GetResourceString("lbl_EffectiveFrom")).Format(Settings.GridDateFormat).Width(Settings.GridOtherColumnWidth);
+          columns.Bound(c => c.EffectiveTo).Title(@Helper.GetResourceString("lbl_EffectiveTo")).Format(Settings.GridDateFormat).Width(Settings.GridOtherColumnWidth);
+          //columns.Bound(c => c.MonthId).Visible(false);
+          //columns.Bound(c => c.Month).Title(@Helper.GetResourceString("lbl_Month")).Width(Settings.GridOtherColumnWidth);
+          columns.Bound(c => c.StateId).Visible(false);
+          columns.Bound(c => c.State).Title(@Helper.GetResourceString("lbl_State")).Width(Settings.GridOtherColumnWidth);
+          //columns.Bound(c => c.TerritoryId).Visible(false);
+          //columns.Bound(c => c.Territory).Title(@Helper.GetResourceString("lbl_Territory")).Width(Settings.GridOtherColumnWidth);
+          columns.Bound(c => c.DistrictId).Visible(false);
+          columns.Bound(c => c.District).Title(@Helper.GetResourceString("lbl_District")).Width(Settings.GridOtherColumnWidth);
+          columns.Bound(c => c.CityId).Visible(false);
+          columns.Bound(c => c.City).Title(@Helper.GetResourceString("lbl_City")).Width(Settings.GridOtherColumnWidth);
+          //columns.Bound(c => c.NoOfDirectDealer).Title(@Helper.GetResourceString("lbl_Dealer")).Width(Settings.GridOtherColumnWidth);
+          columns.Bound(c => c.RetailerId).Visible(false);
+          columns.Bound(c => c.Retailers).Title(@Helper.GetResourceString("lbl_Dealer")).Width(Settings.GridOtherColumnWidth);
+          columns.Bound(c => c.NoOfSubDealer).Title(@Helper.GetResourceString("lbl_NoOfSubDealer")).Width(Settings.GridColumnMaxWidth);
+          columns.Bound(c => c.NoOfWholeSeller).Title(@Helper.GetResourceString("lbl_NoOfWholeSeller")).Width(Settings.GridColumnMaxWidth);
+          columns.Bound(c => c.NoOfVisit).Title(@Helper.GetResourceString("lbl_NoOfVisit")).Width(Settings.GridColumnMaxWidth);
+          columns.Bound(c => c.InHQNoVisitId).Visible(false);
+          columns.Bound(c => c.InHQNoVisitName).Title(@Helper.GetResourceString("lbl_InHQNoVisit")).Width(Settings.GridColumnMaxWidth);
+          columns.Bound(c => c.Remarks).Title(@Helper.GetResourceString("lbl_Remarks")).Width(Settings.GridColumnMaxWidth);
+          //if (@Model.IsApprover != 1)
+          //{
+          columns.Template(t => t.IsDeleted).HeaderTemplate("Edit").Title(@Helper.GetResourceString("msg_Action")).ClientTemplate(@"<div style='text-align: center;'><i style='cursor:pointer' class='icon-pencil5' ></i></div>").Title(@Helper.GetResourceString("msg_Action")).Width(Settings.GridButtonColumnWidth);
+          //}
+          //if (@Model.IsApprover != 1)
+          //{
+          columns.Template(t => t.Id).HeaderTemplate("Remove").Title(@Helper.GetResourceString("msg_Action")).ClientTemplate(@"<div style='text-align: center;'><a onclick='RemoveFromGrid(this)'><i style='cursor:pointer' class='icon-cancel-square2 faicon-red' ></i></a>  </div>").Title(@Helper.GetResourceString("msg_Action")).Width(Settings.GridButtonColumnWidth);
+          columns.Template(t => t.IsDeleted).HeaderTemplate("View History").Title(@Helper.GetResourceString("msg_Action")).ClientTemplate(@"<div style='text-align: center;' onclick='ViewPreviousHistory(#= Id #)'><i style='cursor:pointer' class='icon-eye' ></i></div>").Title(@Helper.GetResourceString("msg_Action")).Width(Settings.GridButtonColumnWidth);
+          //}
+      })
+      .BindTo(Model.PermanentJourneyPlanDetailList)
+      .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+      .Filterable(filter => filter.Mode(GridFilterMode.Row))
+      .Editable(editable => editable.Mode(GridEditMode.InCell))
+      //.Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+      .Scrollable(s => s.Enabled(true).Height("auto"))
+      .Events(events => events.DataBound("onDataBound"))
+      .Resizable(resize => resize.Columns(true))
+      .DataSource(dataSource => dataSource
+      .Ajax()
+      .Model(model =>
+      {
+          model.Id(m => m.FinancialYearId);
+          model.Field(p => p.FinancialYear).Editable(false);
+          model.Field(p => p.Month).Editable(false);
+          model.Field(p => p.State).Editable(false);
+          model.Field(p => p.District).Editable(false);
+          model.Field(p => p.City).Editable(false);
+          model.Field(p => p.NoOfDirectDealer).Editable(false);
+          model.Field(p => p.Retailers).Editable(false);
+          model.Field(p => p.NoOfSubDealer).Editable(false);
+          model.Field(p => p.NoOfWholeSeller).Editable(false);
+          model.Field(p => p.NoOfVisit).Editable(false);
+          model.Field(p => p.EffectiveFrom).Editable(false);
+          model.Field(p => p.EffectiveTo).Editable(false);
+          model.Field(p => p.Territory).Editable(false);
+          model.Field(p => p.InHQNoVisitName).Editable(false);
+          model.Field(p => p.Remarks).Editable(false);
+      })
+      .ServerOperation(true)))
+
+                    </div>
+                </div>
+                <div class="col-lg-12" id="divRemarks">
+                    <div style="display:none;">
+                        <label class="control-label col-lg-1">@Helper.GetResourceString("lbl_Reason")</label>
+                        <div class="col-lg-3">
+                            @(Html.Kendo().MultiSelect()
+  .Name("ddlReason")
+  .Placeholder(@Helper.GetPlaceHolderSelectMsg("lbl_Reason"))
+  .DataTextField("Reason")
+  .DataValueField("Id")
+  .DataSource(source => source.Read(read => read.Action("GetActiveReasonsListAsync", "SalesTourPlan"))
+  .ServerFiltering(true))
+  .HtmlAttributes(new { id = "ddlReason", @style = "width:100%", tabindex = "11" }))
+                        </div>
+                    </div>
+                    <label class="control-label col-lg-1">@Helper.GetResourceString("lbl_Remarks")</label>
+                    <div class="col-lg-7">
+                        @Html.TextAreaFor(m => m.Remarks, new { id = "txtRemarks", tabindex = "12", @class = "k-textarea", @maxlength = (int)InputMaxLength.TextAreaString })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    }
+
+        <div class="row form-group">
+            <div id="dv_permanentjourneyplan">
+
+            </div>
+        </div>
+    
+    <div class="row form-group" id="divSave">
+        <div class="text-right">
+            <button type="button" tabindex="13" id="btnCancel" onclick="location.href = '@Url.Action("PermanentJourneyPlans", "SalesTourPlan")'" class="k-button k-cancel cus>@Helper.GetResourceString("btn_Cancel")</button>
+            @if (Helper.CheckClaims(Claims.ManageSalesTourPlan))
+            {
+                <button type="button" tabindex="13" id="btnPJPDraft" class="k-button k-primary custom-btns">Draft</button>
+                <button type="button" tabindex="14" id="btnPJPSave" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Save")</button>
+                <button type="button" tabindex="15" id="btnPJPApproved" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Approved")</button>
+                <button type="button" tabindex="16" id="btnPJPRejected" class="k-button custom-btns">@Helper.GetResourceString("btn_Rejected")</button>
+            }
+        </div>
+    </div>
+
+
+</div>
+    }
+<div id="divPopup" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close model-header-color" data-dismiss="modal">&times;</button>
+                <h6 class="panel-title model-header-color"><span class="text-semibold">@Helper.GetResourceString("lbl_PermanentJourneyPlan")</span></h6>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h2 class="panel-title"><span class="text-semibold">@Helper.GetResourceString("msg_PermanentJourneyPlanSaveWarning")</span></h2>
+                        <input type="hidden" id="hdnTempStatus" value="0" />
+                    </div>
+                </div>}
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="popupCancel()" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Cancel")</button>
+                <button type="button" onclick="popupYes();" class="k-primary k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Yes")</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="divHistoryPopup" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close model-header-color" data-dismiss="modal">&times;</button>
+                <h6 class="panel-title model-header-color"><span class="text-semibold">Permanent Coverage Plan History</span></h6>
+            </div>
+            <div class="modal-body">
+                <div id="pcpPreviousHistory">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="popupCancel()" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Close")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    var SetDealerId = 0;
+    function RemoveFromGrid(e) {
+        var grid = $('#ViewRetailers').data('kendoGrid');
+        var dataItem = grid.dataItem($(e).closest("tr"));
+        $('#ViewRetailers').data("kendoGrid").dataSource.remove(dataItem);
+    }
+    function onStateChange(e) {
+
+        $("#ddlDistrict").data("kendoDropDownList").dataSource.read();
+        dealerDropdownFill();
+        //$("#ddlTerritory").data("kendoDropDownList").dataSource.read();
+        //$("#ddlDistrict").data("kendoAutoComplete").value("");
+        //$("#ddlDistrict").data("kendoAutoComplete").dataSource.data([]);
+        //$("#ddlCity").data("kendoAutoComplete").value("");
+        //$("#ddlCity").data("kendoAutoComplete").dataSource.data([]);
+    }
+    function additionalDistrictByTerritoryInfo() {
+        var stateId = $("#ddlState").data("kendoDropDownList").value();
+        return {
+            territoryId: stateId
+        };
+       
+    }
+    function onDistrictChange(e) {
+        //$("#ddlCity").data("kendoAutoComplete").dataSource.read();
+        //$("#ddlCity").data("kendoAutoComplete").value("");
+        //$("#ddlCity").data("kendoAutoComplete").dataSource.data([]);
+        $("#ddlCity").data("kendoDropDownList").dataSource.read();
+        dealerDropdownFill();
+    }
+
+    function onCityChange() {
+        var cityId = Number($("#ddlCity").data("kendoDropDownList").value());
+        dealerDropdownFill();
+        @*var reqdata = {
+            cityId: cityId
+        }
+
+        $.post("@Url.Action("GetSalesReportingToUsersByCityId", "Role")", reqdata, function (data) {
+            $("#ddlRetailer").data('kendoMultiSelect').setDataSource(data);
+        });*@
+
+
+
+        //var ddlDealer = $("#ddlDealer").data('kendoMultiSelect').dataSource.data();
+        //alert(ddlDealer[0].Id + " - " + ddlDealer[1].Id);
+        //alert("on city");
+        //$("#ddlDealer").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function additionalCityByDistrictInfo() {
+        //var Districtdata = $('#ddlDistrict').data('kendoAutoComplete');
+        //var DistrictdataValue = Districtdata.value();
+        var districtId = $("#ddlDistrict").data("kendoDropDownList").value();
+        var cityId = Number($("#ddlCity").data("kendoDropDownList").value());
+        dealerDropdownFill(cityId);
+        //if (DistrictdataValue) {
+        //    var DistrictdataItem = Districtdata.dataItems();
+        //    var DistrictDetails = DistrictdataItem.filter(x => x.DistrictName === DistrictdataValue);
+        //    DistrictDetails = DistrictDetails[0];
+
+        //    districtId = DistrictDetails.DistrictId;
+        //    var districtName = $("#ddlDistrict").data("kendoAutoComplete").value();
+        //}
+        return {
+            districtId: districtId
+        };
+    }
+    function additionalCityInfo() {
+        var cityId = Number($("#ddlCity").data("kendoDropDownList").value());
+        return {
+            cityId: cityId
+        };
+    }
+    function dealerDropdownFill() {
+        var cityId = 0;
+        var districtId = 0;
+        var stateId = 0;
+        if ($("#ddlCity").data("kendoDropDownList").value() != "") {
+            cityId = $("#ddlCity").data("kendoDropDownList").value();
+        }
+
+        if ($("#ddlDistrict").data("kendoDropDownList").value() != "") {
+            districtId = $("#ddlDistrict").data("kendoDropDownList").value();
+        }
+
+        if ($("#ddlState").data("kendoDropDownList").value()) {
+            stateId = $("#ddlState").data("kendoDropDownList").value();
+        }
+
+        var reqdata = {
+            cityId: cityId,
+            districtId: districtId,
+            stateId: stateId
+        };
+
+        $.post("@Url.Action("GetSalesReportingToUsersByCityStateDistrict", "Role")", reqdata, function (data) {
+            $("#ddlRetailer").data('kendoMultiSelect').setDataSource(data);
+        });
+    }
+    function fromdateChange() {
+
+        var endPicker = $("#EndDate").data("kendoDatePicker"),
+            startDate = $("#StartDate").val();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            $("#EndDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+            endPicker.min(startDate);
+        }
+    }
+    function StartDateRange() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+
+        $("#StartDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        $("#EndDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+
+        var startPicker = $("#StartDate").data("kendoDatePicker");
+        startPicker.min(dates);
+        var endPicker = $("#EndDate").data("kendoDatePicker");
+        endPicker.min(dates);
+    }
+    $(document).ready(function () {
+
+        $("#ViewRetailers").data("kendoGrid").wrapper.find(".k-grid-header-wrap").off("scroll.kendoGrid");
+
+        if (@Model.PJPId == 0) {
+            StartDateRange();
+        }
+        setFinancialYeardateRange();
+        $("#btnPJPApproved").hide();
+        $("#btnPJPRejected").hide();
+        $("#divRemarks").hide();
+        if (@Model.PJPId != 0) {
+            if (@Model.IsEditableForCreatedUser == 0) {
+                $("#btnPJPSave").hide();
+                $("#btnPJPDraft").hide();
+            }
+            if (@Model.IsEditableForAdmin == 1) {
+                $("#btnPJPSave").show();
+                $("#btnPJPDraft").show();
+                $("#btnCancel").show();
+            }
+            if (@Model.IsApprover == 1) {
+                $("#btnPJPApproved").show();
+                $("#btnPJPRejected").show();
+                //$("#divAdd").hide();
+                $("#btnCancel").hide();
+            }
+            var ReasonIds = '@Model.ReasonIds';
+            $("#ddlReason").data("kendoMultiSelect").value(ReasonIds.split(','));
+
+            $("#divRemarks").show();
+        }
+        else {
+            //getLoginBDODetails(0);
+        }
+
+        $("#btnPJPDraft").click(function (e) {
+            var errorFlag = false;
+            var errorMessage = "";
+            var gridData = $("#ViewRetailers").data("kendoGrid").dataSource.data();
+		    if (gridData.length === 0) {
+			    errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetResourceString("msg_ProductListError")');
+			    errorFlag = true;
+            }
+            var NoOfVisit = 0;
+            //$.each(gridData, function (idx2, val2) {
+            //    NoOfVisit = parseFloat(val2.NoOfVisit) + NoOfVisit;
+            //});
+
+            //if (!(NoOfVisit >= 24 && NoOfVisit <= 27)) {
+            //    errorMessage = ErrorSuccessMessageBind(errorMessage, 'Sum of "<strong>Number of Visit</strong>" should be between greater than or equal to 24 and less than or equal to 27');
+            //    errorFlag = true;
+            //}
+
+            if (errorFlag) {
+                ShowErrorMessageLeftAlign(errorMessage);
+            }
+            else {
+            window.kendo.ui.progress($("#div_Progress"), true);
+            var form = $('#frmPermanentJourneyPlan')
+            var token = $('input[name="__RequestVerificationToken"]', form).val();
+
+            var jsonObj = [];
+                $.each(gridData, function (idx2, val2) {
+                item = {}
+                item["FinancialYearId"] = val2.FinancialYearId;
+                    item["FinancialYear"] = val2.FinancialYear;
+                    item["EffectiveFrom"] = new Date(val2.EffectiveFrom).toDateString();
+                    item["EffectiveTo"] = new Date(val2.EffectiveTo).toDateString();
+                //item["TerritoryId"] = val2.TerritoryId;
+                //item["Territory"] = val2.Territory;
+                item["StateId"] = val2.StateId;
+                item["State"] = val2.State;
+                item["DistrictId"] = val2.DistrictId;
+                item["District"] = val2.District;
+                item["CityId"] = val2.CityId;
+                item["City"] = val2.City;
+                item["NoOfDirectDealer"] = val2.NoOfDirectDealer;
+                item["RetailerId"] = val2.RetailerId;
+                item["Retailers"] = val2.Retailers;
+                item["NoOfSubDealer"] = val2.NoOfSubDealer;
+                item["NoOfWholeSeller"] = val2.NoOfWholeSeller;
+                item["NoOfVisit"] = val2.NoOfVisit;
+                item["Id"] = val2.Id;
+                item["InHQNoVisitId"] = val2.InHQNoVisitId;
+                item["InHQNoVisitName"] = val2.InHQNoVisitName;
+                item["Remarks"] = val2.Remarks;
+                jsonObj.push(item);
+            });
+
+            var model = {
+                EncryptedId: $("#hdnPJPId").val(),
+                StatusId: 4,
+                PermanentJourneyPlanDetailList: jsonObj,
+                IsEditableForAdmin: @Model.IsEditableForAdmin
+            };
+
+            moduleCommon.Common.AjaxCall({
+                url: "/SalesTourPlan/PermanentJourneyPlan",
+					type: 'POST',
+                    data: { __RequestVerificationToken: token, pJPViewModel: model },
+					success: function (result) {
+						if (result.PostStatus) {
+							var url = '@Url.Action("PermanentJourneyPlans", "SalesTourPlan")';
+							window.location.href = url;
+						} else {
+							ShowErrorMessage(result.PostMessage);
+							window.kendo.ui.progress($("#div_Progress"), false);
+							return false;
+						}
+					}
+				});
+            }
+        });
+
+
+        $("#btnPJPSave").click(function (e) {
+
+            var errorFlag = false;
+            var errorMessage = "";
+            var gridData = $("#ViewRetailers").data("kendoGrid").dataSource.data();
+		    if (gridData.length === 0) {
+			    errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetResourceString("msg_ProductListError")');
+			    errorFlag = true;
+            }
+            var NoOfVisit = 0;
+
+            $.each(gridData, function (idx2, val2) {
+                NoOfVisit = parseFloat(val2.NoOfVisit) + NoOfVisit;
+            });
+            //if (NoOfVisit > 24) {
+            //    errorMessage = ErrorSuccessMessageBind(errorMessage, "No of Visit Should be less than 24");
+            //    errorFlag = true;
+            //}28 >= 24 && 28 <= 27
+
+            //if (!NoOfVisit >= 24) {
+            //    errorMessage = ErrorSuccessMessageBind(errorMessage, "No of Visit Should be greater than 24");
+            //    errorFlag = true;
+            //}
+            //if (!NoOfVisit <= 27) {
+            //    errorMessage = ErrorSuccessMessageBind(errorMessage, "No of Visit Should be less than 27");
+            //    errorFlag = true;
+            //}
+            if (!(NoOfVisit >= 24 && NoOfVisit <= 27)) {
+                errorMessage = ErrorSuccessMessageBind(errorMessage, 'Sum of "<strong>Number of Visit</strong>" should be between greater than or equal to 24 and less than or equal to 27');
+                errorFlag = true;
+            }
+
+            if (errorFlag) {
+                ShowErrorMessageLeftAlign(errorMessage);
+            }
+            else {
+            window.kendo.ui.progress($("#div_Progress"), true);
+            var form = $('#frmPermanentJourneyPlan')
+            var token = $('input[name="__RequestVerificationToken"]', form).val();
+
+            var jsonObj = [];
+                $.each(gridData, function (idx2, val2) {
+                item = {}
+                item["FinancialYearId"] = val2.FinancialYearId;
+                    item["FinancialYear"] = val2.FinancialYear;
+                    item["EffectiveFrom"] = new Date(val2.EffectiveFrom).toDateString();
+                    item["EffectiveTo"] = new Date(val2.EffectiveTo).toDateString();
+                //item["TerritoryId"] = val2.TerritoryId;
+                //item["Territory"] = val2.Territory;
+                //item["MonthId"] = val2.MonthId;
+                //item["Month"] = val2.Month;
+                item["StateId"] = val2.StateId;
+                item["State"] = val2.State;
+                item["DistrictId"] = val2.DistrictId;
+                item["District"] = val2.District;
+                item["CityId"] = val2.CityId;
+                item["City"] = val2.City;
+                item["NoOfDirectDealer"] = val2.NoOfDirectDealer;
+                item["RetailerId"] = val2.RetailerId;
+                item["Retailers"] = val2.Retailers;
+                item["NoOfSubDealer"] = val2.NoOfSubDealer;
+                item["NoOfWholeSeller"] = val2.NoOfWholeSeller;
+                item["NoOfVisit"] = val2.NoOfVisit;
+                item["Id"] = val2.Id;
+                item["InHQNoVisitId"] = val2.InHQNoVisitId;
+                item["InHQNoVisitName"] = val2.InHQNoVisitName;
+                item["Remarks"] = val2.Remarks;
+                jsonObj.push(item);
+            });
+
+            //var validationgridObj = [];
+            //$.each(gridData, function (idx2, val2) {
+            //    validationgridObj.push(val2.MonthId);
+            //});
+
+            //var data = $("#ddlMonth").data("kendoDropDownList").dataSource._data;
+            //var datalength = $("#ddlMonth").data("kendoDropDownList").dataSource._data.length;
+            //var monthArray = [];
+            //for (var i = 0; i < datalength; i++) {
+            //    monthArray.push($("#ddlMonth").data("kendoDropDownList").dataSource._data[i].Id);
+            //}
+
+            //var validationMonthsObj = monthArray;
+
+            //const FinalArray = [];
+            //const objMap = {};
+            //validationgridObj.forEach((e1) => validationMonthsObj.forEach((e2) => {
+            //    if (e1 == e2) {
+            //        FinalArray.push(e1);
+            //        objMap[e1] = objMap[e1] + 1 || 1;
+            //    }
+            //}));
+            //if (Object.keys(objMap).map(e => Number(e)).length != datalength) {
+            //    $('#divPopup').modal('show');
+            //    $('#hdnTempStatus').val("1");
+            //    window.kendo.ui.progress($("#div_Progress"), false);
+            //    return false;
+            //}
+
+            var model = {
+                EncryptedId: $("#hdnPJPId").val(),
+                StatusId: 1,
+                PermanentJourneyPlanDetailList: jsonObj,
+                IsEditableForAdmin: @Model.IsEditableForAdmin
+            };
+
+            moduleCommon.Common.AjaxCall({
+                url: "/SalesTourPlan/PermanentJourneyPlan",
+					type: 'POST',
+                    data: { __RequestVerificationToken: token, pJPViewModel: model },
+					success: function (result) {
+						if (result.PostStatus) {
+							var url = '@Url.Action("PermanentJourneyPlans", "SalesTourPlan")';
+							window.location.href = url;
+						} else {
+							ShowErrorMessage(result.PostMessage);
+							window.kendo.ui.progress($("#div_Progress"), false);
+							return false;
+						}
+					}
+				});
+            }
+        });
+
+        $("#btnPJPApproved").click(function (e) {
+            var errorFlag = false;
+            var errorMessage = "";
+            var gridData = $("#ViewRetailers").data("kendoGrid").dataSource.data();
+		    if (gridData.length === 0) {
+			    errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetResourceString("msg_ProductListError")');
+			    errorFlag = true;
+            }
+            var NoOfVisit = 0;
+
+            $.each(gridData, function (idx2, val2) {
+                NoOfVisit = parseFloat(val2.NoOfVisit) + NoOfVisit;
+            });
+
+
+            if (!(NoOfVisit >= 24 && NoOfVisit <= 27)) {
+                errorMessage = ErrorSuccessMessageBind(errorMessage, 'Sum of "<strong>Number of Visit</strong>" should be between greater than or equal to 24 and less than or equal to 27');
+                errorFlag = true;
+            }
+
+            if (errorFlag) {
+                ShowErrorMessageLeftAlign(errorMessage);
+            }
+            else {
+                window.kendo.ui.progress($("#div_Progress"), true);
+                var form = $('#frmPermanentJourneyPlan')
+                var token = $('input[name="__RequestVerificationToken"]', form).val();
+
+                var jsonObj = [];
+                $.each(gridData, function (idx2, val2) {
+                    item = {}
+                    item["FinancialYearId"] = val2.FinancialYearId;
+                    item["FinancialYear"] = val2.FinancialYear;
+                    item["EffectiveFrom"] = new Date(val2.EffectiveFrom).toDateString();
+                    item["EffectiveTo"] = new Date(val2.EffectiveTo).toDateString();
+                    //item["TerritoryId"] = val2.TerritoryId;
+                    //item["Territory"] = val2.Territory;
+                    //item["MonthId"] = val2.MonthId;
+                    //item["Month"] = val2.Month;
+                    item["StateId"] = val2.StateId;
+                    item["State"] = val2.State;
+                    item["DistrictId"] = val2.DistrictId;
+                    item["District"] = val2.District;
+                    item["CityId"] = val2.CityId;
+                    item["City"] = val2.City;
+                    item["NoOfDirectDealer"] = val2.NoOfDirectDealer;
+                    item["RetailerId"] = val2.RetailerId;
+                    item["Retailers"] = val2.Retailers;
+                    item["NoOfSubDealer"] = val2.NoOfSubDealer;
+                    item["NoOfWholeSeller"] = val2.NoOfWholeSeller;
+                    item["NoOfVisit"] = val2.NoOfVisit;
+                    item["Id"] = val2.Id;
+                    item["InHQNoVisitId"] = val2.InHQNoVisitId;
+                    item["InHQNoVisitName"] = val2.InHQNoVisitName;
+                    item["Remarks"] = val2.Remarks;
+                    jsonObj.push(item);
+                });
+
+                //var validationgridObj = [];
+                //$.each(gridData, function (idx2, val2) {
+                //    validationgridObj.push(val2.MonthId);
+                //});
+
+                //var validationMonthsObj = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+                //const FinalArray = [];
+                //const objMap = {};
+                //validationgridObj.forEach((e1) => validationMonthsObj.forEach((e2) => {
+                //    if (e1 == e2) {
+                //        FinalArray.push(e1);
+                //        objMap[e1] = objMap[e1] + 1 || 1;
+                //    }
+                //}));
+                //if (Object.keys(objMap).map(e => Number(e)).length != 12) {
+                //    $('#divPopup').modal('show');
+                //    $('#hdnTempStatus').val("2");
+                //    window.kendo.ui.progress($("#div_Progress"), false);
+                //    return false;
+                //}
+
+                var multi = $("#ddlReason").getKendoMultiSelect(),
+                    multiDataItems = multi.dataItems(),
+                    selectedReasonIds = [];
+
+                for (var i = 0; i < multiDataItems.length; i += 1) {
+                    var currentDealer = multiDataItems[i];
+                    selectedReasonIds.push(currentDealer.Id);
+                }
+
+                var model = {
+                    EncryptedId: $("#hdnPJPId").val(),
+                    StatusId: 2,
+                    Remarks: $("#txtRemarks").val(),
+                    ReasonIds: selectedReasonIds.join(","),
+                    PermanentJourneyPlanDetailList: jsonObj
+                };
+
+                moduleCommon.Common.AjaxCall({
+                    url: "/SalesTourPlan/PermanentJourneyPlan",
+                    type: 'POST',
+                    data: { __RequestVerificationToken: token, pJPViewModel: model },
+                    success: function (result) {
+                        if (result.PostStatus) {
+                            var url = '@Url.Action("PermanentJourneyPlans", "SalesTourPlan")';
+                            window.location.href = url;
+                        } else {
+                            ShowErrorMessage(result.PostMessage);
+                            window.kendo.ui.progress($("#div_Progress"), false);
+                            return false;
+                        }
+                    }
+                });
+            }
+        });
+
+        $("#btnPJPRejected").click(function (e) {
+            var errorFlag = false;
+            var errorMessage = "";
+            if ($("#txtRemarks").val() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetMsgRequired("lbl_Remarks")');
+			errorFlag = true;
+            }
+            if (errorFlag) {
+                ShowErrorMessageLeftAlign(errorMessage);
+            }
+            else {
+                var gridData = $("#ViewRetailers").data("kendoGrid").dataSource.data();
+		        if (gridData.length === 0) {
+			        errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetResourceString("msg_ProductListError")');
+			        errorFlag = true;
+		        }
+                window.kendo.ui.progress($("#div_Progress"), true);
+                var form = $('#frmPermanentJourneyPlan')
+                var token = $('input[name="__RequestVerificationToken"]', form).val();
+
+                var jsonObj = [];
+                $.each(gridData, function (idx2, val2) {
+                    item = {}
+                    item["FinancialYearId"] = val2.FinancialYearId;
+                    item["FinancialYear"] = val2.FinancialYear;
+                    item["EffectiveFrom"] = new Date(val2.EffectiveFrom).toDateString();
+                    item["EffectiveTo"] = new Date(val2.EffectiveTo).toDateString();
+                    //item["TerritoryId"] = val2.TerritoryId;
+                    //item["Territory"] = val2.Territory;
+                    //item["MonthId"] = val2.MonthId;
+                    //item["Month"] = val2.Month;
+                    item["StateId"] = val2.StateId;
+                    item["State"] = val2.State;
+                    item["DistrictId"] = val2.DistrictId;
+                    item["District"] = val2.District;
+                    item["CityId"] = val2.CityId;
+                    item["City"] = val2.City;
+                    item["NoOfDirectDealer"] = val2.NoOfDirectDealer;
+                    item["RetailerId"] = val2.RetailerId;
+                    item["Retailers"] = val2.Retailers;
+                    item["NoOfSubDealer"] = val2.NoOfSubDealer;
+                    item["NoOfWholeSeller"] = val2.NoOfWholeSeller;
+                    item["NoOfVisit"] = val2.NoOfVisit;
+                    item["Id"] = val2.Id;
+                    item["InHQNoVisitId"] = val2.InHQNoVisitId;
+                    item["InHQNoVisitName"] = val2.InHQNoVisitName;
+                    item["Remarks"] = val2.Remarks;
+                    jsonObj.push(item);
+                });
+
+                //var validationgridObj = [];
+                //$.each(gridData, function (idx2, val2) {
+                //    validationgridObj.push(val2.MonthId);
+                //});
+
+                //var validationMonthsObj = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+                //const FinalArray = [];
+                //const objMap = {};
+                //validationgridObj.forEach((e1) => validationMonthsObj.forEach((e2) => {
+                //    if (e1 == e2) {
+                //        FinalArray.push(e1);
+                //        objMap[e1] = objMap[e1] + 1 || 1;
+                //    }
+                //}));
+                //if (Object.keys(objMap).map(e => Number(e)).length != 12) {
+                //    $('#divPopup').modal('show');
+                //    $('#hdnTempStatus').val("3");
+                //    window.kendo.ui.progress($("#div_Progress"), false);
+                //    return false;
+                //}
+
+                var multi = $("#ddlReason").getKendoMultiSelect(),
+                    multiDataItems = multi.dataItems(),
+                    selectedReasonIds = [];
+
+                for (var i = 0; i < multiDataItems.length; i += 1) {
+                    var currentDealer = multiDataItems[i];
+                    selectedReasonIds.push(currentDealer.Id);
+                }
+
+                var model = {
+                    EncryptedId: $("#hdnPJPId").val(),
+                    StatusId: 3,
+                    Remarks: $("#txtRemarks").val(),
+                    ReasonIds: selectedReasonIds.join(","),
+                    PermanentJourneyPlanDetailList: jsonObj
+                };
+
+                moduleCommon.Common.AjaxCall({
+                    url: "/SalesTourPlan/PermanentJourneyPlan",
+					    type: 'POST',
+                        data: { __RequestVerificationToken: token, pJPViewModel: model },
+					    success: function (result) {
+						    if (result.PostStatus) {
+							    var url = '@Url.Action("PermanentJourneyPlans", "SalesTourPlan")';
+							    window.location.href = url;
+						    } else {
+							    ShowErrorMessage(result.PostMessage);
+							    window.kendo.ui.progress($("#div_Progress"), false);
+							    return false;
+						    }
+					    }
+				    });
+            }
+        });
+
+        FilterContains();
+    });
+
+    function ListAllDistrict() {
+        $("#ddlDistrict").data("kendoAutoComplete").search("");
+    }
+    function ListAllCity() {
+        $("#ddlCity").data("kendoAutoComplete").search("");
+    }
+    //function ListAllDealers() {
+    //    $("#ddlRetailer").data("kendoAutoComplete").search("");
+    //}
+
+    function clearAll() {
+        $("#hdnassignrowindex").val("-1");
+        //$("#ddlYear").data("kendoDropDownList").value("0");
+        //$("#ddlDistrict").data("kendoAutoComplete").value("");
+        //$("#ddlDistrict").data("kendoAutoComplete").dataSource.data([]);
+        //$("#ddlCity").data("kendoAutoComplete").value("");
+        //$("#ddlCity").data("kendoAutoComplete").dataSource.data([]);
+        //$("#txtNoOfDirectDealer").val("");
+        //$("#ddlCity").data("kendoDropDownList").value("0");
+        $("#ddlRetailer").data("kendoMultiSelect").value("");
+        //$("#ddlRetailer").data("kendoMultiSelect").dataSource.data([]);
+        var ddlRetailer = $("#ddlRetailer").data("kendoMultiSelect");
+        ddlRetailer.options.maxSelectedItems = @ConfigHelper.MaxSelectedOneItemForMultiselect;
+        $("#txtNoOfSubDealer").val("");
+        $("#txtNoOfWholeSeller").val("");
+        $("#txtNoOfVisit").val("");
+        $("#txtPCPRemarks").val("");
+        //$("#ddlState").data("kendoDropDownList").value("0");
+    }
+
+        function onDataBound(e) {
+
+            //Hilight changed data
+            var view = this.dataSource.view();
+            for (var i = 0; i < view.length; i++) {
+
+                if (view[i].IsDataChanged) {
+                    this.tbody.find("tr[data-uid='" + view[i].uid + "']")
+                        .addClass("k-state-selected");
+                }
+            }
+
+        var grid = $("#ViewRetailers").data("kendoGrid");
+            $(grid.tbody).on("click", ".icon-pencil5", function (e) {
+
+            var row = $(this).closest("tr");
+            var rowIdx = $("tr", grid.tbody).index(row);
+            var colIdx = $("td", row).index(this);
+                $("#hdnassignrowindex").val(rowIdx);
+            var gridData = $("#ViewRetailers").data("kendoGrid").dataSource.data()[rowIdx];
+            $("#ddlYear").data("kendoDropDownList").value(gridData.FinancialYearId);
+            //$("#ddlMonth").data("kendoDropDownList").value(gridData.MonthId);
+            //$("#ddlDistrict").data("kendoAutoComplete").value(gridData.District);
+            //$("#ddlCity").data("kendoAutoComplete").value(gridData.City);
+            //$("#txtNoOfDirectDealer").val(gridData.NoOfDirectDealer);
+            //$("#ddlRetailer").data("kendoMultiSelect").value(gridData.RetailerId.split(','));
+
+                SetDealerId = gridData.RetailerId;
+
+            $("#ddlDistrict").data("kendoDropDownList").value(gridData.DistrictId);
+                $("#ddlCity").data("kendoDropDownList").value(gridData.CityId);
+                onCityChange();
+            $("#txtNoOfSubDealer").val(gridData.NoOfSubDealer);
+            $("#txtNoOfWholeSeller").val(gridData.NoOfWholeSeller);
+            $("#txtNoOfVisit").val(gridData.NoOfVisit);
+            $("#ddlState").data("kendoDropDownList").value(gridData.StateId);
+            $("#StartDate").val(kendo.toString(kendo.parseDate(gridData.EffectiveFrom), emamiGlobal.constant.DateFormat));
+            $("#EndDate").val(kendo.toString(kendo.parseDate(gridData.EffectiveTo), emamiGlobal.constant.DateFormat));
+            $('#StartDate').data('kendoDatePicker').enable(true);
+            $('#EndDate').data('kendoDatePicker').enable(true);
+                $('#ddlHQNoVisit').data('kendoDropDownList').value(gridData.InHQNoVisitId);
+                $('#txtPCPRemarks').val(gridData.Remarks);
+                @*$("#ddlRetailer").data("kendoMultiSelect").value(gridData.RetailerId);
+                var ddlRetailer = $("#ddlRetailer").data("kendoMultiSelect");
+                ddlRetailer.options.maxSelectedItems = @ConfigHelper.MaxSelectedOneItemForMultiselect;*@
+        });
+        }
+
+
+
+    function AddToGrid() {
+        var errorFlag = false;
+        var errorMessage = "";
+        if ($("#ddlYear").data("kendoDropDownList").value() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_Year")');
+			errorFlag = true;
+        }
+        @*if ($("#ddlMonth").data("kendoDropDownList").value() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_Month")');
+			errorFlag = true;
+        }*@
+        if ($("#ddlState").data("kendoDropDownList").value() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_State")');
+			errorFlag = true;
+        }
+        @*if ($("#ddlDistrict").data("kendoDropDownList").value() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_District")');
+			errorFlag = true;
+        }
+        if ($("#ddlCity").data("kendoDropDownList").value() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_City")');
+			errorFlag = true;
+        }*@
+        @*if ($("#ddlDistrict").data("kendoAutoComplete").value() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_District")');
+			errorFlag = true;
+        }
+        if ($("#ddlCity").data("kendoAutoComplete").value() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_City")');
+			errorFlag = true;
+        }*@
+        @*if ($("#txtNoOfDirectDealer").val() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetMsgRequired("lbl_NoOfDirectDealer")');
+			errorFlag = true;
+        }*@
+        @*if ($("#ddlRetailer").data("kendoMultiSelect").value().length === 0) {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_Dealer")');
+			errorFlag = true;
+        }*@
+        if (!$("#ddlHQNoVisit").val()) {
+            if ($("#ddlRetailer").data("kendoMultiSelect").value() === "") {
+			    errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_Dealer")');
+			    errorFlag = true;
+            }
+            if ($("#txtNoOfSubDealer").val() === "") {
+			    errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetMsgRequired("lbl_NoOfSubDealer")');
+			    errorFlag = true;
+            }
+            if ($("#txtNoOfWholeSeller").val() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetMsgRequired("lbl_NoOfWholeSeller")');
+			errorFlag = true;
+            }
+        }
+        if ($("#txtNoOfVisit").val() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetMsgRequired("lbl_NoOfVisit")');
+			errorFlag = true;
+        }
+
+        if (new Date($("#StartDate").val()) > new Date($("#EndDate").val())) {
+            errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetResourceString("msg_InvalidFromDate")');
+			errorFlag = true;
+        }
+
+        //var txtNoOfVisit = $("#txtNoOfVisit").val();
+        //if (parseInt(txtNoOfVisit) > 24) {
+        //    errorMessage = ErrorSuccessMessageBind(errorMessage, "No of Visit Should be less than 24");
+        //    errorFlag = true;
+        //}
+        //else {
+        //    var gridData = $("#ViewRetailers").data("kendoGrid").dataSource.data();
+        //    if (gridData.length > 0) {
+        //        var grdNoOfVisit = parseInt(txtNoOfVisit);
+        //        $.each(gridData, function (idx2, val2) {
+        //            grdNoOfVisit = parseInt(val2.NoOfVisit) + grdNoOfVisit;
+        //        });
+        //        if (grdNoOfVisit > 24) {
+        //            errorMessage = ErrorSuccessMessageBind(errorMessage, "No of Visit Should be less than 24");
+        //            errorFlag = true;
+        //        }
+        //    }
+        //}
+        if (errorFlag) {
+            ShowErrorMessageLeftAlign(errorMessage);
+        }
+        else {
+            //var Districtdata = $('#ddlDistrict').data('kendoAutoComplete');
+            //var DistrictdataValue = Districtdata.value();
+            //var DistrictdataItem = Districtdata.dataItems();
+            //var DistrictDetails = DistrictdataItem.filter(x => x.DistrictName === DistrictdataValue);
+            //DistrictDetails = DistrictDetails[0];
+
+            //var Citydata = $('#ddlCity').data('kendoAutoComplete');
+            //var CitydataValue = Citydata.value();
+            //var CitydataItem = Citydata.dataItems();
+            //var CityDetails = CitydataItem.filter(x => x.CityName === CitydataValue);
+            //CityDetails = CityDetails[0];
+
+            var Dealerdata = $('#ddlRetailer').data('kendoMultiSelect');
+            var dealerList = Dealerdata.value();
+            //var dealerlist = DealerdataValue.split(",");
+            var DealerdataItem = Dealerdata.dataItems();
+            //alert("length - " + DealerdataItem.length + " Id - " + DealerdataItem[0].Id + " Name - " + DealerdataItem[0].Name);
+            //var DealerDetails = DealerdataItem.filter(x => x.Name === DealerdataValue);
+            //DealerDetails = DealerDetails[0];
+
+            //var multi = $("#ddlRetailer").getKendoMultiSelect(),
+            //multiDataItems = multi.dataItems(),
+            //selectedDealerIds = [];
+            //selectedDealerNames = [];
+
+            //for (var i = 0; i < multiDataItems.length; i += 1) {
+            //    var currentDealer = multiDataItems[i];
+
+            //    //selectedDealers.push({
+            //    //    UserId: currentDealer.UserId,
+            //    //    Name: currentDealer.Name
+            //    //})
+            //    selectedDealerIds.push(currentDealer.Id);
+            //    selectedDealerNames.push(currentDealer.Name);
+            //}
+            var grid = $("#ViewRetailers").data("kendoGrid");
+            var datasource = grid.dataSource;
+            var gridData = $("#ViewRetailers").data("kendoGrid").dataSource.data();
+            var index = $("#hdnassignrowindex").val();
+            if (index == "-1") {
+                var gridData = $("#ViewRetailers").data("kendoGrid").dataSource.data();
+                if (gridData.length > 0 && $("#ddlHQNoVisit").val() != "") {
+                //if (gridData.length > 0) {
+                    if (dealerList.length > 0) {
+                        $.each(dealerList, function (did, dval) {
+                            $.each(gridData, function (idx2, val2) {
+                                if (val2.RetailerId == dval) {
+                                    errorFlag = true;
+                                }
+                            });
+                        });
+                    }
+                }
+                if (errorFlag) {
+                    errorMessage = ErrorSuccessMessageBind(errorMessage, "Selected Dealer already added in the grid.");
+                    ShowErrorMessageLeftAlign(errorMessage);
+                }
+                else {
+                    if (dealerList.length > 0) {
+                        $.each(dealerList, function (did, dval) {
+                            var DealerDetails = DealerdataItem.filter(x => x.Id === dval);
+                            DealerDetails = DealerDetails[0];
+                            datasource.insert(gridData.length, {
+                                FinancialYearId: $("#ddlYear").data("kendoDropDownList").value(),
+                                FinancialYear: $("#ddlYear").data("kendoDropDownList").text(),
+                                EffectiveFrom: $("#StartDate").data("kendoDatePicker").value(),
+                                EffectiveTo: $("#EndDate").data("kendoDatePicker").value(),
+                                //MonthId: $("#ddlMonth").data("kendoDropDownList").value(),
+                                //Month: $("#ddlMonth").data("kendoDropDownList").text(),
+                                StateId: $("#ddlState").data("kendoDropDownList").value(),
+                                State: $("#ddlState").data("kendoDropDownList").text(),
+                                //TerritoryId: $("#ddlTerritory").data("kendoDropDownList").value(),
+                                //Territory: $("#ddlTerritory").data("kendoDropDownList").text(),
+                                DistrictId: $("#ddlDistrict").data("kendoDropDownList").value(),
+                                District: $("#ddlDistrict").data("kendoDropDownList").text(),
+                                CityId: $("#ddlCity").data("kendoDropDownList").value(),
+                                City: $("#ddlCity").data("kendoDropDownList").text(),
+                                NoOfDirectDealer: 0,
+                                //RetailerId: selectedDealerIds.join(","),
+                                //Retailers: selectedDealerNames.join(","),
+                                RetailerId: dval,
+                                Retailers: DealerDetails.Name,
+                                NoOfSubDealer: $("#txtNoOfSubDealer").val(),
+                                NoOfWholeSeller: $("#txtNoOfWholeSeller").val(),
+                                NoOfVisit: $("#txtNoOfVisit").val(),
+                                Id: 0,
+                                //InHQNoVisitId: 0,
+                                //InHQNoVisitName: "",
+                                InHQNoVisitId: $("#ddlHQNoVisit").data("kendoDropDownList").value(),
+                                InHQNoVisitName: ($("#ddlHQNoVisit").data("kendoDropDownList").value()) ? $("#ddlHQNoVisit").data("kendoDropDownList").text() : "",
+                                Remarks: $("#txtPCPRemarks").val()
+                            });
+                        });
+                    }
+                    else {
+                        datasource.insert(gridData.length, {
+                            FinancialYearId: $("#ddlYear").data("kendoDropDownList").value(),
+                            FinancialYear: $("#ddlYear").data("kendoDropDownList").text(),
+                            EffectiveFrom: $("#StartDate").data("kendoDatePicker").value(),
+                            EffectiveTo: $("#EndDate").data("kendoDatePicker").value(),
+                            //MonthId: $("#ddlMonth").data("kendoDropDownList").value(),
+                            //Month: $("#ddlMonth").data("kendoDropDownList").text(),
+                            StateId: $("#ddlState").data("kendoDropDownList").value(),
+                            State: $("#ddlState").data("kendoDropDownList").text(),
+                            //TerritoryId: $("#ddlTerritory").data("kendoDropDownList").value(),
+                            //Territory: $("#ddlTerritory").data("kendoDropDownList").text(),
+                            DistrictId: $("#ddlDistrict").data("kendoDropDownList").value(),
+                            District: $("#ddlDistrict").data("kendoDropDownList").text(),
+                            CityId: $("#ddlCity").data("kendoDropDownList").value(),
+                            City: $("#ddlCity").data("kendoDropDownList").text(),
+                            NoOfDirectDealer: 0,
+                            //RetailerId: selectedDealerIds.join(","),
+                            //Retailers: selectedDealerNames.join(","),
+                            RetailerId: 0,
+                            Retailers: "",
+                            NoOfSubDealer: $("#txtNoOfSubDealer").val(),
+                            NoOfWholeSeller: $("#txtNoOfWholeSeller").val(),
+                            NoOfVisit: $("#txtNoOfVisit").val(),
+                            Id: 0,
+                            //InHQNoVisitId: 0,
+                            //InHQNoVisitName: "",
+                            InHQNoVisitId: $("#ddlHQNoVisit").data("kendoDropDownList").value(),
+                            InHQNoVisitName: ($("#ddlHQNoVisit").data("kendoDropDownList").value()) ? $("#ddlHQNoVisit").data("kendoDropDownList").text() : "",
+                            Remarks: $("#txtPCPRemarks").val()
+                        });
+                    }
+                        clearAll();
+                        var gridData = $("#ViewRetailers").data("kendoGrid").dataSource.data();
+                        if (gridData.length > 0) {
+                            var tempindex = 0;
+                            $.each(gridData, function (idx2, val2) {
+                                var tempupdategridData = $("#ViewRetailers").data("kendoGrid").dataSource.data()[tempindex];
+                                tempupdategridData.EffectiveFrom = new Date(Date.parse($("#StartDate").val()));
+                                tempupdategridData.EffectiveTo = new Date(Date.parse($("#EndDate").val()));
+                                $('#ViewRetailers').data('kendoGrid').refresh();
+                                tempindex = tempindex + 1;
+                            });
+                        };
+
+
+                }
+            } else {
+                var updategridData = $("#ViewRetailers").data("kendoGrid").dataSource.data()[index];
+                updategridData.FinancialYearId = $("#ddlYear").data("kendoDropDownList").value();
+                updategridData.FinancialYear = $("#ddlYear").data("kendoDropDownList").text();
+                updategridData.EffectiveFrom = $("#StartDate").data("kendoDatePicker").value();
+                updategridData.EffectiveTo = $("#EndDate").data("kendoDatePicker").value();
+                //updategridData.TerritoryId = $("#ddlTerritory").data("kendoDropDownList").value();
+                //updategridData.Territory = $("#ddlTerritory").data("kendoDropDownList").text();
+                updategridData.StateId = $("#ddlState").data("kendoDropDownList").value();
+                updategridData.State = $("#ddlState").data("kendoDropDownList").text();
+                //updategridData.MonthId = $("#ddlMonth").data("kendoDropDownList").value();
+                //updategridData.Month = $("#ddlMonth").data("kendoDropDownList").text();
+                updategridData.DistrictId = $("#ddlDistrict").data("kendoDropDownList").value();
+                updategridData.District = $("#ddlDistrict").data("kendoDropDownList").text();
+                updategridData.CityId = $("#ddlCity").data("kendoDropDownList").value();
+                updategridData.City = $("#ddlCity").data("kendoDropDownList").text();
+                updategridData.Remarks = $("#txtPCPRemarks").val();
+                //if (DistrictDetails != undefined) {
+                //    updategridData.DistrictId = DistrictDetails.DistrictId;
+                //}
+                //updategridData.District = $("#ddlDistrict").data("kendoAutoComplete").value();
+                //if (CityDetails != undefined) {
+                //    updategridData.CityId = CityDetails.CityId;
+                //}
+                //updategridData.City = $("#ddlCity").data("kendoAutoComplete").value();
+                updategridData.NoOfDirectDealer = 0;
+                //updategridData.RetailerId = selectedDealerIds.join(",");
+                //updategridData.Retailers = selectedDealerNames.join(",");
+
+                //if (DealerDetails != undefined) {
+                //    updategridData.RetailerId = (DealerDetails) ? DealerDetails.Id : 0;
+                //}
+
+                //updategridData.Retailers = $("#ddlRetailer").data("kendoMultiSelect").value();
+                //alert(dealerList.length);
+                if (dealerList.length > 0) {
+                    updategridData.RetailerId = DealerdataItem[0].Id;
+                    updategridData.Retailers = DealerdataItem[0].Name;
+                }
+                else {
+                    updategridData.RetailerId = 0;
+                    updategridData.Retailers = "";
+                }
+
+                updategridData.NoOfSubDealer = $("#txtNoOfSubDealer").val();
+                updategridData.NoOfWholeSeller = $("#txtNoOfWholeSeller").val();
+                updategridData.NoOfVisit = $("#txtNoOfVisit").val();
+                //InHQNoVisitId: 0;
+                //InHQNoVisitName: "";
+                updategridData.InHQNoVisitId= $("#ddlHQNoVisit").data("kendoDropDownList").value();
+                updategridData.InHQNoVisitName= ($("#ddlHQNoVisit").data("kendoDropDownList").value()) ? $("#ddlHQNoVisit").data("kendoDropDownList").text() : "";
+
+                $('#ViewRetailers').data('kendoGrid').refresh();
+                $("#hdnassignrowindex").val("-1");
+                clearAll();
+                var gridData = $("#ViewRetailers").data("kendoGrid").dataSource.data();
+                if (gridData.length > 0) {
+                    var tempindex = 0;
+                    $.each(gridData, function (idx2, val2) {
+                        var tempupdategridData = $("#ViewRetailers").data("kendoGrid").dataSource.data()[tempindex];
+                        tempupdategridData.EffectiveFrom = new Date(Date.parse($("#StartDate").val()));
+                        tempupdategridData.EffectiveTo = new Date(Date.parse($("#EndDate").val()));
+                        $('#ViewRetailers').data('kendoGrid').refresh();
+                        tempindex = tempindex + 1;
+                    }
+                    )};
+            }
+            var yeardropdownlist = $("#ddlYear").data("kendoDropDownList");
+            yeardropdownlist.enable(false);
+            $('#StartDate').data('kendoDatePicker').enable(false);
+            $('#EndDate').data('kendoDatePicker').enable(false);
+        }
+    }
+    function popupCancel() {
+        $('#divPopup').modal('hide');
+    }
+    function popupYes() {
+        var errorFlag = false;
+        var errorMessage = "";
+        var gridData = $("#ViewRetailers").data("kendoGrid").dataSource.data();
+		if (gridData.length === 0) {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetResourceString("msg_ProductListError")');
+			errorFlag = true;
+        }
+
+        var NoOfVisit = 0;
+        $.each(gridData, function (idx2, val2) {
+            NoOfVisit = parseInt(val2.NoOfVisit) + NoOfVisit;
+        });
+        if (NoOfVisit > 24) {
+            errorMessage = ErrorSuccessMessageBind(errorMessage, "No of Visit Should be less than 24");
+            errorFlag = true;
+        }
+        if (errorFlag) {
+            ShowErrorMessageLeftAlign(errorMessage);
+        }
+        else {
+            window.kendo.ui.progress($("#div_Progress"), true);
+            var form = $('#frmPermanentJourneyPlan')
+            var token = $('input[name="__RequestVerificationToken"]', form).val();
+
+            var jsonObj = [];
+            $.each(gridData, function (idx2, val2) {
+                item = {}
+                item["FinancialYearId"] = val2.FinancialYearId;
+                item["FinancialYear"] = val2.FinancialYear;
+                item["EffectiveFrom"] = new Date(val2.EffectiveFrom).toDateString();
+                item["EffectiveTo"] = new Date(val2.EffectiveTo).toDateString();
+                //item["TerritoryId"] = val2.TerritoryId;
+                //item["Territory"] = val2.Territory;
+                //item["MonthId"] = val2.MonthId;
+                //item["Month"] = val2.Month;
+                item["StateId"] = val2.StateId;
+                item["State"] = val2.State;
+                item["DistrictId"] = val2.DistrictId;
+                item["District"] = val2.District;
+                item["CityId"] = val2.CityId;
+                item["City"] = val2.City;
+                item["NoOfDirectDealer"] = val2.NoOfDirectDealer;
+                item["RetailerId"] = val2.RetailerId;
+                item["Retailers"] = val2.Retailers;
+                item["NoOfSubDealer"] = val2.NoOfSubDealer;
+                item["NoOfWholeSeller"] = val2.NoOfWholeSeller;
+                item["NoOfVisit"] = val2.NoOfVisit;
+                item["Id"] = val2.Id;
+                item["InHQNoVisitId"] = val2.InHQNoVisitId;
+                item["InHQNoVisitName"] = val2.InHQNoVisitName;
+                item["Remarks"] = val2.Remarks;
+                jsonObj.push(item);
+            });
+
+
+            var multi = $("#ddlReason").getKendoMultiSelect(),
+                multiDataItems = multi.dataItems(),
+                selectedReasonIds = [];
+
+            for (var i = 0; i < multiDataItems.length; i += 1) {
+                var currentDealer = multiDataItems[i];
+                selectedReasonIds.push(currentDealer.Id);
+            }
+
+            var StatusId = $('#hdnTempStatus').val();
+            var model = {
+                EncryptedId: $("#hdnPJPId").val(),
+                StatusId: parseInt(StatusId),
+                Remarks: $("#txtRemarks").val(),
+                PermanentJourneyPlanDetailList: jsonObj,
+                ReasonIds: selectedReasonIds.join(","),
+                IsEditableForAdmin: @Model.IsEditableForAdmin
+            };
+
+            moduleCommon.Common.AjaxCall({
+                url: "/SalesTourPlan/PermanentJourneyPlan",
+					type: 'POST',
+                    data: { __RequestVerificationToken: token, pJPViewModel: model },
+					success: function (result) {
+						if (result.PostStatus) {
+							var url = '@Url.Action("PermanentJourneyPlans", "SalesTourPlan")';
+							window.location.href = url;
+						} else {
+							ShowErrorMessage(result.PostMessage);
+							window.kendo.ui.progress($("#div_Progress"), false);
+							return false;
+						}
+					}
+				});
+        }
+    }
+    function filterMonths() {
+        return {
+            YearId: $("#ddlYear").data("kendoDropDownList").value()
+        };
+    }
+
+    //Territory
+    function territoryAdditionalInfo() {
+        return {
+            stateId: Number($("#ddlState").val())
+        }
+    }
+
+    function territoryChange() {
+        //$("#ddlDistrict").data("kendoAutoComplete").value("");
+        //$("#ddlDistrict").data("kendoAutoComplete").dataSource.data([]);
+        //$("#ddlCity").data("kendoAutoComplete").value("");
+        //$("#ddlCity").data("kendoAutoComplete").dataSource.data([]);
+    }
+
+    function getLoginBDODetails(Id) {
+        $.ajax({
+            url: "/SalesTourPlan/LoginBDODetails",
+            type: 'POST',
+            data: { Id: Id },
+            success: function (result) {
+                if (result !== null) {
+                    $("#ddlState").data("kendoDropDownList").value(result.StateId);
+                    $("#ddlTerritory").data("kendoDropDownList").value(result.TerritoryId);
+                }
+            }
+        });
+
+        return false;
+    }
+    function Statedatabound() {
+       // $("#ddlTerritory").data("kendoDropDownList").dataSource.read();
+    }
+
+    function setFinancialYeardateRange() {
+        var model = {
+            FinancialYearid: $("#ddlYear").data("kendoDropDownList").value()
+        };
+        window.kendo.ui.progress($("#div_Progress"), true);
+        moduleCommon.Common.AjaxCall({
+            url: "/SalesTourPlan/PermanentJourneyPlanDateRangeCalendar",
+			type: 'POST',
+            data: { financialYearIdDto: model },
+            success: function (result) {
+                var minDate = [];
+                var maxDate = [];
+                if (result != null) {
+                    minDate = result.EffectiveFromstring.split('-');
+                    maxDate = result.EffectiveTostring.split('-');
+                    $("#StartDate").kendoDatePicker({
+                        format: "dd-MMM-yyyy",
+                        min: new Date(minDate[2], minDate[1] - 1, minDate[0]),
+                        max: new Date(maxDate[2], maxDate[1] - 1, maxDate[0])
+                    });
+                    $("#EndDate").kendoDatePicker({
+                        format: "dd-MMM-yyyy",
+                        min: new Date(minDate[2], minDate[1] - 1, minDate[0]),
+                        max: new Date(maxDate[2], maxDate[1] - 1, maxDate[0])
+                    });
+                    window.kendo.ui.progress($("#div_Progress"), false);
+				} else {
+					ShowErrorMessage(result.PostMessage);
+					window.kendo.ui.progress($("#div_Progress"), false);
+					return false;
+				}
+			}
+        });
+    }
+
+    function onHQNoVisitchange() {
+        hQNoVisitHideShow();
+    }
+
+    function onHQNoVisitBound() {
+        hQNoVisitHideShow();
+    }
+
+    function hQNoVisitHideShow() {
+        var hqNo = $("#ddlHQNoVisit").val();
+        var dealer = $("#ddlRetailer").data("kendoMultiSelect");
+        if (hqNo) {
+            if (dealer) {
+                dealer.value([]);
+                dealer.enable(false);
+            }
+            $("#txtNoOfSubDealer").val('');
+            $("#txtNoOfSubDealer").prop('readonly', true);
+            $("#txtNoOfWholeSeller").val('');
+            $("#txtNoOfWholeSeller").prop('readonly', true);
+        } else {
+            (dealer) ? dealer.enable(true): "";
+            $("#txtNoOfSubDealer").prop('readonly', false);
+            $("#txtNoOfWholeSeller").prop('readonly', false);
+        }
+    }
+
+    function ViewPreviousHistory(historyId) {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        moduleCommon.Common.AjaxCall({
+            url: '@Url.Action("GetSalesTourPlanPcpHistory", "SalesTourPlan")',
+            type: 'GET',
+            data: { id: historyId },
+            success: function (result) {
+                $("#pcpPreviousHistory").html(result);
+                $("#divHistoryPopup").modal("show");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+    function onDealerDataBound() {
+        if (SetDealerId > 0) {
+            $("#ddlRetailer").data("kendoMultiSelect").value(SetDealerId);
+
+        }
+        var ddlDealer = $("#ddlRetailer").data("kendoMultiSelect");
+            ddlDealer.options.maxSelectedItems = @ConfigHelper.MaxSelectedOneItemForMultiselect;
+    }
+</script>

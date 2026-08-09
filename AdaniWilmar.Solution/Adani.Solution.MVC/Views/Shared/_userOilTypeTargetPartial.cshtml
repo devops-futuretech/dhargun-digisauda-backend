@@ -1,0 +1,54 @@
+﻿@using Kendo.Mvc.UI;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@model Adani.Solution.DTO.UserOilTypeTargetDto
+
+<div class="row">
+    <div class="col-md-12">      
+        <div class="row" style="margin: 10px;">
+            <div class="col-md-12">
+                <div class="col-md-4 text-right">
+                    <b>@Helper.GetResourceString("lbl_Month")</b>
+                </div>
+                <div class="col-md-4">
+                    <b>@Helper.GetResourceString("lbl_SalesTarget")</b>
+                </div>
+            </div>
+        </div>
+        @if (Model.UserOiltypeTargetDetail.ToList().Count > 0)
+        {
+            for (var i = 0; i < Model.UserOiltypeTargetDetail.ToList().Count; i++)
+            {
+                var hdnMonthId = "hdnMonthId" + i;
+                var hdnId = "hdnId" + i;
+                var labelMonthId = "lblMonth" + i;
+                var txtSalesTargetid = "txtSalesTarget" + i;
+                var @hdnYear = "hdnYear" + i;
+                var @hdnMonthAndYear = "hdnMonthAndYear" + i;
+
+                <div class="row" style="margin: 10px;">
+                    <div class="col-md-12">
+                        <div class="col-md-4 text-right">
+                            <label class="control-label">@Model.UserOiltypeTargetDetail[i].MonthAndYear</label>
+                            @Html.HiddenFor(m => m.UserOiltypeTargetDetail[i].MonthId, new { id = @hdnMonthId })
+                            @Html.HiddenFor(m => m.UserOiltypeTargetDetail[i].Id, new { id = @hdnId })
+                            @Html.HiddenFor(m => m.UserOiltypeTargetDetail[i].Year, new { id = @hdnYear })
+                            @Html.HiddenFor(m => m.UserOiltypeTargetDetail[i].MonthAndYear, new { id = @hdnMonthAndYear })
+                        </div>
+                        <div class="col-md-4">
+                            @Html.TextBoxFor(m => m.UserOiltypeTargetDetail[i].SalesTarget, new { id = @txtSalesTargetid, @class = "targetTextbox k-textbox", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Target"), @maxlength = (int)InputMaxLength.String })
+                        </div>                     
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+
+    });
+
+</script>
+

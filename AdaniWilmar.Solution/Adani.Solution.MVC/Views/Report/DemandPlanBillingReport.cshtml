@@ -1,0 +1,137 @@
+﻿
+@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO
+@using Adani.Solution.DTO.Enums
+@model RoleIdDto
+@{
+    ViewBag.Title = "DemandPlanBillingReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="reportSaudaOrderDetails" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">Demand Plan Billing Report</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Report</a><span class="icon-right"></span></li>
+        <li class="active">Demand Plan Billing Report<span class="icon-right"></span></li>
+    </ol>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvSpecialRate">
+                <div class="row form-group">
+                    <div class="col-lg-3 col-sm-6 mb-3 ">
+                        <label class="custom_label">@Helper.GetResourceString("lbl_FromDate")</label>
+                        @(Html.Kendo().DatePicker()
+                                                      .Name("StartDate")
+                                                      //.Value(DateTime.Now)
+                                                      .Format(Settings.DateFormat)
+                                                      .Events(e => e.Change("fromDateChange"))
+                                                      .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                    </div>
+                    <div class="col-lg-3 col-sm-6 mb-3 ">
+                        <label class="custom_label">@Helper.GetResourceString("lbl_ToDate")</label>
+                        @(Html.Kendo().DatePicker()
+                                                      .Name("EndDate")
+                                                      //.Value(DateTime.Now)
+                                                      .Format(Settings.DateFormat)
+                                                      .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "2", style = "width: 100%" }))
+                    </div>
+                    
+                </div>
+
+ 
+
+                <div class="row form-group">
+                    <div class="col-md-12 text-right">
+                        <button type="button" tabindex="4" id="btnGenerateReport" class="k-primary k-button custom-btns">Generate Report</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        //setFromToDateRange("StartDate", "EndDate", emamiGlobal.constant.ReportDateRange);
+        StartDateRange();
+        $("#btnGenerateReport").click(function () {
+            downloadSaudaReport();
+        });
+    });
+
+       
+
+    //function fromDateChange() {
+    //    setToDateRange("StartDate", "EndDate", emamiGlobal.constant.ReportDateRange);
+    //}
+
+    function fromDateChange() {
+        var endPicker = $("#EndDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            $("#EndDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+            endPicker.min(startDate);
+        }
+    }
+
+    function StartDateRange() {
+        debugger;
+        var startDate = new Date();
+        startDate.setDate(startDate.getDate());
+
+        $("#StartDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+        //var startPicker = $("#StartDate").data("kendoDatePicker");
+        //startPicker.min(startDate);
+
+        var endPicker = $("#EndDate").data("kendoDatePicker");
+        $("#EndDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+        //endPicker.min(startDate);
+    }
+
+    function downloadSaudaReport(Id) {
+
+        var fromdate = $("#StartDate").data("kendoDatePicker").value();
+        var todate = $("#EndDate").data("kendoDatePicker").value();
+        if (todate == null) {
+            todate = fromdate;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetDemandPlanBillingDetailsReport", "Report")',
+            data: {
+                fromDate: $("#StartDate").val(), // $("#StartDate").data("kendoDatePicker").value().toDateString(),
+                toDate: $("#EndDate").val(), // $("#EndDate").data("kendoDatePicker").value().toDateString(),
+            },
+            success: function (responce) {
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Pricing")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+
+
+ 
+
+</script>

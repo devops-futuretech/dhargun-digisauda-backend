@@ -1,0 +1,79 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@model Adani.Solution.DTO.GPSTrackingDto
+
+@{
+    ViewBag.Title = "GPSTrackingReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="reportGPSTrackingReport" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_GPSTrackingReport")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Report</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_GPSTrackingReport")<span class="icon-right"></span></li>
+    </ol>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvSpecialRate">
+
+                <div class="row form-group">   
+
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-md-12 text-right">
+                        <button type="button" tabindex="4" id="btnGenerateReport" class="k-primary k-button custom-btns">Generate Report</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        $("#btnGenerateReport").click(function () {
+            downloadGPSTrackingReport();
+        });
+
+    });
+
+
+    function downloadGPSTrackingReport(Id) {
+
+        var inputputDto = {
+            Latitude: '',
+        };
+
+        window.kendo.ui.progress($("#div_Progress"), true);
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GPSTrackingExportAsync", "Report")',
+            data: inputputDto,
+            success: function (responce) {
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Report")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+</script>

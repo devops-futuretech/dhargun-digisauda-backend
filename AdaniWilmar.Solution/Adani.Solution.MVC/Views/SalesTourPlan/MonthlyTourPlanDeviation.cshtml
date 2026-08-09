@@ -1,0 +1,384 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.DTO;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Models;
+@model Adani.Solution.MVC.Models.MonthlyPlanDeviationViewModel
+@{
+    ViewBag.Title = @Helper.GetResourceString("lbl_MonthlyTourPlanDeviation");
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="salestourplanMonthlyPlandeviationapproval" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_MonthlyTourPlanDeviation")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Sales Tour Plan</a><span class="icon-right"></span></li>
+        <li><a href="MonthlyTourPlanDeviationApproval">@Helper.GetResourceString("lbl_MonthlyPlanDeviationApproval")</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_MonthlyTourPlanDeviation")<span class="icon-right"></span></li>
+    </ol>
+    <div style="clear:both;"></div>
+</div>
+<div id="ReatailOrders" class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+
+        </div>
+        @using (Html.BeginForm("MonthlyTourPlanDeviation", "SalesTourPlan", FormMethod.Post, new { id = "frmOrders", @class = "form-validate-jquery" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="panel-body" style="display: block;">
+                <div class="row form-group">
+                    <div class="col-lg-12">
+                        <div class="col-lg-3 col-sm-6 mb-3">
+                            <label class="custom_label">@Helper.GetResourceString("lbl_MTPNumber")</label>
+                            @(Html.Kendo().DropDownList().Name("ddlMTP")
+                                      .OptionLabel(@Helper.GetResourceString("lbl_MTPNumber"))
+                                      .DataTextField("MTPNumber")
+                                      .DataValueField("MTPId")
+                                      .DataSource(source => source.Read(read => read.Action("ApprovedMonthlyTourPlanByUserDDL", "SalesTourPlan"))
+                                      .ServerFiltering(true))
+                                      .HtmlAttributes(new { id = "ddlMTP", onchange = "Search()", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_MTPNumber"), @style = "width:100%" }))
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="text-right" style="margin-bottom: 5px;">
+                            @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                        </div>
+                        @(Html.Kendo().Grid<MonthlyTourPlanDeviationDto>()
+                              .Name("ViewMonthlyTourPlan")
+                              .Columns(columns =>
+                              {
+                                  columns.Bound(c => c.MTPId).Visible(false);
+                                  columns.Bound(c => c.MTPDetailId).Visible(false);
+                                  columns.Template(@<text></text>).ClientTemplate("<div class='text-center'><input type='checkbox' #= IsChecked ? checked='checked':'' # class='chkbxAllPaymentReceived'  value=#=MTPDetailId# onclick=\"findCheckedItemsSaveItToHidden(this,'#=MTPDetailId#','hdSelectedIds','masterCBAllPaymentReceived','chkbxAllPaymentReceived','lblPaymentReceivedSelectedCount');\"/></div>").HeaderTemplate("<div class='text-center' style = 'margin-left: 7px;'><input type='checkbox' id='masterCBAllPaymentReceived' onclick=\"masterfindCheckedItemsSaveItToHidden(this,'hdSelectedIds','chkbxAllPaymentReceived','lblPaymentReceivedSelectedCount')\"/></div>").Width("40px");
+                                  columns.Bound(c => c.Dealer).Title(@Helper.GetResourceString("lbl_Dealer")).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.InHQNoVisitName).Title(@Helper.GetResourceString("lbl_InHQNoVisit")).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.Town).Title(@Helper.GetResourceString("lbl_Town")).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.ActualDate).HtmlAttributes(new
+                                  {
+                                      @class = "templateCell"
+
+                                  }).
+                                  Title(@Helper.GetResourceString("lbl_Date")).Width(Settings.GridOtherColumnWidth).Format(Settings.GridDateFormat);
+                                  //columns.Bound(c => c.RevisedDate).HtmlAttributes(new
+                                  //{
+                                  //    @class = "templateCell"
+
+                                  //}).ClientTemplate(
+                                  //        Html.Kendo().DatePicker()
+                                  //        .Name("FDPicker_#=MTPDetailId#")
+                                  //        .Format(Settings.GridDateFormat)
+                                  //        .HtmlAttributes(new { data_bind = "value:RevisedDate" })
+                                  //        .ToClientTemplate().ToString()
+
+                                  //        ).Format(Settings.GridDateFormat).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(p => p.ReasonId).Title(@Helper.GetResourceString("lbl_Reason")).ClientTemplate("#=getReasonName(ReasonId)#").EditorTemplateName("ReasonPartial").Width(Settings.GridOtherColumnWidth);
+                                  columns.Bound(p => p.ToDealerId).Title(@Helper.GetResourceString("lbl_ToDealer")).ClientTemplate("#=getDealerName(ToDealerId)#").EditorTemplateName("DealerPartial").Width(Settings.GridOtherColumnWidth);
+                                  columns.Bound(c => c.Remarks).Title(@Helper.GetResourceString("lbl_Remarks")).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.ApproverRemarks).Title("Approver Remarks").Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.Status).Title(@Helper.GetResourceString("lbl_Status")).Width(Settings.GridOtherColumnWidth);
+                                  columns.Bound(c => c.PCPValidFrom).Visible(false);
+                                  columns.Bound(c => c.PCPValidTo).Visible(false);
+                              })
+                              .Editable(editable => editable.Mode(GridEditMode.InCell))
+                              .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                              .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                              .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                              .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                              .Scrollable(s => s.Enabled(true).Height("auto"))
+                              .Excel(excel => excel.FileName(@Helper.GetResourceString("lbl_MonthlyTourPlanDeviation") + " " + DateTime.Now + ".xlsx").AllPages(true))
+                              .Reorderable(reorder => reorder.Columns(true))
+                              .Resizable(resize => resize.Columns(true))
+                              .Events(ev => ev.DataBound("db"))
+                              .Events(x => x.Edit("onEdit"))
+                              .DataSource(dataSource => dataSource
+                              .Ajax()
+                              .Model(model =>
+                              {
+                                  model.Id(m => m.MTPId);
+                                  model.Id(m => m.MTPDetailId);
+                                  model.Field(p => p.Dealer).Editable(false);
+                                  model.Field(p => p.ActualDate).Editable(false);
+                                  //model.Field(p => p.RevisedDate).Editable(false);
+                                  model.Field(p => p.ApproverRemarks).Editable(false);
+                                  model.Field(p => p.Town).Editable(false);
+                                  model.Field(p => p.Status).Editable(false);
+                                  model.Field(p => p.InHQNoVisitName).Editable(false);
+                              })
+                              .ServerOperation(true)
+                              .Read(read => read.Action("GetMonthlyTourPlanDetailsListAsync", "SalesTourPlan").Data("additionalInfo"))))
+                    </div>
+                </div>
+                <div class="text-right marginT20">
+                    @if (Helper.CheckClaims(Claims.ManageSalesTourPlan))
+                    {
+                        <button type="button" id="btnSaveCategory" onclick="Submit()" class="k-primary custom-btns k-button">@Helper.GetResourceString("lbl_DeviationRequest") </button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@Html.Hidden("hdSelectedIds")
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+        // kendo grid filter contains
+        FilterContains();
+    });
+
+    function additionalInfo() {
+        var MTPId = 0;
+        if ($("#ddlMTP").data("kendoDropDownList").value().length > 0)
+            MTPId = $("#ddlMTP").data("kendoDropDownList").value();
+
+        return {
+            MTPId: MTPId
+        }
+    }
+
+    //Method to search delivery status
+    function Search() {
+        var deliveryGrid = $("#ViewMonthlyTourPlan").data("kendoGrid");
+        deliveryGrid.dataSource.read();
+    }
+
+    function db(e) {
+        var grid = this;
+        $(".templateCell").each(function () {
+            eval($(this).children("script").last().html());
+            var tr = $(this).closest('tr');
+            var item = grid.dataItem(tr);
+            kendo.bind($(this), item);
+
+            // get the index of the cell
+            var reasonIdCell = grid.wrapper.find(".k-grid-header [data-field=ReasonId]");
+            if (reasonIdCell.length > 0) {
+                var reasonIdIndex = parseInt(reasonIdCell[0].dataset.index);
+            }
+            var todealerIdCell = grid.wrapper.find(".k-grid-header [data-field=ToDealerId]");
+            if (todealerIdCell.length > 0) {
+                var todealerIdIndex = parseInt(todealerIdCell[0].dataset.index);
+            }
+            var RemarksCell = grid.wrapper.find(".k-grid-header [data-field=Remarks]");
+            if (RemarksCell.length > 0) {
+                var RemarksIndex = parseInt(RemarksCell[0].dataset.index);
+            }
+
+            var rows = e.sender.tbody.children();
+            for (var j = 0; j < rows.length; j++) {
+                var row = $(rows[j]);
+                var dataItem = e.sender.dataItem(row);
+                var ReasonId = dataItem.get("ReasonId");
+                var ToDealerId = dataItem.get("ToDealerId");
+                var Remarks = dataItem.get("Remarks");
+                var cellreasonId = row.children().eq(reasonIdIndex);
+                cellreasonId.addClass("editorColor");
+                var celldealerId = row.children().eq(todealerIdIndex);
+                celldealerId.addClass("editorColor");
+                var cellRemarks = row.children().eq(RemarksIndex);
+                cellRemarks.addClass("editorColor");
+            }
+        });
+    }
+    //Post data
+    function Submit() {
+		var form = $('#frmOrders')
+		var token = $('input[name="__RequestVerificationToken"]', form).val();
+        var gridData = $("#ViewMonthlyTourPlan").data("kendoGrid").dataSource.data();
+        var IsDataProposed = false;
+        var isError = false;
+        var errorMessage = "";
+
+        var months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+
+		if (gridData.length === 0) {
+			ShowErrorMessage( '@Helper.GetResourceString("msg_SelectAnyRecordToProceed")');
+
+        } else {
+            var jsonObj = [];
+            var selectedOrders = [];
+            selectedOrders = $("#hdSelectedIds").val().split(",");
+            for (var i = 0; i < selectedOrders.length; i++) {
+                $.each(gridData, function (idx2, val2) {
+                    if (val2.MTPDetailId == selectedOrders[i]) {
+
+                        //var arr = $("#FDPicker_" + val2.MTPDetailId).val().split("-");
+                        //var month = months.indexOf(arr[1].toLowerCase());
+                       // var revisedDate = new Date(parseInt(arr[2]), month, parseInt(arr[0]));
+
+                        var pcpValidFrom = new Date(val2.PCPValidFrom);
+                        var pcpValidTo = new Date(val2.PCPValidTo);
+                        pcpValidFrom = new Date(pcpValidFrom.getFullYear(), pcpValidFrom.getMonth(), pcpValidFrom.getDate());
+                        pcpValidTo = new Date(pcpValidTo.getFullYear(), pcpValidTo.getMonth(), pcpValidTo.getDate());
+                        //alert(pcpValidFrom.getDate());
+                        //alert(revisedDate + '-' + pcpValidFrom + '-' + pcpValidTo);
+                        //if (val2.ReasonId <=0 || $("#FDPicker_" + val2.MTPDetailId).val()=="")
+                        //{
+                        //    errorMessage='Please select revised date and reason';
+                        //    isError = true;
+                        //}
+                        //else if (!(revisedDate >= pcpValidFrom && revisedDate <= pcpValidTo)) {
+                        //    errorMessage = 'Please select revised date between the range ' + val2.PCPValidFromString.toString('dd-MMM-yyyy') + ' - ' + val2.PCPValidToString.toString('dd-MMM-yyyy');
+                        //    isError = true;
+                        //}
+                    }
+                });
+            }
+
+            for (var i = 0; i < selectedOrders.length; i++) {
+                $.each(gridData, function (idx2, val2) {
+                    if (val2.MTPDetailId == selectedOrders[i]) {
+                        item = {}
+                        item["MonthlyTourPlanDetailsId"] = val2.MTPDetailId;
+                        item["RevisedDate"] = $("#FDPicker_" + val2.MTPDetailId).val();
+                        item["Remarks"] = val2.Remarks;
+                        item["Reasons"] = val2.Reasons;
+                        item["ReasonId"] = val2.ReasonId;
+                        item["Dealer"] = val2.Dealer;
+                        item["ToDealerId"] = val2.ToDealerId;
+                        item["Dealer"] = val2.Dealer;
+                        item["InHQNoVisitName"] = val2.InHQNoVisitName;
+                        jsonObj.push(item);
+                        IsDataProposed = true;
+                    }
+                });
+            }
+
+            if (IsDataProposed == false) {
+                ShowErrorMessage('@Helper.GetResourceString("msg_SelectAnyRecordToProceed")');
+                return false;
+            }
+            if (isError == true) {
+                ShowErrorMessage(errorMessage);
+                return false;
+            }
+
+            var model = {
+                MonthlyPlanDeviationListDto: jsonObj
+            };
+
+            window.kendo.ui.progress($("#div_Progress"), true);
+			$.ajax({
+                url: "/SalesTourPlan/MonthlyTourPlanDeviation",
+				type: 'POST',
+                data: { __RequestVerificationToken: token, monthlyPlanDeviationViewModel: model },
+				success: function (result) {
+					window.kendo.ui.progress($("#div_Progress"), false);
+					if (result.PostStatus) {
+						var url = '@Url.Action("MonthlyTourPlanDeviationApproval", "SalesTourPlan")';
+							window.location.href = url;
+					} else {
+						ShowErrorMessage(result.PostMessage);
+						return false;
+					}
+				}
+			});
+		}
+
+    }
+
+    function getReasonId() {
+        var row = $(event.srcElement).closest("tr");
+        var grid = $(event.srcElement).closest("[data-role=grid]").data("kendoGrid");
+        var dataItem = grid.dataItem(row);
+
+        return { ReasonId: dataItem.ReasonId }
+    }
+
+    function getReasonName(e) {
+        if (e !== null) {
+            var name = "";
+            $.ajax({
+                type: "POST",
+                url: "/SalesTourPlan/GetReasonNameById",
+                dataType: "json",
+                data: "reasonId=" + e,
+                async: false,
+                success: function (result) {
+                    name = result;
+                },
+                error: function (result) {
+
+                }
+            });
+
+            return name;
+        }
+        return "";
+    }
+
+    function getDealerId() {
+        var row = $(event.srcElement).closest("tr");
+        var grid = $(event.srcElement).closest("[data-role=grid]").data("kendoGrid");
+        var dataItem = grid.dataItem(row);
+
+        return { ToDealerId: dataItem.ToDealerId}
+    }
+
+    function getDealerName(e) {
+        if (e !== null) {
+            var name = "";
+            $.ajax({
+                type: "POST",
+                url: "/SalesTourPlan/GetDealerNameById",
+                dataType: "json",
+                data: "dealerId=" + e,
+                async: false,
+                success: function (result) {
+                    name = result;
+                },
+                error: function (result) {
+
+                }
+            });
+
+            return name;
+        }
+        return "";
+    }
+
+    function onEdit(e) {
+        var dropDown = e.container.find("[data-role=dropdownlist]").data("kendoDropDownList");
+        if (dropDown) {
+            dropDown.bind("change", function (e) {
+                var grid = e.sender.wrapper.closest(".k-grid").data("kendoGrid");
+                var dataItem = grid.dataItem(e.sender.wrapper.closest("tr"));
+
+                //If current value is null
+                if (!dataItem.ReasonId) {
+                    //change the model value
+                    dataItem.ReasonId = 0;
+                    //get the currently selected value from the DDL
+                    var currentlySelectedValue = e.sender.value();
+                    //set the value to the model
+                    dataItem.set('ReasonId', currentlySelectedValue);
+                }
+                if (!dataItem.ToDealerId) {
+                    //change the model value
+                    dataItem.ToDealerId = 0;
+                    //get the currently selected value from the DDL
+                    var currentlySelectedValue = e.sender.value();
+                    //set the value to the model
+                    dataItem.set('ToDealerId', currentlySelectedValue);
+                }
+            });
+        }
+    }
+</script>
+
+<style>
+    .editorColor {
+        background-color: #10c4b2;
+        color: #ffffff
+    }
+</style>

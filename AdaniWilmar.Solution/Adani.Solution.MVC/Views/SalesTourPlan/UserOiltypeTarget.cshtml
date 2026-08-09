@@ -1,0 +1,199 @@
+﻿@using Kendo.Mvc.UI;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@model Adani.Solution.DTO.UserOilTypeTargetDto
+@{
+    ViewBag.Title = "UserOiltypeTarget";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="salestourplanUserOiltypeTarget" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_UserOiltypeTarget")</h2>
+    <div id="dateFilter" class="col-xs-9">
+
+        <div class="period-wrapper">
+
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <p class="content-group-lg"></p>
+
+            @using (Html.BeginForm("AddOrUpdateUserOiltypeTarget", "SalesTourPlan", FormMethod.Post, new { id = "frmUserOiltypeTarget", @class = "form-validate-jquery" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.Id)
+
+                <fieldset class="content-group">
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            @Helper.GetResourceString("lbl_BDO") <span class="text-danger">*</span>
+                        </div>
+                        <div class="col-md-4">
+                            @(Html.Kendo().DropDownListFor(m => m.AssignedToUserId)
+                                  .OptionLabel(@Helper.GetResourceString("plho_SelectUser"))
+                                  .DataTextField("Name")
+                                  .DataValueField("Id")
+                                  .DataSource(source => source.Read(read => read.Action("GetReportingToUsersByLoggedInUserId", "Role"))
+                                  .ServerFiltering(true))
+                                  .HtmlAttributes(new { id = "ddlBDO", tabindex = "1", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_BDO"), @style = "width:100%" }))
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            @Helper.GetResourceString("lbl_CalendarDuaration") <span class="text-danger">*</span>
+                        </div>
+                        <div class="col-md-4">
+                            @(Html.Kendo().DropDownListFor(m => m.FinancialYearId)
+                                  .OptionLabel(@Helper.GetPlaceHolderSelectMsg("lbl_Year"))
+                                  .DataTextField("Year")
+                                  .DataValueField("Id")
+                                  .DataSource(source => source.Read(read => read.Action("GetActiveFinancialYearListAsync", "SalesTourPlan"))
+                                  .ServerFiltering(true))
+                                  .HtmlAttributes(new { id = "ddlYear", tabindex = "2", onchange = "onchangeFinancialYear();", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_CalendarDuaration"), @class = "", @style = "width:100%" }))
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            @Helper.GetResourceString("lbl_Vertical") <span class="text-danger">*</span>
+                        </div>
+                        <div class="col-md-4">
+                            @(Html.Kendo().DropDownListFor(m => m.VerticalId)
+                                  .OptionLabel(@Helper.GetResourceString("plho_SelectVertical"))
+                                  .DataTextField("Name")
+                                  .DataValueField("Id")
+                                  .Events(e => e.Change("onVerticalTypeChange").DataBound("verticleDataBound"))
+                                  .DataSource(source => source.Read(resd => resd.Action("GetVerticalDetailsdd", "Lookup"))
+                                  .ServerFiltering(false))
+                                  .HtmlAttributes(new { id = "ddlVertical", tabindex = "3", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Vertical"), @style = "width:100%" }))
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            @Helper.GetResourceString("lbl_OilType")
+                        </div>
+                        <div class="col-md-4">
+                            @(Html.Kendo().DropDownListFor(m => m.OilTypeId)
+                                  .DataTextField("Name")
+                                  .DataValueField("Id")
+                                  .OptionLabel(@Helper.GetResourceString("plho_SelectOilType"))
+                                  .DataSource(source => source.Read(read => read.Action("GetOilTypesBasedOnVerticalId", "Lookup", new { isToReturnInactiveData = false }).Data("oilTypeAdditionalInfo"))
+                                  .ServerFiltering(true))
+                                  .HtmlAttributes(new { id = "ddlOilType", @class = "", tabindex = "4", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilType"), tabindex = "8", @style = "width:100%" }))
+                        </div>
+                    </div>
+                    <div id="dv_detail">
+                    </div>
+                    @{
+                        if (Model.UserOiltypeTargetDetail.Any())
+                        {
+                            if (Model.UserOiltypeTargetDetail.Count > 0)
+                            {
+                                <div id="dv_detailpartial">
+                                    @Html.Partial("_userOilTypeTargetPartial", Model)
+                                </div>
+                            }
+                        }
+                    }
+                </fieldset>
+                <div class="row form-group"> </div>
+                <div class="row form-group">
+                    <div class="col-md-12 text-center">
+                        <button type="button" tabindex = "5" id="btnCancel" onclick="location.href = '@Url.Action("UserOiltypeTargetList", "SalesTourPlan")'" class="k-button">Cancel</button>
+                        <button type="button" tabindex = "6" id="btnSave" class="k-primary k-button">@(Model != null && Model.Id == 0 ? @Helper.GetResourceString("btn_SaveUserOilTypeTarget") : @Helper.GetResourceString("btn_UpdateUserOilTypeTarget"))<i class="icon-arrow-right14 position-right"></i></button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script>
+	$(document).ready(function () {
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+  //      if ($("#ddlYear").data("kendoDropDownList").value() != "") {
+  //          onchangeFinancialYear();
+		//}
+        $("#btnSave").click(function (e) {
+            var isValid = $("#frmUserOiltypeTarget").valid();
+
+            $('input[type="text"].targetTextbox').each(function () {
+                if (this.value === 0) {
+                    isValid = false;
+                }
+            });
+
+            if (isValid) {
+                $('#frmUserOiltypeTarget').submit();
+            }
+		});
+	});
+
+    function onchangeFinancialYear() {
+        var errorFlag = false;
+		var errorMessage = "";
+
+        if ($("#ddlBDO").data("kendoDropDownList").value() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_BDO")');
+			errorFlag = true;
+		}
+        if ($("#ddlYear").data("kendoDropDownList").value() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_CalendarDuaration")');
+			errorFlag = true;
+		}
+
+		if (errorFlag) {
+			ShowErrorMessageLeftAlign(errorMessage);
+        } else {
+            var FinancialYearId = $("#ddlYear").data("kendoDropDownList").value();
+
+			$.ajax({
+                url: "/SalesTourPlan/GetOilTypeTargetMonthsByFinantialYear",
+				type: 'POST',
+                data: { financialYearId: FinancialYearId },
+                success: function (result) {
+					if (result !== null) {
+                        $("#dv_detail").html(result);
+					}
+				}
+			});
+		}
+
+    }
+
+     function onVerticalTypeChange() {
+        $("#ddlOilType").data("kendoDropDownList").dataSource.read();
+    }
+
+    //Verticle data onBound events
+    function verticleDataBound() {
+        if ('@Model.Id' > 0) {
+            $("#ddlOilType").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    function oilTypeAdditionalInfo() {
+        var verticalId = $("#ddlVertical").data("kendoDropDownList").value();
+        return {
+            verticalId: Number(verticalId)
+        };
+    }
+
+</script>
+
+

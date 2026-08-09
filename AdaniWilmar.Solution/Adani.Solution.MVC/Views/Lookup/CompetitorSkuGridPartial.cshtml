@@ -1,0 +1,140 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common
+@model Adani.Solution.DTO.CompetitorSkuInputDto
+
+@{
+    Layout = null;
+}
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvDealers">
+
+                @*<div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            @Helper.GetResourceString("lbl_VerticleType") <span class="text-danger">*</span>
+                        </div>
+                        <div class="col-md-4">
+                            @(Html.Kendo().DropDownList().Name("VerticleId")
+                          .OptionLabel("Select Vertical Type")
+                          .DataTextField("Name")
+                          .DataValueField("Id")
+                          .Events(e => e.Change("onVerticalTypeChange"))
+                          .DataSource(source => source.Read(resd => resd.Action("GetVerticalDetailsdd", "Lookup"))
+                          .ServerFiltering(false))
+                          .HtmlAttributes(new { id = "ddVerticalType", tabindex = "8", @class = "form-control", data_msg_required = Helper.GetSelectMsgRequired("lbl_VerticleType"), @style = "width:100%" }))
+
+                        </div>
+                    </div>*@
+
+                <div class="row form-group">
+                    <div class="col-md-4 text-right">
+                        @Helper.GetResourceString("lbl_OilType") <span class="text-danger">*</span>
+                    </div>
+                    <div class="col-md-4">
+                        @*@(Html.Kendo().MultiSelect()
+                            .Name("OilTypeId")
+                            .DataTextField("Name")
+                            .DataValueField("Id")
+                            .Events(e => e.Change("oiltypeChange"))
+                            .DataSource(source => source.Read(r => r.Action("GetOilTypesBasedOnVerticalId", "Lookup").Data("oilTypeAdditionalInfo")))
+                            .HtmlAttributes(new { id = "ddlOiltype", @class = "", tabindex = "9", @style = "width:100%" }))*@
+                        @(Html.Kendo().MultiSelect()
+                           .Name("SelectedOilTypeIds")
+                           .DataTextField("OilName")
+                           .DataValueField("OilTypeId")
+                           .Events(e => e.Change("oiltypeChange").DataBound("oilTypeDataBound"))
+                           .DataSource(source => source.Read(r => r.Action("GetOilTypes", "Lookup")))
+                           .HtmlAttributes(new { id = "ddlOiltype", @class = "", tabindex = "9", @style = "width:100%" }))
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="text-right">
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    </div>
+                    @(Html.Kendo().Grid<Adani.Solution.DTO.SkuDto>()
+                                     .Name("ViewCompetitorSku")
+                                     .Columns(columns =>
+                                     {
+                                         columns.Bound(c => c.Id).Visible(false);
+                                         columns.Template(@<text></text>).ClientTemplate("<div class='text-center'><input type='checkbox' #=IsChecked ? checked='checked' :'' # class='chkbxAllDealer' value=#=Id# onclick=\"findCheckedItemsSaveItToHidden(this,'#=Id#','hdSelecteSkuIds','masterCBAllDealer','chkbxAllDealer','lblSkuSelectedCount','');\" /></div>").HeaderTemplate("<div class='text-center'><input type='checkbox' id='masterCBAllDealer' onclick=\"masterfindCheckedItemsSaveItToHidden(this,'hdSelecteSkuIds','chkbxAllDealer','lblSkuSelectedCount','')\" /></div>").Width("40px");                                         
+                                         columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                         columns.Bound(c => c.SkuName).Title(@Helper.GetResourceString("lbl_SkuName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                         columns.Bound(c => c.DepotCode).Title(@Helper.GetResourceString("lbl_DepotCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                         columns.Bound(c => c.DepotName).Title(@Helper.GetResourceString("lbl_DepotName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                         columns.Template(c => c.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Active")).ClientTemplate(@"<div style='text-align: center;'>#if(IsActive){#<i class='icon-checkbox-checked2 faicon-green'></i>#}else{#<i class='icon-cancel-square2 faicon-red'></i>#}#</div>").Width(Settings.GridColumnMaxWidth);
+                                     })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Selectable(selectable => selectable
+                          .Mode(GridSelectionMode.Multiple)
+                          .Type(GridSelectionType.Row))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))                          
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Model(model => model.Id(m => m.Id))
+                          .ServerOperation(true)
+                          .Read(read => read.Action("GetSkuBasedOnOilTypes", "Lookup").Data("additionalParam"))))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    //function additionalParam() {
+    //    
+    //    var param = {
+    //        isToReturnInactiveData: true,
+    //        OilTypeIds: [0, 12]
+    //    }
+    //    return {
+    //        inputDto: param
+    //    }
+    //}
+
+    //Verticle data onBound events
+    //function verticleDataBounted() {
+    //    $("#ddlOiltype").data("kendoMultiSelect").dataSource.read();
+    //}
+
+    //function onVerticalTypeChange() {
+    //    
+    //    $("#ddlOiltype").data("kendoMultiSelect").dataSource.read();
+    //}
+
+    //function onOiltypeChange() {
+    //    $("#ddlSku").data("kendoDropDownList").dataSource.read();
+    //}
+
+    //function oilTypeAdditionalInfo() {
+    //    var verticleId = $("#ddVerticalType").data("kendoDropDownList").value();
+    //    return {
+    //        verticalId: Number(verticleId)
+    //    }
+    //}
+
+    //Oil Type change event
+    //function oiltypeChange() {
+    //    $("#ViewCompetitorSku").data("kendoGrid").dataSource.read();
+    //}
+
+    //Grid additional param
+    //function additionalParam() {
+    //    return {
+    //        isToReturnInactiveData: true,
+    //        oilTypeIds:[1,2]
+    //    }
+    //}
+</script>

@@ -1,0 +1,112 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO
+@using Adani.Solution.DTO.Enums
+@model UserLoginHistoryDto
+@{
+    ViewBag.Title = "UserLoginHistory";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="reportSaudaOrderDetails" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">Login History Report</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Report</a><span class="icon-right"></span></li>
+        <li class="active">User Login History Report<span class="icon-right"></span></li>
+    </ol>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvSpecialRate">
+
+                <div class="row form-group">
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <label class="custom_label">
+                            @Helper.GetResourceString("lbl_FromDate")
+                        </label>
+                        @(Html.Kendo().DatePicker()
+                              .Name("StartDate")
+                              .Format(Settings.DateFormat)
+                              .Events(e => e.Change("fromDateChange"))
+                              .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                    </div>
+                    <div class="col-lg-3 col-sm-6 mb-3 ">
+                        <label class="custom_label"> @Helper.GetResourceString("lbl_ToDate") </label>
+                        @(Html.Kendo().DatePicker()
+                              .Name("EndDate")
+                              .Format(Settings.DateFormat)
+                              .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "2", style = "width: 100%" }))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-12 text-right">
+                        <button type="button" tabindex="4" id="btnGenerateReport" class="k-primary k-button custom-btns">Generate Report </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        setFromToDateRange("StartDate", "EndDate", emamiGlobal.constant.ReportDateRange);
+        $("#btnGenerateReport").click(function () {
+            downloadSaudaReport();
+        });
+    });
+
+    function fromDateChange() {
+        var startDate = $("#StartDate").data("kendoDatePicker").value();
+        if (startDate) {
+            startDate = new Date(startDate);
+            var endPicker = $("#EndDate").data("kendoDatePicker");
+            $("#EndDate").val(kendo.toString(startDate, emamiGlobal.constant.DateFormat));
+            endPicker.min(startDate);
+            setToDateRangeBasedOnFromDate(startDate, "EndDate", emamiGlobal.constant.IndentDateRange);
+        }
+    }
+
+    function downloadSaudaReport() {
+        var startDate = $("#StartDate").val();
+        //if (!startDate) {
+        //    ShowErrorMessage("Please select Start Date");
+        //    return;
+        //}
+        //if (!endDate) {
+        //    ShowErrorMessage("Please select EndDate Date");
+        //    return;
+        //}
+        var endDate = $("#EndDate").data("kendoDatePicker").value() || startDate;
+
+        window.kendo.ui.progress($("#div_Progress"), true);
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("UserLoginHistoryReport", "Report")',
+            data: {
+                fromDate: kendo.toString(startDate, "yyyy-MM-dd"),
+                toDate: kendo.toString(endDate, "yyyy-MM-dd"),
+            },
+            success: function (response) {
+                if (response && response.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Pricing")?fileGuid=' + response.FileGuid + "&fileName=" + response.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (xhr, status, error) {
+                ShowErrorMessage("Failed to generate report: " + error);
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+</script>

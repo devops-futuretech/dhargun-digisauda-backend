@@ -1,0 +1,136 @@
+﻿@using Adani.Solution.DTO;
+@using Adani.Solution.MVC.Helpers;
+@model SalesTourPlanPcpHistoryDto
+
+@if (Model.PostStatus)
+{
+    if (Model.DealerName != "")
+    {
+        <div class="row form-group">
+            <div class="col-md-4 text-right">
+                @Helper.GetResourceString("lbl_Dealer")
+            </div>
+            <div class="col-md-4">
+                @Model.DealerName
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row form-group">
+            <div class="col-md-4 text-right">
+                @Helper.GetResourceString("lbl_HQNoVisit")
+            </div>
+            <div class="col-md-4">
+                @Model.InHQNoVisitName
+            </div>
+        </div>
+    }
+
+    <div class="row form-group">
+        <div class="col-md-4 text-right">
+            @Helper.GetResourceString("lbl_Year")
+        </div>
+        <div class="col-md-4">
+            @Model.FinancialYear
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-md-4 text-right">
+            @Helper.GetResourceString("lbl_EffectiveFrom")
+        </div>
+        <div class="col-md-4">
+            @Helper.DateTimeFormat(@Model.EffectiveFrom)
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-md-4 text-right">
+            @Helper.GetResourceString("lbl_EffectiveTo")
+        </div>
+        <div class="col-md-4">
+            @Helper.DateTimeFormat(@Model.EffectiveTo)
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-md-4 text-right">
+            @Helper.GetResourceString("lbl_State")
+        </div>
+        <div class="col-md-4">
+            @Model.State
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-md-4 text-right">
+            @Helper.GetResourceString("lbl_Territory")
+        </div>
+        <div class="col-md-4">
+            @Model.Territory
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-md-4 text-right">
+            @Helper.GetResourceString("lbl_District")
+        </div>
+        <div class="col-md-4">
+            @Model.District
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-md-4 text-right">
+            @Helper.GetResourceString("lbl_City")
+        </div>
+        <div class="col-md-4">
+            @Model.City
+        </div>
+    </div>
+    if (Model.DealerName != "")
+    {
+        <div class="row form-group">
+            <div class="col-md-4 text-right">
+                @Helper.GetResourceString("lbl_NoOfSubDealer")
+            </div>
+            <div class="col-md-4">
+                @Model.NoofSubDealer
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <div class="col-md-4 text-right">
+                @Helper.GetResourceString("lbl_NoOfWholeSeller")
+            </div>
+            <div class="col-md-4">
+                @Model.NoOfWholeSeller
+            </div>
+        </div>
+        }
+        <div class="row form-group">
+            <div class="col-md-4 text-right">
+                @Helper.GetResourceString("lbl_NoOfVisit")
+            </div>
+            <div class="col-md-4">
+                @Model.NoOfVisit
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-4 text-right">
+                @Helper.GetResourceString("lbl_Remarks")
+            </div>
+            <div class="col-md-4">
+                @Model.Remarks
+            </div>
+        </div>
+}
+else
+{
+        <div class="row form-group">
+            <div class="col-md-4">
+                No Previous History
+            </div>
+        </div>
+    }

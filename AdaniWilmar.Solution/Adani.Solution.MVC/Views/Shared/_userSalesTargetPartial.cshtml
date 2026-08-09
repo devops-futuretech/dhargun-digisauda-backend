@@ -1,0 +1,99 @@
+﻿@using Kendo.Mvc.UI;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@model Adani.Solution.DTO.UserSalesTargetDto
+@{
+    Layout = null;
+}
+<div class="row">
+    <div class="col-md-12">
+        @*<div class="row" style="margin: 10px;">
+            <div class="col-md-12">
+                <div class="col-md-2">
+                    <b>@Helper.GetResourceString("lbl_Month")</b>
+                </div>
+                <div class="col-md-3">
+                    <b>@Helper.GetResourceString("lbl_SalesTarget")</b>
+                </div>
+                <div class="col-md-3">
+                    <b>@Helper.GetResourceString("lbl_SaudaTarget")</b>
+                </div>
+            </div>
+        </div>*@
+
+
+        <table>
+            <thead>
+            </thead>
+            <tbody>
+                <tr>
+                    @if (Model.UserSalesTargetDetail.ToList().Count > 0)
+                    {
+                        for (var i = 0; i < Model.UserSalesTargetDetail.ToList().Count; i++)
+                        {
+                            <th style="padding-right: 20px;">@Html.DisplayFor(m => m.UserSalesTargetDetail[i].MonthAndYear)</th>
+                            <th></th>
+                        }
+                    }
+                </tr>
+                <tr>
+                    @if (Model.UserSalesTargetDetail.ToList().Count > 0)
+                    {
+                        for (var i = 0; i < Model.UserSalesTargetDetail.ToList().Count; i++)
+                        {
+                            var hdnMonthId = "hdnMonthId" + i;
+                            var hdnId = "hdnId" + i;
+                            var hdnYear = "hdnYear" + i;
+                            @Html.HiddenFor(m => m.UserSalesTargetDetail[i].MonthId, new { id = @hdnMonthId })
+                            @Html.HiddenFor(m => m.UserSalesTargetDetail[i].Id, new { id = @hdnId })
+                            @Html.HiddenFor(m => m.UserSalesTargetDetail[i].Year, new { id = @hdnYear })
+                            var txtSalesTargetid = "txtSalesTarget" + i;
+
+                            <th style="padding-right: 20px;">
+                                @Html.TextBoxFor(m => m.UserSalesTargetDetail[i].SalesTarget, new { id = @txtSalesTargetid, @class = "k-textbox", @maxlength = (int)InputMaxLength.String })
+                            </th>
+                            <th></th>
+
+                        }
+                    }
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="row" style="margin: 10px;"></div>
+            @*@if (Model.UserSalesTargetDetail.ToList().Count > 0)
+            {
+                for (var i = 0; i < Model.UserSalesTargetDetail.ToList().Count; i++)
+                {
+                    var hdnMonthId = "hdnMonthId" + i;
+                    var hdnId = "hdnId" + i;
+                    var labelMonthId = "lblMonth" + i;
+                    var txtSalesTargetid = "txtSalesTarget" + i;
+                    var txtSaudaTargetid = "txtSaudaTarget" + i;
+                    <div class="row" style="margin: 10px;">
+                        <div class="col-md-12">
+                            <div class="col-md-2">
+                                <label class="control-label">@Model.UserSalesTargetDetail[i].Month</label>
+                                @Html.HiddenFor(m => m.UserSalesTargetDetail[i].MonthId, new { id = @hdnMonthId })
+                                @Html.HiddenFor(m => m.UserSalesTargetDetail[i].Id, new { id = @hdnId })
+                            </div>
+                            <div class="col-md-3">
+                                @Html.TextBoxFor(m => m.UserSalesTargetDetail[i].SalesTarget, new { id = @txtSalesTargetid, @class = "k-textbox", @maxlength = (int)InputMaxLength.String })
+                            </div>
+                            <div class="col-md-3">
+                                @Html.TextBoxFor(m => m.UserSalesTargetDetail[i].SaudaTarget, new { id = @txtSaudaTargetid, @class = "k-textbox", @maxlength = (int)InputMaxLength.String })
+                            </div>
+                        </div>
+                    </div>
+                }
+            }*@
+        </div>
+    </div>
+<script>
+    $(document).ready(function () {
+
+    });
+
+</script>
+

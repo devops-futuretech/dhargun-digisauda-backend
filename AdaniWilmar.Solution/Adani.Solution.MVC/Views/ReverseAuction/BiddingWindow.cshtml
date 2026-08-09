@@ -1,0 +1,121 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@{
+    ViewBag.Title = "BiddingWindow";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="configurationBitWindow" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_BiddingWindow")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Configurations</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_BiddingWindow")<span class="icon-right"></span></li>
+    </ol>
+    @*<div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            @if (Helper.CheckClaims(Claims.ManageBiddingWindow))
+            {
+                <a href="@Url.Action("BiddingWindowTiming", "ReverseAuction")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateBiddingWindowTiming")</a>
+            }
+        </div>
+    </div>*@
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        @*<div class="panel-heading">
+        </div>*@
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvDealers">
+                <div class="col-md-12">
+                    <div class="text-right right-buttons">
+                    
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                        <div class="period-wrapper">
+                            @if (Helper.CheckClaims(Claims.ManageBiddingWindow))
+                            {
+                                <a href="@Url.Action("BiddingWindowTiming", "ReverseAuction")" class="k-primary k-button"><b><i class="icon-plus"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateBiddingWindowTiming")</a>
+                            }
+                        </div>
+                    </div>
+                    @(Html.Kendo().Grid<BiddingWindowTimingDto>()
+                          .Name("ViewBiddingWindow")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.Id).Visible(false);
+                              columns.Bound(c => c.Id).Title("Edit").HeaderTemplate("").Title("Action").ClientTemplate("<div style='text-align: center;'><a   title='" + @Helper.GetResourceString("msg_Edit") + "' class='icon-pencil cursor-pointer' href='" + Url.Action("BiddingWindowTimingEdit", "ReverseAuction", new { BidWindowId = "#=Id#" }) + "' ></a></div>").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.Date).Format(Settings.GridDateFormat).Title("Bidding Date");
+                              columns.Bound(c => c.FromTimeString).Title("From Hour");
+                              columns.Bound(c => c.ToTimeString).Title("To Hour");
+                          })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Selectable(selectable => selectable
+                          .Mode(GridSelectionMode.Multiple)
+                          .Type(GridSelectionType.Row))
+                          .Events(events => events.DataBound("onDealerListDataBound"))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .Resizable(resize => resize.Columns(true))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Model(model => { model.Id(p => p.Id); })
+                          .ServerOperation(true)
+                          .Read(read => read.Action("GetBiddingWindowDetails", "ReverseAuction", new { isToReturnInactiveData = true }))))
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header" style="font-size:16px;color:#fff;">
+                    <button type="button" class="close" data-dismiss="modal" style="font-size: 26px;color:#fff;">&times;</button>
+                    <h4 class="modal-title">Notes:</h4>
+                </div>
+                <div class="modal-body" style="font-size: 14px;line-break: normal;line-height: 2.5;">
+                    <p>
+                        1. Last Window needs to be enabled for a day.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+
+        //$('#myModal').modal({
+        //    show: 'true'
+        //});
+
+        // kendo grid filter contains
+        FilterContains();
+
+         if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+		}
+    });
+
+    //Method to data bound event for dealer List
+    function onDealerListDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+</script>
+
+
+
+
+

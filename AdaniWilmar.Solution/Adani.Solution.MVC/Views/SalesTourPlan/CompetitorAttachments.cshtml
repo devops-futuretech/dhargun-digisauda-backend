@@ -1,0 +1,25 @@
+﻿@using Kendo.Mvc.UI
+@model List<Adani.Solution.DTO.AttachmentFileDto>
+@{
+    Layout = null;
+}
+
+<div class="row">
+    <div class="col-md-12">
+        
+            @if (Model.ToList().Count > 0)
+            {
+                var index = 1;
+                foreach (var item in Model.ToList())
+                {
+                    var mediaDivId = "media" + index++;
+                    <div id="@mediaDivId" class="col-md-2 media-box">
+                        <a class="Info" href="@item.FileUrl" target="_blank"> <i class="icon-eye cursor-pointer faicon-red"></i> </a>
+                        <img src="@item.FileUrl" width="200" height="200" />
+                    </div>
+                    
+                }
+            }
+        
+    </div>
+</div>

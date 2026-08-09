@@ -1,0 +1,184 @@
+﻿@using Adani.Solution.DTO;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.MVC.Helpers;
+@using System.Security.Claims
+@using System.Linq;
+@using Adani.Solution.DTO.Enums;
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewBag.Title - @Helper.GetResourceString("msg_EmamiBrowserTitle")</title>
+    @{ var version = ConfigHelper.Version;}
+    <link rel="icon" type="image/x-icon" href="~/images/emamilogo.png">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700,900" rel="stylesheet" type="text/css">
+    <link href="~/Content/icons/icomoon/styles.css?v=@version" rel="stylesheet" type="text/css">
+    <link href="~/Content/bootstrap.css?v=@version" rel="stylesheet" type="text/css">
+    <link href="~/Content/Site.css?v=@version" rel="stylesheet" type="text/css">
+    <link href="~/Content/Style.css?v=@version" rel="stylesheet" type="text/css">
+    <link href="~/Content/Menu.css?v=@version" rel="stylesheet" type="text/css">
+
+    <link href="~/Content/Kendo/kendo.all.css?v=@version" rel="stylesheet" type="text/css">
+    @Scripts.Render("~/bundles/jquery")
+
+    <script type="text/javascript" src="~/Scripts/validate.min.js?v=@version"></script>
+
+    <script type="text/javascript" src="~/Scripts/bootstrap.js?v=@version"></script>
+    <script type="text/javascript" src="~/Scripts/menu.js?v=@version"></script>
+    <script type="text/javascript" src="~/Scripts/emamiCommon.js"></script>
+    <script type="text/javascript" src="~/Scripts/globalSettings.js?v=@version"></script>
+    <script type="text/javascript" src="~/Scripts/form.validation.js?v=@version"></script>
+
+    <script type="text/javascript" src="~/Scripts/Kendo/kendo.all.min.js?v=@version"></script>
+    <script type="text/javascript" src="~/Scripts/Kendo/kendo.aspnetmvc.min.js?v=@version"></script>
+    <script type="text/javascript" src="~/Scripts/Kendo/jszip.js?v=@version"></script>
+    <script type="text/javascript" src="~/Scripts/moduleCommon.js?v=@version"></script>
+</head>
+
+<body class="pace-done">
+    @{
+        var username = string.Empty;
+        var profileName = string.Empty;
+        var profileUrl = string.Empty;
+        var userid = string.Empty;        
+        var controllerName = "MailRedirect";
+        var actionName = "ApproveSaudha";
+        //if (HttpContext.Current.User != null)
+        //{
+        //    var identity = (ClaimsIdentity)HttpContext.Current.User.Identity;
+        //    username = identity.FindFirst("Username")?.Value;
+        //    userid = identity.FindFirst("UserId")?.Value;
+        //    roleId = Convert.ToInt32(identity.FindFirst("RoleId")?.Value);
+        //    profileName = identity.FindFirst("ProfileName")?.Value;
+        //    profileUrl = Settings.DefaultProfileImageUrl;
+
+        //    // if (roleId == (int)Role.System)
+        //    // {
+        //    //     controllerName = "Home";
+        //    //     actionName = "DataUpload";
+        //    // }
+        //}
+    }
+
+    <!-- Main navbar -->
+    <div class="navbar navbar-inverse">
+        <div class="navbar-header">
+            <a class="navbar-brand title-color navbar-fontsize" href="@Url.Action(actionName,controllerName)"><img src="~/images/emamilogo.png" alt=""></a>
+            <ul class="nav navbar-nav visible-xs-block">
+                <li><a data-toggle="collapse" data-target="#navbar-mobile"><i class="icon-tree5"></i></a></li>
+                <li><a class="sidebar-mobile-main-toggle"><i class="icon-paragraph-justify3"></i></a></li>
+            </ul>
+
+        </div>
+        <div class="navbar-collapse collapse" id="navbar-mobile">
+            <ul class="nav navbar-nav">
+                @*<li><a class="sidebar-control sidebar-main-toggle hidden-xs"><i class="icon-paragraph-justify3"></i></a></li>*@
+                <li class="dropdown">
+                    <div class="dropdown-menu dropdown-content">
+                        <div class="dropdown-content-heading">
+                            Git updates
+                            <ul class="icons-list">
+                                <li><a href="#"><i class="icon-sync"></i></a></li>
+                            </ul>
+                        </div>
+                        <div class="dropdown-content-footer">
+                            <a href="#" data-popup="tooltip" title="All activity"><i class="icon-menu display-block"></i></a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <div class="nav navbar-nav navbar-fontsize" style="margin: 15px 16%;">Digital Sauda Application  <span style="padding-left: 33px; color: red;">Under Development</span></div>
+
+        </div>
+    </div>
+    <!-- /main navbar -->
+    <!-- Page container -->
+    <div class="page-container">
+        <!-- Page content -->
+        <div class="page-content">
+            <!-- Main sidebar -->
+           
+            @Html.Hidden("hdnIsValidIMEI_msg", @Helper.GetResourceString("msg_InValidIEMI"))
+            <!-- /main sidebar -->
+            <!-- Main content -->
+            <div class="content-wrapper" id="div_Progress">
+
+                <div id="dvAlert"> </div>
+                <!-- Content area -->
+                @RenderBody()
+                <!-- Footer -->
+                <div class="footer text-muted">
+
+                </div>
+                <!-- /footer -->
+                <!-- /content area -->
+            </div>
+            <!-- /main content -->
+        </div>
+        <!-- /page content -->
+    </div>
+    <!-- /page container -->
+    @*dirty tracking confirmation popup*@
+    <div id="confirmationPopoup" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close model-header-color" data-dismiss="modal">&times;</button>
+                    <h6 class="panel-title model-header-color"><span class="text-semibold">@Helper.GetResourceString("lbl_dirtyConfirmationHeader")</span></h6>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            @Helper.GetResourceString("msg_dirtyConfirmationMessage")
+                            @*You have pending unsaved changes. If you navigate away from this page without first saving your data, the changes will be lost.*@
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btnDirtyOk" type="button" class="k-button" data-dismiss="modal">Ok</button>
+                    <button id="btnDirtyCancel" type="button" onclick="popupClose();" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Cancel")</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle=offcanvas]').click(function () {
+                $('.row-offcanvas').toggleClass('active');
+            });
+
+            isFormChanged('isNotChanged');
+
+            $("#layoutMenu").on("click", "a", function (event) {
+                event.preventDefault();
+                if ($(this).attr("href")) {
+                    isFormChangeOrNot($(this).attr("href"));
+                }
+            });
+
+            $("#btnDirtyOk").click(function () {
+                isFormChanged('isNotChanged');
+                window.location.href = $("#btnDirtyOk").val();
+            });
+
+        });
+
+    </script>
+    <style>
+        .k-grid-pager {
+            padding: 1px !important;
+        }
+
+        .modal-dialog {
+            width: 70%;
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,241 @@
+﻿@using Kendo.Mvc.UI;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@model Adani.Solution.MVC.Models.HeadQuartersViewModel
+@{
+    ViewBag.Title = Helper.GetResourceString("msg_Headquarters");
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="masterHeadquarters" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("msg_Headquarters")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Masters</a><span class="icon-right"></span></li>
+        <li><a href="Headquarters">@Helper.GetResourceString("msg_Headquarters")</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("msg_Headquarters")<span class="icon-right"></span></li>
+    </ol>
+    <div id="dateFilter" class="col-xs-9">
+
+        <div class="period-wrapper">
+
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <p class="content-group-lg"></p>
+
+            @using (Html.BeginForm("Headquarter", "SalesTourPlan", FormMethod.Post, new { id = "frmHeadquarters", @class = "form-validate-jquery" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.Id)
+                <fieldset class="content-group">
+
+                    <div class="row form-group">
+
+                        <div class="col-lg-3 col-sm-6 mb-3">
+                            <label class="custom_label">  @Helper.GetResourceString("lbl_Zone") <span class="text-danger">*</span> </label>
+                            @(Html.Kendo().DropDownListFor(m => m.ZoneId)
+                                     .OptionLabel(@Helper.GetResourceString("plho_SelectZone"))
+                                     .DataTextField("Name")
+                                     .DataValueField("Id")
+                                     .Events(e => e.Change("onZoneChange"))
+                                     .DataSource(source => source.Read(read => read.Action("GetZoneListddl", "Lookup", new { isToReturnInactiveData = false }))
+                                     .ServerFiltering(false))
+                                     .HtmlAttributes(new { id = "ddlZone", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Zone"), @style = "width:100%" }))
+                        </div>
+
+                        <div class="col-lg-3 col-sm-6 mb-3">
+                            <label class="custom_label"> @Helper.GetResourceString("lbl_State") <span class="text-danger">*</span> </label>
+                            @(Html.Kendo().DropDownListFor(m => m.StateId)
+                                      .OptionLabel(@Helper.GetResourceString("plho_SelectState"))
+                                      .Events(events => events.Change("onStateChange").DataBound("OnStateDataBound"))
+                                      .DataTextField("StateName")
+                                      .DataValueField("StateId")
+                                      .DataSource(source => source.Read(read => read.Action("GetZoneMappedStatesddl", "Lookup").Data("stateLoadParam"))
+                                      .ServerFiltering(false))
+                                      .HtmlAttributes(new { id = "ddlState", @class = "", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_State"), @style = "width:100%" }))
+                        </div>
+
+                        <div class="col-lg-3 col-sm-6 mb-3">
+                            <label class="custom_label"> @Helper.GetResourceString("lbl_Territory") <span class="text-danger">*</span> </label>
+                            @(Html.Kendo().DropDownListFor(m => m.TerritoryId)
+                                   .OptionLabel(@Helper.GetResourceString("plho_SelectTerritory"))
+                                   .DataTextField("Name")
+                                   .DataValueField("Id")
+                                   .Events(e => e.Change("territoryChange").DataBound("OnTerritoryDataBound"))
+                                   .DataSource(source => source.Read(read => read.Action("GerTerritoryStateBase", "Lookup").Data("territoryAdditionalInfo"))
+                                   .ServerFiltering(false))
+                                   .HtmlAttributes(new { id = "ddlTerritory", @class = "", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Territory"), @style = "width:100%" }))
+                        </div>
+
+                        <div class="col-lg-3 col-sm-6 mb-3">
+                            <label class="custom_label">   @Helper.GetResourceString("lbl_District") <span class="text-danger">*</span> </label>
+                            @(Html.Kendo().DropDownListFor(m => m.DistrictId)
+                                     .OptionLabel(@Helper.GetResourceString("plho_SelectDistrict"))
+                                     .Events(events => events.Change("onDistrictChange").DataBound("OnDistrictDataBound"))
+                                     .DataTextField("DistrictName")
+                                     .DataValueField("DistrictId")
+                                     .DataSource(source => source.Read(read => read.Action("GetDistrictListBaseTerritory", "Lookup").Data("additionalDistrictByStateInfo"))
+                                     .ServerFiltering(false))
+                                     .HtmlAttributes(new { id = "ddlDistrict", @class = "", tabindex = "4", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_District"), @style = "width:100%" }))
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <label class="custom_label">  @Helper.GetResourceString("lbl_City") <span class="text-danger">*</span> </label>
+                        @(Html.Kendo().DropDownListFor(m => m.CityId)
+                                      .OptionLabel(@Helper.GetResourceString("plho_SelectCity"))
+                                      .DataTextField("CityName")
+                                      .DataValueField("CityId")
+                                      .Events(e => e.Change("CityNameChanged"))
+                                      .DataSource(source => source.Read(read => read.Action("GetCityListByDistrictName", "Lookup").Data("additionalCityByDistrictInfo"))
+                                      .ServerFiltering(false))
+                                      .HtmlAttributes(new { id = "ddlCity", @class = "", tabindex = "5", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_City"), @style = "width:100%" }))
+                    </div>
+
+                    @Html.HiddenFor(h => h.Name, new { id = "txtName" })
+                    @*<div class="row form-group">
+                            <label class="control-label col-lg-4">@Helper.GetResourceString("lbl_Name")</label>
+                            <div class="col-lg-6">
+                                @Html.TextBoxFor(m => m.Name, new { id = "txtName", required = "required", @class = "k-textbox", data_msg_required = Helper.GetMsgRequired("lbl_Name"), @maxlength = (int)InputMaxLength.String })
+                            </div>
+                        </div>*@
+
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <label class="control-label ">@Helper.GetResourceString("lbl_Address")</label>
+
+                        @Html.TextAreaFor(m => m.Address, new { id = "txtAddress", tabindex = "6", required = "required", @class = "k-textarea", data_msg_required = Helper.GetMsgRequired("lbl_Address"), @maxlength = (int)InputMaxLength.MaxTextLength })
+
+                    </div>
+
+                    <div class="col-lg-3 col-sm-6 mb-3">
+                        <label class="custom_label">Status</label>
+                        <div class="custom_checkbox_main">
+                            <label class="custom_checkbox">
+                                @Html.CheckBoxFor(m => m.IsActive, new { id = "cbActiveInactive", tabindex = "2" })
+                                <span class="checkmark check_tick"></span>
+                                <span class="label-title">@Helper.GetResourceString("lbl_Active")</span>
+                            </label>
+                        </div>
+
+                    </div>
+                </fieldset>
+
+                <div class="text-right">
+                    <button type="button" tabindex="9" id="btnCancel" onclick="location.href = '@Url.Action("Headquarters", "SalesTourPlan")'" class="k-button k-cancel custom-btns">@Helper.GetResourceString("btn_Cancel")</button>
+                    @if (Helper.CheckClaims(Claims.ManageMaster))
+                    {
+                        <button type="button" tabindex="8" id="btnSaveCategory" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Save") </button>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script>
+	$(document).ready(function () {
+		 if ('@Model.PostMessage' !== ""){
+			   if ('@Model.PostStatus' === '@true') {
+					ShowSuccessMessage('@Model.PostMessage');
+				} else {
+				   ShowErrorMessage('@Model.PostMessage');
+				}
+		}
+
+
+         $("#btnSaveCategory").click(function (e) {
+			formSubmit();
+		});
+	});
+
+    function formSubmit() {
+        $('#frmHeadquarters').submit();
+        var isValid = $("#frmHeadquarters").valid();
+		if (isValid) {
+			// Animate loader
+			window.kendo.ui.progress($("#div_Progress"), true);
+		}
+	}
+
+
+    //Zone
+    function onZoneChange() {
+        $("#ddlState").data("kendoDropDownList").dataSource.read();
+    }
+
+    function stateLoadParam() {
+        var zoneId = $("#ddlZone").data("kendoDropDownList").value();
+        return {
+            zoneId: zoneId
+        }
+    }
+
+    //Territory
+    function territoryAdditionalInfo() {
+        return {
+            stateId: Number($("#ddlState").val())
+        }
+    }
+
+    function territoryChange() {
+        $("#ddlDistrict").data("kendoDropDownList").dataSource.read();
+    }
+
+    function OnTerritoryDataBound() {
+        var territoryId = Number($("#ddlTerritory").val());
+        if (territoryId > 0) {
+            $("#ddlDistrict").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    function additionalDistrictByStateInfo() {
+        return {
+            territoryId: Number($("#ddlTerritory").val())
+        };
+    }
+
+    function additionalCityByDistrictInfo() {
+        var districtId = $("#ddlDistrict").data("kendoDropDownList").value();
+        return {
+            districtId: districtId
+        };
+    }
+
+    function onStateChange(e) {
+        $("#ddlTerritory").data("kendoDropDownList").dataSource.read();
+    }
+
+    function onDistrictChange(e) {
+        $("#ddlCity").data("kendoDropDownList").dataSource.read();
+    }
+
+    function OnStateDataBound(e) {
+        var stateId = $("#ddlState").data("kendoDropDownList").value();
+        if (stateId > 0) {
+            $("#ddlTerritory").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    function OnDistrictDataBound(e) {
+        var districtId = $("#ddlDistrict").data("kendoDropDownList").value();
+        if (districtId > 0) {
+            $("#ddlCity").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    function CityNameChanged() {
+        var cityName = $("#ddlCity").data("kendoDropDownList").text();
+        $("#txtName").val(cityName);
+    }
+
+</script>

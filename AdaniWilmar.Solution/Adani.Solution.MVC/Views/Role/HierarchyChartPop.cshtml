@@ -1,0 +1,159 @@
+﻿@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.DTO.Enums;
+@using Kendo.Mvc.UI;
+<style type="text/css">
+    table {
+        border-collapse: initial !important;
+        border-spacing: 0;
+    }
+</style>
+
+<div class="content main-section-content row">
+
+
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+
+        </div>
+        <div class="panel-body" style="display: block;">
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="empChart">
+                        @(Html.Kendo().Diagram()
+                                                        //.AutoBind(true)
+                                                        .Name("diagram")
+                                                        .DataSource(dataSource => dataSource
+                                                        .Read(read => read
+                                                          .Action("GetHierarchyChartAsync", "Role")
+                                                        )
+                                                        .Model(m => m.Children("Items"))
+                                                        )
+                                                        .Editable(false)
+                                                        .Layout(l => l.Type(DiagramLayoutType.Layered))
+                                                        .ShapeDefaults(sd => sd
+                                                        .Visual("visualTemplate")
+                                                        )
+                                                        .ConnectionDefaults(cd => cd
+                                                        .Stroke(s => s
+                                                          .Color("#979797")
+                                                          .Width(2)
+                                                        )
+                                                        )
+                                                        .Events(events => events.DataBound("onDataBound"))
+                        )
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>*@
+@*<script type="text/javascript" src="https://www.google.com/jsapi"></script>*@
+
+<script type="text/javascript">
+    //google.load("visualization", "1", { packages: ["orgchart"] });
+    $(document).ready(function () {
+
+    });
+
+    function visualTemplate(options) {
+        var dataviz = kendo.dataviz;
+        var g = new dataviz.diagram.Group();
+        var dataItem = options.dataItem;
+
+        g.append(new dataviz.diagram.Rectangle({
+            width: 210,
+            height: 75,
+            stroke: {
+                width: 0
+            },
+            fill: {
+                gradient: {
+                    type: "linear",
+                    stops: [{
+                        color: dataItem.ColorScheme,
+                        offset: 0,
+                        opacity: 0.5
+                    }, {
+                        color: dataItem.ColorScheme,
+                        offset: 1,
+                        opacity: 1
+                    }]
+                }
+            }
+        }));
+
+        g.append(new dataviz.diagram.TextBlock({
+            text: dataItem.FirstName + " " + dataItem.LastName,
+            x: 85,
+            y: 20,
+            color: "#fff"
+        }));
+
+        g.append(new dataviz.diagram.TextBlock({
+            text: dataItem.Title,
+            x: 85,
+            y: 40,
+            color: "#fff"
+        }));
+
+        g.append(new dataviz.diagram.Image({
+            source: "../Uploads/User/" + dataItem.Image,
+            x: 3,
+            y: 3,
+            width: 68,
+            height: 68
+
+        }));
+
+        return g;
+    }
+
+    function onDataBound() {
+        this.bringIntoView(this.shapes);
+    }
+    //function drawEmpChart() {
+
+    //	$.ajax({
+    //		url: "/Role/GetHierarchyChartAsync",
+    //		type: 'GET',
+    //		data: {},
+    //		success: function (organizationHierarchyList) {
+    //			//ProgressLoader(false);
+    //			var data = new google.visualization.DataTable();
+    //			data.addColumn('string', 'Entity');
+    //			data.addColumn('string', 'ParentEntity');
+    //			data.addColumn('string', 'ToolTip');
+    //			for (var i = 0; i < organizationHierarchyList.OrganizationHierarchy.length; i++) {
+    //				//var employeeId = organizationHierarchyList.OrganizationHierarchy[i].Item2.toString();
+    //				//var employeeName = organizationHierarchyList.OrganizationHierarchy[i].Item1;
+    //				//var designation = organizationHierarchyList.OrganizationHierarchy[i].Item1;
+    //				//var reportingManager = organizationHierarchyList.OrganizationHierarchy[i].Item3 == null ? '' : organizationHierarchyList.OrganizationHierarchy[i].Item3.toString();
+    //				//data.addRows([[{
+    //				//	v: employeeId,
+    //				//	f: employeeName + '<div>(<span>' + designation + '</span>)</div><img src = "/Pictures/' + employeeId + '.jpg" />'
+    //				//}, reportingManager, designation]]);
+
+    //				var Employee_ID = organizationHierarchyList.OrganizationHierarchy[i].Item2.toString();
+    //				var Employee_Name = "";
+    //				var Title = organizationHierarchyList.OrganizationHierarchy[i].Item1;
+    //				var ReportTo = organizationHierarchyList.OrganizationHierarchy[i].Item3 == null ? '' : organizationHierarchyList.OrganizationHierarchy[i].Item3.toString();
+
+    //				data.addRows([[{
+    //					v: Employee_ID,
+    //					f: Employee_Name + '<br/><b>' + Title + '</b>'
+    //				}, ReportTo, Title]]);
+
+    //			}
+
+    //			var chart = new google.visualization.OrgChart($("#empChart")[0]);
+    //			chart.draw(data, { allowHtml: true });
+
+    //			//var chart = new google.visualization.OrgChart($("#empChart")[0]);
+    //			//chart.draw(data, { allowHtml: true });
+    //		}
+    //	});
+    //}
+</script>

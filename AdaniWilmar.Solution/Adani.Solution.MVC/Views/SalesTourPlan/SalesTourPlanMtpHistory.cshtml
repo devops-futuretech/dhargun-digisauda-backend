@@ -1,0 +1,84 @@
+﻿@using Adani.Solution.DTO;
+@using Adani.Solution.MVC.Helpers;
+@model SalesTourPlanMtpHistoryDto
+
+@if (Model.PostStatus)
+{
+    if (Model.DealerName != "")
+    {
+        <div class="row form-group">
+            <div class="col-md-4 text-right">
+                Dealer Name
+            </div>
+            <div class="col-md-4">
+                @Model.DealerName
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row form-group">
+            <div class="col-md-4 text-right">
+                @Helper.GetResourceString("lbl_HQNoVisit")
+            </div>
+            <div class="col-md-4">
+                @Model.InHQNoVisitName
+            </div>
+        </div>
+   }
+    <div class="row form-group">
+        <div class="col-md-4 text-right">
+            Date
+        </div>
+        <div class="col-md-4">
+            @Helper.DateTimeFormat(@Model.TourDate)
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-md-4 text-right">
+            @Helper.GetResourceString("lbl_City")
+        </div>
+        <div class="col-md-4">
+            @Model.City
+        </div>
+    </div>
+    if (Model.DealerName != "")
+    {
+        <div class="row form-group">
+            <div class="col-md-4 text-right">
+                Area
+            </div>
+            <div class="col-md-4">
+                @Model.Area
+            </div>
+        </div>
+    }
+
+        <div class="row form-group">
+            <div class="col-md-4 text-right">
+                Headquarters
+            </div>
+            <div class="col-md-4">
+                @Model.Headquarters
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <div class="col-md-4 text-right">
+                Remarks
+            </div>
+            <div class="col-md-4">
+                @Model.Remarks
+            </div>
+        </div>
+
+    }
+    else
+    {
+        <div class="row form-group text-center">
+            <div class="col-md-12">
+                No Previous History
+            </div>
+        </div>
+    }

@@ -1,0 +1,61 @@
+﻿@using Kendo.Mvc.UI;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@model Adani.Solution.DTO.UserCustomerSalesTargetDto
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="row" style="margin: 10px;">
+            <div class="col-md-12">
+                <div class="col-md-4 text-right">
+                    <b>@Helper.GetResourceString("lbl_Month")</b>
+                </div>
+                <div class="col-md-4">
+                    <b>@Helper.GetResourceString("lbl_SalesTarget") (MT)</b>
+                </div>
+            </div>
+        </div>
+        @if (Model.UserTargetDetail.ToList().Count > 0)
+        {
+            for (var i = 0; i < Model.UserTargetDetail.ToList().Count; i++)
+            {
+                var j = i + 1;
+                var hdnMonthId = "hdnMonthId" + j;
+                var hdnMonthName = "hdnMonthName" + j;
+                var hdnId = "hdnId" + j;
+                var txtSalesTargetid = "SalesTarget" + j;
+                var @hdnYear = "hdnYear" + j;
+                var @hdnYearId = "hdnYearId" + j;
+                var @hdnMonthAndYear = "hdnMonthAndYear" + j;
+
+                <div class="row" style="margin: 10px;">
+                    <div class="col-md-12">
+                        <div class="col-md-4 text-right">
+                            <label class="control-label">@Model.UserTargetDetail[i].MonthAndYear</label>
+                            @Html.HiddenFor(m => m.UserTargetDetail[i].MonthId, new { id = @hdnMonthId })
+                            @Html.HiddenFor(m => m.UserTargetDetail[i].Id, new { id = @hdnId })
+                            @Html.HiddenFor(m => m.UserTargetDetail[i].Year, new { id = @hdnYear })
+                            @Html.HiddenFor(m => m.UserTargetDetail[i].YearId, new { id = @hdnYearId })
+                            @Html.HiddenFor(m => m.UserTargetDetail[i].MonthAndYear, new { id = @hdnMonthAndYear })
+                            @Html.HiddenFor(m => m.UserTargetDetail[i].Month, new { id = @hdnMonthName })
+                        </div>
+                        <div class="col-md-4">
+                            @Html.TextBoxFor(m => m.UserTargetDetail[i].SalesTarget, new { id = @txtSalesTargetid, @class = "decimalValueThreeDecimalDigits dynamicTarget k-textbox", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Target"), @onpaste = "return false", @maxlength = (int)InputMaxLength.MobileNumber })
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+<script src="~/Scripts/emamiCommon.js"></script>
+<script>
+    
+    $(document).ready(function () {
+        //$(".dynamicTarget").val('');
+    });
+
+</script>
+
+

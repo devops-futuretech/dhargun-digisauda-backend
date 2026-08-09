@@ -1,0 +1,210 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+
+@{
+    ViewBag.Title = "PriceNotifyConfigurationList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="configurationPriceNotifyConfiguration" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_PriceNotifyConfiguration")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Configurations</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_PriceNotifyConfiguration")<span class="icon-right"></span></li>
+    </ol>
+    @*<div id="dateFilter" class="col-xs-9">
+            <div class="period-wrapper">
+                @if (Helper.CheckClaims(Claims.ManagePricing))
+                {
+                    <a href="@Url.Action("PriceNotifyConfigurationEdit", "Pricing")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_AddPriceNotifyConfiguration")</a>
+                }
+            </div>
+        </div>*@
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+            <div class="row form-group">
+                @*<div class="col-md-2">
+            </div>*@
+                <div class="col-lg-3 col-sm-6 mb-3">
+                    <label for="StartDate" class="custom_label">Starts from</label>
+                    @(Html.Kendo().DatePicker()
+                              .Name("StartDate")
+                              .Max(Settings.DefaultDashboardEndDate)
+                              .Value(Settings.DefaultDashboardStartDate)
+                              .Format(Settings.DateFormat)
+                        )
+                </div>
+                <div class="col-lg-3 col-sm-6 mb-3">
+                    @*<label for="EndDate" class="custom_label">To</label>*@
+                    <label for="EndDate" class="custom_label">To</label>
+                    @(Html.Kendo().DatePicker()
+                              .Name("EndDate")
+                              .Max(Settings.DefaultDashboardEndDate)
+                              .Value(Settings.DefaultDashboardEndDate)
+                              .Format(Settings.DateFormat)
+                        )
+                </div>
+
+            </div>
+
+            <div class="row form-group">
+                <div class="col-md-12 text-right">
+                    <button type="button" id="btnGeneratePriceNotifyConfiguration" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Search") </button>
+                </div>
+            </div>
+        </div>
+
+        </div>
+    <div class="panel-body" style="display: block;">
+        <div class="row" id="dvDealers">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="text-right right-buttons">
+                        <div class="period-wrapper">
+                            @if (Helper.CheckClaims(Claims.ManagePricing))
+                            {
+                                <a href="@Url.Action("PNCEdit", "Pricing")" class="k-primary k-button custom-btns"><b><i class="icon-plus"></i></b>&ensp;@Helper.GetResourceString("lbl_AddPriceNotifyConfiguration")</a>
+                            }
+                        </div>
+                    </div>
+                    @(Html.Kendo().Grid<Adani.Solution.DTO.PriceNotifyConfigurationDto>()
+                   .Name("GridPriceNotifyConfigurationDetails")
+                   .Columns(columns =>
+                   {
+                       columns.Bound(c => c.Id).Visible(false);
+                       columns.Bound(c => c.Id).Title("Edit").HeaderTemplate("").Title("Action").ClientTemplate("<div style='text-align: center;'><a   title='" + @Helper.GetResourceString("msg_Edit") + "' class='icon-pencil cursor-pointer' href='" + Url.Action("PNCEdit", "Pricing", new { EncryptedId = "#=EncryptedId#" }) + "' ></a></div>").Width(Settings.GridColumnMaxWidth);
+                       //columns.Bound(c => c.NotificationDate).Title(@Helper.GetResourceString("lbl_NotificationDate")).ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("PriceNotifyConfigurationEdit", "Pricing", new { priceNotifyId = "#=Id#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=NotificationDate#</a> </div>").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                       columns.Bound(c => c.NotificationDate).Format(Settings.GridDateFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_NotificationDate")).Width(Settings.GridColumnMaxWidth);
+                       columns.Bound(c => c.IncoTerms).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_IncoTerm")).Width(Settings.GridColumnMaxWidth);
+                       columns.Template(c => c.IsSMS).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_SMS")).ClientTemplate(@"<div style='text-align: center;'>#if(IsSMS){#<i class='icon-checkbox-checked2 faicon-green'></i>#}else{#<i class='icon-cancel-square2 faicon-red'></i>#}#</div>").Width(Settings.GridColumnMaxWidth);
+                       columns.Template(c => c.IsEmail).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Email")).ClientTemplate(@"<div style='text-align: center;'>#if(IsEmail){#<i class='icon-checkbox-checked2 faicon-green'></i>#}else{#<i class='icon-cancel-square2 faicon-red'></i>#}#</div>").Width(Settings.GridColumnMaxWidth);
+                       columns.Template(c => c.IsPushNotification).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_PushNotification")).ClientTemplate(@"<div style='text-align: center;'>#if(IsPushNotification){#<i class='icon-checkbox-checked2 faicon-green'></i>#}else{#<i class='icon-cancel-square2 faicon-red'></i>#}#</div>").Width(Settings.GridColumnMaxWidth);
+
+                   })
+                   .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                   .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                   .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                   .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                   .Scrollable(s => s.Enabled(true).Height("auto"))
+                   .Resizable(resize => resize.Columns(true))
+                   .Reorderable(reorder => reorder.Columns(true))
+                   .ClientDetailTemplateId("template")
+                   .Events(events => events.DataBound("dataBound"))
+                   .DataSource(dataSource => dataSource
+                   .Ajax()
+                   .Sort(sort => sort.Add("Id").Ascending())
+                   .Model(model => { model.Id(p => p.Id); })
+                   .ServerOperation(true)
+                   .Read(read => read.Action("GetPriceNotifyConfigurationList", "Pricing").Data("AdditionalInfo"))))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="template" type="text/kendo-tmpl">
+
+    @(Html.Kendo().Grid<Adani.Solution.DTO.CityDetails>()
+          .Name("grid_#=Id#") // template expression, to be evaluated in the master context
+          .Columns(columns =>
+          {
+              columns.Bound(c => c.CityName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_City")).Width(Settings.GridColumnMaxWidth);
+              columns.Bound(c => c.DistrictName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_District")).Width(Settings.GridColumnMaxWidth);
+              //columns.Bound(c => c.TerritoryName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_Territory")).Width(Settings.GridColumnMaxWidth);
+              columns.Bound(c => c.StateName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_State")).Width(Settings.GridColumnMaxWidth);
+              columns.Bound(c => c.ZoneName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_Zone")).Width(Settings.GridColumnMaxWidth);
+          })
+          .DataSource(dataSource => dataSource
+          .Ajax()
+          .PageSize(10)
+          .Read(read => read.Action("GetPriceNotifyConfigurationCityList", "Pricing", new { id = "#=Id#" })))
+          .Pageable()
+          .Scrollable(s => s.Enabled(true).Height("auto"))
+          .Reorderable(reorder => reorder.Columns(true))
+          .Resizable(resize => resize.Columns(true))
+          .Events(events => events.DataBound("CityDetailsDataBound"))
+          .Sortable()
+          .ToClientTemplate()
+    )
+</script>
+
+<script>
+
+    $(document).ready(function () {
+
+        // kendo grid filter contains
+        FilterContains();
+
+        if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+
+        $("#btnGeneratePriceNotifyConfiguration").on('click', function () {
+            onDateChange();
+        });
+
+
+    });
+
+    function dataBound(e) {
+
+        var items = e.sender.items();
+        items.each(function () {
+            var row = $(this);
+            var dataItem = e.sender.dataItem(row);
+            if (dataItem != undefined && !dataItem.HasChildren) {
+                row.find(".k-hierarchy-cell").html("");
+            }
+        })
+        //this.expandRow(this.tbody.find("tr.k-master-row"));
+
+        SetEmptyRow(e);
+    }
+
+    function CityDetailsDataBound(e)
+    {
+        SetEmptyRow(e);
+    }
+
+    function onDateChange(e) {
+        if (Date.parse($("#StartDate").val()) >  Date.parse($("#EndDate").val())) {
+            ShowErrorMessage('@Helper.GetResourceString("msg_InvalidFromDate")')
+            $("#GridPriceNotifyConfigurationDetails").data('kendoGrid').dataSource.data([]);
+        }
+        else {
+            var GridPriceNotifyConfiguration = $("#GridPriceNotifyConfigurationDetails").data("kendoGrid");
+            GridPriceNotifyConfiguration.dataSource.read();
+        }
+    }
+
+    function AdditionalInfo() {
+        var fromDate = new Date();
+        var toDate = new Date();
+
+        if ($("#StartDate").val().length > 0)
+            fromDate = $("#StartDate").val()
+
+        if ($("#EndDate").val().length > 0)
+            toDate = $("#EndDate").val()
+
+        return {
+            FromDate: fromDate,
+            ToDate: toDate
+        }
+    }
+
+
+</script>
+
+
+
+

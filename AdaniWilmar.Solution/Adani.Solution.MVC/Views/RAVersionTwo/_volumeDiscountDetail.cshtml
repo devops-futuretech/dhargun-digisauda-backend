@@ -1,0 +1,30 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model Adani.Solution.DTO.VolumeDiscountUserDto
+
+
+
+
+ @(Html.Kendo().Grid<Adani.Solution.DTO.VolumeDiscountSlabDto>()
+           .Name("ViewVolumeSlabs")
+           .Columns(columns =>
+           {
+               columns.Bound(p => p.VolumeDiscountSlabId).Visible(false);
+               columns.Bound(p => p.StartSlabInMT).Title(Helper.GetResourceString("lbl_StartVolumeSlabInMT")).Width(Settings.GridColumnMaxWidth);
+               columns.Bound(p => p.EndSlabInMT).Title(Helper.GetResourceString("lbl_EndVolumeSlabInMT")).Width(Settings.GridColumnMaxWidth);
+               columns.Bound(p => p.DiscountForSlab).Title(Helper.GetResourceString("lbl_Discount")).Width(Settings.GridColumnMaxWidth);
+               //columns.Template(c => c.VolumeDiscountSlabId).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Action"))
+               //        .ClientTemplate("<div style='text-align: center;'><a style='padding-left: 4px;' class='icon-cross cursor-pointer' onclick='RemoveDataFromGrid(this)'></a></div>").Width(Settings.GridOtherColumnWidth);
+           })
+           //.ToolBar(toolBar => { toolBar.Template("<a class='k-button k-button-icontext' onclick='AddTradeTicket()' href='#'></span>Add New Trade Details</a>"); })
+           .BindTo(Model.VolumeSlabsList)
+           .DataSource(dataSource => dataSource
+           .Ajax()
+           .ServerOperation(false)
+           .Model(model => { model.Id(p => p.VolumeDiscountSlabId); })
+           .Create(create => create.Action("", ""))))
+
+               

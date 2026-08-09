@@ -1,0 +1,404 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Models
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO
+@model Adani.Solution.MVC.Models.CMSQuestionModel
+@{
+    ViewBag.Title = "CreateQuestion";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="cmsquestion" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_Questions")</h2>
+    <div class="period-wrapper">
+        <ol class="breadcrumb custom_breadcrumb">
+            <li><a href="#">@Helper.GetResourceString("lbl_cms")</a><span class="icon-right"></span></li>
+            <li>@Helper.GetResourceString("lbl_Questions")<span class="icon-right"></span></li>
+            <li class="active">@Helper.GetResourceString("lbl_AddOrUpdateQuestion")<span class="icon-right"></span></li>
+        </ol>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="dvSection">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("AddOrUpdateQuestion", "Lookup", FormMethod.Post, new { id = "frmQuestion", @class = "form-validate-jquery" }))
+                    {
+                        <fieldset class="content-group">
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(x => x.IsEdit, new { id = "hdnIsEdit" })
+                            @Html.HiddenFor(x => x.QuestionId, new { id = "hdnQuestionId" })
+                            @Html.HiddenFor(x => x.QuestionTypeEdit, new { id = "hdQuestionTypeHidden" })
+                            @Html.HiddenFor(x => x.Options, new { id = "hdnAnswerOptions" })
+                            @Html.HiddenFor(x => x.RemovedOptionIds, new { id = "hdnRemovedAnswerOptions" })
+                            @Html.HiddenFor(x => x.AnswerOptionsDto, new { id = "hdnAnswerOptionsDto" })
+                            @Html.HiddenFor(x => x.CreateAnother, new { id = "hdnCreateAnother" })
+
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_QuestionType") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-4 width26">
+                                    @(Html.Kendo().DropDownListFor(m => m.QuestionTypeId)
+                                          .Name("QuestionTypeId")
+                                          .OptionLabel(@Helper.GetResourceString("plho_SelectQuestionType"))
+                                          .DataTextField("QuestionTypeName")
+                                          .DataValueField("QuestionTypeId")
+                                          .DataSource(source => source.Read(read => read.Action("GetQuestionTypeddl", "Lookup"))
+                                          .ServerFiltering(false))
+                                          .Events(e => e.Change("OnQuestionTypeChange"))
+                                          .HtmlAttributes(new { id = "ddlQuestionType", @class = "", required = "required", tabindex = "2", data_msg_required = Helper.GetSelectMsgRequired("lbl_QuestionType"), @style = "width:100%" }))
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_Question") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-6 width26">
+                                    @Html.TextAreaFor(m => m.Query, new { id = "txtQuestion", tabindex = "3", rows = "4", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Question"), @maxlength = (int)InputMaxLength.MaxTextLength })
+                                </div>
+                            </div>
+                            <div class="row form-group" id="txtTextlength">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_Textlength") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-1">
+                                    @Html.TextBoxFor(m => m.Textlength, new { id = "txtlength", tabindex = "3", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_length"), @type = "text", @maxlength = (int)InputMaxLength.Percentage })
+                                </div>
+                            </div>
+                            @*<div class="row form-group">
+                                    <div class="col-md-4 text-right">
+                                        @Helper.GetResourceString("lbl_Description") <span class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 width26">
+                                        @Html.TextAreaFor(m => m.Description, new { id = "txtDescription", tabindex = "4", rows = "4", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_Description"), @maxlength = (int)InputMaxLength.MaxTextLength })
+                                    </div>
+                                </div>*@
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_Mandatory")
+                                </div>
+                                <div class="col-md-2">
+                                    @Html.CheckBoxFor(m => m.IsMandatory, new { tabindex = 5 })
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_Active")
+                                </div>
+                                <div class="col-md-4">
+                                    @Html.CheckBoxFor(m => m.IsActive, new { tabindex = 6 })
+                                </div>
+                            </div>
+                            <div class="row form-group" id="divOption">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_Option")<span class="text-danger">*</span>
+                                </div>
+                                <div>
+                                    <div class="col-md-4">
+                                        @if (Model != null && Model.IsEdit && Model.AnswerOptions != null && Model.AnswerOptions.Any() && (Model.QuestionTypeId == ((int)QuestionType.MultipleChoice) || Model.QuestionTypeId == ((int)QuestionType.SingleChoice)))
+                                        {
+                                            @Html.TextBoxFor(m => m.AnswerOptions[0].AnswerOptionId, new { id = "hdnOption" + 0, @class = "hidden" })
+                                        }
+                                        @Html.TextBoxFor(m => m.Option, new { id = "Option0", name = "AnswerOptions[0].Option", @class = "form-control dynamicOption", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Option"), @maxlength = (int)InputMaxLength.Comments })
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button class="addOption k-primary k-button">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row optionFields">
+                            </div>
+                            @if (Model != null && Model.IsEdit == false && Model.PostStatus == false && Model.AnswerOptions != null && Model.AnswerOptions.Any() && (Model.QuestionTypeId == ((int)QuestionType.MultipleChoice) || Model.QuestionTypeId == ((int)QuestionType.SingleChoice)))
+                            {
+                                for (int i = 1; i < Model.AnswerOptions.Count(); i++)
+                                {
+                                    <div class="row form-group" id="removeOption@(i)">
+                                        <div class="col-md-offset-4 col-md-4 ">
+                                            @Html.TextBoxFor(m => m.AnswerOptions[i].Option, new { id = "Option" + i, @class = "form-control dynamicOption", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Option"), @maxlength = (int)InputMaxLength.String })
+                                        </div>
+                                        <div class="col-md-3">
+                                            <a href="#" onclick="onDeleteClickEvent( '@i', '@Model.AnswerOptions[i].AnswerOptionId')" class="removeOptionField k-primary k-button">-</a>
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                            @if (Model != null && Model.IsEdit && Model.AnswerOptions != null && Model.AnswerOptions.Any() && (Model.QuestionTypeId == ((int)QuestionType.MultipleChoice) || Model.QuestionTypeId == ((int)QuestionType.SingleChoice)))
+                            {
+                                for (int i = 1; i < Model.AnswerOptions.Count(); i++)
+                                {
+                                    <div class="row form-group" id="removeOption@(i)">
+                                        <div class="col-md-offset-4 col-md-4 ">
+                                            @Html.TextBoxFor(m => m.AnswerOptions[i].AnswerOptionId, new { id = "hdnOption" + i, @class = "hidden" })
+                                            @Html.TextBoxFor(m => m.AnswerOptions[i].Option, new { id = "Option" + i, @class = "form-control dynamicOption", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Option"), @maxlength = (int)InputMaxLength.Comments })
+                                        </div>
+                                        <div class="col-md-3">
+                                            <a href="#" onclick="onDeleteClickEvent( '@i', '@Model.AnswerOptions[i].AnswerOptionId')" class="removeOptionField k-primary k-button">-</a>
+                                        </div>
+                                    </div>
+                                }
+
+                            }
+                        </fieldset>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-right buttons-align">
+                                @*@(Html.Kendo().CheckBoxFor(m => m.CreateAnother).Name("CreateAnother").HtmlAttributes(new { id = "CreateAnother",tabindex = "7" }).Label(@Helper.GetResourceString("lbl_CreateAnother")))*@
+                                <button type="button" id="btnCancel" tabindex="8" onclick="location.href = '@Url.Action("QuestionList", "Lookup")'" class="k-button k-cancel custom-btns">Cancel</button>
+                                <button type="button" id="btnSave" tabindex="9" class="k-primary k-button custom-btns">@(Model != null && Model.QuestionId == 0 ? @Helper.GetResourceString("btn_Save") : @Helper.GetResourceString("btn_Update"))</button>
+                            </div>
+                        </div>
+                        <table id="tblOption" hidden>
+                            <thead>
+                                <tr><th>QuestionId</th><th>AnswerOptionId</th><th>Option</th></tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var y = 1;
+    var x = y;
+    if (@Model.AnswerOptions.Count() != 0) {
+        y = @Model.AnswerOptions.Count();
+        x = y;
+    }
+
+    $(document).ready(function () {
+        $('#dvDealerBroker').hide();
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+                if ($("#hdnIsEdit").val() == '@false' && (('@((int)QuestionType.MultipleChoice)' == $("#ddlQuestionType").val()) || ('@((int)QuestionType.SingleChoice)' == $("#ddlQuestionType").val())))
+                    x = y = 1;
+            }
+        }
+
+        if( ($("#ddlQuestionType").val() == '@((int)QuestionType.MultipleChoice)')||($("#ddlQuestionType").val() == '@((int)QuestionType.SingleChoice)')) {
+            $("#divOption").show();
+        }
+        else {
+            $("#divOption").hide();
+        }
+        $('#hdQuestionTypeHidden').val('@Model.QuestionTypeId');
+
+
+           if( ($("#ddlQuestionType").val() == '@((int)QuestionType.TextEntry)')) {
+               $("#txtTextlength").show();
+           }
+           else {
+               $("#txtTextlength").hide();
+           }
+
+         if (@Model.QuestionTypeId > 0) {
+        var ddlQuestionType = $("#ddlQuestionType").data("kendoDropDownList");
+             if (ddlQuestionType) {
+            ddlQuestionType.value(@Model.QuestionTypeId);
+            ddlQuestionType.enable(false);
+        }
+        }
+        //console.log("QuestionTypeId set to:", questionTypeId);
+        var max_fields = 300;
+        var wrapperOption = $(".optionFields");
+
+        $(".addOption").on("click", function (e) {
+            e.preventDefault();
+            if (x <= max_fields) {
+                $(".optionFields").append('<div class="row form-group"><div class="col-md-offset-4 col-md-4"><input class="form-control dynamicOption input-validation-error"  data-msg-required="Please enter a option." name="AnswerOptions[' + y + '].Option" maxlength="50" id="Option' + y + '" required="required"  type="text" value="" aria-required="true"/> </div><div class="col-md-3"><a href="#" id=' + y +' onclick="onDeleteDynamicTextBoxClickEvent(id)" class="removeOptionField k-primary k-button">-</a></div></div>'); //add input box
+                y++; x++;
+            }
+            else
+            {
+                  ShowErrorMessage('@Helper.GetResourceFor("msg_OptionCount").Replace("{0}", Settings.OptionMaxCount.ToString())');
+            }
+        });
+
+        $(".optionFields").on("click", ".removeOptionField", function (e) {
+            //user click on remove text
+            e.preventDefault(); $(this).parent().parent().hide(); x--;
+
+        });
+
+        $(".removeOptionField").on("click", function (e) {
+            e.preventDefault();
+            $(this).parent().parent().hide(); x--;
+        });
+
+
+    });
+
+    $('#btnSave').on('click', function (e) {
+
+        if (($("#ddlQuestionType").val() == '@((int)QuestionType.MultipleChoice)') || ('@((int)QuestionType.SingleChoice)' == $("#ddlQuestionType").val())) {
+
+                var options = $('.dynamicOption').map(function () {
+                    if(this.value != -1)
+                    return this.value
+                }).get().join(',');
+
+                if (options.length > 0)
+                {
+                    $("#hdnAnswerOptions").val(options);
+                }
+            }
+            else
+            {
+                $('#Option0').val(" ");
+            }
+            var m = 0;
+            var isAlphaNumericFlag = true;
+        $('input.dynamicOption').each(function () {
+
+            if (typeof $('#Option' + (m)).val() != 'undefined' && $('#Option' + (m)).val() != '' && $('#Option' + (m)).val() != ' ' && $('#Option' + (m)).val() != '-1') {
+                    if (!isAlphaNumeric2($('#Option' + m).val())) {
+                        //isAlphaNumericFlag = false;
+                    }
+                }
+                m++;
+            });
+
+
+            if (isAlphaNumericFlag) {
+                var isValid = $("#frmQuestion").valid();
+                if (isValid) {
+                    // Animate loader
+                    if ((('@((int)QuestionType.MultipleChoice)' == $("#ddlQuestionType").val()) || ('@((int)QuestionType.SingleChoice)' == $("#ddlQuestionType").val())))
+                        AddRowsToTable();
+                    if ('@((int)QuestionType.TextEntry)' == $("#ddlQuestionType").val()) {
+                        if ($('#txtlength').val() != '') {
+                            window.kendo.ui.progress($("#div_Progress"), true);
+                            $("#frmQuestion").submit();
+                        }
+                        else {
+                             ShowErrorMessage('@Helper.GetResourceString("Msg_length")');
+                        }
+
+                    } else {
+                        window.kendo.ui.progress($("#div_Progress"), true);
+                        $("#frmQuestion").submit();
+                    }
+
+                }
+            }
+            else
+            {
+                ShowErrorMessage('@Helper.GetResourceString("msg_AphaNumericError")');
+            }
+
+    });
+    $("#CreateAnother").click(function () {
+        if ($("#CreateAnother").is(':checked')) {
+            $("#hdnCreateAnother").val(true);
+        }
+        else {
+            $("#hdnCreateAnother").val(false);
+        }
+    });
+    function OnQuestionTypeChange(e) {
+        //To Load Options if Question Type is Multiple Choice
+        if (($("#ddlQuestionType").val() == '@((int)QuestionType.MultipleChoice)')||($("#ddlQuestionType").val() == '@((int)QuestionType.SingleChoice)')) {
+            $("#divOption").show();
+        }
+        else
+        {
+            //Code to clear option textbox and to remove dynamic textbox
+            j = 0;
+            $('#Option0').val('');
+            $('input[type="text"].dynamicOption').each(function () {
+                $('#Option' + (j + 1)).closest(".row").remove();
+                j++;
+                if (y > 1) {
+                    y--;
+                }
+            });
+
+            $("#divOption").hide();
+        }
+            if( ($("#ddlQuestionType").val() == '@((int)QuestionType.TextEntry)')) {
+                $("#txtTextlength").show();
+            }
+            else {
+                $("#txtTextlength").hide();
+            }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const inputField = document.getElementById("txtlength");
+
+        inputField.addEventListener("input", function () {
+            let value = this.value;
+
+            value = value.replace(/[^0-9-]/g, '');
+
+            if (value.indexOf('-') > 0) {
+                value = value.replace(/-/g, '');
+                value = '-' + value;
+            }
+
+            if (value.split('-').length - 1 > 1) {
+                value = value.replace(/-+/g, '');
+            }
+
+            this.value = value;
+        });
+
+        inputField.addEventListener("paste", function (e) {
+            e.preventDefault();
+        });
+    });
+
+    function onDeleteClickEvent(index, optionId) {
+        $("#hdnRemovedAnswerOptions").val($("#hdnRemovedAnswerOptions").val() + optionId + ",");
+        $("#hdnOption" + (index)).val(-1);
+    }
+
+    function onDeleteDynamicTextBoxClickEvent(index) {
+        $('#Option' + (index)).val(-1);
+    }
+
+    function AddRowsToTable() {
+        var k = 0;
+        $('input.dynamicOption').each(function () {
+
+            if (typeof $('#Option' + (k)).val() != 'undefined' &&
+                $('#Option' + (k)).val() != '' && $('#Option' + (k)).val() != ' ' &&$('#Option' + (k)).val() != -1 && $("#hdnOption" + (k)).val() != -1) {
+                var questionId = @Model.QuestionId;
+                if ($('#hdnOption' + (k)).val() != undefined)
+                    optionId = $('#hdnOption' + (k)).val();
+                else
+                    optionId = 0;
+                var txtOption =$('#Option' + (k)).val();
+
+
+                var markup = "<tr><td>" + questionId + "</td><td>" + optionId + "</td><td>" + txtOption + "</td></tr>";
+                $("#tblOption tbody").append(markup);
+            }
+            k++;
+        });
+        var rows = []; var header = [];
+        $("#tblOption thead th").each(function () {
+            header.push($(this).html());
+        });
+
+        $("#tblOption tbody tr").each(function () {
+            var row = {};
+            $(this).find("td").each(function (i) {
+                var key = header[i],
+                    value = $(this).html();
+                row[key] = value;
+            });
+            rows.push(row);
+        });
+        $("#hdnAnswerOptionsDto").val(JSON.stringify(rows));
+    }
+</script>

@@ -1,0 +1,334 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model  TradeTicketViewDto
+@{
+    ViewBag.Title = "Trade Tickets";
+}
+<style>
+    .k-widget.k-dialog.k-window.k-confirm > .k-header {
+        line-height: 1;
+    }
+
+    .k-widget.k-dialog.k-window.k-confirm > .k-content {
+        padding: 25px;
+    }
+
+    .k-dialog-titlebar {
+        border-color: inherit;
+        color: #ffffff;
+        background-color: #263238;
+    }
+
+    .k-dialog-buttongroup .k-button:hover {
+        background-color: #263238 !important;
+        background-image: none;
+    }
+
+    .k-dialog-buttongroup .k-primary {
+        color: none;
+    }
+
+    .k-confirm .k-window-titlebar::before {
+        content: 'Delete Confirmation';
+    }
+
+    .k-confirm .k-window-titlebar .k-dialog-title {
+        visibility: collapse;
+    }
+</style>
+
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="transactionLooseTradeTicketList" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Trade Ticket</h2>
+    <div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            @if (Helper.CheckClaims(Claims.ManageTradeTicket))
+            {
+                <a href="@Url.Action("EditTradeTicketandRedirectLoose", "ReverseAuction")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&nbsp;Create Trade Ticket</a>
+            }
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvSecondaryFreights">
+                @*<div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            Search Date
+                        </div>
+                        <div class="col-md-4">
+                            @(Html.Kendo().DatePicker().Name("SearchDate")
+                                                  .Format(Settings.DateFormat)
+                                                  .HtmlAttributes(new { id = "dpSearchDate", onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                        </div>
+                    </div>*@
+
+                <div class="row form-group">
+                    <div class="col-md-2 text-right">
+                        @Helper.GetResourceString("lbl_FromDate")
+                    </div>
+                    <div class="col-md-3">
+                        @(Html.Kendo().DatePicker().Name("FromDate")
+                                          .Format(Settings.DateFormat)
+                                          .Events(e => e.Change("fromChange"))
+                                          .HtmlAttributes(new { id = "dpFromDate", onkeydown = "return isFocus(event);", tabindex = "5", style = "width: 100%" }))
+                    </div>
+                    <div class="col-md-2 text-right">
+                        @Helper.GetResourceString("lbl_ToDate")
+                    </div>
+                    <div class="col-md-3">
+                        @(Html.Kendo().DatePicker().Name("ToDate")
+                                          .Format(Settings.DateFormat)
+                                          .HtmlAttributes(new { id = "dpToDate", onkeydown = "return isFocus(event);", tabindex = "6", style = "width: 100%" }))
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-md-12 text-center">
+                        <button type="button" onclick="SearchTradeTicket()" class="k-primary k-button">Search</button>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="row form-group">
+                        <div class="col-md-12">
+                            <div class="text-right">
+                                @*<button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("grdTradeTicket")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;*@
+                                <button class="k-button k-button-icontext k-grid-excel" id="tradeTicketExcelDownload" type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>
+                                @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                            </div>
+
+                            @(Html.Kendo().Grid<TradeTicketViewDto>().Name("TradeTicketList")
+                                              .Columns(columns =>
+                                              {
+                                                  columns.Bound(c => c.TradeTicketId).Visible(false);
+                                                  columns.Bound(t => t.TradeTicketId).Filterable(false).Title("Edit").HeaderTemplate("").Title("Action").ClientTemplate("#=TradeTicketAction(TradeTicketId,TradeTicketNumber)#").Width(Settings.GridColumnMaxWidth);
+                                                              //.ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("EditTradeTicketandRedirect", "ReverseAuction", new { tradeTicketId = "#=TradeTicketId#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>Edit</a> </div>").Width(Settings.GridColumnMaxWidth250); ;
+                                                              columns.Bound(c => c.ContractType).Title("Contract Type").Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(c => c.MaterialType).Title("Material Type").Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(c => c.BookingType).Title("Booking Type").Width(Settings.GridColumnMaxWidth);
+                                                              //columns.Bound(c => c.UnitOfMeasure).Title("UOM").Width(Settings.GridColumnMaxWidth);
+                                                              //columns.Bound(c => c.PlantOrVendor).Title("Plant/Vendor").Width(Settings.GridColumnMaxWidth);
+                                                              columns.Bound(c => c.TradeTicketNumber).Title("Trade Ticket Number").Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(c => c.ContractDate).Format(Settings.GridDateFormat).Title("Contract Date").Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(c => c.ContractQuantity).Format(Settings.DecimalFormat4).Title(@Helper.GetResourceString("lbl_TotalQuantityInMT")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(c => c.SaudaBookedQuantity).Format(Settings.DecimalFormat4).Title(@Helper.GetResourceString("lbl_SaudaBookedQuantityInMT")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(c => c.OpenQty).Format(Settings.DecimalFormat4).Title(@Helper.GetResourceString("lbl_OpenQuantityInMT")).Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(c => c.PlantName).Title(@Helper.GetResourceString("lbl_Plant")).Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(c => c.TradeTicketOilTypes).Title(@Helper.GetResourceString("lbl_OilType")).Width(Settings.GridColumnMaxWidth250);
+                                                  columns.Bound(c => c.SAPCreationDate).Format(Settings.GridDateFormat).Title(@Helper.GetResourceString("lbl_SAPCreationDate")).Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(c => c.RatePerMT).Format(Settings.DecimalFormat4).Title(@Helper.GetResourceString("lbl_RatePerMT")).Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(c => c.ValidFrom).Format(Settings.GridDateFormat).Title("Valid From").Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(c => c.ValidTo).Format(Settings.GridDateFormat).Title("Valid To").Width(Settings.GridColumnMaxWidth);
+                                                              // columns.Bound(c => c.ContractQuantity).Title("Contract Quantity (MT)").Format(Settings.DecimalFormat4).Width(Settings.GridColumnMaxWidth);
+                                                              columns.Bound(c => c.OtherElement).Title("Other Element").Width(Settings.GridColumnMaxWidth);
+                                              })
+                                              .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                              .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                              .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                              .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                              .Selectable(selectable => selectable
+                                              .Mode(GridSelectionMode.Multiple)
+                                              .Type(GridSelectionType.Row))
+                                              .Scrollable(s => s.Enabled(true).Height("auto"))
+                                              //.Excel(excel => excel.AllPages(true).FileName(@Helper.GetResourceString("lbl_TradeTicket") + " " + DateTime.Now + ".xlsx").Filterable(true))
+                                              .Events(events => events.DataBound("dataBound"))
+                                              .Reorderable(reorder => reorder.Columns(true))
+                                              .Resizable(resize => resize.Columns(true))
+                                              .DataSource(dataSource => dataSource
+                                              .Ajax()
+                                              .Read(read => read.Action("TradeTicketListDataAsync", "ReverseAuction").Data("additionalParam"))
+                                              .Model(model => model.Id(m => m.TradeTicketId))
+                                              .ServerOperation(true)).HtmlAttributes(new { @id = "grdTradeTicket" }))
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header" style="font-size:16px;color:#fff;">
+                    <button type="button" class="close" data-dismiss="modal" style="font-size: 26px;color:#fff;">&times;</button>
+                    <h4 class="modal-title">Notes:</h4>
+                </div>
+                <div class="modal-body" style="font-size: 14px;line-break: normal;line-height: 2.5;">
+                    <p> 1. Trade ticket is mandatory for Sauda(HBC) creation in SAP.</p>
+                    <p> 2. Total proportion value should be hundred(100).</p>
+                    <p> 3. After creation of trade ticket in the DS portal, Trade ticket number will come from SAP.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        //$('#myModal').modal({
+        //    show: 'true'
+        //});
+
+        // kendo grid filter contains
+        FilterContains();
+
+        //var dates = new Date();
+        //dates.setDate(dates.getDate());
+        //$("#dpSearchDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+
+        fillDefaultDate();
+
+        $("#tradeTicketExcelDownload").click(function () {
+            window.kendo.ui.progress($("#div_Progress"), true);
+            var model = {
+                isToReturnInactiveData: true,
+                searchDate: $("#dpSearchDate").val(),
+                fromDate: $("#dpFromDate").val(),
+                todate: $("#dpToDate").val()
+            };
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("ExportAllTradeTickets", "ReverseAuction")',
+                data: { inputDto: model },
+                success: function (responce) {
+                    if (responce.FileGuid) {
+                        window.location.href = '@Url.Action("ExcelDownload", "Base")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                    } else {
+                        ShowErrorMessage("No records found");
+                    }
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                },
+                error: function (responce) {
+                    ShowErrorMessage("File download failed");
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                }
+            });
+        });
+
+    });
+
+    function TradeTicketAction(tradeTickerId,TradeTicketNumber) {
+        var editTitle = '@Helper.GetResourceString("msg_Edit")';
+        var editUrl = "@Url.Action("EditTradeTicketandRedirectLoose", "ReverseAuction")" + "?tradeTicketId=" + tradeTickerId;
+        var deleteTitle = '@Helper.GetResourceString("lbl_Delete")';
+
+        var editAnchorTag = "<a title='" + editTitle + "'style='padding-right: 10px;' class='icon-pencil cursor-pointer' href='" + editUrl + "'></a>";
+        var OpenDiv = "<div style='text-align: center;'>";
+        var DeleteAnchorTag = "<a title='" + deleteTitle + "' class='icon-cancel-square2 faicon-red cursor-pointer' onclick='DeleteTradeTicket(this," + tradeTickerId+")'></a>";
+        var CloseDiv="</div>"
+        if (TradeTicketNumber == "") {
+            return OpenDiv + editAnchorTag + DeleteAnchorTag + CloseDiv;
+        }
+        else {
+            return OpenDiv + editAnchorTag + CloseDiv;
+        }
+
+    }
+    function DeleteTradeTicket(elem,tradeTicketId) {
+        var deleteUrl = "@Url.Action("DeleteTradeTicket", "ReverseAuction")" + "?tradeTicketId=" + tradeTicketId;
+
+        kendo.confirm("Are you sure that you want to delete?").then(function () {
+            window.kendo.ui.progress($("#div_Progress"), true);
+            moduleCommon.Common.AjaxCall({
+                url: deleteUrl,
+                type: 'Get',
+                data: { tradeTicketId: tradeTicketId },
+                success: function (result) {
+                    if (result.PostStatus) {
+                        var grid = $("#grdTradeTicket").data("kendoGrid");
+                        ShowSuccessMessage(result.PostMessage);
+                        window.kendo.ui.progress($("#div_Progress"), false);
+                        grid.dataSource.read();
+
+                    } else {
+                        ShowErrorMessage(result.PostMessage);
+                        window.kendo.ui.progress($("#div_Progress"), false);
+                        return false;
+                    }
+                }
+            });
+
+        }, function () {
+            window.kendo.ui.progress($("#div_Progress"), false);
+        });
+
+
+    }
+
+    function SearchTradeTicket() {
+        //window.kendo.ui.progress($("#div_Progress"), true);
+        $("#grdTradeTicket").data("kendoGrid").dataSource.read();
+        //window.kendo.ui.progress($("#div_Progress"), false);
+    }
+
+    function dataBound() {
+        this.expandRow(this.tbody.find("tr.k-master-row").first());
+    }
+
+    function additionalParam() {
+        //var searchDate = "";
+        //var dataValue = $("#dpSearchDate").val();
+        //if (dataValue) {
+        //    searchDate = new Date($("#dpSearchDate").val()).toUTCString();
+        //} else {
+        //    searchDate = new Date().toUTCString();
+        //}
+        //return {
+        //    isToReturnInactiveData: true,
+        //    searchDate: searchDate
+        //}
+        return {
+            isToReturnInactiveData: true,
+            Vertical : 'Loose',
+            FromDate: ($("#dpFromDate").val() ? $("#dpFromDate").val() : new Date().toDateString()),
+            ToDate: ($("#dpToDate").val() ? $("#dpToDate").val() : new Date().toDateString())
+        }
+    }
+
+    function fillDefaultDate() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+        $("#dpToDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        $("#dpFromDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+
+        StartDateRange();
+    }
+
+    function fromChange() {
+        var endPicker = $("#dpToDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            $("#dpToDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+            endPicker.min(startDate);
+        }
+    }
+
+    function StartDateRange() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+
+        $("#dpFromDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        $("#dpToDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+
+        var endPicker = $("#dpToDate").data("kendoDatePicker");
+        endPicker.min(dates);
+    }
+
+</script>

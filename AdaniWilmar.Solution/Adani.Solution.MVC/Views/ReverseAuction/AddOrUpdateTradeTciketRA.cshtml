@@ -1,0 +1,605 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model TradeTicketViewDto
+@{
+    ViewBag.Title = "AddOrUpdateTradeTciketRA";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="transactionTradeTicketList" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Create Trade Ticket</h2>
+    <div style="clear:both;"></div>
+</div>
+@*@Helper.GetResourceString("lbl_SaudaBookingType")*@
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body">
+            @*<form id="frmTradeTicket">*@
+
+            @using (Html.BeginForm("AddOrUpdateTradeTciketRA", "ReverseAuction", FormMethod.Post, new { id = "frmTradeTicket", @class = "form-validate-jquery" }))
+            {
+                @Html.HiddenFor(s => s.TradeTicketId, new { id = "txtticketId" })
+                @Html.HiddenFor(s => s.VerticalId, new { Value = ((int)@Vertical.SpecialityFat) })
+
+                <div class="row" id="div_Progress">
+                    <div class="col-md-12">
+                        <div class="row form-group">
+                            <div class="col-md-2">
+                                @Helper.GetResourceString("lbl_ContractTypes") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-3">
+                                @(Html.Kendo().DropDownListFor(s => s.ContractTypeId)
+                                                      .OptionLabel("Please Select Contract Type")
+                                                      .DataTextField("Name")
+                                                      .DataValueField("Id")
+                                                      //.Events(e => e.Change("onContractTypeChange"))
+                                                      .DataSource(source => source.Read(resd => resd.Action("GetContractTypeList", "Lookup"))
+                                                      .ServerFiltering(false))
+                                                      .HtmlAttributes(new { id = "ddlContractType", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_ContractTypes"), @style = "width:100%" }))
+                            </div>
+
+                            <div class="col-md-2">
+                                @Helper.GetResourceString("lbl_BookingType") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-3">
+                                @(Html.Kendo().DropDownListFor(m => m.BookingTypeId)
+                                                      .OptionLabel("Select Booking Type")
+                                                      .DataTextField("Name")
+                                                      .DataValueField("Id")
+                                                      .DataSource(source => source.Read(read => read.Action("SaudaBookingTypes", "Lookup", new { isToReturnInactiveData = true }))
+                                                      .ServerFiltering(false))
+                                                      .HtmlAttributes(new { id = "ddlBookingType", @class = "", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_BookingType"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2">
+                                @Helper.GetResourceString("lbl_MaterialType") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-3">
+                                @(Html.Kendo().DropDownListFor(m => m.MaterialTypeId)
+                                                      .OptionLabel("Select Material Type")
+                                                      .DataTextField("Name")
+                                                      .DataValueField("Id")
+                                                      .DataSource(source => source.Read(read => read.Action("GetMaterialTypes", "Lookup", new { isToReturnInactiveData = true }))
+                                                      .ServerFiltering(false))
+                                                      .HtmlAttributes(new { id = "ddlMeterialType", @class = "", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_MaterialType"), @style = "width:100%" }))
+                            </div>
+                            @{
+                                if (!string.IsNullOrWhiteSpace(Model.TradeTicketNumber))
+                                {
+                                    <div class="col-md-2">
+                                        Trade Ticket Number
+                                    </div>
+                                    <div class="col-md-3">
+                                        @Html.TextBoxFor(m => m.TradeTicketNumber, new { tabindex = "4", @class = "form-control decimalValue", @readonly = "readonly", data_msg_required = Helper.GetMsgRequired("lbl_RateOrMT") })
+                                    </div>
+                                }
+                            }
+                        </div>
+                        <div></div>
+                        <div class="row" align="center" style="margin-bottom:15px;">
+                            <div class="col-md-12">
+                                <div class="text-right">
+                                </div>
+                                @(Html.Kendo().Grid<Adani.Solution.DTO.TradeTicketDetailsDto>()
+                                                      .Name("TradeTicketGrid")
+                                                      .Columns(columns =>
+                                                      {
+                                                          columns.Bound(p => p.TradeTicketDetailsId).Visible(false);
+                                                          columns.Bound(p => p.OilTypeId).Visible(false);
+                                                          columns.Bound(p => p.OilName).Width(130);
+                                                          columns.Bound(p => p.OilCost).Title(@Helper.GetResourceString("lbl_OilCost") + "(Rs.)").Width(130);
+                                                          columns.Bound(p => p.ProcessCost).Title(@Helper.GetResourceString("lbl_ProcessCost") + "(Rs.)").Width(130);
+                                                          columns.Bound(p => p.Proportion).Title(@Helper.GetResourceString("lbl_Proportion") + "(%)").Width(130);
+                                                          columns.Template(t => t.TradeTicketDetailsId).HeaderTemplate("").Title("Action").ClientTemplate("<div style='text-align: center;'><a title='" + @Helper.GetResourceString("msg_Edit") + "' class='icon-pencil cursor-pointer' onclick='EditTadeTicket(this)'></a></div>").Width(Settings.GridOtherColumnWidth);
+                                                      })
+                                                      .ToolBar(toolBar => { toolBar.Template("<a class='k-button k-button-icontext' onclick='AddTradeTicket()' href='#'></span>Add New Trade Details</a>"); })
+                                                      //.Editable(editable => editable.Mode(GridEditMode.InCell))
+                                                      .BindTo(Model.TradeTicketDetail)
+                                                      .DataSource(dataSource => dataSource
+                                                      .Ajax()
+                                                      .ServerOperation(false)
+                                                      .Events(events => events.Error("error_handler"))
+                                                      .Model(model =>
+                                                      {
+                                                          model.Id(p => p.TradeTicketDetailsId);
+                                                      })
+                                                      //.Read(read => read.Action("EditingCustom_Read", "Grid").Data("additionalInfo"))
+                                                      .Create(create => create.Action("", ""))
+                                                      ))
+                            </div>
+                        </div>
+                        <div style="padding-top: 40px;">
+                            <div class="row form-group">
+                                <div class="col-md-2">
+                                    Total Oil Cost (Rs)
+                                </div>
+                                <div class="col-md-3">
+                                    @Html.HiddenFor(m => m.TotalOilCost, new { id = "hdnTotalOilTypeCost" })
+                                    <label id="lblTotalOilTypeCost" class="control-label">@Model.TotalOilCost</label>
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-2">
+                                    Total Process Cost (Rs)
+                                </div>
+                                <div class="col-md-3">
+                                    @Html.HiddenFor(m => m.TotalProcessCost, new { id = "hdnTotalProcessCost" })
+                                    <label id="lblTotalProcessCost" class="control-label">@Model.TotalProcessCost</label>
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-2">
+                                    Other Elements (in Rs Per MT)
+                                </div>
+                                <div class="col-md-3">
+                                    @Html.HiddenFor(m => m.TotalOtherElement, new { id = "hdnOtherElement" })
+                                    <label id="lblTotalOtherElement" class="control-label">@Model.TotalOtherElement</label>
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-2">
+                                    Total Cost (Rs)
+                                </div>
+                                <div class="col-md-3">
+                                    @Html.HiddenFor(m => m.TotalCost, new { id = "hdnTotalCost" })
+                                    <label id="lblTotalCost" class="control-label">@Model.TotalCost</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="padding-top: 40px;">
+                            <div class="row form-group">
+                                <div class="col-md-2">
+                                    @Helper.GetResourceString("lbl_ContractQuantity") <span>(MT)</span> <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @Html.TextBoxFor(m => m.ContractQuantity, new { id = "txtContractQuantity", tabindex = "5", @class = "form-control decimalValue", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_ContractQuantity"), @maxlength = (int)InputMaxLength.Price })
+                                </div>
+                                <div class="col-md-2">
+                                    Unit of Measurement <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @*@Html.TextBoxFor(m => m.UomId, new { id = "txtUOM", tabindex = "3", @class = "form-control", @onkeypress = "return isNumber(event);", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_RateOrMT"), @maxlength = (int)InputMaxLength.Price })*@
+                                    @(Html.Kendo().DropDownListFor(m => m.UomId)
+                                                          .DataTextField("Name")
+                                                          .DataValueField("Id")
+                                                          .DataSource(source => source.Read(read => read.Action("GetMTUomAsync", "Lookup"))
+                                                          .ServerFiltering(false))
+                                                          .HtmlAttributes(new { id = "ddlUom2", @class = "", tabindex = "6", @style = "width:100%" }))
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-md-2">
+                                    Contract Date <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DatePickerFor(m => m.ContractDate)
+                                                          .HtmlAttributes(new { id = "dateContractDate", tabindex = "7", @class = "form-control" }))
+                                </div>
+
+                                <div class="col-md-2">
+                                    @Helper.GetResourceString("lbl_PlantOrVendor") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownListFor(m => m.PlantOrVendor)
+                                                          .OptionLabel(@Helper.GetResourceString("plho_SelectPlant"))
+                                                          .DataTextField("Name")
+                                                          .DataValueField("Id")
+                                                          .DataSource(source => source.Read(read => read.Action("GetPlantListddlAsync", "Lookup"))
+                                                          .ServerFiltering(false)).BindTo(Model.PlantOrVendor)
+                                                          .HtmlAttributes(new { id = "ddlPlant", @class = "", tabindex = "8", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_PlantOrVendor"), @style = "width:100%" }))
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-2">
+                                    Valid From
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DatePickerFor(s => s.ValidFrom)
+                                                          .Events(e => e.Change("fromChange"))
+                                                          .HtmlAttributes(new { @id = "dateValidFrom", @class = "form-control", tabindex = "9", }))
+                                </div>
+                                <div class="col-md-2">
+                                    Valid To
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DatePickerFor(s => s.ValidTo)
+                                                          .HtmlAttributes(new { @id = "dateValidTo", @class = "form-control", tabindex = "10", }))
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-md-2">
+                                    @Helper.GetResourceString("lbl_OtherElementsRsPerMT")
+                                </div>
+                                <div class="col-md-3">
+                                    @Html.TextBoxFor(m => m.OtherElement, new { id = "txtOtherElements", tabindex = "11", @class = "form-control decimalValue", data_msg_required = Helper.GetMsgRequired("lbl_OtherElementsRsPerMT"), @maxlength = (int)InputMaxLength.Price })
+                                </div>
+                                <div class="col-md-2">
+                                    Total Booked Quantity
+                                </div>
+                                <div class="col-md-3">
+                                    @Html.TextBoxFor(m => m.SaudaBookedQuantity, new { id = "txtSaudaBookedQuantity", tabindex = "11", @class = "form-control decimalValue" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group text-center" style="margin-top:15px;">
+                            @{
+                                var btnText = Model.Id == 0 ? @Helper.GetResourceString("btn_Save") : "Update";
+                            }
+                            <button type="button" tabindex="13" id="btnCancel" onclick="location.href = '@Url.Action("TradeTicketListRA", "ReverseAuction")'" class="k-button">@Helper.GetResourceString("btn_Cancel")</button>
+                            @if (Helper.CheckClaims(Claims.ManageTradeTicket))
+                            {
+                                if (Model.Id == 0 || !string.IsNullOrEmpty(Model.TradeTicketNumber))
+                                {
+                                    <button type="button" tabindex="12" id="btnPublish" onclick="SaveTradeTicket(this)" class="k-primary k-button">@btnText<i class="icon-arrow-right14 position-right"></i></button>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+                @*</form>*@
+            }
+        </div>
+    </div>
+</div>
+
+<div id="addTradeTicketDetails" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close model-header-color" data-dismiss="modal">&times;</button>
+                <h6 class="panel-title model-header-color"><span class="text-semibold">Add Trade Ticket Details</span></h6>
+            </div>
+            <div class="modal-body">
+                @Html.Partial("AddTradeTicketDetail", new TradeTicketDetailsDto() { VerticalId = 2 })
+            </div>
+            <div class="modal-footer">
+                <button id="btnAddtoGrid" type="button" tabindex="17" class="k-button" data-dismiss="modal"> @Helper.GetResourceString("btn_Save") </button>
+                <button id="btnDirtyCancel" type="button" tabindex="18" onclick="popupClose();" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Cancel")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var veticalOilTypes = [];
+    var addOrEdit = "";
+
+    $(document).ready(function () {
+        if ('@Model.Id' === '0') {
+            //var dates = new Date();
+            //dates.setDate(dates.getDate());
+            //$("#dateValidTo").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+            //$("#dateValidFrom").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+            //$("#dateContractDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+
+            $("#txtContractQuantity").val('');
+            $("#txtOtherElements").val('');
+
+            StartDateRange();
+        } else {
+            tradeTicketFormFieldsReadonly();
+        }
+        $("#txtSaudaBookedQuantity").prop("readonly", true);
+        function additionalInfo() {
+            return false;
+        }
+
+        $("#txtOtherElements").change(function () {
+            var TotalOilcost = $("#lblTotalOilTypeCost").text();
+            if (TotalOilcost == "") { TotalOilcost == 0; }
+            var TotalProcessCost = $("#lblTotalProcessCost").text();
+            if (TotalProcessCost == "") { TotalProcessCost == 0; }
+            var OtherElement = $(this).val();
+            if (OtherElement == "") {
+                OtherElement = 0;
+            }
+            $("#hdnOtherElement").val(parseFloat(OtherElement));
+            $("#lblTotalOtherElement").text(parseFloat(OtherElement));
+            $("#hdnTotalCost").val(parseFloat(TotalOilcost) + parseFloat(TotalProcessCost) + parseFloat(OtherElement));
+            $("#lblTotalCost").text(parseFloat(TotalOilcost) + parseFloat(TotalProcessCost) + parseFloat(OtherElement));
+        });
+
+        $("#btnAddtoGrid").click(function () {
+
+            var isValid = $('#frmPopUp').valid();
+            if (isValid) {
+                var oilTypeId = $("#OilTypeId").data("kendoDropDownList").value();
+                if (!(oilTypeId)) {
+                    ShowErrorMessage("Please select Oil Type");
+                    return false;
+                }
+
+                var grid = $("#TradeTicketGrid").data("kendoGrid");
+                //if (grid && addOrEdit === "add") {
+                //    var gridData = JSON.parse(JSON.stringify(grid.dataSource.data()));
+                //    var isExistOrNot = gridData.some(f => f.OilTypeId == oilTypeId);
+                //    if (isExistOrNot) {
+                //        ShowErrorMessage("Oil Type already added");
+                //        return false;
+                //    }
+                //}
+
+                if (row === undefined) {
+                    grid.dataSource.add({ TradeTicketDetailsId: $("#TradeTicketDetailsId").val(), OilTypeId: $("#OilTypeId").data("kendoDropDownList").value(), OilName: $("#OilTypeId").data("kendoDropDownList").text(), OilCost: $("#OilCost").val(), OilType: $("#OilType").val(), ProcessCost: $("#ProcessCost").val(), Proportion: $("#Proportion").val(), });
+                }
+                else {
+                    row.OilTypeId = $("#OilTypeId").data("kendoDropDownList").value();
+                    row.OilName = $("#OilTypeId").data("kendoDropDownList").text();
+                    row.OilCost = $("#OilCost").val();
+                    row.ProcessCost = $("#ProcessCost").val();
+                    row.Proportion = $("#Proportion").val();
+                    $("#addTradeTicketDetails").modal('hide');
+                    $("#TradeTicketGrid").data("kendoGrid").refresh();
+                    row = undefined;
+                }
+                var gridDatas = $("#TradeTicketGrid").data("kendoGrid").dataSource.data();
+                var OilTypeCost = 0;
+                var ProcessCost = 0;
+                if (gridDatas.length >= 0) {
+                    $.each(gridDatas, function (idx2, val2) {
+                        //OilTypeCost = parseFloat(OilTypeCost) + parseFloat(val2.OilCost);
+                        var oilCostPercentage = parseFloat(val2.OilCost) * parseFloat(val2.Proportion) / 100;
+                        OilTypeCost = parseFloat(OilTypeCost) + parseFloat(oilCostPercentage);
+                        ProcessCost = parseFloat(ProcessCost) + (parseFloat(val2.ProcessCost) * parseFloat(val2.Proportion) / 100);
+                    });
+                    $("#lblTotalOilTypeCost").text(OilTypeCost.toFixed(2));
+                    $("#hdnTotalOilTypeCost").val(OilTypeCost.toFixed(2));
+                    $("#lblTotalProcessCost").text(ProcessCost);
+                    $("#hdnTotalProcessCost").val(ProcessCost);
+                    var totalCost = OilTypeCost + ProcessCost;
+                    $("#lblTotalCost").text(totalCost.toFixed(2));
+                    if ($("#lblTotalOtherElement").text() == "") {
+                        $("#hdnTotalCost").val(totalCost.toFixed(2));
+                    }
+                    else {
+                        var OtherElement = $("#lblTotalOtherElement").text();
+                        if (OtherElement == "") {
+                            OtherElement = 0;
+                        }
+                        $("#hdnTotalCost").val(parseFloat(totalCost) + parseFloat(OtherElement));
+                        $("#lblTotalCost").text(parseFloat(totalCost) + parseFloat(OtherElement));
+                    }
+                }
+                frmPopupClear();
+            }
+            else {
+                return false;
+            }
+        });
+
+        getVerticals();
+    });
+
+        jQuery.fn.extend({
+            serializeForm: function (element) {
+                var config = {};
+                $(this).serializeArray().map(function (item) {
+                    if (config[item.name]) {
+                        if (typeof (config[item.name]) === "string") {
+                            config[item.name] = [config[item.name]];
+                        }
+                        config[item.name].push(item.value);
+                    } else {
+                        config[item.name] = item.value;
+                    }
+                });
+                return config;
+            }
+        });
+
+    var row = undefined;
+    function AddTradeTicket() {
+        //var contractType = $("#ddlContractType").data("kendoDropDownList").value();
+        //if (!(contractType)) {
+        //    ShowErrorMessage("Please select contract type");
+        //    return false;
+        //}
+
+        if (!tblRowValidation()) {
+            return false;
+        }
+        addOrEdit = "add";
+        row = undefined;
+        $("#addTradeTicketDetails").modal('show');
+        //frmPopupClear();
+
+        $("#OilCost").val('0');
+        $("#ProcessCost").val('0');
+        $("#Proportion").val('0');
+    }
+
+    function tblRowValidation() {
+        var rowCount = $("#TradeTicketGrid").data("kendoGrid").dataSource.total();
+        if (rowCount >= 5) {
+            ShowErrorMessage("Maximum row count is 5");
+            return false;
+        }
+        return true;
+    }
+
+    function EditTadeTicket(e) {
+        addOrEdit = "edit";
+        var grid = $("#TradeTicketGrid").data("kendoGrid");
+        row = grid.dataItem(e.closest('tr'));
+        $("#OilTypeId").data("kendoDropDownList").value(row.OilTypeId);
+        $("#OilCost").val(row.OilCost);
+        $("#ProcessCost").val(row.ProcessCost);
+        $("#Proportion").val(row.Proportion);
+        $("#TradeTicketId").val(row.TradeTicketId);
+        $("#addTradeTicketDetails").modal('show');
+    }
+
+    function SaveTradeTicket() {
+        var isValidForm = $("#frmTradeTicket").valid();
+        if (isValidForm) {
+            var SaudaBookedQuantity = $("#txtSaudaBookedQuantity").val();
+            var ContractQuantity = $("#txtContractQuantity").val();
+            var gridData = $("#TradeTicketGrid").data("kendoGrid").dataSource.data();
+
+            if ((gridData) && gridData.length === 0) {
+                ShowErrorMessage("Please add any record");
+                return false;
+            } else {
+                var data = JSON.parse(JSON.stringify(gridData));
+
+                //Proportion validation
+                var totalProportion = data.reduce(function (prev, cur) {
+                    return prev + Number(cur.Proportion);
+                }, 0);
+
+                if (!(totalProportion == 100)) {
+                    ShowErrorMessage("Sum of Proportion is should be equal to 100");
+                    return false;
+                }
+
+                if (parseFloat(ContractQuantity) < parseFloat(SaudaBookedQuantity)) {
+                    ShowErrorMessage("Entered Contract quantity is not allowed.");
+                    return false;
+                }
+            }
+
+            var tradeTicketFormdata = $("#frmTradeTicket").serializeForm();
+            tradeTicketFormdata["TradeTicketDetails"] = JSON.parse(JSON.stringify($("#TradeTicketGrid").data("kendoGrid").dataSource.data()));
+            window.kendo.ui.progress($("#div_Progress"), true);
+            moduleCommon.Common.AjaxCall({
+                type: 'Post',
+                url: '@Url.Action("AddOrUpdateTradeTciketRA", "ReverseAuction")',
+                data: tradeTicketFormdata,
+                success: function (result) {
+                    if (result.PostStatus) {
+                        ShowSuccessMessage(result.PostMessage);
+                        setTimeout(function () {
+                            window.kendo.ui.progress($("#div_Progress"), true);
+                            window.location = '@Url.Action("TradeTicketListRA", "ReverseAuction")';
+                        }, 1300);
+                    }
+                    else {
+                        ShowErrorMessage(result.PostMessage);
+                        window.kendo.ui.progress($("#div_Progress"), true);
+                        return false;
+                    }
+                },
+                failure: function () {
+                    ShowErrorMessage("Failure to Create ot update the Trade Ticket");
+                    window.kendo.ui.progress($("#div_Progress"), true);
+                    return false;
+                }
+            });
+        }
+    }
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+
+    function onVerticalTypeChange() {
+        $("#ddlOilType").data("kendoDropDownList").dataSource.read();
+    }
+
+    function OilTypeChange() {
+
+       var oiltypeId = Number($("#OilTypeId").data("kendoDropDownList").value());
+        if (veticalOilTypes) {
+            var result = veticalOilTypes.find(f => f.OilTypeId == oiltypeId);
+
+            if ((result) && result.VerticleId === emamiGlobal.Verticals.HBC) {
+                $("#ProcessCost").prop("required", false);
+                $("#Proportion").prop("required", false);
+            } else {
+                $("#ProcessCost").prop("required", true);
+                $("#Proportion").prop("required", true);
+            }
+        }
+    }
+
+    function getVerticals() {
+        moduleCommon.Common.AjaxCall({
+                type: 'Get',
+                url: '@Url.Action("GetOilTypes", "Lookup")',
+                data: {},
+                success: function (result) {
+
+                    veticalOilTypes = result;
+                }
+            });
+    }
+
+    function frmPopupClear() {
+        $("#OilTypeId").data("kendoDropDownList").value("");
+        $("#OilCost").val('');
+        $("#OilType").val('');
+        $("#ProcessCost").val('');
+        $("#Proportion").val('');
+    }
+
+    function tradeTicketFormFieldsReadonly() {
+        $("#ddlContractType").data("kendoDropDownList").readonly(true);
+        $("#ddlBookingType").data("kendoDropDownList").readonly(true);
+        $("#ddlMeterialType").data("kendoDropDownList").readonly(true);
+        $("#ddlUom2").data("kendoDropDownList").readonly(true);
+        $("#ddlPlant").data("kendoDropDownList").readonly(true);
+        $("#dateValidFrom").data("kendoDatePicker").readonly(true);
+        $("#dateValidTo").data("kendoDatePicker").readonly(true);
+        $("#dateContractDate").data("kendoDatePicker").readonly(true);
+        $("#txtOtherElements").prop("readonly", true);
+    }
+
+    //function onContractTypeChange() {
+        //$("#OilTypeId").data("kendoDropDownList").dataSource.read();
+        //var gridData = $("#TradeTicketGrid").data("kendoGrid").dataSource.data();
+        //if (!((gridData) && gridData.length === 0)) {
+        //    $("#TradeTicketGrid").data("kendoGrid").dataSource.data([]);
+        //}
+    //}
+
+    function oilTypeAdditionalParam() {
+        var verticleId = $("#ddlContractType").data("kendoDropDownList").value();
+        return {
+            verticalId: Number(verticleId)
+        }
+    }
+
+
+    function StartDateRange() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+
+        $("#dateContractDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        $("#dateValidFrom").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        $("#dateValidTo").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        var endPicker = $("#dateValidTo").data("kendoDatePicker");
+        endPicker.min(dates);
+    }
+
+    function fromChange() {
+        var endPicker = $("#dateValidTo").data("kendoDatePicker"),
+            startDate = this.value();
+        if (startDate) {
+            startDate = new Date(startDate);
+            $("#dateValidTo").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+            endPicker.min(startDate);
+        }
+    }
+
+</script>

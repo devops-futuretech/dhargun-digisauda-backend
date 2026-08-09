@@ -1,0 +1,157 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.DTO;
+@using Adani.Solution.MVC.Models;
+@model Adani.Solution.DTO.UserCustomerSaudaTargetDto
+@{
+    ViewBag.Title = "UserAssignedCustomerSaudaTarget";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="tptargetAssignedSaudaTarget" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_UserAssignedSaudaTarget")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Target</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_UserAssignedSaudaTarget") List<span class="icon-right"></span></li>
+    </ol>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="text-right right-buttons">
+                        <div class="export_as">
+                            <span>Export as</span>
+                            <div class="export-btns">
+                                <span class="export-link" onclick='downloadViewTargets()' type="button">Excel</span>
+                            </div>
+                        </div>
+                        @*<button class="k-button k-button-icontext k-grid-excel" onclick='downloadViewTargets()' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;*@
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    </div>
+                    @(Html.Kendo().Grid<UserCustomerSaudaTargetDto>()
+                                  .Name("ViewTargets")
+                                  .Columns(columns =>
+                                  {
+                                      columns.Bound(c => c.AssignedToId).Visible(false);
+                                      columns.Bound(c => c.FinancialYearId).Visible(false);
+                                      columns.Bound(c => c.AssignedToUser).Title(@Helper.GetResourceString("lbl_AssignedTo")).Width(Settings.GridOtherColumnWidth);
+                                          //.ClientTemplate(@"<div><a style='text-decoration: underline;'  href='" + Url.Action("UserCustomerSaudaTargetEditRedirect", "Target", new { userid = "#=AssignedToId#", financialyearid = "#=FinancialYearId#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=AssignedToUser#</a>  </div>")
+                                          columns.Bound(c => c.FinancialYear).Title(@Helper.GetResourceString("lbl_CalendarDuaration")).Width(Settings.GridOtherColumnWidth);
+                                  })
+                                  .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                  .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                  .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                  .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                  .Scrollable(s => s.Enabled(true).Height("auto"))
+                                  .Excel(excel => excel.FileName("UserAssignedSaudaTarget" + " " + DateTime.Now + ".xlsx").AllPages(true))
+                                  .ClientDetailTemplateId("oiltypeTemplate")
+                                  .Reorderable(reorder => reorder.Columns(true))
+                                  .Resizable(resize => resize.Columns(true))
+                                  .DataSource(dataSource => dataSource
+                                  .Ajax()
+                                  .Model(model => model.Id(m => m.Id))
+                                  .ServerOperation(true)
+                                  .Read(read => read.Action("GetAssignedSaudaTargetListAsync", "Target"))))
+                    <script id="oiltypeTemplate" type="text/kendo-tmpl">
+                        @(Html.Kendo().Grid<UserCustomerSaudaTargetDto>()
+                                      .Name("grid_#=AssignedToId#_#=FinancialYearId#")
+                                      .Columns(columns =>
+                                      {
+                                          columns.Bound(c => c.VerticalId).Visible(false);
+                                          columns.Bound(c => c.OilTypeId).Visible(false);
+                                          columns.Bound(c => c.AssignedToId).Visible(false);
+                                          columns.Bound(c => c.FinancialYearId).Visible(false);
+                                          columns.Bound(c => c.Vertical).Title(@Helper.GetResourceString("lbl_Vertical")).Width(Settings.GridOtherColumnWidth);
+                                          columns.Bound(c => c.OilType).Title(@Helper.GetResourceString("lbl_OilType")).Width(Settings.GridOtherColumnWidth);
+                                      })
+                                      .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                      .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                      .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                      .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                      .Scrollable(s => s.Enabled(true).Height("auto"))
+                                      .ClientDetailTemplateId("template")
+                                      .Reorderable(reorder => reorder.Columns(true))
+                                      .Resizable(resize => resize.Columns(true))
+                                      .DataSource(dataSource => dataSource
+                                      .Ajax()
+                                      .Model(model => model.Id(m => m.Id))
+                                      .PageSize(10)
+                                      .Read(read => read.Action("GetSaudaTargetOilTypeListAsync", "Target", new { userid = "#=AssignedToId#", financialyearid = "#=FinancialYearId#" }))
+                                      )
+                                      .Sortable()
+                                      .ToClientTemplate())
+                    </script>
+                    <script id="template" type="text/kendo-tmpl">
+                        @(Html.Kendo().Grid<UserTargetDetailDto>()
+                                      .Name("grid_#=AssignedToId#_#=FinancialYearId#_#=OilTypeId#")
+                                      .Columns(columns =>
+                                      {
+                                          columns.Bound(c => c.Id).Visible(false);
+                                          columns.Bound(c => c.MonthId).Visible(false);
+                                          columns.Bound(c => c.Month).Title(@Helper.GetResourceString("lbl_Month")).Width(Settings.GridOtherColumnWidth);
+                                          columns.Bound(c => c.SaudaTarget).Title(@Helper.GetResourceString("lbl_Target")).Width(Settings.GridOtherColumnWidth);
+                                      })
+                                      .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                      .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                      .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                      .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                      .Scrollable(s => s.Enabled(true).Height("auto"))
+                                      .Reorderable(reorder => reorder.Columns(true))
+                                      .Resizable(resize => resize.Columns(true))
+                                      .DataSource(dataSource => dataSource
+                                      .Ajax()
+                                      .PageSize(10)
+                                      .Read(read => read.Action("GetUserCustomerSaudaTargetDetailListAsync", "Target", new { userid = "#=AssignedToId#", financialyearid = "#=FinancialYearId#", oiltypeId = "#=OilTypeId#" }))
+                                      )
+                                      .Sortable()
+                                      .ToClientTemplate())
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+        // kendo grid filter contains
+        FilterContains();
+    });
+
+    //Method to data bound event for owner
+    function OnCategoryListDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+    function downloadViewTargets(e) {
+       var length = $("#ViewTargets").data("kendoGrid").dataSource.data().length
+        if (length > 0) {
+            ExportToExcel("ViewTargets")
+        }
+        else {
+            ShowErrorMessage("No records found");
+        }
+       
+    }
+   
+</script>
+
+
+
+
+

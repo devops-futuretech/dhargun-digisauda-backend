@@ -1,0 +1,98 @@
+﻿@using Kendo.Mvc.UI;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@model Adani.Solution.DTO.UserSalesSaudaTargetDto
+@{
+    Layout = null;
+}
+<div class="row">
+    <div class="col-md-12">
+        @*<table class="tblgrid">
+                <tr>
+                    <th>@Helper.GetResourceString("lbl_Month")</th>
+                    <th>@Helper.GetResourceString("lbl_SalesTarget")</th>
+                    <th>@Helper.GetResourceString("lbl_SaudaTarget")</th>
+                </tr>
+                @if (Model.UserSalesSaudaTargetDetail.ToList().Count > 0)
+                {
+                    for (var i = 0; i < Model.UserSalesSaudaTargetDetail.ToList().Count; i++)
+                    {
+                        var hdnMonthId = "hdnMonthId" + i;
+                        var hdnId = "hdnId" + i;
+                        var labelMonthId = "lblMonth" + i;
+                        var txtSalesTargetid = "txtSalesTarget" + i;
+                        var txtSaudaTargetid = "txtSaudaTarget" + i;
+                        <tr>
+                            <td>
+
+                                <label class="control-label">@Model.UserSalesSaudaTargetDetail[i].Month</label>
+                                @Html.HiddenFor(m => m.UserSalesSaudaTargetDetail[i].MonthId, new { id = @hdnMonthId })
+                                @Html.HiddenFor(m => m.UserSalesSaudaTargetDetail[i].Id, new { id = @hdnId })
+                            </td>
+                            <td>
+                                @Html.TextBoxFor(m => m.UserSalesSaudaTargetDetail[i].SalesTarget, new { id = @txtSalesTargetid, @class = "k-textbox", @maxlength = (int)InputMaxLength.String })
+                            </td>
+                            <td>
+                                @Html.TextBoxFor(m => m.UserSalesSaudaTargetDetail[i].SaudaTarget, new { id = @txtSaudaTargetid, @class = "k-textbox", @maxlength = (int)InputMaxLength.String })
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td>@Helper.GetResourceString("lbl_NoRecordsFound")</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                }
+            </table>*@
+        <div class="row" style="margin: 10px;">
+            <div class="col-md-12">
+                <div class="col-md-2">
+                    <b>@Helper.GetResourceString("lbl_Month")</b>  
+                </div>
+                <div class="col-md-3">
+                    <b>@Helper.GetResourceString("lbl_SalesTarget")</b>
+                </div>
+                <div class="col-md-3">
+                    <b>@Helper.GetResourceString("lbl_SaudaTarget")</b>
+                </div>
+            </div>
+        </div>
+        @if (Model.UserSalesSaudaTargetDetail.ToList().Count > 0)
+        {
+            for (var i = 0; i < Model.UserSalesSaudaTargetDetail.ToList().Count; i++)
+            {
+                var hdnMonthId = "hdnMonthId" + i;
+                var hdnId = "hdnId" + i;
+                var labelMonthId = "lblMonth" + i;
+                var txtSalesTargetid = "txtSalesTarget" + i;
+                var txtSaudaTargetid = "txtSaudaTarget" + i;
+                <div class="row" style="margin: 10px;">
+                    <div class="col-md-12">
+                        <div class="col-md-2">
+                            <label class="control-label">@Model.UserSalesSaudaTargetDetail[i].Month</label>
+                            @Html.HiddenFor(m => m.UserSalesSaudaTargetDetail[i].MonthId, new { id = @hdnMonthId })
+                            @Html.HiddenFor(m => m.UserSalesSaudaTargetDetail[i].Id, new { id = @hdnId })
+                        </div>
+                        <div class="col-md-3">
+                            @Html.TextBoxFor(m => m.UserSalesSaudaTargetDetail[i].SalesTarget, new { id = @txtSalesTargetid, @class = "k-textbox", @maxlength = (int)InputMaxLength.String })
+                        </div>
+                        <div class="col-md-3">
+                            @Html.TextBoxFor(m => m.UserSalesSaudaTargetDetail[i].SaudaTarget, new { id = @txtSaudaTargetid, @class = "k-textbox", @maxlength = (int)InputMaxLength.String })
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+
+    });
+
+</script>

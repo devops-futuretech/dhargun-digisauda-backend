@@ -1,0 +1,112 @@
+﻿
+@{
+    ViewBag.Title = "QuestionList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@{
+    ViewBag.Title = "Question";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="updatesQuestion" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_Question")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Updates</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_Question")<span class="icon-right"></span></li>
+    </ol>
+    @*<div id="dateFilter" class="col-xs-9">
+            <div class="period-wrapper">
+                <a href="@Url.Action("QuestionEditRedirect", "SurveyUpdates")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateQuestion")</a>
+            </div>
+        </div>*@
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        @*<div class="panel-heading">
+            </div>*@
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvQuestions">
+                <div class="col-md-12">
+                    <div class="text-right right-buttons">
+                        <div class="export_as">
+                            <span>Export as</span>
+                            <div class="export-btns">
+                                <span class="export-link" onclick='ExportToExcel("ViewQuestions")' type="button">Excel</span>
+                            </div>
+                        </div>
+                        @*<button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ViewQuestions")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;*@
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                        <div class="period-wrapper">
+                            <a href="@Url.Action("QuestionEditRedirect", "SurveyUpdates")" class="k-primary k-button custom-btns"><b><i class="icon-plus"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateQuestion")</a>
+                        </div>
+                    </div>
+                    @(Html.Kendo().Grid<QuestionDto>()
+                          .Name("ViewQuestions")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.Id).Visible(false);
+                              columns.Bound(c => c.Question).Title(@Helper.GetResourceString("lbl_Question")).ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("QuestionEditRedirect", "SurveyUpdates", new { questionId = "#=Id#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=Question#</a> </div>").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.ValidFrom).Format(Settings.GridDateFormat).Title(@Helper.GetResourceString("lbl_ValidFrom")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.ValidTo).Format(Settings.GridDateFormat).Title(@Helper.GetResourceString("lbl_ValidTo")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Active")).ClientTemplate(@"<div style='text-align: center;'> #if(IsActive == false) { #"
+                                                       + " <a  title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Width(Settings.GridColumnMaxWidth);
+                              columns.Template(t => t.Id).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Action")).ClientTemplate("<div style='text-align: center;'><a title='" + @Helper.GetResourceString("msg_Edit") + "' class='icon-eye cursor-pointer' href='" + Url.Action("QuestionSurveyRedirect", "SurveyUpdates", new { questionId = "#=Id#" }) + "' ></a></div>").Width(Settings.GridOtherColumnWidth);
+                          })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Excel(excel => excel.FileName(@Helper.GetResourceString("lbl_Question") + " " + DateTime.Now + ".xlsx").AllPages(true))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Selectable(selectable => selectable
+                          .Mode(GridSelectionMode.Multiple)
+                          .Type(GridSelectionType.Row))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Events(events => events.DataBound("onQuestionListDataBound"))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .Resizable(resize => resize.Columns(true))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Model(model => model.Id(m => m.Id))
+                          .ServerOperation(true)
+                          .Read(read => read.Action("GetQuestionListAsync", "SurveyUpdates", new { isToReturnInactiveData = true }))))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();
+
+         if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+		}
+    });
+
+    function onQuestionListDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+</script>
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,114 @@
+﻿
+@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common
+@{
+    Layout = null;
+}
+
+<!-- Modal body-->
+@using (Html.BeginForm("frmNotificationDetails", "Lookup", FormMethod.Post, new { id = "frmNotificationDetails", @class = "form-validate-jquery" }))
+{
+    <div class="row form-group">
+        <div class="row form-group">
+            <div class="row form-group">
+                <div class="col-md-4 text-right">
+                    @Helper.GetResourceString("lbl_BDO") <span class="text-danger">*</span>
+                </div>
+                <div class="col-md-4">
+                    @(Html.Kendo().MultiSelect()
+                                                .Name("BDOId")
+                                                .DataTextField("Name")
+                                                .DataValueField("Id")
+                                                .AutoClose(false)
+                                                .TagMode(TagMode.Single)
+                                                .Events(events => events.Change("onBDOChange"))
+                                                .DataSource(source => source.Read(resd => resd.Action("GetBdoddl", "Lookup"))
+                                                .ServerFiltering(false))
+                                                .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='bdoSelectAll'> Select All</label>")
+                                                .HtmlAttributes(new { id = "ddlBdo", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_BDO"), @style = "width:100%" }))
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-md-12 text-center">
+                    <button type="button" tabindex="7" onclick="SearchCustomer()" class="k-primary k-button">Search</button>
+                </div>
+            </div>
+            <div class="row" id="dvDealers">
+                <div class="col-md-12">
+                    <div class="text-right">
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    </div>
+                    @(Html.Kendo().Grid<NotificationDetailDto>()
+                          .Name("ViewDealerList")
+                          .Columns(columns =>
+                          {
+                                  columns.Bound(c => c.CustomerId).Visible(false);
+                                 
+                                  columns.Template(@<text></text>).ClientTemplate("<div class='text-center'><input type='checkbox' #=IsChecked ? checked='checked' :'' # class='chkbxAllDealer' value=#=CustomerId# onclick=\"findCheckedItemsSaveItToHidden(this,'#=CustomerId#','hdSelectedDealerIds','masterCBAllDealer','chkbxAllDealer','lblDealerSelectedCount','');\" /></div>")
+   .HeaderTemplate("<div class='text-center'><input type='checkbox' id='masterCBAllDealer' onclick=\"masterfindCheckedItemsSaveItToHidden(this,'hdSelectedDealerIds','chkbxAllDealer','lblDealerSelectedCount','')\" /></div>").Width("40px");
+
+                              columns.Bound(c => c.CustomerName).Title(@Helper.GetResourceString("lbl_CustomerName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.Code).Title(@Helper.GetResourceString("lbl_Code")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.MobileNumber).Title(@Helper.GetResourceString("lbl_MobileNumber")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.Email).Title(@Helper.GetResourceString("lbl_Email")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.RoleName).Title(@Helper.GetResourceString("lbl_Role")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.Zone).Title(@Helper.GetResourceString("lbl_Zone")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.State).Title(@Helper.GetResourceString("lbl_State")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.Territory).Title(@Helper.GetResourceString("lbl_Territory")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.District).Title(@Helper.GetResourceString("lbl_District")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.City).Title(@Helper.GetResourceString("lbl_City")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(c => c.Vertical).Title(@Helper.GetResourceString("lbl_Vertical")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              
+                          })
+   .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+   .Filterable(filter => filter.Mode(GridFilterMode.Row))
+   .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+   .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+   .Selectable(selectable => selectable
+   .Mode(GridSelectionMode.Multiple)
+   .Type(GridSelectionType.Row))
+   .Scrollable(s => s.Enabled(true).Height("auto"))
+   .Events(events => events.DataBound("onDealerListDataBound"))
+   .Reorderable(reorder => reorder.Columns(true))
+   .Resizable(resize => resize.Columns(true))
+   .DataSource(dataSource => dataSource
+   .Ajax()
+   .Model(model => model.Id(p => p.CustomerId))
+   .ServerOperation(true)
+   .Read(read => read.Action("GetDealerListBasedOnBDO", "Lookup").Data("additionalParams"))))
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<script type="text/javascript">
+
+
+
+    var selectedDealerIds = [];
+    $(document).ready(function () {
+        debugger;
+
+        // kendo grid filter contains
+        FilterContains();
+
+        $('#chkKendoFilterShowHide').change(function () {
+            filterShowHide();
+        });
+
+        $("#bdoSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlBdo", "bdoSelectAll");
+        });
+
+    });
+
+    function onBDOChange(e) {
+       MultiSelectEvents("ddlBdo", "bdoSelectAll");
+    }
+
+
+
+</script>

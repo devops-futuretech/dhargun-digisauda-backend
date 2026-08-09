@@ -1,0 +1,169 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@model Adani.Solution.DTO.RoleDiscountDto
+
+@{
+    ViewBag.Title = "RoleDiscount";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{
+    var isDisable = "";
+    if (Model.HbcDiscout > 0)
+    {
+        isDisable = "disabled";
+    }
+    else if (Model.SpecialityFatDiscount > 0)
+    {
+        isDisable = "disabled";
+    }
+    else
+    {
+        isDisable = "";
+    }
+}
+
+<input type="hidden" class="currentMenu" value="pricingRoleDiscount" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_AddOrUpdateRoleDiscount")</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="RoleLoader">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("UpdateRoleDiscount", "Pricing", FormMethod.Post, new { id = "frmRoleDiscount", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        @Html.HiddenFor(m => m.Id, new { id = "Id" })
+                        @Html.HiddenFor(m => m.VerticleId, new { id = "verticleId" })
+                        <div class="row form-group">
+
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_VerticleType")
+                                </div>
+                                <div class="col-md-8">
+                                    <label style="padding-left: 17px;">
+                                        <span><input type="radio" name="Verticle" id="rdoHbc" value="1" tabindex="1"/></span>
+                                        @Helper.GetResourceString("lbl_Hbc")
+                                    </label>
+                                    <label style="padding-left: 40px;">
+                                        <span><input type="radio" name="Verticle" id="rdoSpecialityFat" value="2" tabindex="2"/></span>
+                                        @Helper.GetResourceString("lbl_SpecialtyFat")
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_Role") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-4">
+                                    @Html.HiddenFor(m => m.RoleName, new { id = "hdnRoleId" })
+                                    @(Html.Kendo().DropDownListFor(m => m.RoleId)
+                                                  .DataTextField("Name")
+                                                  .DataValueField("Id")
+                                                  .OptionLabel(@Helper.GetResourceString("plho_SelectRole"))
+                                                  .DataSource(source => source.Read(read => read.Action("GetRoleTypesAsync", "Role"))
+                                                  .ServerFiltering(true))
+                                                  .HtmlAttributes(new { id = "ddlRole", @class = "form-control", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Role"), @style = "width:100%" }))
+
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_Discount") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-4">
+                                    @Html.TextBoxFor(m => m.Discount, new { id = "txtDiscount", @class = "form-control decimalValue", tabindex = "4", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Discount") })
+                                </div>
+                            </div>
+                            @*<div class="row form-group">
+                                    <div class="col-md-4 text-right">
+                                        @Helper.GetResourceString("lbl_ActiveInactive")
+                                    </div>
+                                    <div class="col-md-4">
+                                        @Html.CheckBoxFor(m => m.IsActive, new { id = "cbActiveInactive", tabindex = "5", @isDisable })
+                                    </div>
+                                </div>*@
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+                                <button type="button"  tabindex = "5" id="btnCancel" onclick="location.href = '@Url.Action("RoleDiscountList", "Pricing")'" class="k-button">@Helper.GetResourceString("btn_Cancel")</button>
+                                <button type="button"  tabindex = "6" id="btnSave" class="k-primary k-button">@Helper.GetResourceString("btn_Save")<i class="icon-arrow-right14 position-right"></i></button>
+                            </div>
+                        </div>
+                    }
+                    <!---end of form input-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        //Edit function readonly some fields
+        if ('@Model.Id' == 0) {
+            $("#txtDiscount").val('');
+        } else {
+            var dataSource = $("#ddlRole").data("kendoDropDownList");
+            dataSource.readonly();
+        }
+
+        if ('@Model.HbcDiscout' > 0) {
+            $("#verticleId").val(1);
+            $("#rdoHbc").prop("checked", true);
+            alert("hbc");
+        } else if ('@Model.SpecialityFatDiscount' > 0) {
+            $("#verticleId").val(2);
+            $("#rdoSpecialityFat").prop("checked", true);
+            alert("sp");            
+        } else {            
+            $("#rdoHbc").prop("checked", true);
+            $("#verticleId").val(1);
+            $("#txtDiscount").val('');
+            alert("none");
+        }
+
+        //$("#verticleId").val(1);
+        $("input[name='Verticle']").change(function () {
+
+            $("#verticleId").val($(this).val());
+        });
+
+        $("#btnSave").click(function () {
+
+            var isValidForm = $("#frmRoleDiscount").valid();
+
+            //var selectedPlant = $("#ddlPlantId").data("kendoMultiSelect");
+            //if (selectedPlant) {
+            //    var data = selectedPlant.value();
+            //}
+
+            if (isValidForm) {
+                window.kendo.ui.progress($("#RoleLoader"), true);
+                $("#frmRoleDiscount").submit();
+                window.kendo.ui.progress($("#RoleLoader"), false);
+            }
+        });
+
+    });
+
+
+
+</script>

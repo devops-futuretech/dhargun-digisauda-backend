@@ -1,0 +1,270 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model SaudaOrderDetails
+@{
+    ViewBag.Title = "ApproveSaudaCounterBid";
+    Layout = "~/Views/Shared/_MailRedirectLayout.cshtml";
+
+    string btnDisabled = "";
+    btnDisabled = Model.StatusId == (int)Status.Hold ? "" : "disabled";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="transactionSaudaList" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Sauda Details</h2>
+    <div style="clear:both;"></div>
+</div>
+
+@using (Html.BeginForm("ApproveSaudaCounterBid", "MailRedirect", FormMethod.Post, new { id = "frmApproveSaudaCounterBid", @class = "form-validate-jquery" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.SaudaOrderId, new { id = "hdnSaudaOrderId" })
+
+    @Html.HiddenFor(m => m.SkuId)
+    @Html.HiddenFor(m => m.OilTypeId)
+    @Html.HiddenFor(m => m.StatusId)
+    @Html.HiddenFor(m => m.SaudaId)
+    @Html.HiddenFor(m => m.DealerId)
+    @Html.HiddenFor(m => m.DiscountTypeId)
+    @Html.HiddenFor(m => m.SaudaConversionId)
+
+    <div class="content main-section-content row">
+        <div class="panel panel-flat">
+            <div class="panel-heading">
+            </div>
+            <div class="panel-body" style="display: block;">
+                <div class="row" id="div_Progress">
+                    <div class="col-md-12">
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_SkuName")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.SkuName
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_OilType")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.OilTypeName
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_QuantityPerMT")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.BidQuantity
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_QuantityPerCase")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.BidQuantityCases
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_Price")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.BidPrice
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_PricePerCase")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.BidPricePerCase
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_CounterBidOffer")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.CounterBidOffer
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_CounterBidOfferDate")
+                            </div>
+                            <div class="col-md-3">
+                                @Helper.NullableDateTimeFormat(@Model.CounterBidOfferDate)
+                            </div>
+                        </div>
+
+                        @*<div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_Discount")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.Discount
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_FinalPrice")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.QuotedPrice
+                            </div>
+
+                        </div>*@
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_LiftedDate")
+                            </div>
+                            <div class="col-md-3">
+                                @Helper.DateTimeFormat(@Model.LiftedDate)
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_IncoTerms")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.IncoTerms
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_PlantDepot")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.PlantDepot
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_FreightRoute")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.FrieghtRoute
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_ValidTo")
+                            </div>
+                            <div class="col-md-3">
+                                @Helper.DateTimeFormat(@Model.ValidToDate)
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_BookedDate")
+                            </div>
+                            <div class="col-md-3">
+                                @Helper.DateTimeFormat(@Model.BookedDate)
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_SaudaNumber")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.SaudaNumber
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_DealerName")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.DealerName
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_Status")
+                            </div>
+                            <div class="col-md-3">
+                                <span id="txtStatus"> @Model.Status</span>
+                            </div>
+                            @*<div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_CreatedBy")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.CreatedBy
+                            </div>*@
+                        </div>
+
+                        <div class="row form-group">  </div>                      
+                        <div class="row form-group" id="divSave">
+                            <div class="col-lg-12" id="divRemarks">
+                                <div class="text-center">
+                                    <button type="button" @btnDisabled id="btnApproved" value="2" class="k-primary k-button">@Helper.GetResourceString("btn_Approve")</button>
+                                    <button type="button" @btnDisabled id="btnRejected" value="3" class="k-button">@Helper.GetResourceString("btn_Cancel")</button>
+                                    @*<button type="button" @btnDisabled id="btnHold" value="5" class="k-button">Hold</button>*@
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+
+    $(document).ready(function () {
+
+        // kendo grid filter contains
+        //FilterContains();
+
+        $("#btnApproved,#btnRejected").click(function (e) {
+
+            var form = $('#frmApproveSaudaCounterBid');
+            var token = $('input[name="__RequestVerificationToken"]', form).val();
+            var statusId = parseInt($(this).val());
+            var selectedOrders = [];
+
+            //if (statusId === emamiGlobal.Status.Rejected && !$("#txtReason").val()) {
+            //    ShowErrorMessage("Please enter the reason");
+            //    return false;
+            //}
+            var isAccept = false;
+            var statusName = "";
+            if (statusId === emamiGlobal.Status.Approved) {
+                isAccept = true;
+                statusName = "Approved";
+            }
+            else {
+                statusName = "Rejected";
+            }
+
+            selectedOrders.push(Number($("#hdnSaudaOrderId").val()));
+
+            var model = {
+                IsAccept: isAccept,
+                SaudaOrderId: Number($("#hdnSaudaOrderId").val())
+            };
+
+            window.kendo.ui.progress($("#div_Progress"), true);
+            moduleCommon.Common.AjaxCall({
+                url: '@Url.Action("ApproveSaudaCounterBid", "MailRedirect")',
+				type: 'POST',
+                data: { __RequestVerificationToken: token, inputDto: model },
+				success: function (result) {
+                    if (result.PostStatus) {
+                        ShowSuccessMessage(result.PostMessage);                       
+                        $('txtStatus').val(statusName);
+                        $('#btnApproved').attr('disabled', true);
+                        $('#btnRejected').attr('disabled', true);
+                        window.kendo.ui.progress($("#div_Progress"), false);
+					} else {
+						ShowErrorMessage(result.PostMessage);
+						window.kendo.ui.progress($("#div_Progress"), false);
+						return false;
+					}
+				}
+			});
+        });
+
+    });
+
+    //function onDataBound(e) {
+    //    SetEmptyRow(e);
+    //}
+</script>
+
+

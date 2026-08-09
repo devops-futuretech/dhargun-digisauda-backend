@@ -1,0 +1,369 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model TradeTicketSaudaMappingDto
+@{
+    ViewBag.Title = "SaudaMapping";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="transactionTradeTicketStatus" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Sauda Mapping</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;" id="divLoader">
+            <div class="row" id="dvSecondaryFreights">
+                <div class="row form-group">
+                    <div class="col-md-4 text-right">Trade Ticket Number</div>
+                    <div class="col-md-4">
+                        @(Html.Kendo().DropDownListFor(f => f.TradeTicketId)
+                              //.Name("TradeTicket")
+                              .OptionLabel("Select Trade Ticket Number")
+                              .DataTextField("Name")
+                              .DataValueField("Id")
+                              .DataSource(source => source.Read(read => read.Action("TradeTicketDropdownList", "ReverseAuction", new { isToReturnInactiveData = true }))
+                              .ServerFiltering(false))
+                              .HtmlAttributes(new { id = "ddlTradeTicket", onchange = "SearchSauda()", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Plant"), @style = "width:100%" }))
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-md-2 text-right clsBold">
+                        @Helper.GetResourceString("lbl_Plant")
+                    </div>
+                    <div class="col-md-3">
+                        @Model.PlantName
+                    </div>
+                    <div class="col-md-2 text-right clsBold">
+                        @Helper.GetResourceString("lbl_MaterialType")
+                    </div>
+                    <div class="col-md-3">
+                        @Model.MaterialType
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-2 text-right clsBold">
+                        @Helper.GetResourceString("lbl_SAPCreationDate")
+                    </div>
+                    <div class="col-md-3">
+                        @Helper.DateTimeFormatWithMinutes(@Model.SAPCreationDate)
+                    </div>
+                    <div class="col-md-2 text-right clsBold">
+                        @Helper.GetResourceString("lbl_RatePerMT")
+                    </div>
+                    <div class="col-md-3">
+                        @Helper.DecimalFormat4(@Model.RatePerMT)
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-2 text-right clsBold">
+                        @Helper.GetResourceString("lbl_OpenQuantityInMT")
+                    </div>
+                    <div class="col-md-3">
+                        @Html.TextBoxFor(m => m.OpenQuantity, new { id = "txtOpenQuantityFromSap", tabindex = "5", @class = "form-control decimalValue", @maxlength = (int)InputMaxLength.Price })
+                    </div>
+                    <div class="col-md-2 text-right clsBold">
+                        @Helper.GetResourceString("lbl_SaudaTotalQuantityInMT")
+                    </div>
+                    <div class="col-md-3">
+                        @*@Helper.DecimalFormat4(@Model.SaudaTotalQuantity)*@
+                        <span id="saudaTotalQuantity"></span>
+                    </div>
+                 </div>
+                <div class="row form-group">
+                    <div class="col-md-2 text-right">
+                        @Helper.GetResourceString("lbl_FromDate")
+                    </div>
+                    <div class="col-md-3">
+                        @(Html.Kendo().DatePicker().Name("FromDate")
+                              .Format(Settings.DateFormat)
+                              .Events(e => e.Change("fromChange"))
+                              .HtmlAttributes(new { id = "dpFromDate", onkeydown = "return isFocus(event);", tabindex = "5", style = "width: 100%" }))
+                    </div>
+                    <div class="col-md-2 text-right">
+                        @Helper.GetResourceString("lbl_ToDate")
+                    </div>
+                    <div class="col-md-3">
+                        @(Html.Kendo().DatePicker().Name("ToDate")
+                              .Format(Settings.DateFormat)
+                              .HtmlAttributes(new { id = "dpToDate", onkeydown = "return isFocus(event);", tabindex = "6", style = "width: 100%" }))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-2 text-right">
+                        @Helper.GetResourceString("lbl_State")
+                    </div>
+                    <div class="col-md-3">
+
+                        @(Html.Kendo().MultiSelectFor(m => m.StateId)
+                    .Placeholder(@Helper.GetResourceString("plho_SelectState"))
+                    .DataTextField("Name")
+                    .DataValueField("Id")
+                    .AutoClose(false)
+                    .TagMode(TagMode.Single)
+                    .Events(e => e.Change("onChangeForDealer"))
+                    .DataSource(source => source.Read(read => read.Action("GetStateNameAsync", "Lookup"))
+                    .ServerFiltering(false))
+                    .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='stateSelectAll'> Select All</label> <div class=\"dropdown-header k-widget k-header\">" + "<span class=\"pullLeft\">State</span>" + "</div>")
+                    .HtmlAttributes(new { id = "ddlstate", @class = "form-control", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_State"), @style = "width:100%" }))
+                    </div>
+                    <div class="col-md-2 text-right">
+                        @Helper.GetResourceString("lbl_Dealers")
+                    </div>
+                    <div class="col-md-3">
+
+
+                        @(Html.Kendo().MultiSelectFor(m => m.DealerIds)
+                                          .Placeholder(@Helper.GetResourceString("plho_SelectDealer"))
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .AutoClose(false)
+                                          .TagMode(TagMode.Single)
+                                          .Events(e => e.Change("onDealerChange"))
+                                          .DataSource(source => source.Read(read => read.Action("GetDealersListByStateIdAsync", "ReverseAuction").Data("filterDealer"))
+                                          .ServerFiltering(false))
+
+
+                                          .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='dealerSelectAll'> Select All</label> <div class=\"dropdown-header k-widget k-header\">" + "<span class=\"pullLeft\">Name</span>" + "</div>")
+                                              .ItemTemplate("<span class=\" k-state-default\"><h3>#: data.Name #</h3></span>")
+                                              .HtmlAttributes(new { id = "ddldealer", @class = "form-control", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Dealers"), @style = "width:100%" }))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-12 text-center">
+                        <button type="button" onclick="SearchTradeTicketStatus()" class="k-primary k-button">Search</button>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-12">
+                        <div class="text-right">
+                            @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                        </div>
+
+                        @(Html.Kendo().Grid<SaudaOrderViewDto>().Name("ViewSaudaOrdersList")
+                              .Columns(columns =>
+                              {
+                              columns.Template(@<text></text>).ClientTemplate("<div class='text-center'><input type='checkbox' class='chkbxAllPaymentReceived'  value=#=SaudaOrderId# onclick=\"findCheckedItemsSaveItToHidden(this,'#=SaudaOrderId#','hdSelectedIds','masterCBAllPaymentReceived','chkbxAllPaymentReceived','lblPaymentReceivedSelectedCount');\"/></div>")
+       .HeaderTemplate("<div class='text-center'><input type='checkbox' id='masterCBAllPaymentReceived' onclick=\"masterfindCheckedItemsSaveItToHidden(this,'hdSelectedIds','chkbxAllPaymentReceived','lblPaymentReceivedSelectedCount')\"/></div>").Width("40px");
+   columns.Bound(c => c.SaudaOrderId).Visible(false);
+   columns.Bound(t => t.SaudhaId).Visible(false);
+   columns.Bound(c => c.SaudhaNumber).Title("Sauda Number").Width(Settings.GridColumnMaxWidth);
+   columns.Bound(t => t.OilTypeId).Visible(false);
+   columns.Bound(c => c.Oiltype).Title(@Helper.GetResourceString("lbl_OilType")).Width(Settings.GridColumnMaxWidth);
+   columns.Bound(t => t.SkuId).Visible(false);
+   columns.Bound(c => c.Sku).Title(@Helper.GetResourceString("lbl_Sku")).Width(Settings.GridColumnMaxWidth);
+   columns.Bound(c => c.BidQuantity).Format(Settings.DecimalFormat3).Title(@Helper.GetResourceString("lbl_QuantityPerMT")).Width(Settings.GridColumnMaxWidth);
+   columns.Bound(c => c.BidQuantityCase).Format(Settings.DecimalFormat4).Title(@Helper.GetResourceString("lbl_QuantityPerCase")).Format(Settings.DecimalFormat4).Width(Settings.GridColumnMaxWidth);
+   columns.Bound(c => c.BidPrice).Format(Settings.DecimalFormat2).Title(@Helper.GetResourceString("lbl_BidPriceInRs")).Width(Settings.GridColumnMaxWidth);
+   columns.Bound(c => c.BidPricePerSku).Format(Settings.DecimalFormat2).Title(@Helper.GetResourceString("lbl_BidPricePerSku")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+   columns.Bound(c => c.BookingDate).Format(Settings.GridDateFormat).Title(@Helper.GetResourceString("lbl_BookingDate")).Width(Settings.GridColumnMaxWidth);
+   columns.Bound(c => c.PlantName).Title(@Helper.GetResourceString("lbl_Plant")).Width(Settings.GridColumnMaxWidth);
+   columns.Bound(c => c.DealerName).Title(@Helper.GetResourceString("lbl_Dealers")).Width(Settings.GridColumnMaxWidth);
+   columns.Bound(c => c.StateName).Title(@Helper.GetResourceString("lbl_State")).Width(Settings.GridColumnMaxWidth);
+})
+.NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+.Filterable(filter => filter.Mode(GridFilterMode.Row))
+.Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+.Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+.Resizable(resize => resize.Columns(true))
+.Selectable(selectable => selectable
+.Mode(GridSelectionMode.Multiple)
+.Type(GridSelectionType.Row))
+.Scrollable(s => s.Enabled(true).Height("auto"))
+.Events(events => events.DataBound("dataBound"))
+.Reorderable(reorder => reorder.Columns(true))
+.DataSource(dataSource => dataSource
+.Ajax()
+.Read(read => read.Action("TradeTicketSaudaOrderList", "ReverseAuction").Data("additionalParams"))
+.Model(model => model.Id(m => m.SaudaOrderId))
+.ServerOperation(false)))
+                    </div>
+                </div>
+                <div class="row form-group text-center">
+                    @if (Helper.CheckClaims(Claims.ManageTradeTicket))
+                    {
+                        <button type="button" id="btnSave" onclick="SaveSaudaMapping(this)" class="k-primary k-button">Save<i class="icon-arrow-right14 position-right"></i></button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Hidden("hdSelectedIds")
+<script>
+
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();
+
+        $("#ddlTradeTicket").data("kendoDropDownList").readonly(true);
+
+        StartDateRange();
+
+        $("#dealerSelectAll").click(function () {
+            MultiSelectSelectAll("ddldealer", "dealerSelectAll");
+           
+     });
+
+    $("#stateSelectAll").click(function () {
+       
+            MultiSelectSelectAll("ddlstate", "stateSelectAll");
+            $("#ddldealer").data("kendoMultiSelect").dataSource.read();
+     });
+       
+    });
+
+    function onChangeForDealer(e) {
+        MultiSelectIndividualSelect("ddlstate", "stateSelectAll");
+        $("#ddldealer").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function filterDealer() {
+        return {
+            StateIds : $("#ddlstate").data("kendoMultiSelect").value().join()
+        };
+    }
+    function onDealerChange() {
+        MultiSelectIndividualSelect("ddldealer", "dealerSelectAll");
+    }
+    
+    function SearchTradeTicketStatus() {
+         
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $("#ViewSaudaOrdersList").data("kendoGrid").dataSource.read();
+        window.kendo.ui.progress($("#div_Progress"), false);
+    }
+
+    function SearchSauda() {
+        $("#ViewSaudaOrdersList").data("kendoGrid").dataSource.read();
+    }
+
+    function dataBound(e) {
+        SetEmptyRow(e);
+
+        var selectedOrders = [];
+        if ($("#hdSelectedIds").val()) {
+            selectedOrders = $("#hdSelectedIds").val().split(",");
+        }
+
+        $("#masterCBAllPaymentReceived").prop('checked', false);
+        $('input:checkbox.' + 'chkbxAllPaymentReceived').each(function () {
+            if ($.inArray(this.value, selectedOrders) > -1) {
+                this.checked = true;
+            }
+            else {
+                this.checked = false;
+            }
+        });
+        
+        var sumOfBidQuantity = 0;
+        var entityGrid = $("#ViewSaudaOrdersList").data("kendoGrid");
+        var data = entityGrid.dataSource.data();
+        for (var k = 0; k < data.length; k++) {
+            var currentDataItem = data[k];
+            sumOfBidQuantity += currentDataItem.BidQuantity;
+        }
+        $("#saudaTotalQuantity").text(sumOfBidQuantity.toFixed(3));
+    }
+
+    function SaveSaudaMapping(event) {
+        var OpenQuantity = $('#txtOpenQuantityFromSap').val();
+        var isValidSearchParam = false;
+        if ($("#ddlTradeTicket").data("kendoDropDownList").value()) {
+            isValidSearchParam = true;
+        }
+
+        if (isValidSearchParam) {
+
+            var selectedOrders = [];
+            if ($("#hdSelectedIds").val()) {
+                selectedOrders = $("#hdSelectedIds").val().split(",");
+            }
+
+            if (selectedOrders.length === 0) {
+                ShowErrorMessage("Please select any record");
+                return false;
+            }
+
+            window.kendo.ui.progress($("#divLoader"), true);
+            moduleCommon.Common.AjaxCall({
+                type: 'Post',
+                url: '@Url.Action("MapTradeTicketToSaudaOrders", "ReverseAuction")',
+                data: { TradeTicketNumber: $("#ddlTradeTicket").data("kendoDropDownList").text(), SaudaOrders: selectedOrders, OpenQuantity: OpenQuantity },
+                success: function (result) {
+                    if (result.PostStatus) {
+                        ShowSuccessMessage(result.PostMessage);
+                        setTimeout(function () { window.location.reload(); window.kendo.ui.progress($("#divLoader"), false); }, 1500);
+                    }
+                    else {
+                        ShowErrorMessage(result.PostMessage);
+                        setTimeout(function () { window.location.reload(); window.kendo.ui.progress($("#divLoader"), false); }, 1500);
+                    }
+                },
+                failure: function () {
+                    ShowErrorMessage("Failure");
+                    window.kendo.ui.progress($("#divLoader"), false);
+                }
+            });
+        } else {
+            return false;
+        }
+    }
+
+    function additionalParams() {
+        var yesterdayDate = new Date();
+        yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+        return {
+            isToReturnInactiveData: true,
+            //searchDate: ($("#dpSearchDate").val() ? $("#dpSearchDate").val() : new Date().toDateString()),
+            fromDate: ($("#dpFromDate").val() ? $("#dpFromDate").val() : yesterdayDate.toDateString()),
+            todate: ($("#dpToDate").val() ? $("#dpToDate").val() : yesterdayDate.toDateString()),
+            TradeTicketId: $("#ddlTradeTicket").data("kendoDropDownList").value(),
+            DealerId: $("#ddldealer").data("kendoMultiSelect").value(),
+            StateId: $("#ddlstate").data("kendoMultiSelect").value()
+        };
+    }
+
+    //function fillDefaultDate() {
+    //    var dates = new Date();
+    //    dates.setDate(dates.getDate());
+    //    $("#dpToDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+    //    $("#dpFromDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+
+    //    StartDateRange();
+    //}
+
+    function fromChange() {
+        var endPicker = $("#dpToDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            $("#dpToDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+            endPicker.min(startDate);
+        }
+    }
+
+    function StartDateRange() {
+        var yesterdayDate = new Date();
+        yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+
+        var todayDate = new Date();
+        todayDate.setDate(todayDate.getDate());
+
+        $("#dpFromDate").val(kendo.toString(kendo.parseDate(yesterdayDate), emamiGlobal.constant.DateFormat));
+        $("#dpToDate").val(kendo.toString(kendo.parseDate(yesterdayDate), emamiGlobal.constant.DateFormat));
+
+        var endPicker = $("#dpToDate").data("kendoDatePicker");
+        endPicker.min(yesterdayDate);
+    }
+    
+</script>

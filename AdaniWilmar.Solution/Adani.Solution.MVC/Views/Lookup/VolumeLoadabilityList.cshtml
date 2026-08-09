@@ -1,0 +1,152 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@{
+    ViewBag.Title = "VolumeLoadability";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="masterVolumeLoadability" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_VolumeLoadability")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Masters</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_VolumeLoadability")<span class="icon-right"></span></li>
+    </ol>
+    @*<div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            @if (Helper.CheckClaims(Claims.ManageMaster))
+            {
+                <a href="@Url.Action("VolumeLoadabilityEditRedirect", "Lookup")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateVolumeLoadability")</a>
+            }
+        </div>
+    </div>*@
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        @*<div class="panel-heading">
+        </div>*@
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvDepotCosts">
+                <div class="col-md-12">
+                    <div class="text-right right-buttons">
+                        <div class="export_as">
+                            <span>Export as</span>
+                            <div class="export-btns">
+                                <span class="export-link" onclick='excelExport()' type="button">Excel</span>
+                            </div>
+                        </div>
+
+                        @*<button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ViewDepotCosts")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>*@&ensp;
+
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+
+                        <div class="period-wrapper">
+                            @if (Helper.CheckClaims(Claims.ManageMaster))
+                            {
+                                <a href="@Url.Action("VolumeLoadabilityEditRedirect", "Lookup")" class="k-primary k-button"><b><i class="icon-plus"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateVolumeLoadability")</a>
+                            }
+                        </div>
+
+                    </div>
+
+                    @(Html.Kendo().Grid<VolumeLoadabilityGridDataDto>
+                    ()
+                    .Name("ViewVolumeLoadability")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(c => c.Id).Visible(false);
+                        columns.Bound(c => c.Sku).Title(@Helper.GetResourceString("lbl_Sku")).ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("VolumeLoadabilityEditRedirect", "Lookup", new { volumeloadabilityId = "#=Id#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=Sku#</a> </div>").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                        columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                        columns.Bound(c => c.Plant).Title(@Helper.GetResourceString("lbl_Plant")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                        columns.Bound(c => c.VehicleSize).Title(@Helper.GetResourceString("lbl_VehicleSize")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                        columns.Bound(c => c.MaxAllowableSingleSku).Title(@Helper.GetResourceString("lbl_MaxAllowableCases(SingleSku)")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                        columns.Bound(c => c.MaxAllowableMultipleSku).Title(@Helper.GetResourceString("lbl_MaxAllowableCases(MultipleSku)")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                        columns.Bound(c => c.ValidFrom).Format(Settings.GridDateFormat).Title(@Helper.GetResourceString("lbl_ValidFrom")).Width(Settings.GridColumnMaxWidth);
+                        columns.Bound(c => c.ValidTo).Format(Settings.GridDateFormat).Title(@Helper.GetResourceString("lbl_ValidTo")).Width(Settings.GridColumnMaxWidth);
+                        columns.Bound(t => t.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Active")).ClientTemplate(@"<div style='text-align: center;'>#if(IsActive){#<i class='icon-green_ckbox_tick faicon-green'><span class='path1'></span><span class='path2'></span></i>#}else{#<i class='icon-red_ckbox_tick faicon-red'><span class='path1'></span><span class='path2'></span></i>#}#</div>").Width(Settings.GridColumnMaxWidth);
+
+
+                    })
+                    .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                    .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                    .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                    .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                    .Selectable(selectable => selectable
+                    .Mode(GridSelectionMode.Multiple)
+                    .Type(GridSelectionType.Row))
+                    .Scrollable(s => s.Enabled(true).Height("auto"))
+                    .Resizable(resize => resize.Columns(true))
+                    .Events(events => events.DataBound("onVolumeLoadabilityListDataBound"))
+                    .Reorderable(reorder => reorder.Columns(true))
+                    .Resizable(resize => resize.Columns(true))
+                    .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .Model(model => model.Id(m => m.Id))
+                    .Sort(s => s.Add("Id").Descending())
+                    .ServerOperation(true)
+                    .Read(read => read.Action("GetVolumeLoadabilityList", "Lookup", new { isToReturnInactiveData = true }))))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();
+
+         if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+		}
+    });
+
+    //Method to data bound event for dealer List
+    function onVolumeLoadabilityListDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+     function fromDateChange() {
+        setToDateRange("StartDate", "EndDate", emamiGlobal.constant.IndentDateRange);
+    }
+
+
+    function excelExport() {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $.ajax({
+            type: 'Post',
+            url: '@Url.Action("ExportVolumeLoadability", "Lookup")',
+            success: function (responce) {
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Pricing")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+

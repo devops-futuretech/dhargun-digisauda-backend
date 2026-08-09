@@ -1,0 +1,125 @@
+﻿@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Helpers;
+@using Kendo.Mvc.UI
+@model Adani.Solution.MVC.Models.RoleTypeClaimViewModel
+
+@{
+    ViewBag.Title = "RoleType";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="roleType" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_RoleType")</h2>
+    <div id="dateFilter" class="col-xs-9">
+
+        <div class="period-wrapper">
+            <a onclick="roleList('@Url.Action("UpdateRoleType", "Role")')" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_RoleTypeList")</a>
+
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+
+
+<div id="RoleType" class="content main-section-content row">
+
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+            @*<h6 class="panel-title"><span class="text-semibold">@Helper.GetResourceString("lbl_RoleType")</span></h6>*@
+        </div>
+        <div class="panel-body" style="display: block;">
+            <p class="content-group-lg"></p>
+
+            @using (Html.BeginForm("RoleType", "Role", FormMethod.Post, new { id = "frmRoleType", @class = "form-validate-jquery" }))
+            {
+                @Html.AntiForgeryToken()
+                <fieldset class="content-group">
+
+                    <div class="form-group">
+                        <label class="control-label col-lg-2">@Helper.GetResourceString("lbl_RoleType")</label>
+                        <div class="col-lg-6">
+                            @Html.TextBoxFor(m => m.RoleType.Name, new { id = "txtRoleType", required = "required", @onkeydown = "return isAlphaNumeric(event);", @class = "k-textbox", data_msg_required = Helper.GetMsgRequired("lbl_RoleType"), @maxlength = (int)InputMaxLength.String })
+                        </div>
+                    </div>
+                </fieldset>
+                <div class="table-responsive marginT20 ">
+                    <div class="row form-group">
+                        <div class="col-lg-6 col-md-push-2">
+                            @(Html.Kendo().CheckBoxFor(m => m.AllChk).Label(@Helper.GetResourceString("lbl_SelectAll")).HtmlAttributes(new { id = "chkAllClaims", onclick = "ClaimsSelectAll()" }))
+                        </div>
+                    </div>
+                    @{
+                        var j = 0;
+                        for (int i = 0; i < Model.ClaimDto.Count(); i += 3)
+                        {
+                            <div class="row form-group">
+                                @foreach (var item in Model.ClaimDto.Skip(i).Take(3))
+                                {
+                                    var chkClaims = "chkClaims" + j;
+                                    <div class="col-lg-3 col-md-push-2">
+                                        @Html.HiddenFor(m => m.ClaimDto[j].ClaimId)
+                                        @Html.HiddenFor(m => m.ClaimDto[j].Name)
+                                        @if ((int)Claims.ManageOrganization == Model.ClaimDto[j].ClaimId)
+                                        {
+                                            @(Html.Kendo().CheckBoxFor(m => m.ClaimDto[j].IsClaim).Label(item.Name).HtmlAttributes(new { id = "chkManageOrg", onclick = "onDisableAllCheckboxClickEvent('chkAll','chkManageOrg','chkAllClaims')" }))
+                                        }
+                                        else
+                                        {
+                                            @(Html.Kendo().CheckBoxFor(m => m.ClaimDto[j].IsClaim).Label(item.Name).HtmlAttributes(new { id = @chkClaims, @class = "chkAll", onclick = "onSelectClickEvent('chkAll','chkAllClaims')" }))
+                                        }
+                                    </div>
+                                    j++;
+                                }
+                            </div>
+                        }
+                    }
+                </div>
+                <div class="text-right marginT20">
+                    <button type="submit" id="btnAddRoleType" class="k-primary k-button">@Helper.GetResourceString("btn_Save") <i class="icon-arrow-right14 position-right"></i></button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script>
+	$(document).ready(function () {
+		//ProgressLoader(false);
+		 if ('@Model.PostMessage' !== ""){
+			   if ('@Model.PostStatus' === '@true') {
+					ShowSuccessMessage('@Model.PostMessage');
+				} else {
+					ShowErrorMessage('@Model.PostMessage');
+				}
+		}
+		 $("#btnAddRoleType").click(function (e) {
+			RoleTypeSubmit();
+        });
+
+        $("form :input").change(function () {
+            isFormChanged('isChanged');
+        });
+	});
+
+	function RoleTypeSubmit() {
+		$('#frmRoleType').submit();
+		var isValid = $("#frmRoleType").valid();
+		if (isValid) {
+			// Animate loader
+			ProgressLoader(true);
+		}
+	}
+
+	function ClaimsSelectAll() {
+		$("#chkManageOrg").prop('checked', false);
+		$(".chkAll").attr("disabled", false);
+		onSelectAllClickEvent('chkAll', 'chkAllClaims');
+    }
+
+    function roleList(url) {
+            isFormChangeOrNot(url);
+    }
+</script>
+
+

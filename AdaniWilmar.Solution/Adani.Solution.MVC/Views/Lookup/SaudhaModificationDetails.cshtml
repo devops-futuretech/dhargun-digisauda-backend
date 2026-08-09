@@ -1,0 +1,137 @@
+@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model SaudaListDto
+@{
+    ViewBag.Title = "Sauda Modification Details";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="transactionSaudaList" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Sauda Modification Details</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="div_Progress">
+                <div class="col-md-12">
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right clsBold">
+                            @Helper.GetResourceString("lbl_SaudaNumber")
+                        </div>
+                        <div class="col-md-3">
+                            @Model.SaudaNumber
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right clsBold">
+                            @Helper.GetResourceString("lbl_BookedNo")
+                        </div>
+                        <div class="col-md-3">
+                            @Model.SaudaBookedNumber
+                        </div>
+                        <div class="col-md-2 text-right clsBold">
+                            Modification Date
+                        </div>
+                        <div class="col-md-3">
+                            @(Model.BiddingDate != null ? Model.BiddingDate.ToString(Settings.DateFormat) : "")
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right clsBold">
+                            @Helper.GetResourceString("lbl_DealerName")
+                        </div>
+                        <div class="col-md-3">
+                            @Model.DealerName
+                        </div>
+                        <div class="col-md-2 text-right clsBold">
+                            @Helper.GetResourceString("lbl_Zone")
+                        </div>
+                        <div class="col-md-3">
+                            @Model.Zones
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right clsBold">
+                            @Helper.GetResourceString("lbl_State")
+                        </div>
+                        <div class="col-md-3">
+                            @Model.States
+                        </div>
+                        <div class="col-md-2 text-right clsBold">
+                            @Helper.GetResourceString("lbl_District")
+                        </div>
+                        <div class="col-md-3">
+                            @Model.Districts
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right clsBold">
+                            @Helper.GetResourceString("lbl_City")
+                        </div>
+                        <div class="col-md-3">
+                            @Model.Cities
+                        </div>
+                        <div class="col-md-2 text-right clsBold">
+                            Sauda Modification Created By
+                        </div>
+                        <div class="col-md-3">
+                            @Model.CreatedBy
+                        </div>
+                    </div>
+
+                    @(Html.Kendo().Grid<SaudaModificationNewItemDto>()
+                      .Name("ViewSaudaModificationDetails")
+                      .Columns(columns =>
+                      {
+                          columns.Bound(c => c.OilTypeName).HtmlAttributes(new { @title = "#=OilTypeName#" }).Title(@Helper.GetResourceString("lbl_OilType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                          columns.Bound(c => c.OilPackGroupTypeName).HtmlAttributes(new { @title = "#=OilPackGroupTypeName#" }).Title(@Helper.GetResourceString("lbl_PackType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                          columns.Bound(c => c.MaterialName).HtmlAttributes(new { @title = "#=MaterialName#" }).Title("Material Name").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                          columns.Bound(c => c.MaterialCode).HtmlAttributes(new { @title = "#=MaterialCode#" }).Title("Material Code").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                          columns.Bound(c => c.QuantityInCase).Title("Quantity In Case").Format(Settings.DecimalFormat3).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                          columns.Bound(c => c.QuantityInMT).Title("Quantity In MT").Format(Settings.DecimalFormat3).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                          columns.Bound(c => c.Price).Title("Price").Format(Settings.DecimalFormat3).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                          columns.Bound(c => c.Discount).Title("Discount").Format(Settings.DecimalFormat3).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                      })
+                      .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                      .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                      .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                      .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                      .Selectable(selectable => selectable
+                      .Type(GridSelectionType.Row))
+                      .Scrollable(s => s.Enabled(true).Height("auto"))
+                      .Resizable(resize => resize.Columns(true))
+                      .Reorderable(reorder => reorder.Columns(true))
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      .PageSize(Settings.DefaultPageSize)
+                      .ServerOperation(true)
+                      .Read(read => read.Action("SaudaModificationsDetailsById", "Lookup", new { SaudaId = Model.SaudaId }))))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        FilterContains();
+        $("#ViewSaudaModificationDetails").data("kendoGrid").dataSource.read();
+        
+        if ('@TempData["ErrorMessage"]'.length) {
+            ShowErrorMessage('@TempData["ErrorMessage"]');
+        }
+        if ('@TempData["SuccessMessage"]'.length) {
+            ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+    });
+</script>
+

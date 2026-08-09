@@ -1,0 +1,510 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@model Adani.Solution.DTO.GstInputDto
+@{
+    ViewBag.Title = "GST";
+}
+
+<style>
+    .heading-size {
+        font-size: 20px;
+    }
+</style>
+
+<input type="hidden" class="currentMenu" value="ra2gst" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_GST")</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="dvGST">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("AddOrUpdateGST", "RAVersionTwo", FormMethod.Post, new { id = "frmGST", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.Id)
+
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_SourceState") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().MultiSelectFor(m => m.SourceStateIds)
+                                            .DataTextField("Name")
+                                            .DataValueField("Id")
+                                            .Events(e => e.Change("onSourceState"))
+                                            .DataSource(source => source.Read(read => read.Action("GetAllStateListAsync", "Lookup"))
+                                            .ServerFiltering(false))
+                                            .TagMode(TagMode.Single)
+                                            .AutoClose(false)
+                                            .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='sourceStateSelectAll'> Select All</label>")
+                                            .HtmlAttributes(new { id = "ddlSourceState", @class = "", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_SourceState"), @style = "width:100%" }))
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_DestinationState") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().MultiSelectFor(m => m.DestinationStateIds)
+                                           .DataTextField("Name")
+                                           .DataValueField("Id")
+                                           .TagMode(TagMode.Single)
+                                           .AutoClose(false)
+                                           .Events(e => e.Change("onDestinationState"))
+                                           .DataSource(source => source.Read(read => read.Action("GetAllStateListAsync", "Lookup"))
+                                           .ServerFiltering(false))
+                                           .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='destinationStateSelectAll'> Select All</label>")
+                                           .HtmlAttributes(new { id = "ddlDestinationState", @class = "", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_DestinationState"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Vertical")
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownListFor(f => f.VerticalId)
+                                           .OptionLabel(@Helper.GetResourceString("plho_SelectVertical"))
+                                           .DataTextField("Name")
+                                           .DataValueField("Id")
+                                           .Events(e => e.Change("onVerticalChange").DataBound("onVerticleDataBound"))
+                                           .DataSource(source => source.Read(resd => resd.Action("GetVerticalListForDropdown", "Lookup"))
+                                           .ServerFiltering(false))
+                                           .HtmlAttributes(new { id = "ddlVertical", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Vertical"), @style = "width:100%" }))
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_OilType")
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().MultiSelectFor(m => m.OilTypeIds)
+                                           .DataTextField("Name")
+                                           .DataValueField("Id")
+                                           .AutoClose(false)
+                                           .TagMode(TagMode.Single)
+                                           .Placeholder(@Helper.GetResourceString("plho_SelectOilType"))
+                                           .Events(e => e.Change("onOiltypeChange").DataBound("onOilTypeDataBound"))
+                                           .DataSource(source => source.Read(read => read.Action("GetOilTypesBasedOnVerticalId", "Lookup").Data("oilTypeAdditionalInfo"))
+                                           .ServerFiltering(true))
+                                           .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='oilTypeSelectAll'> Select All</label>")
+                                           .HtmlAttributes(new { id = "ddlOilType", @class = "", tabindex = "1", @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Depot")
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().MultiSelectFor(m => m.DepotIds)
+                                           .DataTextField("Name")
+                                           .DataValueField("Id")
+                                           .AutoClose(false)
+                                           .TagMode(TagMode.Single)
+                                           .Placeholder(@Helper.GetResourceString("plho_SelectOilType"))
+                                           .Events(e => e.Change("onDepotChange"))
+                                           .DataSource(source => source.Read(read => read.Action("GetAllDepotList", "Lookup"))
+                                           .ServerFiltering(true))
+                                           .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='depotSelectAll'> Select All</label>")
+                                           .HtmlAttributes(new { id = "ddlDepot", @class = "", tabindex = "1", @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_CGST") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(m => m.CGST, new { id = "txtCGST", @class = "form-control decimalValue", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_CGST"), @maxlength = (int)InputMaxLength.Gst })
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_SGST") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(m => m.SGST, new { id = "txtSGST", tabindex = "9", @class = "form-control decimalValue", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_SGST"), @maxlength = (int)InputMaxLength.Gst })
+                            </div>
+                        </div>
+
+
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_IGST") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(m => m.IGST, new { id = "txtIGST", tabindex = "9", @class = "form-control decimalValue", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_IGST"), @maxlength = (int)InputMaxLength.Gst })
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_ValidFrom") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DatePickerFor(m => m.ValidFrom)
+                                         .Format(Settings.DateFormat)
+                                         .Events(e => e.Change("fromChange"))
+                                         .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "9", style = "width: 100%" }))
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_ValidTo") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DatePickerFor(m => m.ValidTo)
+                                        .Format(Settings.DateFormat)
+                                        .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "9", style = "width: 100%" }))
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+                                <button type="button" tabindex="14" id="btnCancel" onclick="location.href = '@Url.Action("GSTList", "RAVersionTwo")'" class="k-button">Cancel</button>
+                                @if (Helper.CheckClaims(Claims.GST))
+                                {
+                                    <button type="button" tabindex="13" id="btnSave" class="k-primary k-button">@(Model != null && Model.Id == 0 ? @Helper.GetResourceString("btn_SaveGST") : @Helper.GetResourceString("btn_UpdateGST"))<i class="icon-arrow-right14 position-right"></i></button>
+                                }
+                            </div>
+                        </div>
+                    }
+                    <!---end of form input-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        $('input[type="text"]').keypress(function (e) {
+            var code = e.keyCode || e.which;
+            if (code === 13) {
+                e.preventDefault();
+            }
+        });
+
+        if ('@Model.Id' === '0') {
+            $("#ddlVertical").data("kendoDropDownList").value('@Convert.ToInt32(Vertical.Hbc)');
+            $("#txtCGST").val('');
+            $("#txtSGST").val('');
+            $("#txtIGST").val('');
+        }
+
+        setDefaultDate();
+
+        $("#txtCGST").rules("add", {
+            min: 0,
+            max: 100
+        });
+
+        $("#txtSGST").rules("add", {
+            min: 0,
+            max: 100
+        });
+
+        $("#txtIGST").rules("add", {
+            min: 0,
+            max: 100
+        });
+
+        $('#btnSave').on('click', function (e) {
+            var isValid = $('#frmGST').valid();
+            if (isValid) {
+                window.kendo.ui.progress($("#dvGST"), true);
+                $('#frmGST').submit();
+                //window.kendo.ui.progress($("#dvGST"), false);
+            }
+        });
+
+        $("#oilTypeSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlOilType", "oilTypeSelectAll");
+        });
+
+        $("#sourceStateSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlSourceState", "sourceStateSelectAll");
+        });
+
+        $("#destinationStateSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlDestinationState", "destinationStateSelectAll");
+        });
+
+        $("#depotSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlDepot", "depotSelectAll");
+        });
+
+    });
+
+
+
+    //Set default date
+    function setDefaultDate() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+        var startPicker = $("#ValidFrom").data("kendoDatePicker");
+        startPicker.min(dates);
+        var endPicker = $("#ValidTo").data("kendoDatePicker");
+         endPicker.min(dates);
+        $("#ValidTo").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        $("#ValidFrom").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+    }
+
+    function StartDateRange() {
+        var startDate = new Date();
+        startDate.setDate(startDate.getDate());
+
+        $("#ValidFrom").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+        var startPicker = $("#ValidFrom").data("kendoDatePicker");
+        startPicker.min(startDate);
+
+        var endPicker = $("#ValidTo").data("kendoDatePicker");                                             //Set min date
+         $("#ValidTo").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+         endPicker.min(startDate);
+    }
+
+   function fromChange() {
+        var endPicker = $("#ValidTo").data("kendoDatePicker"),
+           startDate = this.value();
+
+       if (startDate) {
+           startDate = new Date(startDate);
+           $("#ValidTo").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+           endPicker.min(startDate);
+       }
+    }
+
+    function StartDateRange() {
+        var endPicker = $("#ValidTo").data("kendoDatePicker"),
+            startDate = $("#ValidFrom").data("kendoDatePicker").value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate());
+
+            $("#ValidFrom").val(kendo.toString(startDate, emamiGlobal.constant.DateFormat));
+            var startPicker = $("#ValidFrom").data("kendoDatePicker");
+            startPicker.min(startDate);
+            endPicker.min(startDate);
+        }
+    }
+
+
+    function onSourceStateChange(e) {
+        $("#ddlDepot").data("kendoDropDownList").dataSource.read();
+        gstDisable();
+    }
+
+    function onDestinationStateChange(e) {
+        $("#ddlFreightZone").data("kendoDropDownList").dataSource.read();
+        gstDisable();
+    }
+
+    function onStateChange(e) {
+        $("#ddlFreightZone").data("kendoDropDownList").dataSource.read();
+    }
+
+    function onSourceStateDataBound(e) {
+        gstDisable();
+    }
+
+    function onDestinationStateDataBound(e) {
+        gstDisable();
+    }
+
+    @*function onOilTypeChange(e) {
+        $("#ddlSku").data("kendoMultiSelect").dataSource.read();
+
+        var oilType = $('#ddlOilType').data("kendoDropDownList").value();
+        var vertical = $('#ddlVertical').data("kendoDropDownList").value();
+
+
+        if (Number(vertical) == @((long)Adani.Solution.DTO.Enums.Vertical.Hbc)) {
+
+            window.kendo.ui.progress($("#div_Progress"), true);
+            $.ajax({
+                url: '@Url.Action("GetOilTypeIsRasoiOrNot", "Lookup")',
+                type: 'GET',
+                data: { oilTypeId: Number(oilType) },
+                success: function (result) {
+                    if (result.IsRasoi) {
+                        $("#divSubCategory").show();
+                        $("#ddlSubCategory").data("kendoDropDownList").select(0);
+                    }
+                    else {
+                        $("#divSubCategory").hide();
+                        $("#ddlSubCategory").data("kendoDropDownList").select(0);
+                    }
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                }
+            });
+        }
+    }*@
+
+    function onOilTypeDataBound(e) {
+
+        $("#ddlSku").data("kendoMultiSelect").dataSource.read();
+    }
+
+    //function onOilType(e) {
+
+    //    $("#ddlSku").data("kendoMultiSelect").dataSource.read();
+    //}
+
+    function onZoneChange() {
+        $("#ddlSourceState").data("kendoDropDownList").dataSource.read();
+    }
+
+    function onZoneChange1() {
+        $("#ddlDestinationState").data("kendoDropDownList").dataSource.read();
+    }
+
+
+    function stateLoadParam() {
+        var zoneId = $("#ddlSourceZone").data("kendoDropDownList").value();
+        return {
+            zoneId: zoneId
+        };
+    }
+
+    function stateLoadParamZone() {
+        var zoneId = $("#ddlDestinationZone").data("kendoDropDownList").value();
+        return {
+            zoneId: zoneId
+        };
+    }
+
+    function onVerticalTypeChange() {
+        $("#ddlOilType").data("kendoDropDownList").dataSource.read();
+    }
+
+    //Verticle data onBound events
+    function verticleDataBound() {
+        if ('@Model.Id' > 0 || $("#ddlVertical").data("kendoDropDownList").value() > 0) {
+            $("#ddlOilType").data("kendoDropDownList").dataSource.read();
+        }
+    }
+    function VerticalLoadParam() {
+        var verticalId = $("#ddlVertical").data("kendoDropDownList").value();
+        return {
+            verticalId: Number(verticalId)
+        };
+    }
+
+    function onPackGroupDataBound() {
+            $("#ddlSku").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function onPackGroupChange() {
+        $("#ddlSku").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function PlantDepotRakeLoadParam() {
+        var stateId = $("#ddlSourceState").data("kendoDropDownList").value();
+        return {
+            stateId: stateId
+        };
+    }
+
+    function onDepotChange() {
+        MultiSelectEvents("ddlDepot", "depotSelectAll");
+    }
+
+    function transPortModeAdditionalParams() {
+        return {
+            isToReturnInactiveData: false,
+            id: Number($("#ddlDepot").val())
+        }
+        }
+
+    function subCategoryChange() {
+        $("#ddlSku").data("kendoMultiSelect").dataSource.read();
+        }
+
+    function onSkuChange() {
+        MultiSelectEvents("ddlSku", "skuSelectAll");
+    }
+
+    function skuAdditionalInfo() {
+
+        var oilType = $('#ddlOilType').data("kendoDropDownList").value();
+        var packGroup = $('#ddlOilPackingType').data("kendoDropDownList").value();
+        var subCategory = $('#ddlSubCategory').data("kendoDropDownList").value();
+
+        return {
+            oilTypeId: Number(oilType),
+            packGroupId: Number(packGroup),
+            subCategoryId: Number(subCategory),
+        };
+    }
+
+    function gstDisable() {
+        var sourceStateId = $("#ddlSourceState").data("kendoDropDownList").value();
+        var destinationStateId = $("#ddlDestinationState").data("kendoDropDownList").value();
+        if (sourceStateId && destinationStateId) {
+            if (sourceStateId === destinationStateId) {
+                $("#txtCGST,#txtSGST").removeAttr("disabled");
+                $("#txtIGST").val('').prop("disabled", "disabled");
+            } else {
+                $("#txtCGST,#txtSGST").val('').prop("disabled", "disabled");
+                $("#txtIGST").removeAttr("disabled");
+            }
+        } else { $("#txtCGST,#txtSGST,#txtIGST").removeAttr("disabled");}
+    }
+
+
+    //NEw
+
+    function onVerticalChange() {
+        $("#ddlOilType").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function onOiltypeChange() {
+        MultiSelectEvents("ddlOilType", "oilTypeSelectAll");
+    }
+
+    function oilTypeAdditionalInfo() {
+        return {
+            verticalId: Number($("#ddlVertical").data("kendoDropDownList").value())
+        };
+    }
+
+    function onSourceState() {
+        MultiSelectEvents("ddlSourceState", "sourceStateSelectAll");
+    }
+
+    function onDestinationState() {
+        MultiSelectEvents("ddlDestinationState", "destinationStateSelectAll");
+    }
+
+    function onVerticleDataBound() {
+        if ($("#ddlVertical").data("kendoDropDownList").value() > 0) {
+            $("#ddlOilType").data("kendoMultiSelect").dataSource.read();
+        }
+    }
+
+    function onOilTypeDataBound() {
+        MultiSelectEvents("ddlOilType", "oilTypeSelectAll");
+    }
+</script>
+
+
+
+
+
+
+
+
+
+

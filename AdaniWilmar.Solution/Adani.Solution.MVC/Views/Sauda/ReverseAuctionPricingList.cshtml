@@ -1,0 +1,200 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using System.Security.Claims
+
+@{
+    ViewBag.Title = "ReverseAuctionPricingList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="pricingReverseAuctionPrice" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_ReverseAuctionPricingList")</h2>
+    <div id="dateFilter" class="col-xs-9">
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+@using (Html.BeginForm("SaudhaDetails", "ReverseAuction", FormMethod.Post, new { id = "frmSaudhaConversionList", @class = "form-validate-jquery" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="content main-section-content row">
+        <div class="panel panel-flat">
+            <div class="panel-heading">
+            </div>
+            <div class="panel-body" style="display: block;">
+                <div class="row" id="UpdateSaudhaConversionStatus">
+                    <div class="row form-group">
+                        @*<div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_CreatedDate")
+                                </div>
+                                <div class="col-md-4">
+                                    @(Html.Kendo().DatePicker().Name("FromDate")
+                                        .Format(Settings.DateFormat)
+                                        .HtmlAttributes(new { id = "dpFromDate", onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                                </div>
+                            </div>*@
+                         <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_BiddingDate")
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DatePicker().Name("BiddingDate")
+                                .Format(Settings.DateFormat)
+                                .Events(events => events.Change("onDateChange"))
+                                .HtmlAttributes(new { id = "dpBiddingDate", onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_BiddingWindow") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownList().Name("BiddingWindow")
+                                  .OptionLabel("Select bidding window")
+                                  .DataTextField("Name")
+                                  .DataValueField("Id")
+                                  .DataSource(source => source.Read(read => read.Action("GetBiddingWindowTimingListByDateddl", "ReverseAuction").Data("additionalInfo"))
+                                  .ServerFiltering(false))
+                                  .HtmlAttributes(new { id = "ddlBiddingWindow",tabindex = "2", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_BiddingWindow"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                       
+                    </div>
+
+                    <div class="row form-group">
+                        <div class="col-md-12 text-center">
+                            <button type="button" tabindex = "3" onclick="RAPricingSearch()" class="k-primary k-button">Search</button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="text-right">
+                            <button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("RAPricingGrid")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;
+                            @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                        </div>
+                        @(Html.Kendo().Grid<PricingDto>()
+                              .Name("RAPricingGrid")
+                              .Columns(columns =>
+                              {
+                                  columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.SkuName).Title(@Helper.GetResourceString("lbl_SkuName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.OilTypeName).Title(@Helper.GetResourceString("lbl_OilTypeName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.SaudaBookingType).Title(@Helper.GetResourceString("lbl_SaudaBookingType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.OilPackingType).Title(@Helper.GetResourceString("lbl_OilPackingType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.State).Title(@Helper.GetResourceString("lbl_State")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.City).Title(@Helper.GetResourceString("lbl_City")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.TransportMode).Title(@Helper.GetResourceString("lbl_TransportMode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.Loadability).Title("Load Quantity").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.Plant).Title(@Helper.GetResourceString("lbl_Plant")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.Depot).Title(@Helper.GetResourceString("lbl_Depot")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.FrieghtZone).Title(@Helper.GetResourceString("lbl_FrieghtZone")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.FrieghtRoute).Title(@Helper.GetResourceString("lbl_FrieghtRoute")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.BiddingDate).Title(@Helper.GetResourceString("lbl_BiddingDate")).Format(Settings.GridDateFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.MaterialCost).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_MaterialCost")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.PackingCost).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_PackingCost")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.PrimaryFrieght).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_PrimaryFrieght")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.SecondaryFrieght).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_SecondaryFrieght")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.PlantSecondaryFrieght).Format(Settings.PriceNumberFormat).Title("Plant Secondary Frieght").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.DepotCost).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_DepotCost")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.DetentionCost).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_DetentionCosts")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.HoneycombCost).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_HoneycombCosts")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  //columns.Bound(c => c.ProcessCost).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_ProcessCost")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.Margin).Format(Settings.PriceNumberFormat).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_Margin")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.CushionMargin).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_CushionMargin")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.SchemeCostRecovery).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_SchemeCostRecovery")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  //columns.Bound(c => c.Discount).Title(@Helper.GetResourceString("lbl_Discount")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  //columns.Bound(c => c.Premium).Title(@Helper.GetResourceString("lbl_Premium")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  //columns.Bound(c => c.SumOfIngredientCost).Title(@Helper.GetResourceString("lbl_SumOfIngredientCost")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.TpPrice).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_TpPrice")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.RaMargin).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_RAMargin")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.BaseRate).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_BaseRate")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.XMargin).Format(Settings.PriceNumberFormat).Title("Indicative jump(rs/Case)").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.BpCpJumb).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_BpCpJumbInRs")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.ClearanceRate).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_ClearanceRate")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.CounterBidOffer).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_CounterBidOffer")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.CounterBidLimit).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_CounterBidLimitInPers")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.FinalRate).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_FinalRate")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.ExPlantPrice).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_ExPlantPrice")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.ForPlantPrice).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_ForPlantPrice")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.ExDepotPrice).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_ExDepotPrice")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.ForDepotPrice).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_ForDepotPrice")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.ExRakePrice).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_ExRakePrice")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.ForRakePrice).Format(Settings.PriceNumberFormat).Title(@Helper.GetResourceString("lbl_ForRakePrice")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              })
+                              .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                              .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                              .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                              .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                              .Scrollable(s => s.Enabled(true).Height("auto"))
+                              .Resizable(resize => resize.Columns(true))
+                              .Reorderable(reorder => reorder.Columns(true))
+                              .Excel(excel => excel.FileName("ViewReverseAuactionFinalPricing" + " " + DateTime.Now + ".xlsx").AllPages(true))
+                              .DataSource(dataSource => dataSource
+                              .Ajax()
+                              .Sort(sort => sort.Add("Id").Ascending())
+                              .Model(model => { model.Id(p => p.Id); })
+                              .ServerOperation(true)
+                              .Read(read => read.Action("GetTPandRAPricingList", "Sauda").Data("additionalParam"))))
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<script>
+
+    $(document).ready(function () {
+
+        //kendo grid filter contains
+        FilterContains();
+
+        //Set default date
+        fillDefaultDate();
+
+    });
+
+    function onSaudaConvertionDataBound(e) {
+        SetEmptyRow(e);
+        //this.expandRow(this.tbody.find("tr.k-master-row").first());
+    }
+
+    function additionalParam() {
+        return {
+            createdDate: $("#dpBiddingDate").val(),
+            BiddingDate: $("#dpBiddingDate").val(),
+            saudaBookingTypeId: 2,
+            biddingWindowId: Number($("#ddlBiddingWindow").val())
+        }
+    }
+
+    function fillDefaultDate() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+        $("#dpFromDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        $("#dpBiddingDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        $("#ddlBiddingWindow").data("kendoDropDownList").dataSource.read();
+    }
+
+    function RAPricingSearch() {
+        $("#RAPricingGrid").data("kendoGrid").dataSource.read();
+    }   
+
+    function onDateChange() {
+        $("#ddlBiddingWindow").data("kendoDropDownList").dataSource.read();
+    }
+
+    function additionalInfo() {
+        var dpBiddingDate = $("#dpBiddingDate").val();
+        return {
+            biddingDate: dpBiddingDate
+        };
+    }
+</script>
+
+

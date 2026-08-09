@@ -1,0 +1,185 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using System.Security.Claims
+
+@{
+    ViewBag.Title = "SpecialityFatDiscountUserList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    var userid = string.Empty;
+    var roleId = 0;
+    if (HttpContext.Current.User != null)
+    {
+        var identity = (ClaimsIdentity)HttpContext.Current.User.Identity;
+        userid = identity.FindFirst("UserId")?.Value;
+        roleId = Convert.ToInt32(identity.FindFirst("RoleId")?.Value);
+    }
+}
+
+<input type="hidden" class="currentMenu" value="tpsfquantitylimitUser" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">Employee Quantity Limit</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#"> Qty Limit </a><span class="icon-right"></span></li>
+        <li class="active">Employee Quantity Limit<span class="icon-right"></span></li>
+    </ol>
+    @*<div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            @if (Helper.CheckClaims(Claims.ManageSpecialtyFatQuantityUser) && Helper.CheckClaims(Claims.SpecialtyFatQuantityCreate))
+            {
+                <a href="@Url.Action("SpecialityFatDiscountUserEditRedirect", "Pricing")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;Create User Quantity</a>
+            }
+        </div>
+    </div>*@
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        @*<div class="panel-heading">
+        </div>*@
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvDealers">
+                <div class="col-md-12">
+                    <div class="text-right right-buttons">
+                        <div class="export_as">
+                            <span>Export as</span>
+                            <div class="export-btns">
+                                <span class="export-link" onclick='downloadList()' type="button">Excel</span>
+                            </div>
+                        </div>
+                        @*<button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ViewDepots")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;*@
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                        <div class="period-wrapper">
+                            @if (Helper.CheckClaims(Claims.ManageSpecialtyFatQuantityUser) && Helper.CheckClaims(Claims.SpecialtyFatQuantityCreate))
+                            {
+                                <a href="@Url.Action("SDUEditRedirect", "Pricing")" class="k-primary k-button"><b><i class="icon-plus"></i></b>&ensp;Create User Quantity</a>
+                            }
+                        </div>
+                    </div>
+                    @(Html.Kendo().Grid<SpecialityFatDiscountUserDto>()
+                          .Name("GridSpCustomerDiscount")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.Id).Visible(false);
+                              columns.Bound(c => c.DiscountType).Visible(false);
+                              columns.Bound(c => c.OilTypeName).ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("SDUEditRedirect", "Pricing", new { EncryptedId = "#=EncryptedId#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=OilTypeName#</a> </div>").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_OilType")).Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(c => c.OilTypeName).ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("SpecialityFatDiscountUserEditRedirect", "Pricing", new { discountId = "#=Id#", discountType = "#=DiscountType#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=OilTypeName#</a> </div>").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_OilType")).Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(c => c.SkuName).ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("SpecialityFatDiscountUserEditRedirect", "Pricing", new { discountId = "#=Id#", discountType = "#=DiscountType#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=SkuName#</a> </div>").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Sku Name").Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(c => c.OilTypeCode).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("OilType Code").Width(Settings.GridColumnMaxWidth); columns.Bound(c => c.ValidFrom).Format(Settings.GridDateFormat).Title(@Helper.GetResourceString("lbl_ValidFrom")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.ValidFrom).Format(Settings.GridDateTimeFormat).Title(@Helper.GetResourceString("lbl_ValidFrom")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.ValidTo).Format(Settings.GridDateTimeFormat).Title(@Helper.GetResourceString("lbl_ValidTo")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.QuantityLimit).Format(Settings.DecimalFormat4).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_Quantity")).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.RemainingQuantity).Format(Settings.DecimalFormat4).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_RemainingQuantity")).Width(Settings.GridColumnMaxWidth);      
+                    })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Events(events => events.DataBound("onCustomerDiscountDataBound"))
+                          .ClientDetailTemplateId("usertemplate")
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Sort(sort => sort.Add("Id").Descending())
+                          .Model(model => { model.Id(p => p.Id); })
+                          .ServerOperation(true)
+                          .Read(read => read.Action("GetSpecialityFatDiscountUserListAsync", "Pricing", new { isToReturnInactiveData = true }))))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="usertemplate" type="text/kendo-tmpl">
+
+    @(Html.Kendo().Grid<Adani.Solution.DTO.SpecialityFatEmployeeDto>()
+                        .Name("grid_#=Id#")       //template expression, to be evaluated in the master context
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.Id).Visible(false);
+                            columns.Bound(c => c.SkuName).Title(@Helper.GetResourceString("lbl_SkuName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                            columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                            //columns.Bound(c => c.EmployeeName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_EmployeeName")).Width(Settings.GridColumnMaxWidth);
+                            columns.Bound(c => c.EmployeeName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_EmployeeName")).Width(Settings.GridColumnMaxWidth);
+                            //columns.Bound(c => c.Designation).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_Designation")).Width(Settings.GridColumnMaxWidth);
+                            columns.Bound(c => c.MobileNumber).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_MobileNumber")).Width(Settings.GridColumnMaxWidth);
+                            columns.Bound(c => c.Email).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_Email")).Width(Settings.GridColumnMaxWidth);
+                            //columns.Bound(c => c.Quantity).Format(Settings.DecimalFormat4).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_Quantity")).Width(Settings.GridColumnMaxWidth);
+                            //columns.Bound(c => c.RemainingQuantity).Format(Settings.DecimalFormat4).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_RemainingQuantity")).Width(Settings.GridColumnMaxWidth);
+                        })
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(10)
+                            .Read(read => read.Action("GetSpecialityFatDiscountUserDetailListAsynx", "Pricing", new { discountId = "#=Id#" }))
+                        )
+                        .Pageable()
+                        .Sortable()
+                        .Scrollable(s => s.Enabled(true).Height("auto"))
+                        .ToClientTemplate()
+    )
+</script>
+
+<script>
+
+    $(document).ready(function () {
+
+        // kendo grid filter contains
+        FilterContains();
+
+
+        if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+
+    });
+
+    //Method to data bound event for owner
+    function onCustomerDiscountDataBound(e) {
+        SetEmptyRow(e);
+        //this.expandRow(this.tbody.find("tr.k-master-row").first());
+    }
+
+
+    function onDiscountTypeChange() {
+        $("#GridSpCustomerDiscount").data("kendoGrid").dataSource.read();
+    }
+
+    function additionalInfo() {
+        var seletedType = $("#ddlDiscounyType").data("kendoDropDownList").value();
+        return {
+            isToReturnInactiveData: true,
+            discountType: Number(seletedType)
+        }
+    }
+    function downloadList() {
+       
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SpecialityFatDiscountUserExportAsync", "Pricing")',
+            data: {},
+            success: function (responce) {
+
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Report")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+</script>
+
+

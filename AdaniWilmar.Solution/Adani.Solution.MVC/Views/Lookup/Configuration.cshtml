@@ -1,0 +1,141 @@
+﻿@model Adani.Solution.MVC.Models.ConfigurationViewModel
+@using Kendo.Mvc.UI;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.MVC.Helpers;
+@{
+    ViewBag.Title = "Configuration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="configurationConfiguration" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title"> @Helper.GetResourceString("lbl_Configuration")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Configurations</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_Configuration")<span class="icon-right"></span></li>
+    </ol>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("Configuration", "Lookup", FormMethod.Post, new { id = "frmConfiguration", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        if (Model != null && Model.Configurations.Any())
+                        {
+                            <div class="container custom_windows">
+                                <div class="panel-group" id="accordion">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                @*<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"  aria-expanded="true" aria-controls="collapseOne" >
+                                       Traditional Processs
+                                    </a>*@
+                                            </h4>
+                                        </div>
+
+                                        <div>
+                                            <div class="panel-body">
+                                                <div class="row form-group">
+
+                                                    <div class="row form-group">
+                                                        <div class="col-lg-4 col-sm-5 col-xs-6 text-right control-label">
+                                                            <b> @Html.LabelFor(m => m.Configurations[0].Name) </b>
+                                                        </div>
+                                                        <div class="col-lg-4 col-sm-7 col-xs-6 control-link" style="padding-left: 115px;">
+                                                            <b> @Html.LabelFor(m => m.Configurations[0].Value) </b>
+                                                        </div>
+                                                    </div>
+
+
+                                                    @for (int i = 0; i < Model.Configurations.Count; i++)
+                                                    {
+                                                        @Html.HiddenFor(m => m.Configurations[i].Id, new { id = "hdnId" })
+                                                        @Html.HiddenFor(m => m.Configurations[i].Name, new { id = "hdnName" })
+                                                        @Html.HiddenFor(m => m.Configurations[i].Type, new { id = "hdnType" })
+                                                        @Html.HiddenFor(m => m.Configurations[i].SaudaBookingTypeId, new { id = "hdnValue" })
+
+                                                        <div class="row form-group">
+                                                            <div class="col-lg-4 col-sm-5 text-right control-label">
+                                                                <span id="labelKey">@Model.Configurations[i].Name</span>
+                                                            </div>
+                                                            @if (Model.Configurations[i].Type == (int)DataType.Boolean)
+                                                            {
+                                                                bool IsCheckboxSelected = String.Equals(Model.Configurations[i].Value, "True") ? true : true;
+                                                                <div class="col-lg-4 col-sm-7">
+
+                                                                    @Html.CheckBoxFor(m => m.Configurations[i].IsNotification)
+                                                                </div>
+                                                            }
+                                                            else if (Model.Configurations[i].Type == (int)DataType.String)
+                                                            {
+                                                                <div class="col-lg-4 col-sm-7">
+                                                                    @Html.TextBoxFor(m => m.Configurations[i].Value, new { id = "txtValue" + i, @class = "form-control", tabindex = "4", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Value"), @maxlength = (int)InputMaxLength.AnnouncementTitle })
+                                                                </div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="col-lg-4 col-sm-7">
+                                                                    @Html.TextBoxFor(m => m.Configurations[i].Value, new { type = "text", id = "txtValue" + i, @class = "form-control", tabindex = "4", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Value") })
+                                                                </div>
+                                                            }
+                                                        </div>
+
+                                                    }
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="row form-group" style="margin-top : 30px">
+                            <div class="col-md-12 text-right">
+                                <button type="button" tabindex="6" id="btnCancel" onclick="location.href = '@Url.Action("Configuration", "Lookup")'" class="k-button k-cancel custom-btns">@Helper.GetResourceString("btn_Cancel")</button>
+                                @if (Helper.CheckClaims(Claims.ManageConfiguration))
+                                {
+                                    <button type="button" tabindex="5" id="btnSave" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Save") </button>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+ $(document).ready(function ()
+    {
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        $('#btnSave').on('click', function (e)
+        {
+            var isValidForm = $("#frmConfiguration").valid();
+            if (isValidForm) {
+                window.kendo.ui.progress($("#div_Progress"), true);
+                $("#frmConfiguration").submit();
+            }
+        });
+
+
+ });
+
+
+
+
+</script>

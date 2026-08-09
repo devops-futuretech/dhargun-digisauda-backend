@@ -1,0 +1,85 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Models
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO
+@{
+    ViewBag.Title = "SectionList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@*<div id="dvAlert" class="alert-margin-left-right"></div>*@
+<input type="hidden" class="currentMenu" value="cmssection" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_Section")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Complaint Management</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_Section")<span class="icon-right"></span></li>
+    </ol>
+    <div class="period-wrapper">
+        @*@if (Helper.CheckClaims(Claims.ManageForms))
+            {*@
+        <a href="@Url.Action("CreateSection", "Lookup")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateSection")</a>
+        @*}*@
+    </div>
+    <div style="clear:both;"></div>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvUsers">
+                <div class="col-md-12">
+                    <div class="text-right">
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    </div>
+                    @(Html.Kendo().Grid<SectionModel>()
+                          .Name("ViewUsers")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.SectionId).Visible(false);
+                              columns.Bound(c => c.SectionName).Title(@Helper.GetResourceString("lbl_SectionName")).ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("SectionEditRedirect", "Lookup", new { SectionId = "#=SectionId#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=SectionName#</a> </div>").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(t => t.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Active")).ClientTemplate(@"<div style='text-align: center;'> #if(IsActive == false) { #"
+                                                                     + " <a  title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Width(Settings.GridColumnMaxWidth);
+                          })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Resizable(resize => resize.Columns(true))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Excel(excel => excel.AllPages(true).FileName(@Helper.GetResourceString("lbl_Section") + " " + DateTime.Now + ".xlsx").Filterable(true))
+                          .Events(events => events.DataBound("onSectionListDataBound"))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .Resizable(resize => resize.Columns(true))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Model(model => { model.Id(p => p.SectionId); })
+                          .ServerOperation(true)
+                          .Read(read => read.Action("GetCMSSectionListAsync", "Lookup"))
+                          ))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();
+
+         if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+		}
+    });
+    //Method to data bound event for dealer List
+    function onSectionListDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+</script>
+
+

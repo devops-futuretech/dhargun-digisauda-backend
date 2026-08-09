@@ -1,0 +1,903 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Models
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO
+@model Adani.Solution.MVC.Models.DynamicFormQuestionDetailsViewModel
+@{
+    ViewBag.Title = "DynamicForm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="cmsdynamicform" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_DynamicForms")</h2>
+    @*<div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">*@
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">@Helper.GetResourceString("lbl_cms")</a><span class="icon-right"></span></li>
+        <li><a href="#">@Helper.GetResourceString("lbl_DynamicForm")</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_AddUpdateDynamicForm")</li>
+        @*<li class="active">@Helper.GetResourceString("lbl_AddOrUpdateGeographyDiscount")<span class="icon-right"></span></li>*@
+    </ol>
+    @*</div>*@
+    @*</div>*@
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <p class="content-group-lg"></p>
+
+            @using (Html.BeginForm("DynamicForm", "Lookup", FormMethod.Post, new { id = "frmAddUpdateForm", @class = "form-validate-jquery", enctype = "multipart/form-data" }))
+            {
+                <fieldset class="content-group">
+
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(x => x.IsEdit, new { id = "hdnIsEdit" })
+                    @Html.HiddenFor(x => x.FormId, new { id = "hdnFormId" })
+                    @Html.HiddenFor(m => m.SelectedQuestionsString, new { id = "hdSelectedQuestionIds" })
+                    @Html.HiddenFor(m => m.UnselectedQuestionsString, new { id = "hdSelectedUnmappedQuestionIds" })
+                    @Html.HiddenFor(m => m.SavedQuestionsString, new { id = "hdSavedQuestions" })
+                    @Html.HiddenFor(x => x.CreateAnother, new { id = "hdnCreateAnother" })
+
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right control-label">
+                            @Helper.GetResourceString("lbl_FormName") <span class="text-danger">*</span>
+                        </div>
+
+                        <div class="col-md-3 width26">
+                            @Html.TextBoxFor(m => m.FormName, new { id = "txtName", tabindex = "1", @class = "form-control", required = "required", @onkeydown = "return AllowOnlyAlphaNumeric(event);", data_msg_required = Helper.GetMsgRequired("lbl_FormName"), @maxlength = (int)InputMaxLength.FormName })
+                        </div>
+                        <div class="col-md-1 text-right control-label">
+                            @Helper.GetResourceString("lbl_UsersType") <span class="text-danger">*</span>
+                        </div>
+                        <div class="col-md-3 width26" id="zoneContainer">
+                            @(Html.Kendo().MultiSelect().Name("RoleIds")
+                            .Events(events => events.Change("onRolesChange"))
+                            //.OptionLabel(@Helper.GetResourceString("plho_SelectZone"))
+                            .Placeholder("Select RoleType")
+                            .DataTextField("Name")
+                            .DataValueField("Id")
+                            .AutoClose(false)
+                            .TagMode(TagMode.Single)
+                            //.MaxSelectedItems(ConfigHelper.MaxSelectedOneItemForMultiselect)
+                            .DataSource(source => source.Read(read => read.Action("GetUserRoleListddl", "Lookup", new { isToReturnInactiveData = false }))
+                            .ServerFiltering(false))
+                            .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='roleSelectAll'> Select All</label>")
+                            .HtmlAttributes(new { id = "ddlRoles", @class = "", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_UsersType"), @style = "width:100%" }))
+                        </div>
+
+                        <div class="row form-group" style="padding-bottom: 20px;">
+
+                            <div class="row form-group">
+                                <div class="col-md-1 text-right">
+                                    @Helper.GetResourceString("lbl_ActiveInactive")
+                                </div>
+
+                                <div class="col-md-1">
+                                    @Html.CheckBoxFor(m => m.IsActive, new { id = "cbActiveInactive", tabindex = "4" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+                        <div class="col-lg-5 text-center">
+                            <h6 class="panel-title"><span class="text-semibold">@Helper.GetResourceString("lbl_Questions")</span></h6>
+
+                            @(Html.Kendo().Grid<QuestionsViewDto>()
+									.Name("ViewQuestions")
+									.Columns(columns =>
+									{
+									columns.Bound(c => c.QuestionId).Visible(false);
+									columns.Bound(c => c.OrderId).Visible(false);
+									columns.Bound(c => c.Query).Title(@Helper.GetResourceString("lbl_Query")).Width(Settings.GridOtherColumnWidth);
+									columns.Bound(c => c.QuestionTypeName).Visible(false);
+									columns.Template(@<text></text>)
+               .ClientTemplate("<div class='text-center'><input type='checkbox'  class='chkbxAllUnmappedQuestions'  value=#=QuestionId# onclick=\"findCheckedItemsSaveItToHidden(this,'#=QuestionId#','hdSelectedUnmappedQuestionIds','masterCBAllUnmappedQuestions','chkbxAllUnmappedQuestions','lblQuestionsSelectedCount');\" /></div>")
+               .HeaderTemplate("<div class='text-center' style = 'margin-left: 0px;'><input type='checkbox' id='masterCBAllUnmappedQuestions' onclick=\"masterfindCheckedItemsSaveItToHidden(this,'hdSelectedUnmappedQuestionIds','chkbxAllUnmappedQuestions','lblQuestionsSelectedCount')\" /></div>").Width("40px");
+                                    })
+               .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+               //.Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+               .Scrollable(s => s.Enabled(true).Height("200px"))
+               .Selectable()
+               .Events(events => events.DataBound("OnSectionQuestionsDataBound").Change("OnSectionListChange"))
+               .Reorderable(reorder => reorder.Columns(true))
+               .Resizable(resize => resize.Columns(true))
+               .DataSource(dataSource => dataSource
+               .Ajax()
+               .Model(model => model.Id(m => m.QuestionId))
+               .ServerOperation(true)
+               .Read(read => read.Action("GetMappedUnMappedFormQuestions", "Lookup"))))
+                        </div>
+                        <div class="col-md-2" style="text-align:center;margin-top:3%">
+                            <div class="row" style="height:45px;">
+                                <button type="button" tabindex="7" id="btnMoveAllLeft" class="k-primary k-button btn-icon btn-rounded" title="@Helper.GetResourceString("lbl_MoveAllRight")"><i class="icon-circle-right2"></i></button>
+                            </div>
+                            <div class="row" style="height:45px;">
+                                <button type="button" tabindex="8" id="btnMoveSelectedLeft" class="k-primary k-button btn-icon btn-rounded" title="@Helper.GetResourceString("lbl_MoveSelectedRight")"><i class="icon-arrow-right15"></i></button>
+                            </div>
+                            <div class="row" style="height:45px;">
+                                <button type="button" tabindex="9" id="btnMoveSelectedRight" class="k-primary k-button btn-icon btn-rounded" title="@Helper.GetResourceString("lbl_MoveSelectedLeft")"><i class="icon-arrow-left15"></i></button>
+                            </div>
+                            <div class="row" style="height:45px;">
+                                <button type="button" tabindex="10" id="btnMoveAllRight" class="k-primary k-button btn-icon btn-rounded" title="@Helper.GetResourceString("lbl_MoveAllLeft")"><i class="icon-circle-left2"></i></button>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 text-center">
+                            <h6 class="panel-title"><span class="text-semibold">@Helper.GetResourceString("lbl_QuestionsSelected")</span></h6>
+                            @(Html.Kendo().Grid<QuestionsViewDto>()
+									.Name("ViewSelectedQuestions")
+									.Columns(columns =>
+									{
+										columns.Bound(c => c.QuestionId).Visible(false);
+										columns.Bound(c => c.OrderId).Visible(false);
+										columns.Bound(c => c.Query).Title(@Helper.GetResourceString("lbl_Query")).Width(Settings.GridOtherColumnWidth);
+										columns.Bound(c => c.QuestionTypeName).Visible(false);
+										columns.Template(@<text></text>)
+                                    .ClientTemplate("<div class='text-center'><input type='checkbox' class='chkbxAllSectionQuestions'  value=#=QuestionId# onclick=\"findCheckedItemsSaveItToHidden(this,'#=QuestionId#','hdSelectedQuestionIds','masterCBAllSectionQuestions','chkbxAllSectionQuestions','lblQuestionsSelectedCount');\" /></div>")
+                                    .HeaderTemplate("<div class='text-center' style = 'margin-left: 7px;'><input type='checkbox' id='masterCBAllSectionQuestions' onclick=\"masterfindCheckedItemsSaveItToHidden(this,'hdSelectedQuestionIds','chkbxAllSectionQuestions','lblQuestionsSelectedCount')\" /></div>").Width("40px");
+                                    })
+                                    .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                    //.Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                    .Scrollable(s => s.Enabled(true).Height("200px"))
+                                    .Selectable()
+                                    .Events(events => events.DataBound("OnQuestionsDataBound").Change("OnSectionListChange"))
+                                    .Reorderable(reorder => reorder.Columns(true))
+                                    .Resizable(resize => resize.Columns(true))
+                                    .DataSource(dataSource => dataSource
+                                    .Ajax()
+                                    .Model(model => model.Id(m => m.QuestionId))
+                                    .ServerOperation(true)
+                                    //.Read(read => read.Action("GetMappedUnMappedQuestions", "Lookup"))
+                                    ))
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-12 text-center">
+                            <button type="button" tabindex="11" id="btnAddSection" class="k-primary k-button">@Helper.GetResourceString("btn_AddSectionToForm")</button>
+                        </div>
+                    </div>
+
+                    <div class="panel-heading">
+                        <h3 class="panel-title">@Helper.GetResourceString("lbl_MappedSectionList")</h3>
+                    </div>
+                    <div class="panel-body" style="display: block;">
+                        <div class="row" id="dvDealers">
+                            <div class="col-md-12">
+                                @(Html.Kendo().Grid<QuestionsViewDto>()
+                                      .Name("ViewSectionQuestions")
+                                      .Columns(columns =>
+                                      {
+                                          //columns.Bound(c => c.SectionId).Visible(false);
+                                          //columns.Bound(c => c.SectionName).Title(Helper.GetResourceString("lbl_Section")).Width(Settings.GridOtherColumnWidth);
+                                          //columns.Bound(c => c.QuestionsCount).Title(Helper.GetResourceString("lbl_No")).Width(Settings.GridOtherColumnWidth).Visible(false);
+                                          //columns.Bound(c => c.SelectedQuestionsString).Visible(false);
+                                          //columns.Bound(c => c.UnselectedQuestionsString).Visible(false);
+                                          columns.Bound(c => c.Questions).Visible(false);
+                                          columns.Bound(c => c.QuestionId).Visible(false);
+                                          columns.Bound(c => c.Query).Title(@Helper.GetResourceString("lbl_Query")).Width(Settings.GridOtherColumnWidth);
+                                          columns.Bound(c => c.QuestionTypeName).Title(@Helper.GetResourceString("lbl_QuestionType")).Width(Settings.GridOtherColumnWidth);
+                                          columns.Template(c => c.Id).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Action")).ClientTemplate("<div style='text-align: center;'><a class='cursor-pointer'></a><a style='padding-left: 4px;' class='fa fa-trash-o deleteicon cursor-pointer' title='Remove the section' onclick='RemoveDataFromGrid(this)'></a></div>").Width(Settings.GridOtherColumnWidth);
+                                      })
+                                       .Pageable(paging => paging
+                                       .PageSizes(new int[] { 10, 20, 50 })
+                                       .ButtonCount(5)
+                                       .Refresh(true))
+                                       @*.Input(true))*@
+                                      .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                      //.Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                      .Scrollable(s => s.Enabled(true).Height("auto"))
+                                .Events(events => events.DataBound("onSectionQuestionListDataBound"))
+                                .Reorderable(reorder => reorder.Columns(true))
+                                .Resizable(resize => resize.Columns(true))
+                                .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Read(read => read.Action("SectionEmptyListAsync", "Lookup").Data("additionalSectionGridInfo"))
+                                .PageSize(10)))
+                                @*<script id="sectionTemplate" type="text/kendo-tmpl">
+                                        @(Html.Kendo().Grid<QuestionsViewDto>()
+                                                    .Name("grid")
+                                                    .Columns(columns =>
+                                                    {
+                                                        columns.Bound(c => c.QuestionId).Visible(false);
+                                                        columns.Bound(c => c.OrderId).Visible(false);
+                                                        columns.Bound(c => c.Query).Title(@Helper.GetResourceString("lbl_Query")).Width(Settings.GridOtherColumnWidth);
+                                                        columns.Bound(c => c.QuestionTypeName).Title(@Helper.GetResourceString("lbl_QuestionType")).Width(Settings.GridOtherColumnWidth);
+                                                        })
+                                                    .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                                    .Events(events => events.DataBound("onChildQuestionListDataBound"))
+                                                    .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    .Read(read => read.Action("GetSectionMappedQuestions", "Lookup", new { SectionId = "#=SectionId#" })))
+                                                    .ToClientTemplate())
+                                    </script>*@
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <div class="row form-group">
+                    <div class="col-md-12 text-right buttons-align">
+                        @*@(Html.Kendo().CheckBoxFor(m => m.CreateAnother).Name("CreateAnother").HtmlAttributes(new { id = "CreateAnother", tabindex = "12" }).Label(@Helper.GetResourceString("lbl_CreateAnother")))*@
+                        <button type="button" tabindex="13" id="btnCancel" onclick="location.href = '@Url.Action("DynamicFormList", "Lookup")'" class="k-button k-cancel custom-btns">Cancel</button>
+                        <button type="button" tabindex="14" id="btnAddUpdateForm" @*onclick="formSubmit()"*@ class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Save")</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div id="kWindow">
+        <h2>@Helper.GetResourceString("msg_DeleteConfirmation")</h2>
+        <div class="col-md-12 text-center">
+            <button id="yes" class="k-primary k-button">Yes</button>
+            <button id="no" autofocus class="k-primary k-button">No</button>
+        </div>
+    </div>
+
+    @*Model popup*@
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteConfirmationModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog custom-modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header custom-modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                       @* <span aria-hidden="true">&times;</span>*@
+                    </button>
+                </div>
+                <div class="modal-body custom-modal-body">
+                    Are you sure you want to delete this question?
+                </div>
+                <div class="modal-footer custom-modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<style>
+
+    #ViewQuestions .k-grid-header, #ViewQuestions .k-grid-footer,
+    #ViewSelectedQuestions .k-grid-header, #ViewSelectedQuestions .k-grid-footer {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        padding-right: 19px !important;
+    }
+     .custom-modal-dialog {
+     max-width: 400px;
+     margin: auto;
+     top: 50%;
+     transform: translateY(-50%);
+    }
+
+    .custom-modal-header, .custom-modal-body, .custom-modal-footer {
+        padding: 15px; 
+        border-radius: 8px;
+    }
+    .modal-content {
+        border-radius: 8px;
+        bottom: -210px;
+    }
+    .k-window-title {
+        color: #00a0f0;
+    }
+
+    .k-editor .k-editor-toolbar-wrap {
+        padding-left: 0px;
+    }
+
+    .k-datetimepicker .k-select .k-link-time {
+        margin-right: -.285em;
+        margin-left: 1.428em;
+    }
+
+    .k-i-clock {
+        margin-top: -15px !important;
+    }
+
+    .k-link-date {
+        margin-top: 8px !important;
+    }
+
+    textarea {
+        resize: none;
+    }
+
+    .deleteicon {
+        font-size: 20px;
+        color: red !important
+    }
+</style>
+<script type="text/javascript">
+	var windowDelete; var mappedSectionQuestions; var SectionId; var selectedQuestionsCleared = false;
+    $(document).ready(function () {
+        if ('@TempData["SuccessMessage"]'.length) {
+            ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+		}
+
+		/*Delete window click event from temporary grid*/
+		windowDelete = $("#kWindow").kendoWindow({
+            title: "Delete confirmation",
+            modal: true,
+            visible: false,
+            resizable: false,
+            width: 300
+        }).data("kendoWindow");
+
+		/*Save form click event*/
+        $("#btnAddUpdateForm").click(function (e) {
+            formSubmit();
+		});
+
+		/* move up */
+        $("#btnMoveAllLeft").on("click", function (idx, elem) {
+             var unmappedQuestionsGrid = $("#ViewQuestions").data("kendoGrid");
+             var dataItem = unmappedQuestionsGrid.dataSource._data;
+             var selectedQuestionsGrid = $("#ViewSelectedQuestions").data("kendoGrid");
+			 if (dataItem.length > 0) {
+				 $.each(dataItem, function (idx, elem) {
+					 elem.IsChecked = false;
+					 selectedQuestionsGrid.dataSource.add(elem);
+
+				 });
+                 $("#ViewQuestions").data('kendoGrid').dataSource.data([]);
+			 }
+			  else {
+				 ShowErrorMessage('@Helper.GetResourceString("msg_NoRecordsFound")')
+			 }
+             $("#hdSelectedUnmappedQuestionIds").val("");
+             $("#masterCBAllUnmappedQuestions").attr('checked', false);
+        });
+
+        /* move down */
+		 $("#btnMoveSelectedLeft").on("click", function (idx, elem) {
+             var unmappedQuestionsGrid = $("#ViewQuestions").data("kendoGrid");
+             var dataItem = unmappedQuestionsGrid.dataSource._data;
+             var selectedQuestionsGrid = $("#ViewSelectedQuestions").data("kendoGrid");
+			 var sectionQuestions = [];
+             if ($("#hdSelectedUnmappedQuestionIds").val() != "") {
+                 var selectedRow = $("#hdSelectedUnmappedQuestionIds").val().split(',');
+				 if (selectedRow.length > 0) {
+					 $.each(selectedRow, function (idx, elem) {
+                         var data = $.grep(dataItem, function (p) { return p.QuestionId == elem; })
+							.map(function (p) { return p; });
+                         selectedQuestionsGrid.dataSource.add(data[0]);
+                         sectionQuestions.push(data[0]);
+					 });
+					 var Unselected = [];
+					 $.grep(dataItem, function (el) {
+                         if ($.inArray(el, sectionQuestions) == -1) {
+							 Unselected.push(el);
+						 }
+					 });
+                     $("#ViewQuestions").data('kendoGrid').dataSource.data(Unselected);
+				 }
+			 }
+			 else {
+				 ShowErrorMessage('@Helper.GetSelectMsgRequired("lbl_Query")')
+			 }
+             $("#hdSelectedUnmappedQuestionIds").val("");
+             $("#masterCBAllUnmappedQuestions").attr('checked', false);
+			return false;
+        });
+
+        /* move to top */
+		 $("#btnMoveSelectedRight").on("click", function (idx, elem) {
+             var selectedQuestionsGrid = $("#ViewSelectedQuestions").data("kendoGrid");
+             var unmappedQuestionsGrid = $("#ViewQuestions").data("kendoGrid");
+             var dataItem = selectedQuestionsGrid.dataSource._data;
+			var unmappedSection = [];
+             if ($("#hdSelectedQuestionIds").val() != "") {
+                 var selectedRow = $("#hdSelectedQuestionIds").val().split(',');
+				if (selectedRow.length > 0) {
+					$.each(selectedRow, function (idx, elem) {
+                        var data = $.grep(dataItem, function (p) { return p.QuestionId == elem; })
+							.map(function (p) { return p; });
+                        unmappedQuestionsGrid.dataSource.add(data[0]);
+                        unmappedSection.push(data[0]);
+					});
+					var Unselected = [];
+					$.grep(dataItem, function (el) {
+						if ($.inArray(el, unmappedSection) == -1) {
+							Unselected.push(el);
+						}
+					});
+                    $("#ViewSelectedQuestions").data('kendoGrid').dataSource.data(Unselected);
+				}
+			}
+			else {
+					ShowErrorMessage('@Helper.GetSelectMsgRequired("lbl_Query")')
+			}
+             $("#hdSelectedQuestionIds").val("");
+             $("#masterCBAllSectionQuestions").attr('checked', false);
+			return false;
+        });
+
+        /* move to bottom */
+		$("#btnMoveAllRight").on("click", function (idx, elem) {
+            var unmappedQuestionsGrid = $("#ViewQuestions").data("kendoGrid");
+            var selectedQuestionsGrid = $("#ViewSelectedQuestions").data("kendoGrid");
+            var dataItem = selectedQuestionsGrid.dataSource._data;
+			if (dataItem.length > 0) {
+				$.each(dataItem, function (idx, elem) {
+					elem.IsChecked = false;
+                    unmappedQuestionsGrid.dataSource.add(elem);
+				});
+                $("#ViewSelectedQuestions").data('kendoGrid').dataSource.data([]);
+			}
+			 else {
+				 ShowErrorMessage('@Helper.GetResourceString("msg_NoRecordsFound")')
+			}
+            $("#hdSelectedQuestionIds").val("");
+            $("#masterCBAllSectionQuestions").attr('checked', false);
+		});
+
+		/*Create another click event*/
+        $("#CreateAnother").click(function () {
+            if ($("#CreateAnother").is(':checked')) {
+                $("#hdnCreateAnother").val(true);
+            }
+            else {
+                $("#hdnCreateAnother").val(false);
+            }
+		});
+
+		/*Add Section to temporary grid click event*/
+        $('#btnAddSection').on('click', function (e) {
+			var errorFlag = false;
+			var isValid = $('#frmAddUpdateForm').valid();
+
+			var gridData = $("#ViewSelectedQuestions").data("kendoGrid").dataSource.data();
+			var jsonObj = [];
+			$.each(gridData, function (idx2, val2) {
+				jsonObj.push(val2.QuestionId);
+			});
+			if (!isValid) {
+				errorFlag = true;
+			}
+			if (gridData.length == 0) {
+				ShowErrorMessage('@Helper.GetSelectMsgRequired("lbl_Query")');
+				errorFlag = true;
+			}
+			@*var sectionId = $("#ddlSection").data("kendoDropDownList").value();
+			if (sectionId <= 0) {
+				ShowErrorMessage('@Helper.GetSelectMsgRequired("lbl_Section")');
+                errorFlag = true;
+            }*@
+
+            if (!errorFlag)
+            {
+                AddDataToGrid();
+                var grid = $("#ViewSectionQuestions").data("kendoGrid");
+
+                grid.dataSource.page(1); 
+                grid.dataSource.read();   
+                grid.refresh();
+            }
+		});
+        $('#zoneContainer').click(function () {
+            $("#multiselectDescription_head").text("Selected Zones");
+            $("#multiselectDescription").modal("show");
+            var selectedItems = $("#ddlRoles").data('kendoMultiSelect').dataItems();
+            var listContainer = $("#multiselectDescription_ul");
+            listContainer.empty();
+
+            selectedItems.forEach(function (item) {
+                var listItem = $("<li>").text(item.Name);
+                listContainer.append(listItem);
+            });
+        });
+        $("#roleSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlRoles", "roleSelectAll");
+        });
+	});
+
+    function onRolesChange() {
+        //$("#ddlState").data("kendoMultiSelect").dataSource.read();
+        MultiSelectEvents("ddlRoles", "roleSelectAll");
+	}
+
+	/*Change event for Dependent Form*/
+	function onDependentFormSelect(e) {
+
+	}
+
+	/*Data bound event for SectionQuestions Hierarchical grid*/
+	function onChildQuestionListDataBound(e) {
+		SetEmptyRow(e);
+	}
+
+	/*Data bound event for form users dropdown*/
+	function onToUserDatabound(e) {
+	}
+
+	/*Change event for Form users dropdown*/
+	function onToUserChange() {
+	}
+
+	/*Change event for Section dropdown*/
+    function onSectionChange(e) {
+		//On section change, if selected questions are present, throw error message to move to the temporary grid
+		var errorFlag = false;
+		var gridDataMappedQuestions = $("#ViewSelectedQuestions").data("kendoGrid").dataSource.data();
+		if (gridDataMappedQuestions.length > 0) {
+			ShowErrorMessage('@Helper.GetResourceString("msg_AddSelectedQuestions")');
+			errorFlag = true;
+		}
+
+		if (errorFlag) {
+			$("#ddlSection").data("kendoDropDownList").value(SectionId);
+		}
+		else {
+			//If selected section has been saved already, show the mapped and unmapped questions and remove from grid
+			var selectedSectionId = $("#ddlSection").data("kendoDropDownList").value();
+			var gridDataTemp = $("#ViewSectionQuestions").data("kendoGrid").dataSource.data();
+			var grid = $("#ViewSectionQuestions").data("kendoGrid");
+			var row = "";
+
+			$.each(gridDataTemp, function (idx2, val2) {
+				if (val2.SectionId == selectedSectionId) {
+					row = grid.tbody.find("tr[data-uid='" + val2.uid + "']");
+				}
+			});
+
+			if (row.length > 0) {
+				//Update section mapped questions before data removal from temporary grid
+				var selectedGridData = grid.dataItem(row);
+				var parsedGridData = JSON.parse(JSON.stringify(selectedGridData));
+				mappedSectionQuestions = "";
+				mappedSectionQuestions = parsedGridData.Questions;
+
+				//Update selected Question string
+				$("#hdSelectedQuestionIds").val(parsedGridData.SelectedQuestionsString);
+
+				if ($("#hdSelectedQuestionIds").val() != "") {
+					$("#hdSavedQuestions").val($("#hdSelectedQuestionIds").val());
+				}
+
+				//Remove selected section from temporary grid
+				grid.removeRow(row);
+			}
+
+			//Save selected section
+			SectionId = "";
+			SectionId = selectedSectionId;
+
+			if (row.length > 0) {
+				var sectionSelectedQuestionsGrid = $("#ViewSelectedQuestions").data("kendoGrid");
+				sectionSelectedQuestionsGrid.dataSource.read();
+				selectedQuestionsCleared = false;
+			}
+			else {
+				selectedQuestionsCleared = true;
+				$("#ViewSelectedQuestions").data("kendoGrid").dataSource.data([]);
+			}
+			var sectionQuestionsGrid = $("#ViewQuestions").data("kendoGrid");
+			sectionQuestionsGrid.dataSource.read();
+		}
+	}
+
+	/*Method to data bound event for unmapped questions*/
+    function OnSectionQuestionsDataBound(e) {
+        SetEmptyRow(e);
+        rowNumber = 0;
+	}
+
+	//Additional Info for Unmapped questions grid
+	@*function additionalUnMappedSectionInfo() {
+        return {
+            sectionId: $("#ddlSection").data("kendoDropDownList").value(),
+			isEdit: "@Model.IsEdit",
+			isQuestionDeleted: selectedQuestionsCleared
+        }
+	}*@
+
+	/*Method to data bound event for Mapped questions*/
+	function OnQuestionsDataBound(e) {
+        if ($("#hdSelectedQuestionIds").val()) {
+            checkSelectedCheckBoxItems("hdSelectedQuestionIds", "chkbxAllSectionQuestions", "masterCBAllSectionQuestions");
+        }
+        SetEmptyRow(e);
+        rowNumber = 0;
+	}
+
+	//Additional Info for Mapped questions grid
+	@*function additionalMappedSectionInfo() {
+        return {
+            sectionId: $("#ddlSection").data("kendoDropDownList").value(),
+            isEdit: "@Model.IsEdit",
+            mappedQuestions: true,
+			mappedQuestionList : mappedSectionQuestions
+        }
+	}*@
+
+	//Method to change event for Unselected and Selected questions grid
+    function OnSectionListChange(e) {
+        rows = e.sender.select();
+        this.select("tr:eq(" + rows + ")");
+        dataSelectIndex = rows["0"].rowIndex;
+	}
+
+	//Additional Infor for temporary grid
+	function additionalSectionGridInfo() {
+		return {
+			FormId : $("#hdnFormId").val()
+		}
+	}
+
+	//Method to data bound event for section List - Temporary grid
+    function onSectionQuestionListDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+	//Method to bound Section details on edit - Temporary grid
+	function openMappedDetails(e)
+    {
+		//Before edit, check selected questions are present. If yes, throw message to add to grid
+		var errorFlag = false;
+		var gridDataMappedQuestions = $("#ViewSelectedQuestions").data("kendoGrid").dataSource.data();
+		if (gridDataMappedQuestions.length > 0) {
+			ShowErrorMessage('@Helper.GetResourceString("msg_AddSelectedQuestions")');
+			errorFlag = true;
+		}
+
+		if (!errorFlag) {
+			var row = $(e).closest("tr");
+			var selectedGrid = $("#ViewSectionQuestions").data("kendoGrid");
+			if (selectedGrid) {
+				var selectedGridData = selectedGrid.dataItem(row);
+				var parsedGridData = JSON.parse(JSON.stringify(selectedGridData));
+				var selectedSectionId = parsedGridData.SectionId;
+
+				//Update selected Question string
+				$("#hdSelectedQuestionIds").val(parsedGridData.SelectedQuestionsString);
+
+				if ($("#hdSelectedQuestionIds").val() != "") {
+					$("#hdSavedQuestions").val($("#hdSelectedQuestionIds").val());
+				}
+
+				mappedSectionQuestions = "";
+				mappedSectionQuestions = parsedGridData.Questions;
+
+				//Update section dropdown
+				$("#ddlSection").data("kendoDropDownList").value(selectedSectionId);
+				SectionId = "";
+				SectionId = selectedSectionId;
+				onSectionChange();
+				selectedGrid.removeRow(row);
+			}
+		}
+    }
+    var questionIdToDelete
+    function RemoveDataFromGrid(element) {
+        var grid = $("#ViewSectionQuestions").data("kendoGrid");
+        var row = $(element).closest("tr");
+        var dataItem = grid.dataItem(row);
+
+        if (dataItem) {
+            questionIdToDelete = dataItem.QuestionId; // Store the QuestionId for deletion
+            $('#deleteConfirmationModal').modal('show'); // Show the modal
+        } else {
+            ShowErrorMessage('Unable to retrieve question data.');
+        }
+    }
+    $('#confirmDeleteBtn').on('click', function () {
+        if (questionIdToDelete) {
+            $.ajax({
+                url: "/Lookup/DeleteQuestions",
+                type: "POST",
+                data: { QuestionId: questionIdToDelete },
+                success: function (response) {
+                    var grid = $("#ViewSectionQuestions").data("kendoGrid");
+                    if (response.success) {
+                        var row = grid.tbody.find("tr").filter(function () {
+                            var dataItem = grid.dataItem(this);
+                            return dataItem && dataItem.QuestionId === questionIdToDelete;
+                        });
+                        grid.removeRow(row);
+                        ShowSuccessMessage('Question deleted successfully.');
+                    } else {
+                        ShowErrorMessage(response.message);
+                    }
+                    $('#deleteConfirmationModal').modal('hide'); // Hide the modal
+                },
+                error: function () {
+                    ShowErrorMessage('Error deleting question.');
+                    $('#deleteConfirmationModal').modal('hide'); // Hide the modal
+                }
+            });
+        }
+    });
+	/*Remove selected data from temporary grid*/
+    //function RemoveDataFromGrid(element) {
+    //    var grid = $("#ViewSectionQuestions").data("kendoGrid");
+    //    var row = $(element).closest("tr"); 
+    //    var dataItem = grid.dataItem(row); 
+
+    //    if (dataItem) {
+    //        var questionId = dataItem.QuestionId; 
+
+    //        if (confirm("Are you sure you want to delete this question?")) {
+    //            $.ajax({
+    //                url: "/Lookup/DeleteQuestions", 
+    //                type: "POST",
+    //                data: { QuestionId: questionId },
+    //                success: function (response) {
+    //                    if (response.success) {
+    //                        grid.removeRow(row); 
+    //                        ShowSuccessMessage('Question deleted successfully.'); 
+    //                    } else {
+    //                        ShowErrorMessage(response.message); 
+    //                    }
+    //                },
+    //                error: function () {
+    //                    ShowErrorMessage('Error deleting question.'); 
+    //                }
+    //            });
+    //        }
+    //    } else {
+    //        ShowErrorMessage('Unable to retrieve question data.');
+    //    }
+    //}
+
+
+    function AddDataToGrid() {
+        var gridData = $("#ViewSelectedQuestions").data("kendoGrid").dataSource.data();
+        var gridDataLength = gridData.length;
+        var jsonObj = [];
+
+        $.each(gridData, function (idx2, val2) {
+            jsonObj.push(val2.QuestionId);
+        });
+
+        var grid = $("#ViewSectionQuestions").data("kendoGrid");
+        var datasource = grid.dataSource;
+
+        var existingQuestionIds = [];
+        $.each(datasource.data(), function (idx, item) {
+            existingQuestionIds.push(item.QuestionId);
+        });
+
+        var newQuestions = jsonObj.filter(function (questionId) {
+            return existingQuestionIds.indexOf(questionId) === -1;
+        });
+
+        if (newQuestions.length !== jsonObj.length) {
+            ShowErrorMessage('The selected questions are already added.');
+            return;
+        }
+
+        var total = datasource.data().length;
+        var filteredQuestions = gridData.filter(function (item) {
+            return newQuestions.indexOf(item.QuestionId) !== -1;
+        });
+
+        $.each(filteredQuestions, function (idx, val) {
+            datasource.insert(total, {
+                QuestionsCount: gridDataLength,
+                QuestionId: val.QuestionId,
+                Query: val.Query,
+                QuestionTypeName: val.QuestionTypeName,
+                SelectedQuestionsString: jsonObj.join(),
+                UnselectedQuestionsString: $("#hdSavedQuestions").val()
+            });
+        });
+
+        var model = {
+            Questions: JSON.parse(JSON.stringify(filteredQuestions))
+        };
+
+        window.kendo.ui.progress($("#div_Progress"), true);
+
+        $.ajax({
+            url: "/Lookup/SaveSectionMappedQuestions",
+            type: 'POST',
+            data: { selectedQuestionsViewModel: JSON.parse(JSON.stringify(filteredQuestions)) },
+            success: function (result) {
+                window.kendo.ui.progress($("#div_Progress"), false);
+                if (result.PostStatus) {
+                    return true;
+                } else {
+                    ShowErrorMessage(result.PostMessage);
+                    return false;
+                }
+            }
+        });
+
+        ResetFields();
+    }
+
+
+	/*Reset fields method*/
+	function ResetFields() {
+		//$("#ddlSection").data("kendoDropDownList").value(-1);
+		//SectionId = "";
+
+		var sectionSelectedQuestionsGrid = $("#ViewSelectedQuestions").data("kendoGrid");
+		sectionSelectedQuestionsGrid.dataSource.read();
+		var sectionQuestionsGrid = $("#ViewQuestions").data("kendoGrid");
+		sectionQuestionsGrid.dataSource.read();
+	}
+
+	/*Method to save form*/
+    function formSubmit() {
+		var errorFlag = false;
+		var form = $('#frmAddUpdateForm');
+		var isValid = $("#frmAddUpdateForm").valid();
+		var token = $('input[name="__RequestVerificationToken"]', form).val();
+
+		if (!isValid) {
+		    errorFlag = true;
+		}
+		if ($("#ViewSectionQuestions").data("kendoGrid").dataSource.data().length <= 0) {
+		    ShowErrorMessage('@Helper.GetSelectMsgRequired("lbl_Query")');
+		    errorFlag = true;
+		}
+
+		if (errorFlag) {
+		    return false;
+		} else {
+        var formName = document.getElementById('txtName').value;
+        if (isAlphaNumeric2(formName)) {
+            // Get the selected Role IDs from the Kendo MultiSelect widget
+            var roleIds = $("#ddlRoles").data("kendoMultiSelect").value();
+
+            var model = {
+                FormId: $("#hdnFormId").val(),
+                FormName: $("#txtName").val(),
+                RoleIds: roleIds, // Ensure this is the correct way to retrieve selected Role IDs
+                //SectionQuestionsList: JSON.parse(JSON.stringify($("#ViewSectionQuestions").data("kendoGrid").dataSource.data())),
+                IsActive: $("#cbActiveInactive").prop("checked"),
+                CreateAnother: $("#hdnCreateAnother").val(),
+            };
+            console.log(model);
+            window.kendo.ui.progress($("#div_Progress"), true);
+
+            $.ajax({
+                url: "/Lookup/DynamicForm",
+                type: 'POST',
+                data: { __RequestVerificationToken: token, formDetailsViewModel: model },
+                success: function (result) {
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                    if (result.PostStatus) {
+                        window.location = result.redirectUrl;
+                    } else {
+                        ShowErrorMessage(result.PostMessage);
+                        return false;
+                    }
+                }
+            });
+        } else {
+            ShowErrorMessage('@Helper.GetResourceString("msg_AphaNumericError")');
+        }
+    }
+}
+
+</script>
+
+<style>
+    .btnRemove-color {
+        width: 10% !important;
+        color: #ffffff;
+        background-color: #0fc0b4;
+        border-color: #0fc0b4;
+    }
+</style>

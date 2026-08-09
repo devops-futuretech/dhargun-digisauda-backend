@@ -1,0 +1,247 @@
+﻿@using Kendo.Mvc.UI;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.MVC.Models;
+@model Adani.Solution.DTO.UserTargetDto
+@{
+    ViewBag.Title = Helper.GetResourceString("lbl_Target");
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="salestourplanTarget" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3"> @Helper.GetResourceString("lbl_Target")</h2>
+    <div id="dateFilter" class="col-xs-9">
+
+        <div class="period-wrapper">
+
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+            @*<h6 class="panel-title"><span class="text-semibold">@Helper.GetResourceString("msg_UnitOfSale")</span></h6>*@
+        </div>
+        <div class="panel-body" style="display: block;">
+            <p class="content-group-lg"></p>
+
+            @using (Html.BeginForm("Target", "SalesTourPlan", FormMethod.Post, new { id = "frmFinancialYear", @class = "form-validate-jquery" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.Id, new { id = "hdnId" })
+            <fieldset class="content-group">
+
+                <div class="row form-group">
+                    <label class="control-label col-lg-4">@Helper.GetResourceString("lbl_AssignedTo")</label>
+                    <div class="col-lg-6">
+                        @(Html.Kendo().DropDownListFor(m => m.AssignedToId)
+                                                                    .OptionLabel(@Helper.GetResourceString("lbl_AssignedTo"))
+                                                                    .DataTextField("EmployeeName")
+                                                                    .DataValueField("Id")
+                                                                    .DataSource(source => source.Read(read => read.Action("GetUserAssignedToAsync", "SalesTourPlan"))
+                                                                    .ServerFiltering(true))
+                                                                    .HtmlAttributes(new { id = "ddlAssignedTo", tabindex = "1", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Day"), @style = "width:100%" }))
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <label class="control-label col-lg-4">@Helper.GetResourceString("lbl_FromDate")</label>
+                    <div class="col-lg-6">
+                        @(Html.Kendo().DatePickerFor(m => m.FromDate)
+                                                                .Name("dpFromDate")
+                                                                .Format(Settings.DateFormat)
+                                                                .Events(e => e.Change("fromChange"))
+                                                                .HtmlAttributes(new { id = "dpFromDate", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_EffectiveFrom"), style = "width: 100%" }))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="control-label col-lg-4">@Helper.GetResourceString("lbl_ToDate")</label>
+                    <div class="col-lg-6">
+                        @(Html.Kendo().DatePickerFor(m => m.ToDate)
+                                                    .Name("dpToDate")
+                                                    .Format(Settings.DateFormat)
+                                                    .HtmlAttributes(new { id = "dpToDate", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_EffectiveTo"), style = "width: 100%" }))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="control-label col-lg-4">@Helper.GetResourceString("lbl_OilType")</label>
+                    <div class="col-lg-6">
+                        @(Html.Kendo().DropDownListFor(m => m.OilTypeId)
+                                                                 .DataTextField("Name")
+                                                                 .DataValueField("Id")
+                                                                 .OptionLabel(@Helper.GetResourceString("plho_SelectOilType"))
+                                                                 .Events(e => e.Change("onOilTypeChange"))
+                                                                 .DataSource(source => source.Read(read => read.Action("GetOilTypeDetailsddlAsync", "Pricing", new { isToReturnInactiveData = true }))
+                                                                 .ServerFiltering(true))
+                                                                 .HtmlAttributes(new { id = "ddlOilType", tabindex = "4", @class = "", @style = "width:100%" }))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="control-label col-lg-4">@Helper.GetResourceString("lbl_Sku")</label>
+                    <div class="col-lg-6">
+                        @(Html.Kendo().DropDownListFor(m => m.SkuId)
+                                                   .DataTextField("SkuName")
+                                                   .DataValueField("SkuId")
+                                                   .OptionLabel("Select Sku")
+                                                   .DataSource(source => source.Read(read => read.Action("GetSkusBasedOnOilType", "Lookup").Data("skuAdditionalInfo"))
+                                                   .ServerFiltering(true))
+                                                   .HtmlAttributes(new { id = "ddlSkuName", @class = "form-control", tabindex = "5", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Sku"), @style = "width:100%" }))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="control-label col-lg-4">@Helper.GetResourceString("lbl_TargetQuantity")</label>
+                    <div class="col-lg-6">
+                        @Html.TextBoxFor(m => m.TargetQuanity, new { id = "txtTargetQuantity", tabindex = "6", required = "required", @class = "k-textbox", data_msg_required = Helper.GetMsgRequired("lbl_Name"), @maxlength = (int)InputMaxLength.String })
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="control-label col-lg-4">@Helper.GetResourceString("lbl_SchemeQuantity")</label>
+                    <div class="col-lg-6">
+                        @Html.TextBoxFor(m => m.SchemeQuanity, new { id = "txtSchemeQuantity", tabindex = "7", required = "required", @class = "k-textbox", data_msg_required = Helper.GetMsgRequired("lbl_Name"), @maxlength = (int)InputMaxLength.String })
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="control-label col-lg-4">@Helper.GetResourceString("lbl_Active")</label>
+                    <div class="col-lg-6 marginT5">
+                        @(Html.Kendo().CheckBoxFor(m => m.IsActive).Name("cbIsActive").HtmlAttributes(new { id = "cbIsActive", tabindex = "8" }))
+                    </div>
+                </div>
+            </fieldset>
+
+                <div class="text-right">
+                    <button type="button" tabindex = "9" id="btnCancel" onclick="location.href = '@Url.Action("Targets", "SalesTourPlan")'" class="k-button">@Helper.GetResourceString("btn_Cancel")</button>
+                    <button type="button" tabindex = "10" id="btnSave" class="k-primary k-button">@Helper.GetResourceString("btn_Save") <i class="icon-arrow-right14 position-right"></i></button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+
+        StartDateRange();
+
+        if ('@Model.PostMessage' !== ""){
+			   if ('@Model.PostStatus' === '@true') {
+					ShowSuccessMessage('@Model.PostMessage');
+				} else {
+					ShowErrorMessage('@Model.PostMessage');
+				}
+		}
+        $("#btnSave").click(function (e) {
+			formSubmit();
+		});
+    });
+
+    function formSubmit() {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        var form = $('#frmFinancialYear');
+        var token = $('input[name="__RequestVerificationToken"]', form).val();
+
+        var errorFlag = "";
+        var errorMessage = "";
+        if ($("#ddlAssignedTo").data("kendoDropDownList").value() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_AssignedTo")');
+			errorFlag = true;
+        }
+        if ($("#dpFromDate").val() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_FromDate")');
+			errorFlag = true;
+        }
+        if ($("#dpToDate").val() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_ToDate")');
+			errorFlag = true;
+        }
+        if ($("#ddlOilType").data("kendoDropDownList").value() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_OilType")');
+			errorFlag = true;
+        }
+        if ($("#ddlSkuName").data("kendoDropDownList").value() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_Sku")');
+			errorFlag = true;
+        }
+        if ($("#txtTargetQuantity").val() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetMsgRequired("lbl_TargetQuantity")');
+			errorFlag = true;
+        }
+        if ($("#txtSchemeQuantity").val() === "") {
+			errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetMsgRequired("lbl_SchemeQuantity")');
+			errorFlag = true;
+        }
+        if (errorFlag) {
+            ShowErrorMessageLeftAlign(errorMessage);
+            window.kendo.ui.progress($("#div_Progress"), false);
+        }
+        else {
+            var model = {
+            AssignedToId: $("#ddlAssignedTo").data("kendoDropDownList").value(),
+            FromDate: $("#dpFromDate").val(),
+            ToDate: $("#dpToDate").val(),
+            OilTypeId: $("#ddlOilType").data("kendoDropDownList").value(),
+            SkuId: $("#ddlSkuName").data("kendoDropDownList").value(),
+            TargetQuanity: $("#txtTargetQuantity").val(),
+            SchemeQuanity: $("#txtSchemeQuantity").val(),
+            IsActive: $('#cbIsActive').is(':checked'),
+            Id: $("#hdnId").val()
+        };
+        	moduleCommon.Common.AjaxCall({
+            url: "/SalesTourPlan/Target",
+			type: 'POST',
+            data: { __RequestVerificationToken: token, userTargetDto: model },
+			success: function (result) {
+				if (result.PostStatus) {
+					var url = '@Url.Action("Targets", "SalesTourPlan")';
+					window.location.href = url;
+				} else {
+					ShowErrorMessage(result.PostMessage);
+					window.kendo.ui.progress($("#div_Progress"), false);
+					return false;
+				}
+			}
+		});
+        }
+    }
+
+    //Oiltype Change Events
+    function onOilTypeChange() {
+        $("#ddlSkuName").data("kendoDropDownList").dataSource.read();
+    }
+
+    //SkuName loading additional parameters
+    function skuAdditionalInfo() {
+        var oilTypeId = $("#ddlOilType").data("kendoDropDownList").value();
+        if ('@Model.Id' != 0) {
+            oilTypeId = '@Model.OilTypeId';
+        }
+        return {
+            oiltypeId: Number(oilTypeId)
+        }
+    }
+
+    function StartDateRange() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+
+        $("#dpFromDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        $("#dpToDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+
+        var endPicker = $("#dpToDate").data("kendoDatePicker");
+        endPicker.min(dates);
+    }
+
+    function fromChange() {
+        var endPicker = $("#dpToDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            $("#dpToDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+            endPicker.min(startDate);
+        }
+    }
+
+</script>

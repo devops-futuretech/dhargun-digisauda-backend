@@ -1,0 +1,350 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.DTO;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Models;
+@model Adani.Solution.MVC.Models.MonthlyPlanDeviationViewModel
+@{
+    ViewBag.Title = @Helper.GetResourceString("lbl_MonthlyPlanDeviationApproval");
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="salestourplanMonthlyPlandeviationapproval" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_MonthlyPlanDeviationApproval")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Sales Tour Plan</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_MonthlyPlanDeviationApproval")<span class="icon-right"></span></li>
+    </ol>
+    @*<div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            @if (Helper.CheckClaims(Claims.ManageSalesTourPlan))
+            {
+                <a href="@Url.Action("MonthlyTourPlanDeviation", "SalesTourPlan")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateMonthlyPlanDeviation")</a>
+            }
+        </div>
+    </div>*@
+    <div style="clear:both;"></div>
+</div>
+
+<div id="ReatailOrders" class="content main-section-content row">
+    <div class="panel panel-flat">
+        @*<div class="panel-heading">
+
+        </div>*@
+        @using (Html.BeginForm("MonthlyTourPlanDeviation", "SalesTourPlan", FormMethod.Post, new { id = "frmOrders", @class = "form-validate-jquery" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="panel-body" style="display: block;">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="text-right right-buttons" style="margin-bottom: 5px;">
+                            @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                            <div class="period-wrapper">
+                                @if (Helper.CheckClaims(Claims.ManageSalesTourPlan))
+                                {
+                                    <a href="@Url.Action("MonthlyTourPlanDeviation", "SalesTourPlan")" class="k-primary k-button"><b><i class="icon-plus"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateMonthlyPlanDeviation")</a>
+                                }
+                            </div>
+                        </div>
+
+
+                        @*Show Save Button & Make Editable Only for Approver - Zonal Head*@
+                        @if (Model.IsApprovar)
+                        {
+                            <h6 class="panel-title">Pending Requests</h6>
+                            <div class="text-right" style="margin-bottom: 5px;">
+                                @*@(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))*@
+                            </div>
+                            <div>
+                                @(Html.Kendo().Grid<MonthlyTourPlanDeviationDto>()
+                                              .Name("ViewMonthlyTourPlan")
+                                              .Columns(columns =>
+                                              {
+                                                  columns.Bound(c => c.Id).Visible(false);
+                                                  columns.Bound(c => c.IsApprove).Visible(false);
+                                                  columns.Bound(c => c.ApprovedBy).Visible(false);
+                                                  columns.Bound(c => c.MTPDetailId).Visible(false);
+                                                  columns.Bound(c => c.Dealer).Title(@Helper.GetResourceString("lbl_Dealer")).Width(Settings.GridOtherColumnWidth);
+                                                  columns.Bound(c => c.CreatedByUser).Title(@Helper.GetResourceString("lbl_BDOName")).Width(Settings.GridOtherColumnWidth);
+                                                  columns.Bound(c => c.ActualDate).Title(@Helper.GetResourceString("lbl_Date")).Width(Settings.GridOtherColumnWidth).Format(Settings.GridDateFormat);
+                                                  columns.Bound(c => c.ToDealerId).HtmlAttributes(new
+                                                  {
+                                                      @class = "templateCell"
+
+                                                  }).ClientTemplate("#=getDealerName(ToDealerId)#").EditorTemplateName("DealerPartial").Title(@Helper.GetResourceString("lbl_ToDealer")).Width(Settings.GridOtherColumnWidth);
+                                                  columns.Bound(c => c.Remarks).Title(@Helper.GetResourceString("lbl_Remarks")).Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(p => p.Approval).Title(@Helper.GetResourceString("lbl_Status")).ClientTemplate("#=Approval#").EditorTemplateName("MonthlyPlanDeviationApproveValues").Width(Settings.GridOtherColumnWidth);
+                                                  //columns.Bound(c => c.Status).Title(@Helper.GetResourceString("lbl_Status")).Width(Settings.GridColumnMaxWidth);
+                                              })
+                                              .Editable(editable => editable.Mode(GridEditMode.InCell))
+                                              .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                              .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                              .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                              .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                              .Scrollable(s => s.Enabled(true).Height("auto"))
+                                              .Excel(excel => excel.FileName(@Helper.GetResourceString("lbl_MonthlyTourPlanDeviation") + " " + DateTime.Now + ".xlsx").AllPages(true))
+                                              .Reorderable(reorder => reorder.Columns(true))
+                                              .Resizable(resize => resize.Columns(true))
+                                              .Events(ev => ev.DataBound("db"))
+                                              .DataSource(dataSource => dataSource
+                                              .Ajax()
+                                              .PageSize(Settings.DefaultPageSize)
+                                              .Model(model =>
+                                              {
+                                                  model.Id(m => m.MTPId);
+                                                  model.Id(m => m.MTPDetailId);
+                                                  model.Field(p => p.Dealer).Editable(false);
+                                                  model.Field(p => p.ActualDate).Editable(false);
+                                                  model.Field(p => p.ToDealer).Editable(false);
+                                                  model.Field(p => p.Status).Editable(false);
+                                                  model.Field(p => p.Remarks).Editable(false);
+                                                  model.Field(p => p.ToDealerId).Editable(false);
+                                              })
+                                              .ServerOperation(true)
+                                              .Read(read => read.Action("PendingMonthlyPlanDeviationAsync", "SalesTourPlan"))))
+                            </div>
+                            <div class="text-right marginT20">
+                                <button type="button" id="btnSaveCategory" onclick="Submit()" class="k-primary k-button">@Helper.GetResourceString("btn_Save") <i class="icon-arrow-right14 position-right"></i></button>
+                            </div>
+                        }
+                        else
+                        {
+                            <h6 class="panel-title">Pending Requests</h6>
+                            <div class="text-right" style="margin-bottom: 5px;">
+                                @*@(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))*@
+                            </div>
+                            <div>
+                                @(Html.Kendo().Grid<MonthlyTourPlanDeviationDto>()
+                                              .Name("ViewMonthlyTourPlan")
+                                              .Columns(columns =>
+                                              {
+                                                  columns.Bound(c => c.Id).Visible(false);
+                                                  columns.Bound(c => c.IsApprove).Visible(false);
+                                                  columns.Bound(c => c.ApprovedBy).Visible(false);
+                                                  columns.Bound(c => c.MTPDetailId).Visible(false);
+                                                  columns.Bound(c => c.Dealer).Title(@Helper.GetResourceString("lbl_Dealer")).Width(Settings.GridOtherColumnWidth);
+                                                  columns.Bound(c => c.CreatedByUser).Title(@Helper.GetResourceString("lbl_BDOName")).Width(Settings.GridOtherColumnWidth);
+                                                  columns.Bound(c => c.ActualDate).Title(@Helper.GetResourceString("lbl_Date")).Width(Settings.GridOtherColumnWidth).Format(Settings.GridDateFormat);
+                                                  columns.Bound(c => c.ToDealer).Format(Settings.GridDateFormat).Width(Settings.GridOtherColumnWidth);
+                                                  columns.Bound(c => c.Remarks).Title(@Helper.GetResourceString("lbl_Remarks")).Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(p => p.Approval).Title(@Helper.GetResourceString("lbl_Status")).Width(Settings.GridOtherColumnWidth);
+                                              })
+                                              .Editable(editable => editable.Mode(GridEditMode.InCell))
+                                              .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                              .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                              .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                              .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                              .Scrollable(s => s.Enabled(true).Height("auto"))
+                                              .Excel(excel => excel.FileName(@Helper.GetResourceString("lbl_MonthlyTourPlanDeviation") + " " + DateTime.Now + ".xlsx").AllPages(true))
+                                              .Reorderable(reorder => reorder.Columns(true))
+                                              .Resizable(resize => resize.Columns(true))
+                                              .DataSource(dataSource => dataSource
+                                              .Ajax()
+                                              .PageSize(Settings.DefaultPageSize)
+                                              .Model(model =>
+                                              {
+                                                  model.Id(m => m.MTPId);
+                                                  model.Id(m => m.MTPDetailId);
+                                                  model.Field(p => p.Dealer).Editable(false);
+                                                  model.Field(p => p.ActualDate).Editable(false);
+                                                  model.Field(p => p.ToDealer).Editable(false);
+                                                  model.Field(p => p.Status).Editable(false);
+                                                  model.Field(p => p.Remarks).Editable(false);
+                                                  model.Field(p => p.Approval).Editable(false);
+                                                  model.Field(p => p.CreatedByUser).Editable(false);
+                                              })
+                                              .ServerOperation(true)
+                                              .Read(read => read.Action("PendingMonthlyPlanDeviationAsync", "SalesTourPlan"))))
+                            </div>
+                        }
+
+                    </div>
+                    <div class="row form-group">
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <h6 class="panel-title">Approved/Rejected Requests</h6>
+                        <div class="text-right" style="margin-bottom: 5px;">
+                            @*@(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))*@
+                        </div>
+                        
+                        @(Html.Kendo().Grid<MonthlyTourPlanDeviationDto>()
+                                                      .Name("ViewMonthlyTourPlans")
+                                                      .Columns(columns =>
+                                                      {
+                                                          columns.Bound(c => c.Id).Visible(false);
+                                                          columns.Bound(c => c.MTPDetailId).Visible(false);
+                                                          columns.Bound(c => c.Dealer).Title(@Helper.GetResourceString("lbl_Dealer")).Width(Settings.GridOtherColumnWidth);
+                                                          columns.Bound(c => c.CreatedByUser).Title(@Helper.GetResourceString("lbl_BDOName")).Width(Settings.GridOtherColumnWidth);
+                                                          columns.Bound(c => c.ActualDate).Title(@Helper.GetResourceString("lbl_Date")).Width(Settings.GridOtherColumnWidth).Format(Settings.GridDateFormat);
+                                                              //columns.Bound(c => c.RevisedDate).HtmlAttributes(new
+                                                              //{
+                                                              //    @class = "templateCell"
+
+                                                              //}).ClientTemplate(
+                                                              //    Html.Kendo().DatePicker()
+                                                              //    .Name("FDPicker_#=MTPDetailId#")
+                                                              //    .Format(Settings.GridDateFormat)
+                                                              //    .HtmlAttributes(new { data_bind = "value:RevisedDate" })
+                                                              //    .ToClientTemplate().ToString()
+
+                                                              //    ).Format(Settings.GridDateFormat).Width(Settings.GridOtherColumnWidth);
+                                                              columns.Bound(c => c.ToDealer).Title(@Helper.GetResourceString("lbl_RevisedDate")).Width(Settings.GridOtherColumnWidth).Format(Settings.GridDateFormat);
+                                                          columns.Bound(c => c.Remarks).Title(@Helper.GetResourceString("lbl_Remarks")).Width(Settings.GridColumnMaxWidth);
+                                                          columns.Bound(c => c.Status).Title(@Helper.GetResourceString("lbl_Status")).Width(Settings.GridColumnMaxWidth);
+                                                      })
+                                                      .Editable(editable => editable.Mode(GridEditMode.InCell))
+                                                      .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                                      .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                                      .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                                      .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                                      .Scrollable(s => s.Enabled(true).Height("auto"))
+                                                      .Excel(excel => excel.FileName(@Helper.GetResourceString("lbl_MonthlyTourPlanDeviation") + " " + DateTime.Now + ".xlsx").AllPages(true))
+                                                      .Reorderable(reorder => reorder.Columns(true))
+                                                      .Resizable(resize => resize.Columns(true))
+                                                      //.Events(ev => ev.DataBound("db"))
+                                                      .DataSource(dataSource => dataSource
+                                                      .Ajax()
+                                                      .Model(model =>
+                                                      {
+                                                          model.Id(m => m.MTPId);
+                                                          model.Id(m => m.MTPDetailId);
+                                                          model.Field(p => p.Dealer).Editable(false);
+                                                          model.Field(p => p.ActualDate).Editable(false);
+                                                          model.Field(p => p.ToDealer).Editable(false);
+                                                          model.Field(p => p.Status).Editable(false);
+                                                          model.Field(p => p.Remarks).Editable(false);
+                                                          model.Field(p => p.CreatedByUser).Editable(false);
+                                                      })
+                                                      .ServerOperation(true)
+                                                      .Read(read => read.Action("ApprovedMonthlyPlanDeviationAsync", "SalesTourPlan"))))
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        // kendo grid filter contains
+        FilterContains();
+    });
+
+    function edit_handler(e) {
+        if (!e.model.IsApprove) {
+            e.container.find('input#Approval').prop('disabled', true);
+        }
+    }
+
+    function Datepicker(Id, RevisedDate) {
+
+        var str = '<input id="FDPicker_' + Id + '"  title="datepicker" class="mydatepicker" Name="FDPicker_' + Id + '" value="' + RevisedDate + '" style="width: 100%" />';
+
+        var script = "<script>" +
+            "jQuery(function(){jQuery('#FDPicker_" + Id + "').kendoDatePicker({\"format\":\"{0:dd-MMM-yyyy}\",\"min\":new Date(1900,0,1,0,0,0,0),\"max\":new Date(2099,11,31,0,0,0,0)});});<\/script>";
+        str = str + script;
+        return str;
+    }
+
+    function getDealerId() {
+        var row = $(event.srcElement).closest("tr");
+        var grid = $(event.srcElement).closest("[data-role=grid]").data("kendoGrid");
+        var dataItem = grid.dataItem(row);
+
+        return { ToDealerId: dataItem.ToDealerId }
+    }
+
+    function getDealerName(e) {
+        if (e !== null) {
+            var name = "";
+            $.ajax({
+                type: "POST",
+                url: "/SalesTourPlan/GetDealerNameById",
+                dataType: "json",
+                data: "dealerId=" + e,
+                async: false,
+                success: function (result) {
+                    name = result;
+                },
+                error: function (result) {
+
+                }
+            });
+
+            return name;
+        }
+        return "";
+    }
+
+    //Method to search delivery status
+    function Search() {
+        var deliveryGrid = $("#ViewMonthlyTourPlan").data("kendoGrid");
+        deliveryGrid.dataSource.read();
+    }
+
+    function db(e) {
+        var grid = this;
+        $(".templateCell").each(function () {
+            eval($(this).children("script").last().html());
+            var tr = $(this).closest('tr');
+            var item = grid.dataItem(tr);
+            kendo.bind($(this), item);
+        });
+    }
+    //Post data
+    function Submit() {
+		var form = $('#frmOrders')
+		var token = $('input[name="__RequestVerificationToken"]', form).val();
+        var gridData = $("#ViewMonthlyTourPlan").data("kendoGrid").dataSource.data();
+        var IsDataProposed = false;
+
+		if (gridData.length === 0) {
+			ShowErrorMessage( '@Helper.GetResourceString("msg_OrderListError")');
+
+        } else {
+            var jsonObj = [];
+            $.each(gridData, function (idx2, val2) {
+                item = {}
+                item["Id"] = val2.Id;
+                item["RevisedDate"] = $("#FDPicker_" + val2.Id).val();
+                item["Approval"] = val2.Approval;
+                jsonObj.push(item);
+                IsDataProposed = true;
+            });
+
+            var model = {
+                MonthlyPlanDeviationListDto: jsonObj
+            };
+
+            window.kendo.ui.progress($("#div_Progress"), true);
+			$.ajax({
+                url: "/SalesTourPlan/MonthlyTourPlanDeviationApproval",
+				type: 'POST',
+                data: { __RequestVerificationToken: token, monthlyPlanDeviationViewModel: model },
+				success: function (result) {
+					window.kendo.ui.progress($("#div_Progress"), false);
+					if (result.PostStatus) {
+						var url = '@Url.Action("MonthlyTourPlanDeviationApproval", "SalesTourPlan")';
+							window.location.href = url;
+					} else {
+						ShowErrorMessage(result.PostMessage);
+						return false;
+					}
+				}
+			});
+		}
+
+    }
+</script>

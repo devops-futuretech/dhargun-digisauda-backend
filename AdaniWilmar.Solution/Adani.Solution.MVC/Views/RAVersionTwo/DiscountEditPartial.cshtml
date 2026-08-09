@@ -1,0 +1,55 @@
+﻿@*@using Kendo.Mvc.UI*@
+@using Adani.Solution.MVC.Helpers
+@*@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO*@
+@using Adani.Solution.MVC.Common;
+<div>
+    <input type="hidden"  id="hdnId" value="" />
+    <div class="row form-group">
+        <div class="col-md-4 text-right">
+            @Helper.GetResourceString("lbl_ValidFrom") <span class="text-danger">*</span>
+        </div>
+        <div class="col-md-4">
+            @(Html.Kendo().DatePicker().Name("ValidFrom")
+                  .Format(Settings.DateFormat)                  
+                  .HtmlAttributes(new { id = "dpFromDate", onkeydown = "return isFocus(event);", tabindex = "5", style = "width: 100%" }))
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-md-4 text-right">
+            @Helper.GetResourceString("lbl_ValidTo") <span class="text-danger">*</span>
+        </div>
+        <div class="col-md-4">
+            @(Html.Kendo().DatePicker().Name("ValidTo")
+                  .Format(Settings.DateFormat)
+                  .HtmlAttributes(new { id = "dpToDate", onkeydown = "return isFocus(event);", tabindex = "6", style = "width: 100%" }))
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-md-4 text-right">
+            @Helper.GetResourceString("lbl_IsActive")
+        </div>
+        <div class="col-md-4">
+            @(Html.Kendo().CheckBox().Name("IsActive").HtmlAttributes(new { id = "cbActiveInactive" }))
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        debugger;
+        //var datepicker = $("#dpFromDate").data("kendoDatePicker");
+        //datepicker.readonly();
+
+        $("#dpFromDate").change(function () {            
+            var endPicker = $("#dpToDate").data("kendoDatePicker"),
+                startDate = $("#dpFromDate").data("kendoDatePicker").value();
+
+            if (startDate) {
+                startDate = new Date(startDate);
+                $("#dpToDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+                endPicker.min(startDate);
+            }
+        });
+    });    
+     
+</script>

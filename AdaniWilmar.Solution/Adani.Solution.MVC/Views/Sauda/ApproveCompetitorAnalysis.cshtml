@@ -1,0 +1,365 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@model Adani.Solution.DTO.CompetitorAnalysisViewDto
+@{
+    ViewBag.Title = "View Competitor Analysis Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.PostMessage))
+{
+    var alertClsName = Model.PostStatus ? "alert-success" : "alert-danger";
+    <div id="dvAlert" class="alert-margin-left-right">
+        <div class="alert @alertClsName no-border">
+            <span> @Model.PostMessage </span>
+        </div>
+    </div>
+}
+
+<input type="hidden" class="currentMenu" value="transactionCompetitorAnalysis" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_CompetitorAnalysisDetails")</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="dvApproveRequest">
+                <div class="col-md-12">
+                    <!---form input-->
+                    @using (Html.BeginForm("ApproveRequest", "Sauda", FormMethod.Post, new { id = "frmApproveRequest", @class = "form-validate-jquery", enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.CushionMargin, new { id = "txtCushionMargin", @class = "form-control" })
+                        @Html.HiddenFor(m => m.CalculatedFinalMargin, new { id = "txtCalculatedFinalMargin", @class = "form-control" })
+                        @Html.HiddenFor(m => m.RoleId)
+                        @Html.HiddenFor(m => m.LoginUserId)
+
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_Sku")
+                            </div>
+                            <div class="col-md-3">
+                                @Html.DisplayFor(m => m.SkuName, new { @class = "form-control" })
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_OilType")
+                            </div>
+                            <div class="col-md-3">
+                                @Html.DisplayFor(m => m.OilType, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_Status")
+                            </div>
+                            <div class="col-md-3">
+                                @Html.DisplayFor(m => m.Status, new { @class = "form-control" })
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_EmamiPrice")
+                            </div>
+                            <div class="col-md-3">
+                                @Html.DisplayFor(m => m.EmamiPrice, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_WorkableQuantity")
+                            </div>
+                            <div class="col-md-3">
+                                @Html.DisplayFor(m => m.WorkableQuantity, new { @class = "form-control" })
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_WorkablePrice")
+                            </div>
+                            <div class="col-md-3">
+                                @Html.DisplayFor(m => m.WorkablePrice, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_CushionMargin")
+                            </div>
+                            <div class="col-md-3">
+                                @Html.DisplayFor(m => m.CushionMargin, new { @class = "form-control" })
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_ImpactToCushionMargin")
+                            </div>
+                            <div class="col-md-3">
+                                <span id="txtFinalMargin">@Model.CalculatedFinalMargin</span>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_Remarks")
+                            </div>
+                            <div class="col-md-3">
+                                @Html.DisplayFor(m => m.Remarks, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="row">
+                            @if (Model.CompetitorAnalysisDetailsDtoList != null)
+                            {
+                                for (int i = 0; i < Model.CompetitorAnalysisDetailsDtoList.Count(); i++)
+                                {
+                                    var competitorCount = i + 1;
+
+                                    <div class="row form-group">
+                                        <div class="col-md-4 clsBold">
+                                            @Helper.GetResourceString("lbl_Competitor") <span>@competitorCount</span>
+                                        </div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <div class="col-md-2 text-right clsBold">
+                                            @Helper.GetResourceString("lbl_CompetitorName")
+                                        </div>
+                                        <div class="col-md-3">
+                                            @Html.DisplayFor(m => m.CompetitorAnalysisDetailsDtoList[i].CompetitorName, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <div class="col-md-2 text-right clsBold">
+                                            @Helper.GetResourceString("lbl_SaudaRate")
+                                        </div>
+                                        <div class="col-md-3">
+                                            @Html.DisplayFor(m => m.CompetitorAnalysisDetailsDtoList[i].SaudaRate, new { @class = "form-control" })
+                                        </div>
+                                        <div class="col-md-2 text-right clsBold">
+                                            @Helper.GetResourceString("lbl_MarketOperatingPrice")
+                                        </div>
+                                        <div class="col-md-3">
+                                            @Html.DisplayFor(m => m.CompetitorAnalysisDetailsDtoList[i].MarketOperatingPrice, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                            @if (Model.StatusId != (int)Status.Approved && Model.StatusId != (int)Status.Rejected)
+                            {
+                                if (Model.RoleId == (int)Role.Admin)
+                                {
+                                    <div class="row form-group">
+                                        <div class="col-md-12 text-center">
+                                            <button type="button" id="btnReject" class="k-button">Reject</button>
+                                            <button type="button" id="btnApprove" class="k-primary k-button">@Helper.GetResourceString("btn_Approve")<i class="icon-arrow-right14 position-right"></i></button>
+                                        </div>
+                                    </div>
+                                }
+                                else if (Helper.CheckClaims(Claims.ApprovePriceDiscovery))
+                                {
+                                    if (Model.HasAccessToProceed)
+                                    {
+                                        if (Model.CalculatedFinalMargin >= 0)
+                                        {
+                                            <div class="row form-group">
+                                                <div class="col-md-12 text-center">
+                                                    <button type="button" id="btnReject" class="k-button">Reject</button>
+                                                    <button type="button" id="btnApprove" class="k-primary k-button">@Helper.GetResourceString("btn_Approve")<i class="icon-arrow-right14 position-right"></i></button>
+                                                </div>
+                                            </div>
+                                        }
+                                        else if (!Helper.CheckClaims(Claims.RequestPriceDiscovery))
+                                        {
+                                            <div class="row form-group">
+                                                <div class="col-md-12 text-center">
+                                                    <button type="button" id="btnReject" class="k-button">Reject</button>
+                                                    <button type="button" id="btnApprove" class="k-primary k-button">@Helper.GetResourceString("btn_Approve")<i class="icon-arrow-right14 position-right"></i></button>
+                                                </div>
+                                            </div>
+                                        }
+                                        else if (Helper.CheckClaims(Claims.RequestPriceDiscovery))
+                                        {
+                                            <div class="row form-group">
+                                                <div class="col-md-12 text-center">
+                                                    <button type="button" id="btnReject" class="k-button">Reject</button>
+                                                    <button type="button" id="btnRequest" class="k-primary k-button">@Helper.GetResourceString("btn_RequestForApproval")<i class="icon-arrow-right14 position-right"></i></button>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (Helper.CheckClaims(Claims.RequestPriceDiscovery) && Model.HasAccessToProceed)
+                                    {
+                                        <div class="row form-group">
+                                            <div class="col-md-12 text-center">
+                                                <button type="button" id="btnReject" class="k-button">Reject</button>
+                                                <button type="button" id="btnRequest" class="k-primary k-button">@Helper.GetResourceString("btn_RequestForApproval")<i class="icon-arrow-right14 position-right"></i></button>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            }
+                        </div>
+                    }
+                    <!---end of form input-->
+                </div>
+                <input type="hidden" id="hdnMargin" />
+            </div>
+
+            <div id="dvRequestForApproval" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close model-header-color" data-dismiss="modal">&times;</button>
+                            <h6 class="panel-title model-header-color"><span class="text-semibold">Request for Approval</span></h6>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to request for Approval <span class="description"></span>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="btnConfirmRequest" type="button" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Confirm")</button>
+                            <button id="btnCancel" type="button" onclick="popupClose();" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Cancel")</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dvApprove" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close model-header-color" data-dismiss="modal">&times;</button>
+                            <h6 class="panel-title model-header-color"><span class="text-semibold">Approve Price Discovery</span></h6>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to Approve the Price Discovery? <span class="description"></span>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="btnConfirmApprove" type="button" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Confirm")</button>
+                            <button id="btnCancel" type="button" onclick="popupClose();" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Cancel")</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dvReject" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close model-header-color" data-dismiss="modal">&times;</button>
+                            <h6 class="panel-title model-header-color"><span class="text-semibold">Reject Price Discovery</span></h6>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to Reject the Price Discovery? <span class="description"></span>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="btnConfirmReject" type="button" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Confirm")</button>
+                            <button id="btnCancel" type="button" onclick="popupClose();" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Cancel")</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        $('input[type="text"]').keypress(function (e) {
+            var code = e.keyCode || e.which;
+            if (code === 13) {
+                e.preventDefault();
+            }
+        });
+
+        $("#btnRequest").on('click', function () {
+            $("#dvRequestForApproval").modal('show');
+        });
+
+        $("#btnConfirmRequest").on('click', function () {
+            var model = {
+                CompetitorAnalysisId: Number(@Model.Id)
+            };
+            window.kendo.ui.progress($("#div_Progress"), true);
+            moduleCommon.Common.AjaxCall({
+                url: "/Sauda/CompetitorAnalysisRequestForApproval",
+                type: 'POST',
+                data: { inputDto: model },
+                success: function (result) {
+                    if (result.PostStatus) {
+                        window.location.href = "/Sauda/CompetitorAnalysisList";
+                        ShowSuccessMessage(result.PostMessage);
+                    } else {
+                        ShowErrorMessage(result.PostMessage);
+                        return false;
+                    }
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                }
+            });
+        });
+
+
+        $("#btnApprove").on('click', function () {
+            $("#dvApprove").modal('show');
+        });
+
+        $("#btnConfirmApprove").on('click', function () {
+            var model = {
+                CompetitorAnalysisId: Number(@Model.Id),
+                Margin: Number($('#txtFinalMargin').text())
+            };
+
+            window.kendo.ui.progress($("#div_Progress"), true);
+            moduleCommon.Common.AjaxCall({
+                url: "/Sauda/ApproveCompetitorAnalysis",
+                type: 'POST',
+                data: { inputDto: model },
+                success: function (result) {
+                    if (result.PostStatus) {
+                        window.location.href =  "/Sauda/CompetitorAnalysisList";
+                        ShowSuccessMessage(result.PostMessage);
+                    } else {
+                        ShowErrorMessage(result.PostMessage);
+                        return false;
+                    }
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                }
+            });
+        });
+
+        $("#btnReject").on('click', function () {
+            $('#hdnMargin').val(Number($('#txtFinalMargin').text()));
+            $("#dvReject").modal('show');
+        });
+
+        $("#btnConfirmReject").on('click', function () {
+            var model = {
+                CompetitorAnalysisId: Number(@Model.Id),
+                Margin: $('#hdnMargin').val()
+            };
+            window.kendo.ui.progress($("#div_Progress"), true);
+            moduleCommon.Common.AjaxCall({
+                url: "/Sauda/RejectCompetitorAnalysis",
+                type: 'POST',
+                data: { inputDto: model },
+                success: function (result) {
+                    if (result.PostStatus) {
+                        window.location.href =  "/Sauda/CompetitorAnalysisList";
+                        ShowSuccessMessage(result.PostMessage);
+                    } else {
+                        ShowErrorMessage(result.PostMessage);
+                        return false;
+                    }
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                }
+            });
+        });
+    });
+
+</script>
+
+
+

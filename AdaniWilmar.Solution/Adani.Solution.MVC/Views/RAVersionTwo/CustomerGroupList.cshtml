@@ -1,0 +1,244 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model CustomerGroupDto
+@{
+    ViewBag.Title = "CustomerGroupList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="ra2CustomerGroupList" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_CustomerGroupList")</h2>
+    <div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            @if (Helper.CheckClaims(Claims.ManageRAMasters))
+            {
+                <a href="@Url.Action("CustomerGroupEditRedirect", "RAVersionTwo")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateCustomerGroup")</a>
+            }
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row">
+                <div class="row form-group">
+                    <div class="col-md-12">
+                        <div>
+                            <div class="text-right">
+                                <button class="k-button k-button-icontext k-grid-excel" id="customerGroupExport" type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>
+                                @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                            </div>
+                            @(Html.Kendo().Grid<CustomerGroupDto>().Name("ViewCustomerGroupList")
+                                  .Columns(columns =>
+                                  {
+                                      columns.Bound(c => c.Id).Visible(false);
+                                      columns.Bound(c => c.Name).Title(@Helper.GetResourceString("lbl_CustomerGroupName")).ClientTemplate(@"  #if(IsActive) { #<div> <a style='text-decoration: underline;' href='" + Url.Action("CustomerGroupUpdateEditRedirect", "RAVersionTwo", new { customerGroupId = "#=Id#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=Name#</a> </div>#} else {#" + "<div>#=Name#</div>" + "#} #").Width(Settings.GridColumnMaxWidth250);
+                                      columns.Bound(c => c.Vertical).Title(@Helper.GetResourceString("lbl_Vertical")).Format(Settings.GridDateFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                      columns.Bound(t => t.IsBaseGroup).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_IsBaseGroup")).ClientTemplate(@"<div style='text-align: center;'> #if(IsBaseGroup == false) { #"
+                                                                         + " <a  title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Width(Settings.GridColumnMaxWidth);
+                                      columns.Bound(t => t.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Active")).ClientTemplate(@"<div style='text-align: center;'> #if(IsActive == false) { #"
+                                                                         + " <a  title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Width(Settings.GridColumnMaxWidth);
+                                  })
+                                  .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                  .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                  .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                  .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                  .Selectable(selectable => selectable
+                                  .Mode(GridSelectionMode.Multiple)
+                                  .Type(GridSelectionType.Row))
+                                  .ClientDetailTemplateId("template")
+                                  .Scrollable(s => s.Enabled(true).Height("auto"))
+                                  .Reorderable(reorder => reorder.Columns(true))
+                                  .Resizable(resize => resize.Columns(true))
+                                  .DataSource(dataSource => dataSource
+                                  .Ajax()
+                                  .Model(model => model.Id(p => p.Id))
+                                  .ServerOperation(true)
+                                  .Read(read => read.Action("GetCustomerGroupListAsync", "RAVersionTwo", new { isToReturnInactiveData = true }))))
+                            <script id="template" type="text/kendo-tmpl">
+                                @(Html.Kendo().Grid<CustomerGroupDetailDto>()
+                                      .Name("grid_#=Id#")
+                                      .Columns(columns =>
+                                      {
+                                          columns.Bound(c => c.CustomerGroupDetailId).Visible(false);
+                                          columns.Bound(c => c.CustomerId).Visible(false);
+                                          columns.Bound(c => c.CustomerGroupId).Visible(false);
+                                          columns.Bound(c => c.CustomerName).Title(@Helper.GetResourceString("lbl_CustomerName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                          columns.Bound(c => c.Code).Title(@Helper.GetResourceString("lbl_Code")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                          columns.Bound(c => c.MobileNumber).Title(@Helper.GetResourceString("lbl_MobileNumber")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                          columns.Bound(c => c.Zone).Title(@Helper.GetResourceString("lbl_Zone")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                          columns.Bound(c => c.State).Title(@Helper.GetResourceString("lbl_State")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                          columns.Bound(c => c.Territory).Title(@Helper.GetResourceString("lbl_Territory")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                          columns.Bound(c => c.District).Title(@Helper.GetResourceString("lbl_District")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                          columns.Bound(c => c.City).Title(@Helper.GetResourceString("lbl_City")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                      })
+                                      .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                      .Selectable(selectable => selectable
+                                      .Type(GridSelectionType.Row))
+                                      .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                      .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                      .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                      .Scrollable(s => s.Enabled(true).Height("auto"))
+                                      .Reorderable(reorder => reorder.Columns(true))
+                                      .Resizable(resize => resize.Columns(true))
+                                      .DataSource(dataSource => dataSource
+                                      .Ajax()
+                                      .PageSize(Settings.DefaultPageSize)
+                                      .Read(read => read.Action("GetCustomerGroupDetailsListByGroupIdAsync", "RAVersionTwo", new { customerGroupId = "#=Id#" }))
+                                      ).ToClientTemplate())
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+		}
+
+        $("#btnGenerateCustomerGroupList").on('click', function () {
+            //window.kendo.ui.progress($("#div_Progress"), true);
+            onDateChange();
+            // window.kendo.ui.progress($("#div_Progress"), false);
+        });
+
+        // kendo grid filter contains
+        FilterContains();
+
+        $("#stateSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlState", "stateSelectAll");
+        });
+
+        $("#customerGroupExport").click(function () {
+            window.kendo.ui.progress($("#div_Progress"), true);            
+            //var model = {
+            //    FromDate: $('#StartDate').val(),
+            //    ToDate: $('#EndDate').val(),
+            //    StatusId: $('#ddlStatus').val(),
+            //    StateIds: $('#ddlState').val()
+            //};
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("ExportCustomerGroup", "RAVersionTwo")',
+                data: { isToReturnInactiveData: true },
+                success: function (responce) {                    
+                    if (responce.FileGuid) {
+                        window.location.href = '@Url.Action("ExcelDownload", "Base")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                    } else {
+                        ShowErrorMessage("No records found");
+                    }
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                },
+                error: function (responce) {
+                    ShowErrorMessage("File download failed");
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                }
+            });
+        });
+
+    });
+
+    function onDateChange() {
+        $("#hdSelectedIds").val('');
+        var CustomerGroupList = $("#ViewCustomerGroupList").data("kendoGrid");
+        CustomerGroupList.dataSource.read();
+        if (CustomerGroupList.dataSource.page() != 1) {
+            $('#ViewCustomerGroupList').data('kendoGrid').dataSource.page(1);
+        }
+
+        //Status based button hide and show
+        var statusId = parseInt($("#ddlStatus").data("kendoDropDownList").value());
+        if (statusId === emamiGlobal.Status.Pending || statusId === 0 || statusId === -1) {
+            $("#btnApproved").prop("disabled", false);
+            $("#btnRejected").prop("disabled", false);
+            $("#masterCBAllPaymentReceived").show();
+        } else {
+            $("#btnApproved").prop("disabled", true);
+            $("#btnRejected").prop("disabled", true);
+            $("#masterCBAllPaymentReceived").hide();
+        }
+    }
+
+    function selectAllHideShow() {
+        var statusId = Number($("#ddlStatus").val());
+
+    }
+
+    function AdditionalInfo() {
+        var fromDate = new Date();
+        var toDate = new Date();
+
+        if ($("#StartDate").val().length > 0)
+            fromDate = $("#StartDate").val();
+
+        if ($("#EndDate").val().length > 0)
+            toDate = $("#EndDate").val();
+
+        var ddlState = $("#ddlState").data("kendoMultiSelect").value();
+
+        return {
+            FromDate: fromDate,
+            ToDate: toDate,
+            StatusId: Number($("#ddlStatus").val()),
+            StateIds: ddlState,
+            //StateId: Number($("#ddlState").val()),
+            IsToReturnInactiveData: true
+        };
+    }
+
+    function onCustomerGroupRequestDetailListDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+
+    function onStateChange(e) {
+        MultiSelectEvents("ddlState", "stateSelectAll");
+    }
+
+    function onStateDataBound(e) {
+        MultiSelectEvents("ddlState", "stateSelectAll");
+    }
+
+    function MultiSelectCheckUnCheck(DropDownName, CheckBoxName) {
+        var dropdown = $("#" + DropDownName + "").data("kendoMultiSelect");
+        if (dropdown) {
+            var allIds = dropdown.dataSource.data().map(function (dataItem) { return dataItem.StateId; });            //Select all ids from dropdown
+            if ($("#" + CheckBoxName + "").is(":checked")) {
+                dropdown.value(allIds);
+            } else {
+                dropdown.value([]);
+            }
+        }
+    }
+
+    function MultiSelectEvents(DropDownName, CheckBoxName) {
+        var dropdown = $("#" + DropDownName + "").data("kendoMultiSelect");
+        if (dropdown) {
+            var selectedValueCount = dropdown.value().length;                                   //Selected value length
+            var totalValueCount = dropdown.dataSource.data().length;                            //Dropdown total value count
+            if (selectedValueCount > 0 && totalValueCount > 0 && selectedValueCount === totalValueCount) {
+                $("#" + CheckBoxName + "").prop("checked", true);
+            } else {
+                $("#" + CheckBoxName + "").prop("checked", false);
+            }
+        }
+    }
+
+</script>
+

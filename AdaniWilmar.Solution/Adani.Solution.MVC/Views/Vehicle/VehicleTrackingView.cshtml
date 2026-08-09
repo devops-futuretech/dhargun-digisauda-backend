@@ -1,0 +1,83 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@model Adani.Solution.DTO.DealerOrderDetailsDto
+
+@{
+    ViewBag.Title = "VehicleTrackView";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="transactionvehicletrackinglist" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_VehicleTrackingView")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Transactions</a><span class="icon-right"></span></li>
+        <li class="active"> @Helper.GetResourceString("lbl_VehicleTrackingView") <span class="icon-right"></span></li>
+    </ol>
+
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        @*<div class="panel-heading">
+            </div>*@
+        <div class="panel-body" style="display: block;">
+            @if (!String.IsNullOrEmpty(Model.tracking_link))
+            {
+                <div class="row" id="dvCushionMargins">
+                    <div class="col-md-12">
+
+                        <iframe style="transform:scale(0.95);transform-origin: 0 0;" src="@Model.tracking_link" id="vehicleTrackingIframe">
+                        </iframe>
+
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-12 text-right">
+                        <button type="button" id="btnCancel" class="k-primary k-button custom-btns">Back</button>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row" id="dvCushionMargins">
+                    <div class="col-md-12">
+
+                        <div class="text-center">
+                            <h3 class="bold">Tracking Link Expired</h3>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="row form-group mt-10">
+                    <div class="col-md-12 text-center">
+                        <button type="button" id="btnCancel" class="k-primary k-button custom-btns">Back</button>
+                    </div>
+                </div>
+            }
+
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $("#btnCancel").click(function(){
+
+        window.location.href = '@Url.Action("TrackRedirect", "Vehicle", new { Donumber = Model.do_number })';
+    });
+</script>
+
+<style type="text/css">
+    .mt-10 {
+        margin-top:10px;
+    }
+    #vehicleTrackingIframe{
+        width:100% !important;
+        height:100vh !important;
+    }
+</style>

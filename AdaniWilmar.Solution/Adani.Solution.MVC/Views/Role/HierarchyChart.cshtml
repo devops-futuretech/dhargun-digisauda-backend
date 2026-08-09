@@ -1,0 +1,45 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.MVC.Models;
+@model Adani.Solution.MVC.Models.RoleTypeHierarchyViewModel
+@{
+    ViewBag.Title = "HierarchyChart";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="RoleHierarchyChart" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3"><span> @Helper.GetResourceString("msg_Home")</span> -  @Helper.GetResourceString("msg_OrganizationHierarchy")</h2>
+    <div id="dateFilter" class="col-xs-9">
+
+        <div class="period-wrapper">
+
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+
+
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+            <h6 class="panel-title"><span class="text-semibold">@Helper.GetResourceString("msg_OrganizationHierarchy")</span></h6>
+
+        </div>
+        <div class="panel-body" style="display: block;">
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="CreateWindow">
+                        @{
+                            Html.RenderPartial("HierarchyChartPop");
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

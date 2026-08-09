@@ -1,0 +1,322 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.DTO;
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.MVC.Helpers
+@model Adani.Solution.DTO.BulletinDto
+
+@{
+    ViewBag.Title = "Bulletin";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/Content/Kendo/kendo.common-material.min.css" rel="stylesheet" />
+
+
+<input type="hidden" class="currentMenu" value="updatesBulletin" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">Add/Update Bulletin</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Updates</a><span class="icon-right"></span></li>
+        <li><a href="BulletinList">@Helper.GetResourceString("msg_Bulletin")</a><span class="icon-right"></span></li>
+        <li class="active">Add/Update Bulletin<span class="icon-right"></span></li>
+    </ol>
+    <div id="dateFilter" class="col-xs-9">
+
+        <div class="period-wrapper">
+
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <p class="content-group-lg"></p>
+
+
+            @using (Html.BeginForm("Bulletin", "SurveyUpdates", FormMethod.Post, new { id = "frmAddUpdateBulletin", @class = "form-validate-jquery", enctype = "multipart/form-data" }))
+            {
+                <fieldset class="content-group">
+
+
+
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(x => x.IsEdit, new { id = "hdnIsEdit" })
+                    @Html.HiddenFor(x => x.BulletinId, new { id = "hdnBulletinId" })
+
+                    <div class="row form-group">
+                        <div class="col-lg-4 col-sm-6 mb-3">
+                            <label class="custom_label"> Content Type <span class="text-danger">*</span> </label>
+
+                            @(Html.Kendo().DropDownListFor(m => m.ContentTypeId)
+                                                                                               .OptionLabel(@Helper.GetResourceString("plho_SelectContentType"))
+                                                                                               .DataTextField("Name")
+                                                                                               .DataValueField("EntityTypeId")
+                                                                                               .DataSource(source => source.Read(read => read.Action("GetContentTypeList", "SurveyUpdates"))
+                                                                                               .ServerFiltering(true))
+                                                                                               .HtmlAttributes(new { id = "ddlContentType", tabindex = "1", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_ContentType"), @style = "width:100%" }))
+                        </div>
+
+                        <div class="col-lg-4 col-sm-6 mb-3">
+                            <label class="custom_label"> Title <span class="text-danger">*</span> </label>
+                            @Html.TextBoxFor(m => m.Title, new { id = "txtTitle", tabindex = "2", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Title"), @maxlength = (int)InputMaxLength.AnnouncementTitle })
+                        </div>
+                    </div>
+
+
+                    <div class="row form-group">
+                        <div class="col-lg-12 col-sm-12 mb-3">
+                            <label class="custom_label"> Content <span class="text-danger"></span> </label>
+                        </div>
+
+                        @(Html.Kendo().EditorFor(x => x.Content).Encode(true)
+                                                                .HtmlAttributes(new { id = "keContent", tabindex = "3", /*required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Content"),*/ style = "height:300px", aria_label = "editor" })
+                                                                .Value(@<text></text>)
+                            )
+
+                    </div>
+
+
+                    @*<div class="row form-group">
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                Dealer <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().MultiSelectFor(m => m.SelectedDealerIds)
+                                      .Placeholder(@Helper.GetResourceString("plho_SelectQuarry"))
+                                      //.Events(e => e.Change("OnQuarryChange"))
+                                      .DataTextField("Name")
+                                      .DataValueField("Id")
+                                      //.Value(Model.QuarryList != null && Model.QuarryList.Any() ? Model.QuarryList : null)
+                                      .DataSource(source => source.Read(read => read.Action("GetDealerListAsync", "Lookup"))
+                                          .ServerFiltering(true))
+                                          .HtmlAttributes(new { id = "ddlQuarry", tabindex = "14", @class = "form-control", required = "required", data_msg_required = "Please select dealer's", @style = "width:100%" }))
+                            </div>
+                        </div>*@
+
+
+
+                    <div class="row form-group" id="dvBulletinImages">
+                        <div class="col-lg-4 col-sm-6 mb-3">
+                            <label class="custom_label"> Media <span class="text-danger"></span> </label>
+
+                            @(Html.Kendo().Upload()
+                                                                            .Name("files")
+                                                                            .HtmlAttributes(new { id = "fpMediaPhoto", tabindex = "4", aria_label = "files", accept = "image/*, video/*, pdf/*" })
+                                                                            .Events(events => events
+                                                                            .Select("onMediaPhotoSelect")
+
+                                                                            )
+                            )
+                            <label style="font-size: 12px; font-weight: bold !important;"> File format must be jpeg, pdf, png, jpg or mp4  </label>
+                        </div>
+                    @*</div>
+
+                    <div class="row form-group" id="dvBulletinImages">*@
+                        @if (Model.IsEdit && Model.MediaList != null && Model.MediaList.Any())
+                        {
+                            var index = 1;
+
+                            // <div class="row form-group" id="dvBulletinImages">
+                            <div class="col-lg-4 col-sm-6 mb-3">
+                                @*</div>
+                                    <div class="col-md-8">*@
+                                @foreach (var mediaItem in Model.MediaList)
+                                {
+                                    var mediaDivId = "media" + index++;
+                                    var mediaPath = Settings.GetMediaPath(Model.ContentTypeId, mediaItem.MediaPath);
+                                    if (mediaItem.MediaTypeId == (int)MediaType.Image)
+                                    {
+                                        <div id="@mediaDivId" class="col-md-2 media-box">
+                                            <a class="Info" href="@mediaPath" target="_blank"> <i class="icon-eye cursor-pointer faicon-red"></i> </a>
+                                            <a class="cursor-pointer" onclick="DeleteMedia('@mediaItem.BulletinMediaId','@mediaDivId', '@mediaItem.MediaPath')"><i class="icon-cancel-square2 faicon-red"></i> </a>
+                                            <img src="@mediaPath" width="200" height="200" />
+                                        </div>
+
+                                    }
+                                    else if (mediaItem.MediaTypeId == (int)MediaType.Video)
+                                    {
+                                        <div id="@mediaDivId" class="col-md-2 media-box">
+                                            <a class="Info" href="@mediaPath" target="_blank"> <i class="icon-eye cursor-pointer faicon-red"></i> </a>
+                                            <a onclick="DeleteMedia('@mediaItem.BulletinMediaId','@mediaDivId','@mediaItem.MediaPath')" class="cursor-pointer"><i class="icon-cancel-square2 faicon-red"></i> </a>
+                                            <video controls class="VideoInfo">
+                                                <source src="@mediaPath" type="video/mp4">
+                                            </video>
+                                        </div>
+                                    }
+                                    else if (mediaItem.MediaTypeId == (int)MediaType.Pdf)
+                                    {
+                                        <div id="@mediaDivId" class="col-md-2 media-box">
+                                            <a class="Info" href="@mediaPath" target="_blank"> <i class="icon-eye cursor-pointer faicon-red"></i> </a>
+                                            <a onclick="DeleteMedia('@mediaItem.BulletinMediaId','@mediaDivId','@mediaItem.MediaPath')" class="cursor-pointer"><i class="icon-cancel-square2 faicon-red"></i> </a>
+                                            <img src="~/images/adobe-acrobat-pdf-logo.png" width="200" height="200" />
+                                        </div>
+                                    }
+                                }
+                            </div>
+                            @*</div>*@
+
+                        }
+
+                        @*<div class="row form-group" id="dvBulletinImages"></div>
+                            <div class="row form-group">*@
+                    <div class="col-lg-4 col-sm-6 mb-3 ">
+                        <label class="custom_label">Status</label>
+                        <div class="custom_checkbox_main">
+                            <label class="custom_checkbox">
+                                @Html.CheckBoxFor(m => m.IsActive, new { id = "cbActiveInactive", tabindex = "5" })
+                                <span class="checkmark check_tick"></span>
+                                <span class="label-title">@Helper.GetResourceString("lbl_Active")</span>
+                            </label>
+                        </div>
+                        
+                    </div>
+                        @*<div class="col-lg-3 col-sm-6 mb-3">
+                                Active
+                            </div>
+                            <div class="col-md-4">
+                                @Html.CheckBoxFor(m => m.IsActive, new { id = "cbActiveInactive", tabindex = "5" })
+                            </div>*@
+                    </div>
+
+
+                </fieldset>
+                <div class="text-right">
+                    <button type="button" tabindex="7" id="btnCancel" onclick="location.href = '@Url.Action("BulletinList", "SurveyUpdates")'" class="k-button k-cancel custom-btns">Cancel</button>
+
+                    <button type="button" tabindex="6" id="btnAddUpdateBulletin" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Save") </button>
+
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+
+
+
+<style>
+    .k-window-title {
+        color: #00a0f0;
+    }
+
+    .k-editor .k-editor-toolbar-wrap {
+        padding-left: 0px;
+    }
+
+    .k-datetimepicker .k-select .k-link-time {
+        margin-right: -.285em;
+        margin-left: 1.428em;
+    }
+
+    .k-i-clock {
+        margin-top: -15px !important;
+    }
+
+    .k-link-date {
+        margin-top: 8px !important;
+    }
+</style>
+
+<script type="text/javascript">
+    var contentTypeId = $("#ddlContentType").val();
+    $(function () {
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+
+        //Method to btnAddUpdateBulletin click event
+        $("#btnAddUpdateBulletin").on('click', function () {
+            var isValid = $("#frmAddUpdateBulletin").valid();
+            if (isValid) {
+                $("#frmAddUpdateBulletin").submit();
+                    // Animate loader
+                    window.kendo.ui.progress($("#div_Progress"), true);
+                }
+            });
+
+
+    });
+
+
+
+    //Method to media upload select event
+    function onMediaVideoSelect(e) {
+        var files = e.files
+
+        if (files.length > emamiGlobal.constant.MaximumBulletinImages) {
+            ShowErrorMessage('@Helper.GetResourceFor("msg_ImageCount").Replace("{0}", ConfigHelper.AllowMaximumBulletinMediaCount.ToString())');
+            e.preventDefault();
+        }
+
+        var acceptedFiles = emamiGlobal.constant.AcceptedImageFormat;
+        var isAcceptedImageFormat = ($.inArray(files[0].extension, acceptedFiles)) != -1
+
+        if (!isAcceptedImageFormat) {
+            e.preventDefault();
+            ShowErrorMessage(emamiGlobal.errorMessage.AcceptedImageFormat);
+        }
+    }
+
+
+
+    //Method to media upload select event
+    function onMediaPhotoSelect(e) {
+        var files = e.files
+
+        if (files.length > emamiGlobal.constant.MaximumBulletinImages) {
+            ShowErrorMessage('@Helper.GetResourceFor("msg_YouCanAddMaxfiles").Replace("{0}", ConfigHelper.AllowMaximumBulletinMediaCount.ToString())');
+            e.preventDefault();
+        }
+
+        $(window).scrollTop(0);
+    }
+
+
+    function DeleteMedia(mediaEncryptedId, mediaDivId, mediaPath) {
+        var r = confirm("Are you sure you want to delete the media?");
+        if (r == true) {
+            window.kendo.ui.progress($("#div_Progress"), true);
+            $.ajax({
+                url: "/SurveyUpdates/DeleteBulletinMediaAsync",
+                type: 'Post',
+                dataType: 'json',
+                data: { bulletinMediaId: mediaEncryptedId, fileName: mediaPath, contentTypeId: contentTypeId},
+                success: function (result) {
+                    if (result.PostStatus === true) {
+                        ShowSuccessMessage(result.PostMessage);
+                        $("#".concat(mediaDivId)).remove();
+                    }
+                    else {
+                        ShowErrorMessage(result.PostMessage);
+                    }
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                }
+            });
+        }
+    }
+
+
+    //Method to reset control values
+    function ResetControlValues(formId) {
+        $("#" + formId + " :input[type='text'], input[type='password']").val("");
+        $("#cbActiveInactive").prop('checked', false);
+        var editor = $("#keContent").data("kendoEditor");
+        editor.value('');
+    }
+
+
+</script>

@@ -1,0 +1,41 @@
+﻿@using Adani.Solution.MVC.Helpers;
+@{
+    ViewBag.Title = "SyncSauda";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="homeSyncSauda" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Sync Sauda</h2>
+    <div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+            <h6 class="panel-title"><span class="text-semibold"> Sync Sauda</span></h6>
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row">
+                <div class="col-md-2">
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" id="btnGetHoldSkuinSauda" onclick="location.href = '@Url.Action("CallGetHoldSkuinSauda", "Home")'" class="k-button">@Helper.GetResourceString("btn_GetHoldSkuinSauda")</button>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" id="btnSendLatestSaudasStatusNotification" onclick="location.href = '@Url.Action("CallSendLatestSaudasStatusNotification", "Home")'" class="k-button">@Helper.GetResourceString("btn_SendLatestSaudasStatusNotification")</button>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" id="btnRejectSaudaOrdersInHold" onclick="location.href = '@Url.Action("CallRejectSaudaOrdersInHold", "Home")'" class="k-button">@Helper.GetResourceString("btn_RejectSaudaOrdersInHold")</button>
+                    </div>
+                </div>
+
+            </div>
+    </div>
+</div>
+

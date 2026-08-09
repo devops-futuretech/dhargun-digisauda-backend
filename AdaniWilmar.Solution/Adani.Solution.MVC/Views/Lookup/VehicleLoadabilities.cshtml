@@ -1,0 +1,207 @@
+﻿
+@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model VehicleLoadabilitiesDto
+@{
+    ViewBag.Title = "masterVehicleLoadabilities";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="masterVehicleLoadabilities" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">VehicleLoadabilities</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;" id="divLoader">
+            <div class="row" id="dvVehicleloadabilities">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("AddorUpdateVehicleLoadabilities", "Lookup", FormMethod.Post, new { id = "frmVehicleloadabilities", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(s => s.Id, new { id = "id" })
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Zone") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().MultiSelectFor(f => f.ZoneIds)
+                                           .Placeholder(@Helper.GetResourceString("plho_SelectZone"))
+                                           .DataTextField("Name")
+                                           .DataValueField("Id")
+                                           .AutoClose(false)
+                                           .TagMode(TagMode.Single)
+                                           .Events(e => e.Change("onZoneChange"))
+                                           .DataSource(source => source.Read(read => read.Action("GetZoneListddl", "Lookup", new { isToReturnInactiveData = false }))
+                                           /*.ServerFiltering(false)*/)
+                                           .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='zoneSelectAll'> Select All</label>")
+                                           .HtmlAttributes(new { id = "ddlZone", tabindex = "3", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Zone"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_State") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                 @(Html.Kendo().MultiSelectFor(f => f.StateIds)
+                                          .Placeholder(@Helper.GetResourceString("plho_SelectState"))
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .AutoClose(false)
+                                          .TagMode(TagMode.Single)
+                                          .Events(events => events.Change("onStateChange"))
+                                          .DataSource(source => source.Read(read => read.Action("GetZoneMappedStateIds", "Lookup").Data("stateLoadParam"))
+                                          /*.ServerFiltering(false)*/)
+                                          .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='stateSelectAll'> Select All</label>")
+                                          .HtmlAttributes(new { id = "ddlState", tabindex = "4", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_State"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_FreightZone") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+
+                                @(Html.Kendo().MultiSelectFor(f => f.FreightZoneIds)
+                                          .Placeholder(@Helper.GetResourceString("plho_SelectFreightZone"))
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .AutoClose(false)
+                                          .TagMode(TagMode.Single)
+                                          .Events(events => events.Change("onFreightZoneChange"))
+                                          .DataSource(source => source.Read(read => read.Action("GetFreightZoneListByStateZoneIdsAsync", "Lookup").Data("freightZoneLoadParam"))
+                                          /*.ServerFiltering(false)*/)
+                                          .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='freightZoneSelectAll'> Select All</label>")
+                                          .HtmlAttributes(new { id = "ddlFreightZone", tabindex = "5", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_FreightZone"), @style = "width:100%" }))
+                                
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_VehicleSize") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(m => m.VehicleSize, new { id = "txtVehicleSize", tabindex = "6", @class = "form-control decimalValue", required = "required", data_msg_required = Helper.GetMsgRequired("msg_vehicleSize"), @maxlength = (int)InputMaxLength.Price })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_ActiveInactive")
+                            </div>
+                            <div class="col-md-4">
+                                @Html.CheckBoxFor(m => m.IsActiveBool, new { id = "cbActiveInactive", tabindex = "7", })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+
+                                <button type="button" tabindex="7" id="btnCancel" onclick="location.href = '@Url.Action("VehicleLoadabilitiesList", "Lookup")'" class="k-button">@Helper.GetResourceString("btn_Cancel")</button>
+                                <button type="button" tabindex="6" onclick="formSubmit()" class="k-primary k-button">Save<i class="icon-arrow-right14 position-right"></i></button>
+
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    $(document).ready(function () {
+
+
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+        if ('@Model.Id' === '0')
+        {
+         $("#txtVehicleSize").val('');
+        }
+
+    $("#zoneSelectAll").click(function () {
+           MultiSelectCheckUnCheck("ddlZone", "zoneSelectAll");
+            $("#ddlState").data("kendoMultiSelect").dataSource.read();
+        });
+
+        $("#stateSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlState", "stateSelectAll");
+            $("#ddlFreightZone").data("kendoMultiSelect").dataSource.read();
+        });
+
+
+         $("#freightZoneSelectAll").click(function () {
+             MultiSelectCheckUnCheck("ddlFreightZone", "freightZoneSelectAll");
+
+
+         });
+    });
+
+
+    function onStateChange(e) {
+        $("#ddlFreightZone").data("kendoMultiSelect").dataSource.read();
+         MultiSelectEvents("ddlState", "stateSelectAll");
+    }
+
+    
+
+    function onZoneChange() {
+        
+        $("#ddlState").data("kendoMultiSelect").dataSource.read();
+         MultiSelectEvents("ddlZone", "zoneSelectAll");
+
+    }
+
+    function stateLoadParam() {
+
+        var zoneIds = $("#ddlZone").data("kendoMultiSelect").value();
+        return {
+            zoneIds: zoneIds.join()
+        };
+    }
+
+     function onFreightZoneChange() {
+        
+      
+         MultiSelectEvents("ddlFreightZone", "freightZoneSelectAll");
+
+    }
+
+    function freightZoneLoadParam() {
+        
+        var zoneIds = $("#ddlZone").data("kendoMultiSelect").value();
+        var stateIds = $("#ddlState").data("kendoMultiSelect").value();
+        return {
+            zoneIds: zoneIds.join(),
+            stateIds: stateIds.join()
+        };
+        }
+
+    function formSubmit() {
+        $('#frmVehicleloadabilities').submit();
+    }
+
+
+
+
+
+</script>
+
+
+

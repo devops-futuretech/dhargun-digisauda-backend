@@ -1,0 +1,313 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model SkuFinalpriceListInputDto
+
+@{
+    ViewBag.Title = "Final Pricing";
+}
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="pricingFinalPricing" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Final Pricing</h2>
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvSecondaryFreights">
+                <div class="col-md-12">
+                    <form id="frmSearchPricing" class="form-validate-jquery">
+                        <!---end of form input-->
+                        <div class="col-md-12">
+                            <div class="row form-group">
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_SaudaBookingType") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownListFor(m => m.SaudaBookingTypeId)
+                                          .OptionLabel(@Helper.GetResourceString("plho_SelectSaudaBookingType"))
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .DataSource(source => source.Read(read => read.Action("GetSaudaBookingTypeListAsync", "Lookup", new { isToReturnInactiveData = false }))
+                                          .ServerFiltering(false))
+                                          .HtmlAttributes(new { id = "ddlSaudaBookingType", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_SaudaBookingType"), @style = "width:100%", @onchange = "BookingTypeChange(this)" }))
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_Vertical") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownList().Name("VerticalId")
+                                          .OptionLabel(@Helper.GetResourceString("plho_SelectVertical"))
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .Events(e => e.Change("onVerticalTypeChange"))
+                                          .DataSource(source => source.Read(resd => resd.Action("GetVerticalDetailsdd", "Lookup"))
+                                          .ServerFiltering(false))
+                                          .HtmlAttributes(new { id = "ddlVertical", @class = "", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Vertical"), @style = "width:100%" }))
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_OilType") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownListFor(m => m.OilTypeId)
+                                          .OptionLabel(@Helper.GetResourceString("plho_SelectOilType"))
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .DataSource(source => source.Read(read => read.Action("GetOilTypesBasedOnVerticalId", "Lookup", new { isToReturnInactiveData = false }).Data("oilTypeAdditionalInfo"))
+                                          .ServerFiltering(true))
+                                          .HtmlAttributes(new { id = "ddlOilType", @class = "", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilType"), @style = "width:100%" }))
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_State") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+
+                                    @(Html.Kendo().DropDownListFor(s => s.StateId).OptionLabel(@Helper.GetResourceString("plho_SelectState")).Events(events => events.Change("onStateChange").DataBound("OnStateDataBound")).DataTextField("StateName").DataValueField("StateId").DataSource(source => source.Read(read => read.Action("GetStateListAsync", "Lookup")).ServerFiltering(false)).HtmlAttributes(new { id = "ddlState", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_State"), tabindex = "4", @style = "width:100%" }))
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_District") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownList().Name("DistrictId")
+                                          .OptionLabel(@Helper.GetResourceString("plho_SelectDistrict"))
+                                          .Events(events => events.Change("onDistrictChange").DataBound("OnDistrictDataBound"))
+                                          .DataTextField("DistrictName")
+                                          .DataValueField("DistrictId")
+                                          .DataSource(source => source.Read(read => read.Action("GetDistrictListByStateIdAsync", "Lookup").Data("additionalDistrictByStateInfo"))
+                                          .ServerFiltering(false))
+                                          .HtmlAttributes(new { id = "ddlDistrict", @class = "", tabindex = "5", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_District"), @style = "width:100%" }))
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_City") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownListFor(m => m.CityId)
+                                          .OptionLabel(@Helper.GetResourceString("plho_SelectCity"))
+                                          .DataTextField("CityName")
+                                          .DataValueField("CityId")
+                                          .DataSource(source => source.Read(read => read.Action("GetCityListByDistrictName", "Lookup").Data("additionalCityByDistrictInfo"))
+                                          .ServerFiltering(false))
+                                          .HtmlAttributes(new { id = "ddlCity", @class = "", required = "required", tabindex = "6", data_msg_required = Helper.GetSelectMsgRequired("lbl_City"), @style = "width:100%" }))
+                                </div>
+
+
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_OilPackingType") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownListFor(m => m.OilPackingTypeId)
+                                          .OptionLabel(@Helper.GetResourceString("plho_SelectOilPackingType"))
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .DataSource(source => source.Read(read => read.Action("GetOilPackingTypeListAsync", "Lookup", new { isToReturnInactiveData = false }))
+                                          .ServerFiltering(true))
+                                          .HtmlAttributes(new { id = "ddlOilPackingType", @class = "", tabindex = "7", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilPackingType"), @style = "width:100%" }))
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_TransportMode") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DropDownListFor(m => m.TransportModeId)
+                                          .OptionLabel(@Helper.GetResourceString("plho_SelectTransportMode")).DataTextField("Name")
+                                          .DataValueField("Id").DataSource(source => source.Read(read => read.Action("GetTransportModeListAsync", "Lookup", new { isToReturnInactiveData = false })).ServerFiltering(false))
+                                          .HtmlAttributes(new
+                                          {
+                                              id = "ddlTransportMode",
+                                              @class = "",
+                                              tabindex = "8",
+                                              required = "required",
+                                              data_msg_required = Helper.GetSelectMsgRequired("lbl_TransportMode"),
+                                              @style = "width:100%"
+                                          }))
+                                </div>
+
+                            </div>
+                            <div class="row form-group bookingTypeTraditional" style="display:none;">
+
+                                <div class="col-md-2 text-right">
+                                    Counter bid <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.TextBoxFor(m => m.CounterBidLimit, htmlAttributes: new { @id = "txtCounterBid", @class = "", tabindex = "9", required = "required", data_msg_required = "Counter Bid is required", @style = "width:100%", @disabled = "disabled" }))
+                                </div>
+
+                                <div class="col-md-2 text-right">
+                                    BP/CP Jump <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.TextBoxFor(m => m.BpCpJump, htmlAttributes: new { @id = "txtBPCPJumb", @class = "", tabindex = "10", required = "required", data_msg_required = "BP/CP Jump  is required", @style = "width:100%", @disabled = "disabled" }))
+                                </div>
+                            </div>
+                            <div class="form-group row text-center">
+                                <button type="button" id="btnSave" tabindex = "11" onclick="SearchFinalPrice(this)" class="k-primary k-button">Search<i class="icon-arrow-right14 position-right"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                    <div>
+                        <div class="text-right">
+                            @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                        </div>
+
+                        @(Html.Kendo().Grid<SkuFinalpriceListOutputDto>().Name("SkuFinalpriceList")
+                              .Columns(columns =>
+                              {
+                                  columns.Template(@<text></text>).Title("Select").ClientTemplate("<input type='checkbox' />").Width(150);
+                                  columns.Bound(c => c.SkuId).Visible(false);
+                                  columns.Bound(c => c.SkuName).Title("Sku Name").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.MaterialCost).Title("Material Cost").Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.PackingCost).Title("Packing Cost").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+
+                                  columns.Bound(c => c.PrimaryFrieght).Title("Primary Frieght").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.SecondaryFrieght).Title("Secondary Frieght").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.MarginCost).Title("Margin Cost").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.HoneycombCost).Title("Honey combCost").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.DepoCost).Title("DepoCost").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.DetentionCost).Title("DetentionCost").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.Discount).Title("Discount").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.Premium).Title("Premium").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+
+                                  columns.Bound(c => c.RaMarginCost).Title("RaMargin Cost").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.ExPlantPrice).Title("ExPlant Price").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.ExDepotPrice).Title("ExDepot Price").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.ForDepotPrice).Title("For Depot Price").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+
+                                  columns.Bound(c => c.ClearanceRate).Title("Clearance Rate").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.CounterbidOffer).Title("Counter bid Offer").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.XMarginCost).Title("X MarginC ost").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.FinalPrice).Title("Final Price").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              })
+                              .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                              .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                              .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                              .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                              .Selectable(selectable => selectable
+                              .Mode(GridSelectionMode.Multiple)
+                              .Type(GridSelectionType.Row))
+                              .Scrollable(s => s.Enabled(true).Height("auto"))
+                              .Events(events => events.DataBound("onFinalPricingtDataBound"))
+                              .Reorderable(reorder => reorder.Columns(true))
+                              .DataSource(dataSource => dataSource
+                              .Ajax()
+                              .Model(model => model.Id(m => m.SkuId))
+                              .ServerOperation(true)).HtmlAttributes(new { @id = "grdFinalPrice" }))
+                    </div>                   
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function onFinalPricingtDataBound(e) {
+        SetEmptyRow(e);
+    }
+    function SearchFinalPrice() {
+       var isValidSearchParam= $("#frmSearchPricing").valid();
+        if (isValidSearchParam) {
+            var searchParams = $("#frmSearchPricing").serialize();
+              moduleCommon.Common.AjaxCall({
+                    type: 'Post',
+                    url: '@Url.Action("SearchFinalPrice", "Pricing")',
+                    data: searchParams,
+                  success: function (result) {
+                      $("#grdFinalPrice").data("kendoGrid").dataSource.data(result);
+                  },
+                  failure: function () {
+                      alert("Failure");
+                  }
+                });
+        }
+        else {
+
+        }
+    }
+
+    function BookingTypeChange(e) {
+        // 1 Reverse Auction
+        // 2 Traditional Process
+        
+        if ($("#ddlSaudaBookingType").data("kendoDropDownList").value() == "1") {
+            $('.bookingTypeTraditional').css("display", "block");
+            $("#txtCounterBid").removeAttr("disabled");
+            $("#txtBPCPJumb").removeAttr("disabled");
+
+        }
+        else {
+            $('.bookingTypeTraditional').css("display", "none");
+            $("#txtCounterBid").attr("disabled", "disabled");
+            $("#txtBPCPJumb").attr("disabled", "disabled");
+        }
+    }
+    function additionalDistrictByStateInfo() {
+        var stateId = $("#ddlState").data("kendoDropDownList").value();
+        return {
+            stateId: stateId
+        };
+    }
+
+    function additionalCityByDistrictInfo() {
+        var districtName = $("#ddlDistrict").data("kendoDropDownList").text();
+        return {
+            districtId: districtName
+        };
+    }
+
+    function onStateChange(e) {
+        $("#ddlDistrict").data("kendoDropDownList").dataSource.read();
+    }
+
+    function onDistrictChange(e) {
+        $("#ddlCity").data("kendoDropDownList").dataSource.read();
+    }
+
+    function OnStateDataBound(e) {
+        var stateId = $("#ddlState").data("kendoDropDownList").value();
+        if (stateId > 0) {
+            $("#ddlDistrict").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    function OnDistrictDataBound(e) {
+        var districtId = $("#ddlDistrict").data("kendoDropDownList").value();
+        if (districtId > 0) {
+            $("#ddlCity").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    function oilTypeAdditionalInfo() {
+        var verticalId = $("#ddlVertical").data("kendoDropDownList").value();
+        return {
+            verticalId: Number(verticalId)
+        };
+    }
+    function onVerticalTypeChange() {
+        $("#ddlOilType").data("kendoDropDownList").dataSource.read();
+    }
+</script>
+
+
+
+
+
+
+
+
+
+
+

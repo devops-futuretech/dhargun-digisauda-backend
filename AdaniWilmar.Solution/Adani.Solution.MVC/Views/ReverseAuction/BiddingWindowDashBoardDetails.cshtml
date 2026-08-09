@@ -1,0 +1,454 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.MVC.Common;
+@model Adani.Solution.DTO.BiddingWindowDashboardDto
+
+@{
+    //ViewBag.Title = "BiddingWindowDashBoardDetails";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="ra2BiddingWindowDetails" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">BiddingWindow DashBoard Details</h2>
+    <div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            <a href="#" id="refreshDashboard" class="k-primary k-button"><b><i class="icon-reload-alt"></i></b>&ensp;Refresh</a>
+        </div>
+    </div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="content">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="panel panel-flat" style=" height : 460px">
+                    <div class="panel-heading"><b>Bidding Window Details</b></div>
+                    <div class="panel-body">
+                        @using (Html.BeginForm("BiddingWindowDetails", "ReverseAuction", FormMethod.Post, new { id = "frmBiddingWindowDetails", @class = "form-validate-jquery" }))
+                        {
+                            @*<div class="row form-group">
+                                    <div class="col-md-2 text-right">
+                                        <p class="heading-size"><b></b></p>
+                                    </div>
+                                </div>*@
+                            @*<div class="card-body">*@
+                            <div class="row form-group" style=" margin-top : 10px; ">
+                                @Html.HiddenFor(m => m.BiddingWindowId, new { id = "hdnId" })
+                                <div class="row form-group">
+                                    <div class="col-md-4 text-right">
+                                        <b>@Helper.GetResourceString("lbl_WindowName")</b>
+                                    </div>
+                                    <div class="col-md-4">
+                                        @Html.DisplayFor(m => m.WindowName, new { id = "WindowName", tabindex = "3", @class = "form-control", @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                                    </div>
+                                </div>
+
+                                <div class="row form-group">
+                                    <div class="col-md-4 text-right">
+                                        <b>@Helper.GetResourceString("lbl_CustomerGroup")</b>
+                                    </div>
+                                    <div class="col-md-4">
+                                        @Html.DisplayFor(m => m.CustomerGroups, new { id = "CustomerGroup", tabindex = "3", @class = "form-control", @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                                    </div>
+
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col-md-4 text-right">
+                                        <b> Oil Types @*@Helper.GetResourceString("lbl_OilTypes")*@</b>
+                                    </div>
+                                    <div class="col-md-4">
+                                        @Html.DisplayFor(m => m.Oiltypes, new { id = "OilType", tabindex = "3", @class = "form-control", @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                                    </div>
+
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col-md-4 text-right">
+                                        <b> @Helper.GetResourceString("lbl_StartandEndTime")</b>
+                                    </div>
+                                    <div class="col-md-4">
+                                        @Html.DisplayFor(m => m.WindowStartAndEndTime, new { id = "WindowStartAndEndTime", tabindex = "3", @class = "form-control", @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                                    </div>
+
+                                </div>
+
+                                <div class="row form-group">
+                                    <div class="col-md-4 text-right">
+                                        <b> Sauda Allocation Time </b>
+                                    </div>
+                                    <div class="col-md-4">
+                                        @Html.DisplayFor(m => m.SaudaAllocationStartAndEndTime, new { id = "SaudaAllocationStartAndEndTime", tabindex = "3", @class = "form-control", @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                                    </div>
+
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col-md-4 text-right">
+                                        <b> Sauda Booked (MT)</b>
+                                    </div>
+                                    <div class="col-md-4">
+                                        @Html.DisplayFor(m => m.SaudaBooked, new { id = "SaudaBooked", tabindex = "3", @class = "form-control", @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                                    </div>
+                                </div>
+                            </div>
+                            @*</div>*@
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="panel panel-flat" style=" height : 460px">
+                    <div class="panel-heading"><b>Volume Capacity Details</b></div>
+                    <div class="panel-body">
+                        @*<div class="row form-group">
+                                <div class="col-md-2 text-right">
+                                    <p class="heading-size"><b> Window VolumeCapacity Details</b></p>
+                                </div>
+                            </div>*@
+
+                        @(Html.Kendo().Grid<Adani.Solution.DTO.BiddingWindowDashboardChartVolumeCapacityDto>()
+                                      .Name("BiddingWindowVolumeList")
+                                      .Columns(columns =>
+                                      {
+                                          columns.Bound(c => c.OilName).Title(@Helper.GetResourceString("lbl_OilType")).Width(Settings.GridButtonColumnWidth).ClientFooterTemplate("<span style='float:right'>Sum </span>");
+                                          columns.Bound(c => c.TotalVolumeCapacity).Title(@Helper.GetResourceString("lbl_TotalVolumeInMT")).Width(Settings.GridButtonColumnWidth).ClientFooterTemplate("#=kendo.format(getNumberFormat(), sum)#");
+                                          columns.Bound(c => c.BookedVolumeCapacity).Title(@Helper.GetResourceString("lbl_BookedQuantityInMT")).Width(Settings.GridButtonColumnWidth).ClientFooterTemplate("#=kendo.format(getNumberFormat(), sum)#");
+                                          columns.Bound(c => c.RemainingVolumeCapacity).Title(@Helper.GetResourceString("lbl_RemainingVolumeInMT")).Width(Settings.GridButtonColumnWidth).ClientFooterTemplate("#=kendo.format(getNumberFormat(), sum)#");
+                                      })
+                                      .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                      .HtmlAttributes(new { style = "height: 400px" })
+                                      .Scrollable(s => s.Enabled(true))
+                                      .Reorderable(reorder => reorder.Columns(true))
+                                      .Resizable(resize => resize.Columns(true))
+                                      .DataSource(dataSource => dataSource
+                                      .Ajax()
+                                      .Aggregates(aggregate =>
+                                      {
+                                          string.Format("{0}", aggregate.Add(p => p.TotalVolumeCapacity).Sum());
+                                          aggregate.Add(p => p.BookedVolumeCapacity).Sum();
+                                          aggregate.Add(p => p.RemainingVolumeCapacity).Sum();
+                                      })
+                                      .ServerOperation(true)
+                                      .Read(read => read.Action("GetBiddingWindowDashboardVolumeCapacityDetails", "ReverseAuction").Data("additionalParam"))))
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="content">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="panel panel-flat" style=" height : 460px">
+                    <div class="panel-heading"><b>Oil Wise Status Details</b></div>
+                    <div class="panel-body">
+                        @(Html.Kendo().Grid<Adani.Solution.DTO.BiddingWindowDashboardDto>()
+                                                                  .Name("BiddingWindowStatusList")
+                                                                  .Columns(columns =>
+                                                                  {
+                                                                      columns.Bound(c => c.Oiltypes).Title(@Helper.GetResourceString("lbl_OilType")).Width(120).ClientFooterTemplate("<span style='float:right'>Sum </span>");
+                                                                              //columns.Bound(c => c.ApprovedCount).Title("Accepted").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridButtonColumnWidth);
+                                                                              //columns.Bound(c => c.RejectedCount).Title("Rejected").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridButtonColumnWidth);
+                                                                              //columns.Bound(c => c.PendingCount).Title("Pending").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridButtonColumnWidth);
+
+                                                                              columns.Group(g => g.Title("Accepted").Columns(c =>
+                                                                              {
+                                                                                  c.Bound(b => b.ApprovedCount).Title("Count").Width(90).ClientFooterTemplate("#=sum#");
+                                                                                  c.Bound(b => b.BidQuantityAccepted).Title("Vol (MT)").Width(100).ClientFooterTemplate("#=kendo.format(getNumberFormat(), sum)#");
+                                                                              }));
+
+                                                                      columns.Group(g => g.Title("Rejected").Columns(c =>
+                                                                              {
+                                                                                  c.Bound(b => b.RejectedCount).Title("Count").Width(90).ClientFooterTemplate("#=sum#");
+                                                                                  c.Bound(b => b.BidQuantityRejected).Title("Vol (MT)").Width(100).ClientFooterTemplate("#=kendo.format(getNumberFormat(), sum)#");
+                                                                              }));
+
+                                                                      columns.Group(g => g.Title("Pending").Columns(c =>
+                                                                              {
+                                                                                  c.Bound(b => b.PendingCount).Title("Count").Width(90).ClientFooterTemplate("#=sum#");
+                                                                                  c.Bound(b => b.BidQuantityPending).Title("Vol (MT)").Width(100).ClientFooterTemplate("#=kendo.format(getNumberFormat(), sum)#");
+                                                                              }));
+                                                                  })
+                                                                  .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                                                  .HtmlAttributes(new { style = "height: 400px" })
+                                                                  .Scrollable(s => s.Enabled(true))
+                                                                  .Reorderable(reorder => reorder.Columns(true))
+                                                                  .Resizable(resize => resize.Columns(true))
+                                                                                  .DataSource(dataSource => dataSource
+                                                                                  .Ajax()
+                                                                                  .Aggregates(aggregates =>
+                                                                                  {
+                                                                                      aggregates.Add(p => p.ApprovedCount).Sum();
+                                                                                      aggregates.Add(p => p.BidQuantityAccepted).Sum();
+                                                                                      aggregates.Add(p => p.RejectedCount).Sum();
+                                                                                      aggregates.Add(p => p.BidQuantityRejected).Sum();
+                                                                                      aggregates.Add(p => p.PendingCount).Sum();
+                                                                                      aggregates.Add(p => p.BidQuantityPending).Sum();
+                                                                                  })
+                                                                                  .ServerOperation(true)
+                                                                                  .Read(read => read.Action("BiddingWindowDashBoardOverAllStatusCountDetails", "ReverseAuction").Data("additionalParam"))))
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="panel panel-flat" style=" height : 460px">
+                    <div class="panel-heading"><b>Overall Bidding Status Details</b></div>
+                    <div class="panel-body">
+                        @(Html.Kendo().Chart<Adani.Solution.DTO.BiddingWindowStatusWiseDetailsDto>()
+                                              .Name("BiddingWindowOverAllStatusChart")
+                                              .Legend(legend => legend
+                                              .Position(ChartLegendPosition.Top)
+                                              )
+                                              .DataSource(ds => ds.Read(read => read.Action("BiddingWindowStatusWiseVolumeCount", "ReverseAuction").Data("additionalParam")))
+                                              .Series(series =>
+                                              {
+                                                  series.Column(model => model.TotalBidding).Name("Total Bidding").Color("#28DEBF");
+                                                  series.Column(model => model.TotalVolume).Name("Total Volume (MT)").Color("#57DE28");
+                                              })
+                                              .SeriesColors("#90EE90")
+                                              .CategoryAxis(axis => axis
+                                              .Categories(model => model.StatusName)
+                                              .Labels(labels => labels.Rotation(-90))
+                                              .MajorGridLines(lines => lines.Visible(false))
+                                              )
+                                              .ValueAxis(axis => axis.Numeric()
+                                              .Labels(labels => labels.Format("{0:N0}"))
+                                              .MajorUnit(10)
+                                              .Line(line => line.Visible(false))
+                                              )
+                                              .Tooltip(tooltip => tooltip
+                                              .Visible(true)
+                                              .Format("getNumberFormat()")
+                                              ))
+
+
+                        @*@(Html.Kendo().Chart<Adani.Solution.DTO.BiddingWindowDashboardChartDto>()
+                                            .Name("BiddingWindowStatusCount")
+                                            .Theme(ConfigHelper.KendoThemeName)
+                                            .AutoBind(false)
+                                                    .Title(title => title
+                                                        .Text("Bidding Window Status Count")
+                                                        .Position(ChartTitlePosition.Top))
+                                            .Legend(legend => legend
+                                                .Visible(true)
+                                                .Position(ChartLegendPosition.Bottom)
+                                            )
+                                            .ChartArea(chart => chart
+                                                .Background("transparent")
+                                             )
+                                            .SeriesColors(new string[] { "orange", "#FF6347", "#90EE90" })
+                                            .Series(series =>
+                                            {
+                                                series.Pie(model => model.StatusCount, model => model.Status)
+                                                .Labels(labels => labels
+                                                    .Template("#= category #: \n #= value#")
+                                                    .Background("transparent")
+                                                    .Visible(true)
+                                                )
+                                                .StartAngle(150);
+                                            })
+                                            .DataSource(ds => ds.Read(read => read.Action("BiddingWindowDashBoardChartOverAllStatusCountDetails", "ReverseAuction")))
+                                            .Tooltip(tooltip => tooltip
+                                                .Visible(true)
+                                                .Template("#= dataItem.Status #: #= kendo.toString(dataItem.StatusCount) #")
+
+                                            )
+                            )*@
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    @*<div class="row form-group">
+            <div class="col-md-12 text-center">
+                <button type="button" tabindex="8" id="btnOilTypeBsed" onclick="ShowOilTypeWiseChart()" class="k-button">View OilType Wise Report</button>
+            </div>
+        </div>
+        <div id="ChartBasedOnOilType">
+            @foreach (var item in ViewData["OilNamesList"] as List<Adani.Solution.DTO.DropDownDto>)
+            {
+                <div class="col-md-6">
+                    @(Html.Kendo().Chart<Adani.Solution.DTO.BiddingWindowDashboardChartDto>()
+                                       .Name("BiddingWindowOilTypeBasedChart" + item.Id)
+                                       .Theme(ConfigHelper.KendoThemeName)
+                                               .Title(title => title
+                                                   .Text(item.Name)
+                                                   .Position(ChartTitlePosition.Top))
+                                                .Legend(legend => legend
+                                                .Visible(true)
+                                                .Position(ChartLegendPosition.Bottom)
+                                                     )
+                                           .ChartArea(chart => chart
+                                           .Background("transparent")
+                                        )
+                                       .SeriesColors(new string[] { "orange", "#FF6347", "#90EE90" })
+                                       .Series(series =>
+                                       {
+                                           series.Pie(model => model.StatusCount, model => model.Status)
+                                           .Padding(0)
+                                           .Labels(labels => labels
+                                               .Template("#= category #: \n #= value#")
+                                               .Background("transparent")
+                                               .Visible(true)
+                                           )
+                                           .StartAngle(150);
+                                       })
+                                       .DataSource(ds => ds.Read(read => read.Action("BiddingWindowDashBoardChartOilTypeBasedDetails", "ReverseAuction", new { OilTypeId = item.Id })))
+                                       .Tooltip(tooltip => tooltip
+                                           .Visible(true)
+                                           .Template("#= dataItem.Status #: #= kendo.toString(dataItem.StatusCount) #")
+
+                                       )
+                    )
+                </div>
+            }
+
+        </div>*@
+    @*</div>
+            </div>
+        </div>*@
+    <div class="content">
+        <div class="row">
+            @*<div class="col-lg-6">
+                    <div class="panel panel-flat" style=" height : 460px">
+                        <div class="panel-heading"><b>AcceptedStatus Details</b></div>
+                        <div class="panel-body">
+                            @(Html.Kendo().Chart<Adani.Solution.DTO.BiddingWindowDashboardDto>
+                                                 ()
+                                                 .Name("BiddingWindowAcceptedStatusChart")
+                                                 .Legend(legend => legend
+                                                 .Position(ChartLegendPosition.Top)
+                                                 )
+                                                 .CategoryAxis(axis => axis
+                                                 .Categories(model => model.Oiltypes)
+                                                 .Labels(labels => labels.Rotation(-90))
+                                                 .MajorGridLines(lines => lines.Visible(false))
+                                                 )
+                                                 .SeriesColors("#90EE90")
+                                                 .ValueAxis(axis => axis.Numeric()
+                                                 .Labels(labels => labels.Format("{0:N0}"))
+                                                 .MajorUnit(10)
+                                                 .Line(line => line.Visible(false))
+                                                 )
+                                                 .Series(series =>
+                                                 {
+
+                                                     series.Column(model => model.ApprovedCount).Name("AcceptedCount");
+
+                                                 })
+                                                 .DataSource(ds => ds.Read(read => read.Action("BiddingWindowDashBoardChartOverAcceptedCountWDetails", "ReverseAuction").Data("additionalParam")))
+                                                 .Tooltip(tooltip => tooltip
+                                                 .Visible(true)
+                                                 .Format("{0:N0}")
+                                                 ))
+
+                        </div>
+                    </div>
+                </div>*@
+
+            @foreach (var item in ViewData["StateList"] as List<Adani.Solution.DTO.StateWiseDashboard>)
+            {
+                <div class="col-lg-6">
+                    <div class="panel panel-flat" style=" height : 460px">
+                        <div class="panel-heading"><b>State Wise Bidding Details</b></div>
+                        <div class="panel-body">
+                            @*@(Html.Kendo().Chart<Adani.Solution.DTO.BiddingWindowDashboardDto>()
+                                .Name(item.Id.ToString())
+                                .Title(item.Name)
+                                .Legend(legend => legend
+                                .Position(ChartLegendPosition.Bottom)
+                                )
+                                .CategoryAxis(axis => axis
+                                .Categories(model => model.Oiltypes)
+                                .Labels(labels => labels.Rotation(-90))
+                                .MajorGridLines(lines => lines.Visible(false))
+                                )
+                                .ValueAxis(axis => axis.Numeric()
+                                .Labels(labels => labels.Format("{0:N0}"))
+                                .MajorUnit(10)
+                                .Line(line => line.Visible(false))
+                                )
+                                .Series(series =>
+                                {
+
+                                    series.Column(model => model.ApprovedCount).Name("AcceptedCount");
+
+                                })
+                                .SeriesColors("#90EE90")
+                                .DataSource(ds => ds.Read(read => read.Action("BiddingWindowDashBoardChartOverStateWiseAcceptedCountDetails", "ReverseAuction", new { StateId = item.Id }).Data("additionalParam")))
+                                .Tooltip(tooltip => tooltip
+                                .Visible(true)
+                                .Format("{0:N0}")
+                                ))*@
+
+                            @(Html.Kendo().Chart<Adani.Solution.DTO.BiddingWindowStatusWiseDetailsDto>()
+                                                  .Name(item.Id.ToString())
+                                                  .Title(item.Name)
+                                                  .Legend(legend => legend
+                                                  .Position(ChartLegendPosition.Top)
+                                                  )
+                                                  .DataSource(ds => ds.Read(read => read.Action("BiddingWindowStatusSateWiseCount", "ReverseAuction", new { StateId = item.Id }).Data("additionalParam")))
+                                                  .Series(series =>
+                                                  {
+                                                      series.Column(model => model.TotalBidding).Name("Total Bidding").Color("#F736A8");
+                                                      series.Column(model => model.TotalVolume).Name("Total Volume (MT)").Color("#992FE3");
+                                                  })
+                                                  .SeriesColors("#90EE90")
+                                                  .CategoryAxis(axis => axis
+                                                  .Categories(model => model.StatusName)
+                                                  .Labels(labels => labels.Rotation(-90))
+                                                  .MajorGridLines(lines => lines.Visible(false))
+                                                  )
+                                                  .ValueAxis(axis => axis.Numeric()
+                                                  .Labels(labels => labels.Format("{0:N0}"))
+                                                  .MajorUnit(10)
+                                                  .Line(line => line.Visible(false))
+                                                  )
+                                                  .Tooltip(tooltip => tooltip
+                                                  .Visible(true)
+                                                  .Format("getNumberFormat()")
+                                                  ))
+
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var grid = $("#BiddingWindowVolumeList");
+        $('#ChartBasedOnOilType').hide();
+        var biddingWindowId = $("#hdnId").val()
+        //var BiddingWindowStatusCount = $("#BiddingWindowStatusCount").data("kendoChart");
+        //BiddingWindowStatusCount.dataSource.read({ BiddingWindowId: biddingWindowId });
+        $("#refreshDashboard").click(function () {
+            window.location.reload();
+        });
+    });
+    function additionalParam() {
+        return {
+            BiddingWindowId: $("#hdnId").val()
+        }
+    }
+    function ShowOilTypeWiseChart() {
+        $('#ChartBasedOnOilType').show();
+    }
+    function Refresh() {
+        window.location.reload();
+    }
+
+    function getNumberFormat() {
+        return emamiGlobal.constant.BiddingWindowDashboardFormat;
+    }
+
+</script>

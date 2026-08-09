@@ -1,0 +1,251 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.MVC.Common;
+@{
+    ViewBag.Title = "BiddingWindowDashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="ra2BiddingWindowDetails" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Bidding Window Dashboard</h2>   
+    <div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            <button type="button" tabindex="4" id="btnGenerateReport" class="k-primary k-button" onclick="BiddingWindowDashboardDetailsOverAllReport()">Consolidated Report<i class="icon-arrow-right14 position-right"></i></button>          
+        </div>
+    </div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="divLoader">
+                <div class="col-md-12">
+                    @*<div class="row form-group">
+            <div class="col-md-12 text-center">
+                <button type="button" tabindex="8" id="btnApproved"  onclick="RedirectToBiddingWindowDashboard(this)" class="k-button">Status - Approved</button>
+                <button type="button" tabindex="8" id="btnPending"  value="13"  onclick="RedirectToBiddingWindowDashboard(this)" class="k-button">Status - Pending</button>
+                <button type="button" tabindex="8" id="btnRejected" onclick="RedirectToBiddingWindowDashboard(this)" class="k-button">Status - Rejected</button>
+            </div>
+        </div>*@
+                    @using (Html.BeginForm("BiddingWindowDashboard", "ReverseAuction", FormMethod.Post, new { id = "frmBiddingWindowDetails", @class = "form-validate-jquery" }))
+                    {
+
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right">
+                                Search Date
+                            </div>
+                            <div class="col-md-3">
+                                @(Html.Kendo().DatePicker().Name("SearchDate")
+                                 .Format(Settings.DateFormat)
+                                 .Value(DateTime.Now)
+                                 .Events(e => e.Change("searchDateChange"))
+                                 .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                            </div>
+                            <div class="col-md-2 text-right">
+                                Status
+                            </div>
+                            <div class="col-md-3">
+                                @(Html.Kendo().DropDownList()
+                                 .Name("StatusId")
+                                 .OptionLabel(@Helper.GetResourceString("plho-SelectStatus"))
+                                 .DataTextField("Name")
+                                 .DataValueField("Id")
+                                 .Events(e => e.DataBound("statusDataBound"))
+                                 .DataSource(source => source.Read(resd => resd.Action("GetSttatusListForDropdownBiddingWindowDashboard", "ReverseAuction"))
+                                 .ServerFiltering(false))
+                                 .HtmlAttributes(new { id = "ddlStatus", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Status"), @style = "width:100%" }))
+                            </div>
+                        </div>
+
+                        @*<div id="divWindowDashboard"></div>*@
+                        <div class="row" id="divWindowDashboard">
+                            <div class="text-right">
+                                @*<button type="button" tabindex="4" id="btnGenerateReport" class="k-primary k-button" onclick="BiddingWindowDashboardDetailsOverAllReport()">Consolidated Report<i class="icon-arrow-right14 position-right"></i></button>*@
+                                @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                            </div>
+                            @(Html.Kendo().Grid<Adani.Solution.DTO.BiddingWindowDashboardDto>()
+                                                      .Name("ViewBiddingWindowDashboard")
+                                                      .Columns(columns =>
+                                                      {
+                                                      columns.Bound(c => c.BiddingWindowId).Visible(false);
+                                                      columns.Bound(c => c.WindowName).Title(@Helper.GetResourceString("lbl_WindowName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                      columns.Bound(c => c.WindowStatusName).Title(@Helper.GetResourceString("lbl_Status")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                                      columns.Bound(c => c.WindowStartAndEndTime).Title(@Helper.GetResourceString("lbl_StartandEndTime")).Format(Settings.GridDateFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                                      columns.Bound(c => c.BookedVolumeCapacity).Title("Booked Quantity(MT)").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth).HtmlAttributes(new { style = "text-align:right;" }).ClientFooterTemplate("<span style='float:right'> Sum :#=sum# </span>");
+                        columns.Bound(c => c.CustomerGroups).Title(@Helper.GetResourceString("lbl_CustomerGroup")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                        columns.Bound(c => c.PlantName).Title(@Helper.GetResourceString("lbl_Plant")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                        columns.Bound(c => c.BiddingWindowId).Title("Report").ClientTemplate(@"
+                                                                    <div style='text-align: center;'>
+                                                                    <div style='cursor: no-drop;'><button type='button' class='k-primary k-button' value='#=BiddingWindowId#' onclick='BiddingWindowDashboardDetailsReport(this.value)'>Download</button></div>").Width(Settings.GridOtherColumnWidth);
+                        columns.Bound(c => c.BiddingWindowId).Title("View").ClientTemplate(@"
+                                                                    <div style='text-align: center;'>
+                                                                    <div style='cursor: no-drop;'><button type='button' class='k-primary k-button' value='#=BiddingWindowId#' onclick='RedirectToBiddingWindowDashboardDetails(this.value)'>View Details</button></div>").Width(Settings.GridColumnButtonWidth);
+                    })
+                                              .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                              .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                              .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                              //.Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                              .Selectable(selectable => selectable
+                                              .Mode(GridSelectionMode.Multiple)
+                                              .Type(GridSelectionType.Row))
+                                              .ClientDetailTemplateId("template")
+                                              .Scrollable(s => s.Enabled(true).Height("auto"))
+                                              .Reorderable(reorder => reorder.Columns(true))
+                                              .Resizable(resize => resize.Columns(true))
+                                              .DataSource(dataSource => dataSource
+                                              .Ajax()
+                                              .Aggregates(aggregates =>
+                                              {
+                                                  aggregates.Add(p => p.BookedVolumeCapacity).Sum();
+                                              })
+                                              .ServerOperation(true)
+                                              .Read(read => read.Action("GetBiddingWindowDashboardDetailsInGrid", "ReverseAuction").Data("AdditionalParam"))))
+                            <script id="template" type="text/kendo-tmpl">
+                                @(Html.Kendo().Grid<Adani.Solution.DTO.BiddingWindowDashboardDto>()
+                                      .Name("grid_#=BiddingWindowId#")
+                                      .Columns(columns =>
+                                      {
+                                          columns.Bound(c => c.OilTypeName).Title(@Helper.GetResourceString("lbl_OilType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                                          columns.Bound(c => c.BookedVolumeCapacity).Title(@Helper.GetResourceString("lbl_SaudaBookedQuantityInMT")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth).HtmlAttributes(new { style = "text-align:right;" }).ClientFooterTemplate("<span style='float:right'>Sum: \\#=sum\\#</span>");
+                                          columns.Bound(c => c.TotalVolumeCapacity).Title("Total Volume Capacity").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth).HtmlAttributes(new { style = "text-align:right;" }).ClientFooterTemplate("<span style='float:right'>Sum: \\#=sum\\#</span>");
+                                      })
+                                      .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                      .Selectable(selectable => selectable
+                                      .Type(GridSelectionType.Row))
+                                      .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                      .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                      .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                      .Scrollable(s => s.Enabled(true).Height("auto"))
+                                      .Reorderable(reorder => reorder.Columns(true))
+                                      .Resizable(resize => resize.Columns(true))
+                                      .DataSource(dataSource => dataSource
+                                      .Ajax()
+                                      .Aggregates(aggregates =>
+                                      {
+                                          aggregates.Add(p => p.BookedVolumeCapacity).Sum();
+                                          aggregates.Add(p => p.TotalVolumeCapacity).Sum();
+                                      })
+                                      .PageSize(Settings.DefaultPageSize)
+                                      .Read(read => read.Action("GetBiddingWindowDashboardOilTypeDetails", "ReverseAuction", new { BiddingWindowId = "#=BiddingWindowId#" }))
+                                      ).ToClientTemplate())
+                            </script>
+
+                        </div>
+
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+ $(document).ready(function () {
+                        // kendo grid filter contains
+                        FilterContains();
+                        setDefaultDate();
+   $('#ddlStatus').data("kendoDropDownList").value('@Convert.ToInt32(BiddWindowStatus.Processing)');
+   $("#ddlStatus").change(function () {
+                            loadDashboard();
+                        });
+                    });
+
+                    function statusDataBound() {
+                        loadDashboard();
+                    }
+
+                    function AdditionalParam() {
+                        return {
+                        statusId: Number($("#ddlStatus").val()),
+    searchDate: $("#SearchDate").data("kendoDatePicker").value().toDateString()
+                         }
+                    }
+
+                    function loadDashboard() {
+        //window.kendo.ui.progress($("#div_Progress"), true);
+        $("#ViewBiddingWindowDashboard").data("kendoGrid").dataSource.read();
+        @*$.ajax({
+            type: 'POST',
+            url: '@Url.Action("BiddingWindowDashboardPartial", "ReverseAuction")',
+            data: { statusId: Number($("#ddlStatus").val()), searchDate: $("#SearchDate").data("kendoDatePicker").value().toDateString()},
+            success: function (result) {
+                $("#divWindowDashboard").html(result);
+            },
+            error: function (XMLHttpRequest, textStatus, error) {
+                console.log(XMLHttpRequest.statusText);
+                console.log(textStatus);
+                console.log(error);
+            },
+            complete: function () {
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });*@
+    }
+
+    function RedirectToBiddingWindowDashboardDetails(objButton) {
+        var url = "@Url.Action("RedirectBiddingWindowDashboard", "ReverseAuction")";
+        window.location.href = url + "?biddingWindowId=" + objButton;
+    }
+
+    function BiddingWindowDashboardDetailsReport(objButton) {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetBiddingWindowDashboardDetailsReport", "ReverseAuction")',
+            data: { biddingWindowId: objButton},
+            success: function (responce) {
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Base")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+            },
+            complete: function () {
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+    function BiddingWindowDashboardDetailsOverAllReport() {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetBiddingWindowDashboardDetailsOverAllReport", "ReverseAuction")',
+            data: { searchDate: $("#SearchDate").data("kendoDatePicker").value().toDateString()},
+            success: function (responce) {
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Base")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+            },
+            complete: function () {
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+
+    //Set default date
+    function setDefaultDate() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+        var searchDate = $("#SearchDate").data("kendoDatePicker");
+        searchDate.value(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        searchDate.setOptions({ max: new Date() });
+    }
+
+    function searchDateChange() {
+        loadDashboard();
+    }
+</script>

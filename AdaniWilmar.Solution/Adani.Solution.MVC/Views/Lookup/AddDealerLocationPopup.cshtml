@@ -1,0 +1,117 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common
+@model Adani.Solution.DTO.PickUpLoationsDto
+
+<style>
+    #dealerAddress-error {
+        padding: 15px 0px;
+        width: 150px;
+    }
+</style>
+
+<form id="frmPopUp" class="form-validate-jquery" novalidate="novalidate">
+    <div class="row form-group">
+        <div class="col-md-4 text-right">
+            @Helper.GetResourceString("lbl_State") <span class="text-danger">*</span>
+        </div>
+        <div class="col-md-4">
+
+            @(Html.Kendo().DropDownList().Name("StateList")
+                        .OptionLabel(@Helper.GetResourceString("plho_SelectState"))
+                        .Events(events => events.Change("onStateChanged").DataBound("OnStateDataBounded"))
+                        .DataTextField("StateName")
+                        .DataValueField("StateId")
+                        .DataSource(source => source.Read(read => read.Action("GetStateListAsync", "Lookup"))
+                        .ServerFiltering(false))
+                        .HtmlAttributes(new { id = "ddlState", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_State"), @style = "width:100%" }))
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-md-4 text-right">
+            @Helper.GetResourceString("lbl_District") <span class="text-danger">*</span>
+        </div>
+        <div class="col-md-4">
+            @(Html.Kendo().DropDownList().Name("DistrictList")
+                        .OptionLabel(@Helper.GetResourceString("plho_SelectDistrict"))
+                        .Events(events => events.Change("onDistrictChanged").DataBound("OnDistrictDataBounded"))
+                        .DataTextField("DistrictName")
+                        .DataValueField("DistrictId")
+                        .DataSource(source => source.Read(read => read.Action("GetDistrictListByStateIdAsync", "Lookup").Data("additionalDistrictByStateId"))
+                        .ServerFiltering(false))
+                        .HtmlAttributes(new { id = "ddlDistrict", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_District"), @style = "width:100%" }))
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-md-4 text-right">
+            @Helper.GetResourceString("lbl_City") <span class="text-danger">*</span>
+        </div>
+        <div class="col-md-4">
+            @(Html.Kendo().DropDownList().Name("CityList")
+                         .OptionLabel(@Helper.GetResourceString("plho_SelectCity"))
+                         .DataTextField("CityName")
+                         .DataValueField("CityId")
+                         .DataSource(source => source.Read(read => read.Action("GetCityListByDistrictName", "Lookup").Data("additionalCityByDistrictId"))
+                         .ServerFiltering(false))
+                         .HtmlAttributes(new { id = "ddlCity", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_City"), @style = "width:100%" }))
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-md-4 text-right">
+            @Helper.GetResourceString("lbl_Address") <span class="text-danger">*</span>
+        </div>
+        @*<div class="col-md-4">
+            @(Html.Kendo().TextBox().Name("Address").HtmlAttributes(new { id = "dealerAddress", @class = "", required = "required", data_msg_required = "Pleas enter the address", @style = "width:100%" }))
+        </div>*@
+        <div class="col-md-3">
+            @Html.TextArea("Address", new { id = "dealerAddress", tabindex = "9", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Address"), style= "width:150px;", @maxlength = (int)InputMaxLength.TextAreaString })
+        </div>
+    </div>
+</form>
+<script>
+    function AddPickupLocation() {
+        $("#ddlState").data("kendoDropDownList").value(0);
+        $("#ddlDistrict").data("kendoDropDownList").value(0);
+        $("#ddlCity").data("kendoDropDownList").value(0);
+        $("#dealerAddress").val('');
+        $("#addPickupLocationPopoup").modal('show');
+    }
+
+    function additionalDistrictByStateId() {        
+        var stateId = $("#ddlState").data("kendoDropDownList").value();
+        return {
+            stateId: stateId
+        };
+    }
+
+    function additionalCityByDistrictId() {        
+        var districtId = $("#ddlDistrict").data("kendoDropDownList").value();
+        return {
+            districtId: districtId
+        };
+    }
+
+    function onStateChanged(e) {
+        $("#ddlDistrict").data("kendoDropDownList").dataSource.read();
+    }
+
+    function onDistrictChanged(e) {        
+        $("#ddlCity").data("kendoDropDownList").dataSource.read();
+    }
+
+    function OnStateDataBounded(e) {        
+        var stateId = $("#ddlState").data("kendoDropDownList").value();
+        if (stateId > 0) {
+            $("#ddlDistrict").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    function OnDistrictDataBounded(e) {       
+        var districtId = $("#ddlDistrict").data("kendoDropDownList").value();
+        if (districtId > 0) {
+            $("#ddlCity").data("kendoDropDownList").dataSource.read();
+        }
+    }
+</script>

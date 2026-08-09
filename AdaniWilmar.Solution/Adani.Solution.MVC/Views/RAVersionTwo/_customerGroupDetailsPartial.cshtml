@@ -1,0 +1,208 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common
+@model Adani.Solution.DTO.CustomerGroupInputDto
+
+@{
+    Layout = null;
+}
+
+<!-- Modal body-->
+@using (Html.BeginForm("frmCustomerGroupDetails", "Lookup", FormMethod.Post, new { id = "frmOilType", @class = "form-validate-jquery" }))
+{
+<div class="row form-group">
+    <div class="row form-group">
+        <div class="col-md-2 text-right">
+            @Helper.GetResourceString("lbl_Zone")
+        </div>
+        <div class="col-md-3">
+            @(Html.Kendo().MultiSelect()
+               .Name("ZoneId")
+               .DataTextField("Name")
+               .DataValueField("Id")
+               .AutoClose(false)
+               .TagMode(TagMode.Single)
+               .Events(e => e.Change("onZoneChange"))
+               .DataSource(source => source.Read(read => read.Action("GetZoneListddl", "Lookup", new { isToReturnInactiveData = true }))
+               .ServerFiltering(false))
+               .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='zoneSelectAll'> Select All</label>")
+               .HtmlAttributes(new { id = "ddlZone", @class = "", tabindex = "10", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Zone"), @style = "width:100%" }))
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-md-2 text-right">
+            @Helper.GetResourceString("lbl_State")
+        </div>
+        <div class="col-md-3">
+            @(Html.Kendo().MultiSelect()
+                 .Name("StateId")
+                 .DataTextField("Name")
+                 .DataValueField("Id")
+                 .AutoClose(false)
+                 .TagMode(TagMode.Single)
+                 .Events(events => events.Change("onStateChange").DataBound("OnStateDataBound"))
+                 .DataSource(source => source.Read(read => read.Action("GetStatesBasedOnZoneIds", "Lookup").Data("stateLoadParam"))
+                 .ServerFiltering(false))
+                 .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='stateSelectAll'> Select All</label>")
+                 .HtmlAttributes(new { id = "ddlState", @class = "", tabindex = "10", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_State"), @style = "width:100%" }))
+        </div>
+        <div class="col-md-2 text-right">
+            @Helper.GetResourceString("lbl_Territory")
+        </div>
+        <div class="col-md-3">
+            @(Html.Kendo().MultiSelect()
+                 .Name("TerritoryId")
+                 .DataTextField("Name")
+                 .DataValueField("Id")
+                 .AutoClose(false)
+                 .TagMode(TagMode.Single)
+                 .Events(e => e.Change("territoryChange").DataBound("territoryDataBound"))
+                 .DataSource(source => source.Read(read => read.Action("GerTerritoryBasedOnState", "Lookup").Data("territoryLoadParam"))
+                 .ServerFiltering(false))
+                 .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='territorySelectAll'> Select All</label>")
+                 .HtmlAttributes(new { id = "ddlTerritory", @class = "", tabindex = "12", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Territory"), @style = "width:100%" }))
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-md-2 text-right">
+            @Helper.GetResourceString("lbl_District")
+        </div>
+        <div class="col-md-3">
+            @(Html.Kendo().MultiSelect()
+              .Name("DistrictId")
+              .DataTextField("Name")
+              .DataValueField("Id")
+              .AutoClose(false)
+              .TagMode(TagMode.Single)
+              .MaxSelectedItems(ConfigHelper.MaxSelectedItemForDistrict)
+              .Events(events => events.Change("onDistrictChange").DataBound("OnDistrictDataBound"))
+              .DataSource(source => source.Read(read => read.Action("GerDistrictBasedOnTerritory", "Lookup").Data("districtLoadParam"))
+              .ServerFiltering(false))
+              //.HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='districtSelectAll'> Select All</label>")
+              .HtmlAttributes(new { id = "ddlDistrict", @class = "", tabindex = "12", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_District"), @style = "width:100%" }))
+        </div>
+        <div class="col-md-2 text-right">
+            @Helper.GetResourceString("lbl_City")
+        </div>
+        <div class="col-md-3">
+            @(Html.Kendo().MultiSelect()
+              .Name("CityId")
+              .ValuePrimitive(false)
+              .DataTextField("Name")
+              .DataValueField("Id")
+              .AutoClose(false)
+              .TagMode(TagMode.Single)
+              .Events(events => events.Change("onCityChange").DataBound("onCityDataBound"))
+              .DataSource(source => source.Read(read => read.Action("GetCityListBasedOnDistrict", "Lookup").Data("cityLoadParam"))
+              .ServerFiltering(false))
+              .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='citySelectAll'> Select All</label>")
+              .HtmlAttributes(new { id = "ddlCity", @class = "", tabindex = "12", required = "required", data_msg_required = Helper.GetSelectMsgRequired("ddlCity"), @style = "width:100%" }))
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-md-12 text-center">
+            <button type="button" tabindex="7" onclick="SearchCustomer()" class="k-primary k-button">Search</button>
+        </div>
+    </div>
+    <div class="row" id="dvDealers">
+        <div class="col-md-12">
+            <div class="text-right">
+                @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+            </div>
+            @(Html.Kendo().Grid<CustomerGroupDetailDto>()
+                  .Name("ViewCustomers")
+                  .Columns(columns =>
+                  {
+                      columns.Bound(c => c.CustomerId).Visible(false);
+                      columns.Bound(c => c.CustomerGroupDetailId).Visible(false);
+                      columns.Template(@<text></text>).ClientTemplate("<div class='text-center'><input type='checkbox' #=IsChecked ? checked='checked' :'' # class='chkbxAllDealer' value=#=CustomerId# onclick=\"findCheckedItemsSaveItToHidden(this,'#=CustomerId#','hdSelectedDealerIds','masterCBAllDealer','chkbxAllDealer','lblDealerSelectedCount','');\" /></div>")
+                       .HeaderTemplate("<div class='text-center'><input type='checkbox' id='masterCBAllDealer' onclick=\"masterfindCheckedItemsSaveItToHidden(this,'hdSelectedDealerIds','chkbxAllDealer','lblDealerSelectedCount','')\" /></div>").Width("40px");
+                       columns.Bound(c => c.CustomerName).Title(@Helper.GetResourceString("lbl_CustomerName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                       columns.Bound(c => c.Code).Title(@Helper.GetResourceString("lbl_Code")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                       columns.Bound(c => c.Vertical).Title(@Helper.GetResourceString("lbl_Vertical")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                       columns.Bound(c => c.SaudaBookingType).Title(@Helper.GetResourceString("lbl_BookingType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                       columns.Bound(c => c.MobileNumber).Title(@Helper.GetResourceString("lbl_MobileNumber")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                       columns.Bound(c => c.Email).Title(@Helper.GetResourceString("lbl_Email")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                       columns.Bound(c => c.RoleName).Title(@Helper.GetResourceString("lbl_Role")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                       columns.Bound(c => c.Zone).Title(@Helper.GetResourceString("lbl_Zone")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                       columns.Bound(c => c.State).Title(@Helper.GetResourceString("lbl_State")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                       columns.Bound(c => c.Territory).Title(@Helper.GetResourceString("lbl_Territory")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                       columns.Bound(c => c.District).Title(@Helper.GetResourceString("lbl_District")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                       columns.Bound(c => c.City).Title(@Helper.GetResourceString("lbl_City")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                   })
+               .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+               .Filterable(filter => filter.Mode(GridFilterMode.Row))
+               .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+               .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+               .Selectable(selectable => selectable
+               .Mode(GridSelectionMode.Multiple)
+               .Type(GridSelectionType.Row))
+               .Scrollable(s => s.Enabled(true).Height("auto"))
+               .Events(events => events.DataBound("onDealerListDataBound"))
+               .Reorderable(reorder => reorder.Columns(true))
+               .Resizable(resize => resize.Columns(true))
+               .DataSource(dataSource => dataSource
+               .Ajax()
+               .Model(model => model.Id(p => p.CustomerId))
+               .ServerOperation(true)
+               .Read(read => read.Action("GetCustomerList", "RAVersionTwo").Data("additionalParams"))))
+        </div>
+    </div>
+    @*<div class="row" id="dvDealers">
+            <div class="col-md-12">
+                <button id="btnClose" type="button" tabindex="6" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Close")</button>
+                <button id="btnAddCustomersToGrid" type="button" tabindex="6" class="k-primary k-button">@Helper.GetResourceString("Btn_AddCustomersToGrid")</button>
+            </div>
+        </div>*@
+    @*<div class="row form-group"></div>
+    <div class="row form-group" id="dvSaveTarget">
+        <div class="col-md-12 text-center">
+            <button id="btnClose" type="button" tabindex="6" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Close")</button>
+            <button id="btnAddCustomersToGrid" type="button" tabindex="6" class="k-primary k-button">@Helper.GetResourceString("Btn_AddCustomersToGrid")</button>
+        </div>
+    </div>*@
+</div>
+}
+
+<script type="text/javascript">
+
+    var selectedDealerIds = [];
+
+    $(document).ready(function () {
+        
+        FilterContains();     
+
+        $('#chkKendoFilterShowHide').change(function () {
+            filterShowHide();
+        });
+
+        $("#zoneSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlZone", "zoneSelectAll");
+            $("#ddlState").data("kendoMultiSelect").dataSource.read();
+        });
+
+        $("#stateSelectAll").click(function () {
+            debugger;
+            MultiSelectCheckUnCheck("ddlState", "stateSelectAll");
+            $("#ddlTerritory").data("kendoMultiSelect").dataSource.read();
+        });
+
+        $("#territorySelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlTerritory", "territorySelectAll");
+            $("#ddlDistrict").data("kendoMultiSelect").dataSource.read();
+        });
+
+        $("#districtSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlDistrict", "districtSelectAll");
+            $("#ddlCity").data("kendoMultiSelect").dataSource.read();
+        });
+
+        $("#citySelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlCity", "citySelectAll");
+        });
+
+    });   
+
+</script>

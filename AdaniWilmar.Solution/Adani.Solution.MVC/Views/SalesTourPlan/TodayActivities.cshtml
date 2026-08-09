@@ -1,0 +1,171 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.DTO;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Models;
+@{
+    ViewBag.Title = @Helper.GetResourceString("lbl_TodayActivities");
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="salestourplanTodayActivities" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_TodayActivities")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Sales Tour Plan</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_TodayActivities")<span class="icon-right"></span></li>
+    </ol>
+    <div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+<div id="ReatailOrders" class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+
+        </div>
+        @using (Html.BeginForm("TodayActivities", "SalesTourPlan", FormMethod.Post, new { id = "frmOrders", @class = "form-validate-jquery" }))
+        {
+            @Html.AntiForgeryToken()
+    @*<div class="panel-body" style="display: block;">*@
+
+        <div class="panel-body" style="display: block;" id="pageLoader">
+            <div class=" col-md-12">
+                <div class="panel-group filter-accordion" id="accordion">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" class="accord" data-parent="#accordion" href="#collapseOne">Filters</a>
+                            </h4>
+                        </div>
+                        <div id="collapseOne" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="row form-group">
+                                        @if (Helper.CheckClaims(Claims.ManageOrganization))
+                                        {
+
+                                            <div class="col-lg-3 col-sm-6 mb-3">
+                                                <label class="custom_label"> Employees <span class="text-danger">*</span> </label>
+                                                @(Html.Kendo().DropDownList()
+                              .Name("StateTrader")
+                              .OptionLabel(@Helper.GetResourceString("plho_SelectUser"))
+                              .DataTextField("Name")
+                              .DataValueField("Id")
+                              .DataSource(source => source.Read(read => read.Action("GetUsersByRoleId", "Lookup").Data("additionalParam"))
+                              .ServerFiltering(false))
+                              .HtmlAttributes(new { id = "ddlBdo", @class = "", tabindex = "5", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Vertical"), @style = "width:100%" }))
+                                            </div>
+
+
+                                        }
+
+
+                                    <div class="col-lg-3 col-sm-6 mb-3">
+                                        <label class="custom_label"> Created Date <span class="text-danger">*</span> </label>
+                                       
+
+                                        @(Html.Kendo().DatePicker()
+                                                     .Name("dpCreatedDate")
+                                                     .Value(DateTime.Now)
+                                                     .Format(Settings.DateFormat)
+                                                     .HtmlAttributes(new { onkeydown = "return isFocus(event);", id = "dpCreatedDate", tabindex = "1", style = "width: 100%" }))
+                                    </div>
+
+                                        <div class="col-md-12 text-right">
+                                            <button type="button" onclick="Search()" class="k-primary k-button custom-btns">Search</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="row form-group"></div>
+           
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="text-right" style="margin-bottom: 5px;">
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    </div>
+                    @(Html.Kendo().Grid<MonthlyTourPlanDetailsDto>()
+                                  .Name("ViewMonthlyTourPlan")
+                                  .Columns(columns =>
+                                  {
+                                      columns.Bound(c => c.DealerId).Visible(false);
+                                      columns.Bound(c => c.Dealer).ClientTemplate("<div><span style='text-decoration: underline;cursor:Pointer;' onclick=\"editTodayActivity(this, '#=EncryptedId#');\"  title='" + @Helper.GetResourceString("msg_Edit") + "'>#=Dealer#</span>  </div>").Title(@Helper.GetResourceString("lbl_Dealer")).Width(Settings.GridOtherColumnWidth);
+                                      columns.Bound(c => c.InHQNoVisitName).Title("In HQ / No Visit").Width(Settings.GridOtherColumnWidth);
+                                      //columns.Bound(c => c.Day).Title("Day").Width(Settings.GridOtherColumnWidth);
+                                      columns.Bound(c => c.Town).Title("Town").Width(Settings.GridOtherColumnWidth);
+                                      columns.Bound(c => c.Area).Title("Area").Width(Settings.GridOtherColumnWidth);
+                                      //columns.Bound(c => c.Headquarters).Title("Headquarters").Width(Settings.GridOtherColumnWidth);
+                                      columns.Bound(c => c.Remarks).Title("Remarks").Width(Settings.GridOtherColumnWidth);
+                                      columns.Bound(c => c.VisitRemarks).Title("Visitor Remarks").Width(Settings.GridOtherColumnWidth);
+                                  })
+                                  .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                  .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                  .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                  .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                  .Scrollable(s => s.Enabled(true).Height("auto"))
+                                  .Excel(excel => excel.FileName(@Helper.GetResourceString("lbl_PermanentJourneyPlan") + " " + DateTime.Now + ".xlsx").AllPages(true))
+                                  .Reorderable(reorder => reorder.Columns(true))
+                                  .Resizable(resize => resize.Columns(true))
+                                  .DataSource(dataSource => dataSource
+                                      .Ajax()
+                                      .Model(model => model.Id(m => m.MTPId))
+                                      .ServerOperation(true)
+                                      .Read(read => read.Action("GetTodayActivitiesList", "SalesTourPlan").Data("gridAdditionalParam")))
+                                  .HtmlAttributes(new { @id = "gridTodayActivityList" }))
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        FilterContains();
+        SetDateRange();
+    });
+
+    function SetDateRange() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+        $("#dpCreatedDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+    }
+
+    function additionalParam() {
+        return {
+            roleId: "7"
+        }
+    }
+
+    function gridAdditionalParam() {
+        var bdoId = Number($("#ddlBdo").val());
+        if (!bdoId)
+            bdoId = @Model.LoginUserId;
+
+        var searchDate = $("#dpCreatedDate").val();
+        return {
+            bdoId: bdoId,
+            searchDate: searchDate
+        }
+    }
+
+    function Search() {
+        $("#gridTodayActivityList").data("kendoGrid").dataSource.read();
+    }
+
+    function editTodayActivity(event, id) {
+        window.location.href = '@Url.Action("EditTodayActivity", "SalesTourPlan")?EncryptedId=' + id + '&createdDate=' + new Date().toUTCString();
+    }
+
+</script>

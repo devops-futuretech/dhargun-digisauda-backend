@@ -1,0 +1,29 @@
+﻿@model IList<long>
+
+@{
+    var initial = Model != null ? string.Join(",", Model) : "";
+}
+
+@(Html.Kendo().MultiSelectFor(m => m)
+    .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(""))
+    .ValuePrimitive(true)
+    .DataTextField("Name")
+    .DataValueField("Id")
+    .Events(e => e
+        .Change("onPlantGridChange")
+        .DataBound("onPlantGridDataBound")
+    )
+    .DataSource(source => source
+        .Read(read => read
+            .Action("GetPlantListddl", "Lookup")
+        )
+        .ServerFiltering(false)
+    )
+    .AutoClose(false)
+    .HtmlAttributes(new Dictionary<string, object>
+    {
+        { "style", "width:100%" },
+        { "data-initial", initial }
+    })
+)
+ 

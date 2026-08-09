@@ -1,0 +1,28 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+
+
+<div class="row form-group">
+    <div class="col-md-4 text-right">
+        @Helper.GetResourceString("lbl_ValidFrom") <span class="text-danger">*</span>
+    </div>
+    <div class="col-md-4">
+        @(Html.Kendo().DatePicker()
+              .Name("ValidFrom")              
+              .Format(Settings.DateFormat)
+              .Events(e => e.Change("fromChange"))
+              .HtmlAttributes(new { id = "dpFromDate", onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+    </div>
+</div>
+<div class="row form-group">
+    <div class="col-md-4 text-right">
+        @Helper.GetResourceString("lbl_ValidTo") <span class="text-danger">*</span>
+    </div>
+    <div class="col-md-4">
+        @(Html.Kendo().DatePicker()
+            .Name("ValidTo")            
+            .Format(Settings.DateFormat)
+            .HtmlAttributes(new { id = "dpToDate", onkeydown = "return isFocus(event);", tabindex = "2", style = "width: 100%" }))
+    </div>
+</div>

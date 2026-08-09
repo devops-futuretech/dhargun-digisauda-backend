@@ -1,0 +1,154 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+
+@{
+    ViewBag.Title = "SaudaBookingRestrictionList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="saudabookingconfiglist" />
+
+<div id="main-section-header" class="row">
+    <h2 class="main-title">Sauda Booking Restriction List</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Configurations</a><span class="icon-right"></span></li>
+        <li class="active">Sauda Booking Restriction List<span class="icon-right"></span></li>
+    </ol>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-body">
+            <div class="row" id="dvPercentileNumber">
+                <div class="text-right right-buttons">
+                    <div class="export_as">
+                        <span>Export as</span>
+                        <div class="export-btns">
+                            <span class="export-link" id="SaudaBookingConfigExport" type="button">Excel</span>
+                        </div>
+                    </div>
+
+                    @(Html.Kendo().CheckBox()
+                        .Name("chkKendoFilterShowHide")
+                        .HtmlAttributes(new { id = "chkKendoFilterShowHide" })
+                        .Label(@Helper.GetResourceString("msg_ShowFilter")))
+
+                    <div class="period-wrapper">
+                        <a href="@Url.Action("SaudaBookingConfiguration", "Lookup")"
+                           class="k-primary k-button custom-btns">
+                            <b><i class="icon-plus"></i></b>&ensp;
+                            @Helper.GetResourceString("lbl_CreateSaudaBookingRestriction")
+                        </a>
+                    </div>
+                </div>
+
+                @(Html.Kendo().Grid<SaudaBookingConfigurationListDto>()
+                    .Name("SaudaBookingConfigurationList")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(c => c.Id).Visible(false);
+                        columns.Bound(c => c.Id)
+                               .Title("Id")
+                               .ClientTemplate(
+                                   @"<div><a style='text-decoration: underline;'
+                                            href='" + Url.Action("EditSaudaBookingRedirect", "Lookup", new { EncryptedId = "#=EncryptedId#" }) + @"'
+                                            title='" + @Helper.GetResourceString("msg_Edit") + @"'>#=Id#</a></div>")
+                               .Width(Settings.GridButtonColumnWidth);
+                        columns.Bound(c => c.RoleName)
+                               .Title("RoleName")
+                               .Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion)))
+                               .Width(Settings.GridFilterColumnWidth);
+                        columns.Bound(c => c.OilTypeNames)
+                               .Title("OilType")
+                               .Width(Settings.GridColumnMaxWidth)
+                               .HtmlAttributes(new { @class = "tooltip-col", title = "#= OilTypeNames #" });
+                        columns.Bound(c => c.UserNames)
+                               .Title("UserName")
+                               .Width(Settings.GridColumnMaxWidth)
+                               .HtmlAttributes(new { @class = "tooltip-col", title = "#= UserNames #" });
+                        columns.Bound(c => c.StartDate)
+                               .Format("{0:yyyy-MM-dd HH:mm:ss}")
+                               .Title("Start Date")
+                               .Width(Settings.GridOtherColumnWidth);
+                        columns.Bound(c => c.IsActive)
+                               .Title("IsActive")
+                               .ClientTemplate(
+                                   @"<div style='text-align: center;'>
+                                        # if (IsActive) { #
+                                            <a title='" + Helper.GetResourceString("msg_Active") + @"'>
+                                                <i class='icon-checkbox-checked2 faicon-green'></i>
+                                            </a>
+                                        # } else { #
+                                            <a title='" + Helper.GetResourceString("msg_Inactive") + @"'>
+                                                <i class='icon-cancel-square2 faicon-red'></i>
+                                            </a>
+                                        # } #
+                                    </div>")
+                               .Width(Settings.GridFilterColumnWidth);
+                    })
+                    .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                    .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                    .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                    .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                    .Scrollable(s => s.Enabled(true).Height("auto"))
+                    .Resizable(resize => resize.Columns(true))
+                    .Reorderable(reorder => reorder.Columns(true))
+                    .Excel(excel => excel.AllPages(true)
+                                         .FileName(@Helper.GetResourceString("lbl_SaudaBookingConfig") + " " + DateTime.Now + ".xlsx")
+                                         .Filterable(true))
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Model(model => model.Id(p => p.Id))
+                        .ServerOperation(true)
+                        .Read(read => read.Action("GetSuadaBookingRestrictionListAsync", "Sauda"))))
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        FilterContains();
+
+        if ('@TempData["SuccessMessage"]'.length) {
+            ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+
+        $("#SaudaBookingConfigurationList").kendoTooltip({
+            filter: ".tooltip-col",
+            content: function (e) {
+                return $(e.target).text();
+            },
+            position: "top"
+        });
+
+
+        $("#SaudaBookingConfigExport").click(function () {
+             window.kendo.ui.progress($("#div_Progress"), true);
+                 $.ajax({
+                     type: "POST",
+                     url: '@Url.Action("ExportSaudaBookingConfiguration", "Sauda")',
+                     success: function (responce) {
+                         if (responce.FileGuid) {
+                             window.location.href = '@Url.Action("ExcelDownload", "Base")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                         } else {
+                             ShowErrorMessage("No records found");
+                         }
+                         window.kendo.ui.progress($("#div_Progress"), false);
+                     },
+                     error: function (responce) {
+                         ShowErrorMessage("File download failed");
+                         window.kendo.ui.progress($("#div_Progress"), false);
+                     }
+                 });
+           });
+        });
+
+    function dataBound(e) {
+    }
+</script>

@@ -1,0 +1,627 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model Adani.Solution.DTO.VolumeDiscountUserDto
+
+@{
+    ViewBag.Title = "UpdateUserBasedVolumeDiscount";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="raDiscountUserBasedVolumeDiscount" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_AddOrUpdateUserBasedVolumeDiscount")</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="divLoader">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("AddOrUpdateUserBasedVolumeDiscount", "RAVersionTwo", FormMethod.Post, new { id = "frmVolumeDiscount", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="VolumeSlabsList" value="" id="VolumeSlabsList" />
+                        @Html.HiddenFor(m => m.Id, new { id = "hdnVolumeDiscountId" })
+                        <div class="row form-group">
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_Vertical") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-4">
+                                    @(Html.Kendo().DropDownListFor(f => f.VerticalId)
+                                          .OptionLabel(@Helper.GetResourceString("plho_SelectVertical"))
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .Events(e => e.Change("onVerticalChange"))
+                                          .DataSource(source => source.Read(resd => resd.Action("GetVerticalListForDropdown", "Lookup"))
+                                          .ServerFiltering(false))
+                                          .HtmlAttributes(new { id = "ddlVertical", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Vertical"), @style = "width:100%" }))
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_OilType") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-4">
+                                    @(Html.Kendo().MultiSelectFor(m => m.OilTypeIds)
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .AutoClose(false)
+                                          .TagMode(TagMode.Single)
+                                          .Placeholder(@Helper.GetResourceString("plho_SelectOilType"))
+                                          .Events(e => e.Change("onOiltypeChange").DataBound("onOilTypeDataBound"))
+                                          .DataSource(source => source.Read(read => read.Action("GetOilTypesBasedOnVerticalId", "Lookup").Data("oilTypeAdditionalInfo"))
+                                          .ServerFiltering(true))
+                                          .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='oilTypeSelectAll'> Select All</label>")
+                                          .HtmlAttributes(new { id = "ddlOilType", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilType"), @style = "width:100%" }))
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_PackGroup") <span class="text-danger"></span>
+                                </div>
+                                <div class="col-md-4">
+                                    @(Html.Kendo().MultiSelectFor(m => m.OilPackingTypeIds)
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .AutoClose(false)
+                                          .TagMode(TagMode.Single)
+                                          .Placeholder(@Helper.GetResourceString("plho_SelectOilPackingType"))
+                                          .Events(e => e.Change("onPackGroupChange").DataBound("onPackGroupDataBound"))
+                                          .DataSource(source => source.Read(read => read.Action("GetOilPackingTypeListAsync", "Lookup", new { isToReturnInactiveData = false }))
+                                          .ServerFiltering(true))
+                                          .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='oilPackingTypeSelectAll'> Select All</label>")
+                                          .HtmlAttributes(new { id = "ddlOilPackingType", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilType"), @style = "width:100%" }))
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_Sku") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-4">
+                                    @(Html.Kendo().MultiSelectFor(m => m.SkuIds)
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .AutoClose(false)
+                                          .TagMode(TagMode.Single)
+                                          .Placeholder(@Helper.GetResourceString("plho_SelectSku"))
+                                          .Events(e => e.Change("onSkuChange").DataBound("onSkuDataBound"))
+                                          .DataSource(source => source.Read(read => read.Action("GetSkuListByOilTypeIdsPackGroupIdsForDropdown", "Lookup").Data("skuAdditionalInfo"))
+                                          .ServerFiltering(true))
+                                          .ItemTemplate("<span class=\" k-state-default\">#: data.Code #</span>" + "<span class=\"pullLeft k-state-default\"><h3>#: data.Name #</h3></span>")
+                                          .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='skuSelectAll'> Select All</label>")
+                                          .HtmlAttributes(new { id = "ddlSku", @class = "", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Sku"), @style = "width:100%" }))
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_CustomerGroup") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-4">
+                                    @(Html.Kendo().MultiSelectFor(m => m.CustomerGroupIds)
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .AutoClose(false)
+                                          .TagMode(TagMode.Single)
+                                          .Placeholder(@Helper.GetResourceString("plho_SelectCustomerGroup"))
+                                          .Events(e => e.Change("onCustomerGroupChange").DataBound("onCustomerGroupDataBound"))
+                                          .DataSource(source => source.Read(read => read.Action("GetCustomerGroupListByVerticalddl", "RAVersionTwo").Data("CustomerGroupAdditionalInfo"))
+                                          .ServerFiltering(true))
+                                          .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='customerGroupSelectAll'> Select All</label>")
+                                          .HtmlAttributes(new { id = "ddlCustomerGroup", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_CustomerGroup"), @style = "width:100%" }))
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_ZonalHead")
+                                </div>
+                                <div class="col-md-4">
+                                    @(Html.Kendo().MultiSelectFor(m => m.ZonalHeadIds)
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .AutoClose(false)
+                                          .TagMode(TagMode.Single)
+                                          .Placeholder(@Helper.GetResourceString("plho_SelectZonalHead"))
+                                          .Events(e => e.Change("onZonalHeadChange").DataBound("onZonalHeadDataBound"))
+                                          .DataSource(source => source.Read(read => read.Action("GetRAZonalHeadUsersByCustomerGroupIdsAndVerticalIds", "RAVersionTwo").Data("ZonalHeadAdditionalInfo"))
+                                          .ServerFiltering(true))
+                                          .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='zonalHeadSelectAll'> Select All</label>")
+                                          .HtmlAttributes(new { id = "ddlZonalHead", @class = "", tabindex = "1", @style = "width:100%" }))
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_BDO")
+                                </div>
+                                <div class="col-md-4">
+                                    @(Html.Kendo().MultiSelectFor(f => f.BDOIds)
+                                          .Placeholder(@Helper.GetResourceString("plho_SelectBDO"))
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .AutoClose(false)
+                                          .TagMode(TagMode.Single)
+                                          .Events(e => e.Change("onBDOChange").DataBound("onBDODataBound"))
+                                          .DataSource(source => source.Read(resd => resd.Action("GetRABDOUsersByZonalHeadIdsAndVerticalIds", "RAVersionTwo").Data("BDOAdditionalInfo"))
+                                          .ServerFiltering(false))
+                                          .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='bdoSelectAll'> Select All</label>")
+                                          .HtmlAttributes(new { id = "ddlBDO", tabindex = "1", @class = "form-control", @style = "width:100%" }))
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_Customer") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-4">
+                                    @(Html.Kendo().MultiSelectFor(f => f.CustomerIds)
+                                          .Placeholder(@Helper.GetResourceString("plho_SelectCustomer"))
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .AutoClose(false)
+                                          .TagMode(TagMode.Single)
+                                          .Events(e => e.Change("onCustomerChange").DataBound("onCustomerDataBound"))
+                                          .DataSource(source => source.Read(resd => resd.Action("GetCustomerListByCustomerGroupIdsAndBDOsForDropdown", "RAVersionTwo").Data("CustomerAdditionalInfo"))
+                                          .ServerFiltering(false))
+                                          .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='customerSelectAll'> Select All</label>")
+                                          .HtmlAttributes(new { id = "ddlCustomer", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Customer"), @style = "width:100%" }))
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_ValidFrom") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-4">
+                                    @(Html.Kendo().DatePickerFor(m => m.ValidFrom)
+                                          .Format(Settings.DateFormat)
+                                          .Events(e => e.Change("fromChange"))
+                                          .HtmlAttributes(new { id = "dpFromDate", onkeydown = "return isFocus(event);", tabindex = "5", style = "width: 100%" }))
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-4 text-right">
+                                    @Helper.GetResourceString("lbl_ValidTo") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-4">
+                                    @(Html.Kendo().DatePickerFor(m => m.ValidTo)
+                                          .Format(Settings.DateFormat)
+                                          .HtmlAttributes(new { id = "dpToDate", onkeydown = "return isFocus(event);", tabindex = "6", style = "width: 100%" }))
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_VolumeSlabInMT") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-2">
+                                    @Html.TextBoxFor(m => m.StartVolumeSlabInMT, new { id = "txtStartVolumeSlabInMT", @class = "form-control", @placeholder = Helper.GetResourceString("lbl_StartVolumeSlabInMT"), @maxlength = (int)InputMaxLength.Price })
+                                </div>
+                                <div class="col-md-2">
+                                    @Html.TextBoxFor(m => m.EndVolumeSlabInMT, new { id = "txtEndVolumeSlabInMT", @class = "form-control", @placeholder = Helper.GetResourceString("lbl_EndVolumeSlabInMT"), @maxlength = (int)InputMaxLength.Price })
+                                </div>
+                                <div class="col-md-2">
+                                    @Html.TextBoxFor(m => m.Discount, new { id = "txtDiscount", tabindex = "4", @class = "form-control decimalValue", @placeholder = Helper.GetResourceString("lbl_Discount"), @maxlength = (int)InputMaxLength.Price })
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="button" tabindex="5" id="btnAddVolumeSlabs" class="k-primary k-button">@Helper.GetResourceString("Btn_AddVolumeSlab")</button>
+                                </div>
+                            </div>
+                            <div class="row" align="center" style="margin-bottom:15px;">
+                                <div class="col-md-12">
+                                    <div class="text-right">
+                                    </div>
+                                    @(Html.Kendo().Grid<Adani.Solution.DTO.VolumeDiscountSlabDto>()
+                                          .Name("ViewVolumeSlabs")
+                                          .Columns(columns =>
+                                          {
+                                              columns.Bound(p => p.VolumeDiscountSlabId).Visible(false);
+                                              columns.Bound(p => p.StartSlabInMT).Title(Helper.GetResourceString("lbl_StartVolumeSlabInMT")).Width(Settings.GridColumnMaxWidth);
+                                              columns.Bound(p => p.EndSlabInMT).Title(Helper.GetResourceString("lbl_EndVolumeSlabInMT")).Width(Settings.GridColumnMaxWidth);
+                                              columns.Bound(p => p.DiscountForSlab).Title(Helper.GetResourceString("lbl_Discount")).Width(Settings.GridColumnMaxWidth);
+                                              columns.Template(c => c.VolumeDiscountSlabId).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Action"))
+                                                  .ClientTemplate("<div style='text-align: center;'><a style='padding-left: 4px;' class='icon-cross cursor-pointer' onclick='RemoveDataFromGrid(this)'></a></div>").Width(Settings.GridOtherColumnWidth);
+                                          })
+                                          //.BindTo(Model.VolumeSlabsList)
+                                          .DataSource(dataSource => dataSource
+                                          .Ajax()
+                                          .Model(model => { model.Id(p => p.VolumeDiscountSlabId); })
+                                          .ServerOperation(true)
+                                          .Read(read => read.Action("GetUserBasedVolumeDiscountSlabDetailsById", "RAVersionTwo").Data("additionalGridParam"))))
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+                                <button type="button" tabindex="8" id="btnCancel" onclick="location.href = '@Url.Action("VolumeDiscountUserList", "RAVersionTwo")'" class="k-button">@Helper.GetResourceString("btn_Cancel")</button>
+                                @if (Helper.CheckClaims(Claims.ManageRADiscounts))
+                                {
+                                    <button type="button" tabindex="9" id="btnSave" class="k-primary k-button">@Helper.GetResourceString("btn_Update")<i class="icon-arrow-right14 position-right"></i></button>
+                                }
+                            </div>
+                        </div>
+                    }
+                    <!---end of form input-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="kWindow">
+    <h2>@Helper.GetResourceString("msg_VolumeSlabDeleteConfirmation")</h2>
+    <div class="col-md-12 text-center">
+        <button id="yes" class="k-primary k-button">Yes</button>
+        <button id="no" class="k-primary k-button">No</button>
+    </div>
+</div>
+<script>
+    var windowDelete;
+    $(document).ready(function () {
+
+        windowDelete = $("#kWindow").kendoWindow({
+            title: "Delete confirmation",
+            modal: true,
+            visible: false,
+            resizable: false,
+            width: 300
+        }).data("kendoWindow");
+
+        if ('@Model.VerticalId' > 0) {
+            $("#ddlVertical").data("kendoDropDownList").readonly(true);
+        }
+
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        if ('@Model.StartVolumeSlabInMT' === "0") {
+            $('#txtStartVolumeSlabInMT').val('');
+        }
+
+        if ('@Model.EndVolumeSlabInMT' === "0") {
+            $('#txtEndVolumeSlabInMT').val('');
+        }
+
+        if ('@Model.Discount' === "0") {
+            $('#txtDiscount').val('');
+        }
+
+        if ('@Model.Id' === '0') {
+            StartDateRange();
+        } else {
+            //$("#ddlOiltypes").data("kendoDropDownList").readonly(true);
+          $("#dpFromDate").data("kendoDatePicker").readonly();
+            $("#dpToDate").data("kendoDatePicker").readonly();
+          //  StartDateRangeOnUpdate();
+        }
+
+        $("#btnAddVolumeSlabs").click(function (e) {
+            AddDataToGrid();
+        });
+
+         $('#btnSave').on('click', function (e) {
+             var isValid = $('#frmVolumeDiscount').valid();
+            if (isValid) {
+                if ($("#ViewVolumeSlabs").data("kendoGrid").dataSource.data().length > 0) {
+                    window.kendo.ui.progress($("#div_Progress"), true);
+                    $("#VolumeSlabsList").val(JSON.stringify($("#ViewVolumeSlabs").data("kendoGrid").dataSource.data()));
+                    var frm = $("frmVolumeDiscount").serialize();
+                    $('#frmVolumeDiscount').submit();
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                }
+                else {
+                    ShowErrorMessage('@Helper.GetResourceString("msg_VolumeSlabsNotAdded")');
+                }
+            }
+        });
+
+        $("#oilTypeSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlOilType", "oilTypeSelectAll");
+            $("#ddlSku").data("kendoMultiSelect").dataSource.read();
+        });
+
+        $("#oilPackingTypeSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlOilPackingType", "oilPackingTypeSelectAll");
+            $("#ddlSku").data("kendoMultiSelect").dataSource.read();
+        });
+
+        $("#zonalHeadSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlZonalHead", "zonalHeadSelectAll");
+            $("#ddlBDO").data("kendoMultiSelect").dataSource.read();
+        });
+
+        $("#BDOSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlBDO", "BDOSelectAll");
+            $("#ddlCustomer").data("kendoMultiSelect").dataSource.read();
+        });
+
+        $("#customerGroupSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlCustomerGroup", "customerGroupSelectAll");
+            $("#ddlCustomer").data("kendoMultiSelect").dataSource.read();
+            $("#ddlZonalHead").data("kendoMultiSelect").dataSource.read();
+        });
+
+        $("#skuSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlSku", "skuSelectAll");
+        });
+
+        $("#customerSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlCustomer", "customerSelectAll");
+        });
+
+    });
+
+    function StartDateRangeOnUpdate() {
+        var endPicker = $("#dpToDate").data("kendoDatePicker"),
+            startDate = $("#dpFromDate").data("kendoDatePicker").value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate());
+
+            $("#dpFromDate").val(kendo.toString(startDate, emamiGlobal.constant.DateFormat));
+            var startPicker = $("#dpFromDate").data("kendoDatePicker");
+            startPicker.min(startDate);
+            endPicker.min(startDate);
+        }
+    }
+
+    function RemoveDataFromGrid(e) {
+        var grid = $("#ViewVolumeSlabs").data("kendoGrid");
+        var row = $(e).closest("tr");
+        var dataItem = grid.dataItem($(e).closest("tr"));
+        windowDelete.center().open();
+        $("#yes").click(function () {
+            if (dataItem.VolumeDiscountSlabId > 0) {
+                DeleteVolumeSlab(dataItem.VolumeDiscountSlabId);
+            }
+            grid.removeRow(row);
+            windowDelete.close();
+        });
+
+        $("#no").click(function () {
+            windowDelete.close();
+        });
+    }
+
+    function DeleteVolumeSlab(slabId) {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        moduleCommon.Common.AjaxCall({
+            url: '@Url.Action("RemoveUserVolumeDiscountSlabs", "RAVersionTwo")',
+            type: 'POST',
+            data: { VolumeDiscountSlabId: slabId },
+            success: function (result) {
+                if (result.PostStatus) {
+                    ShowSuccessMessage(result.PostMessage);
+                } else {
+                    ShowErrorMessage(result.PostMessage);
+                }
+            }
+        });
+        window.kendo.ui.progress($("#div_Progress"), false);
+    }
+
+    function additionalGridParam() {
+        return {
+            volumeDiscountId: $("#hdnVolumeDiscountId").val()
+        };
+    }
+
+    function AddDataToGrid() {
+        var mappedGrid = $("#ViewVolumeSlabs").data("kendoGrid");
+        var txtStartVolumeSlabInMT = $('#txtStartVolumeSlabInMT').val();
+        var txtEndVolumeSlabInMT = $('#txtEndVolumeSlabInMT').val();
+        var txtDiscount = $('#txtDiscount').val();
+        var gridDataItems = [];
+        var gridDataItems2 = [];
+
+        if (txtStartVolumeSlabInMT !== ""
+            && txtEndVolumeSlabInMT !== "" && Number(txtEndVolumeSlabInMT) > 0
+            && txtDiscount !== "" && Number(txtDiscount) > 0) {
+
+            if (Number(txtEndVolumeSlabInMT) < Number(txtStartVolumeSlabInMT)) {
+                ShowErrorMessage('@Helper.GetResourceString("msg_InvalidVolumeSlab")');
+            }
+            else {
+                var data = mappedGrid.dataSource.data();
+                $.each(data, function (i, item) {
+                    if (Number(item.StartSlabInMT) === Number(txtStartVolumeSlabInMT) && Number(item.EndSlabInMT) === Number(txtEndVolumeSlabInMT)) {
+                        gridDataItems.push(item);
+                    }
+                    if (Number(item.StartSlabInMT) <= Number(txtStartVolumeSlabInMT) && Number(txtStartVolumeSlabInMT) <= Number(item.EndSlabInMT)) {
+                        gridDataItems2.push(item);
+                    }
+                });
+                //var gridDataItem = mappedGrid.dataSource.data().filter(function (item) {
+                //    return item.StartSlabInMT === Number(txtStartVolumeSlabInMT) && item.EndSlabInMT === Number(txtEndVolumeSlabInMT);
+                //});
+
+                //var gridDataItem2 = mappedGrid.dataSource.data().filter(function (item) {
+                //    return item.StartSlabInMT < Number(txtStartVolumeSlabInMT) && Number(txtStartVolumeSlabInMT) < item.EndSlabInMT;
+                //});
+                if (gridDataItems.length > 0 || gridDataItems2.length > 0) {
+                    ShowErrorMessage('@Helper.GetResourceString("msg_VolumeSlabAlreadyAddedInThisRange")');
+                }
+                else {
+                    var datasource = mappedGrid.dataSource;
+                    var total = datasource.data().length;
+
+                    datasource.insert(total, {
+                        StartSlabInMT: txtStartVolumeSlabInMT,
+                        EndSlabInMT: txtEndVolumeSlabInMT,
+                        DiscountForSlab: txtDiscount
+                    });
+                    ClearVolumeSlabs();
+                }
+            }
+        }
+        else {
+            ShowErrorMessage('@Helper.GetResourceString("msg_PleaseGiveVolumeSlabDetailsToProceed")');
+        }
+    }
+
+    function ClearVolumeSlabs() {
+        $('#txtStartVolumeSlabInMT').val('');
+        $('#txtEndVolumeSlabInMT').val('');
+        $('#txtDiscount').val('');
+    }
+
+    function onVerticalChange() {
+        $("#ddlOilType").data("kendoMultiSelect").dataSource.read();
+        $("#ddlZonalHead").data("kendoMultiSelect").dataSource.read();
+        $("#ddlCustomerGroup").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function onOiltypeChange() {
+        $("#ddlSku").data("kendoMultiSelect").dataSource.read();
+        MultiSelectEvents("ddlOilType", "oilTypeSelectAll");
+    }
+
+    function onOilTypeDataBound() {
+        MultiSelectEvents("ddlOilType", "oilTypeSelectAll");
+        if ('@Model.Id' > 0) {
+            $("#ddlSku").data("kendoMultiSelect").dataSource.read();
+        }
+    }
+
+    function oilTypeAdditionalInfo() {
+        return {
+            verticalId: $("#ddlVertical").data("kendoDropDownList").value()
+        };
+    }
+
+    function onBDOChange() {
+        MultiSelectEvents("ddlBDO", "BDOSelectAll");
+        $("#ddlCustomer").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function onBDODataBound() {
+        MultiSelectEvents("ddlBDO", "BDOSelectAll");
+    }
+
+    function BDOAdditionalInfo() {
+        return {
+            zonalHeadIds: $("#ddlZonalHead").data("kendoMultiSelect").value().join(),
+            verticalId: $("#ddlVertical").data("kendoDropDownList").value()
+        };
+    }
+
+    function onZonalHeadChange() {
+        $("#ddlBDO").data("kendoMultiSelect").dataSource.read();
+        MultiSelectEvents("ddlZonalHead", "zonalHeadSelectAll");
+    }
+
+    function onZonalHeadDataBound() {
+        MultiSelectEvents("ddlZonalHead", "zonalHeadSelectAll");
+    }
+
+    function ZonalHeadAdditionalInfo() {
+        return {
+            verticalId: $("#ddlVertical").data("kendoDropDownList").value(),
+            customerGroupIds: $("#ddlCustomerGroup").data("kendoMultiSelect").value().join()
+        };
+    }
+
+    function onCustomerGroupChange() {
+        MultiSelectEvents("ddlCustomerGroup", "customerGroupSelectAll");
+        $("#ddlCustomer").data("kendoMultiSelect").dataSource.read();
+        $("#ddlZonalHead").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function onCustomerGroupDataBound() {
+        MultiSelectEvents("ddlCustomerGroup", "customerGroupSelectAll");
+    }
+
+    function CustomerGroupAdditionalInfo() {
+        return {
+            verticalId: $("#ddlVertical").data("kendoDropDownList").value()
+        };
+    }
+
+    function onSkuChange() {
+        MultiSelectEvents("ddlSku", "skuSelectAll");
+    }
+
+    function onSkuDataBound() {
+        MultiSelectEvents("ddlSku", "skuSelectAll");
+    }
+
+    function skuAdditionalInfo() {
+        return {
+            oilTypeIds: $("#ddlOilType").data("kendoMultiSelect").value().join(),
+            packGroupIds: $("#ddlOilPackingType").data("kendoMultiSelect").value().join()
+        };
+    }
+
+    function onCustomerChange() {
+        MultiSelectEvents("ddlCustomer", "customerSelectAll");
+    }
+
+    function onCustomerDataBound() {
+        MultiSelectEvents("ddlCustomer", "customerSelectAll");
+    }
+
+    function CustomerAdditionalInfo() {
+        return {
+            bdoIds: $("#ddlBDO").data("kendoMultiSelect").value().join(),
+            customerGroupIds: $("#ddlCustomerGroup").data("kendoMultiSelect").value().join()
+        };
+    }
+
+    function onPackGroupChange() {
+        MultiSelectEvents("ddlOilPackingType", "oilPackingTypeSelectAll");
+        $("#ddlSku").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function onPackGroupDataBound() {
+        MultiSelectEvents("ddlOilPackingType", "oilPackingTypeSelectAll");
+        if ('@Model.Id' > 0) {
+            $("#ddlSku").data("kendoMultiSelect").dataSource.read();
+        }
+    }
+
+    function fromChange() {
+        var endPicker = $("#dpToDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            $("#dpToDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+            endPicker.min(startDate);
+        }
+    }
+
+    function StartDateRange() {
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+
+        $("#dpFromDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        $("#dpToDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+
+        var startPicker = $("#dpFromDate").data("kendoDatePicker");
+        startPicker.min(dates);
+
+        var endPicker = $("#dpToDate").data("kendoDatePicker");
+        endPicker.min(dates);
+    }
+
+</script>
+
+
+
+
+

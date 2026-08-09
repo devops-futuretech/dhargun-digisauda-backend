@@ -1,0 +1,192 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@{
+    ViewBag.Title = "RAMaterialCostList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="ra2RAMaterialCost" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_RAMaterialCost")</h2>
+    <div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            @if (Helper.CheckClaims(Claims.ManageRAMasters))
+            {
+                <a href="@Url.Action("RAMaterialCostEditRedirect", "Pricing")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_RACreateMaterialCost")</a>
+            }
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvMaterialCosts">
+                <div class="col-md-12">
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right control-label">
+                            @Helper.GetResourceString("lbl_FromDate")
+                        </div>
+                        <div class="col-md-3">
+                            @(Html.Kendo().DatePicker()
+                                                                .Name("StartDate")
+                                                                .Value(DateTime.Now)
+                                                                .Format(Settings.DateFormat)
+                                                                .Events(e => e.Change("fromDateChange"))
+                                                                .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 50%" }))
+                        </div>
+                        <div class="col-md-2 text-right control-label">
+                            @Helper.GetResourceString("lbl_ToDate")
+                        </div>
+                        <div class="col-md-3">
+                            @(Html.Kendo().DatePicker()
+                                                                .Name("EndDate")
+                                                                .Value(DateTime.Now)
+                                                                .Format(Settings.DateFormat)
+                                                                .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "2", style = "width: 50%" }))
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right control-label">
+                            @Helper.GetResourceString("lbl_Status")
+                        </div>
+                        <div class="col-md-3">
+                            @(Html.Kendo().DropDownList()
+                                      .Name("Status")
+                                      .OptionLabel(@Helper.GetResourceString("plho_SelectStatus"))
+                                      .DataTextField("Name")
+                                      .DataValueField("Id")
+                                      .DataSource(source => source.Read(resd => resd.Action("GetIsActiveStatusListSAsync", "Pricing"))
+                                      .ServerFiltering(false))
+                                      .HtmlAttributes(new { id = "ddlActiveStatus", @class = "", tabindex = "3", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Status"), @style = "width:100%" }))
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <button class="k-button k-button-icontext k-grid-excel" onclick='excelExport()' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;
+                        @*<button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ViewMaterialCosts")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>*@&ensp;
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    </div>
+                    @(Html.Kendo().Grid<RAMaterialCostDto>()
+                              .Name("ViewRAMaterialCosts")
+                              .Columns(columns =>
+                              {
+                                  columns.Bound(c => c.Id).Visible(false);
+                                  columns.Bound(c => c.Vertical).Title(@Helper.GetResourceString("lbl_Vertical")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  //columns.Bound(c => c.OilType).Title(@Helper.GetResourceString("lbl_OilType")).ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("MaterialCostEditRedirect", "Pricing", new { materialCostId = "#=Id#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=OilType#</a> </div>")
+                                  columns.Bound(c => c.OilType).Title(@Helper.GetResourceString("lbl_OilType"))
+                                  .ClientTemplate("#if(IsActive == true && IsPublished == false && IsDateGreaterThanToday(ValidTo)) {#  " + "<div> <a style='text-decoration: underline;' href='" + Url.Action("RAMaterialCostEditRedirect", "Pricing", new { ramaterialCostId = "#=Id#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=OilType#</a> </div>" +
+                                        " #} else {#" + "<div>#=OilType#</div>" + "#} #").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                  columns.Bound(c => c.PlantName).Title(@Helper.GetResourceString("lbl_Plant")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.RateOrMT).Title(@Helper.GetResourceString("lbl_RateOrMT")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.ValidFrom).Format(Settings.GridDateTimeFormat).Title(@Helper.GetResourceString("lbl_ValidFrom")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                  columns.Bound(c => c.ValidTo).Format(Settings.GridDateTimeFormat).Title(@Helper.GetResourceString("lbl_ValidTo")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+
+                                  //columns.Bound(c => c.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("msg_Status")).ClientTemplate(@"<div style='text-align: center;'> #if(IsActive == false) { #"
+                                  //                                                    + " <a  title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Width(Settings.GridColumnMaxWidth);
+
+                                  columns.Bound(t => t.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Active")).ClientTemplate(@"<div style='text-align: center;'>  #if(!IsActive) { #"
+    + " <a  title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#   <a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Width(Settings.GridColumnMaxWidth);
+
+                                  columns.Bound(c => c.IsPublished).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Published")).ClientTemplate(@"<div style='text-align: center;'> #if(IsPublished == false) { #"
+                                                                                              + " <a  title='" + @Helper.GetResourceString("lbl_NotPublished") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("lbl_Published") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Width(Settings.GridColumnMaxWidth);
+                              })
+                              .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                              .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                              .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                              .Excel(excel => excel.FileName(@Helper.GetResourceString("lbl_MaterialCost") + " " + DateTime.Now + ".xlsx").AllPages(true))
+                              .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                              .Selectable(selectable => selectable
+                              .Mode(GridSelectionMode.Multiple)
+                              .Type(GridSelectionType.Row))
+                              .Scrollable(s => s.Enabled(true).Height("auto"))
+                              .Resizable(resize => resize.Columns(true))
+                              .Events(events => events.DataBound("onMaterialCostListDataBound"))
+                              .Reorderable(reorder => reorder.Columns(true))
+                              .DataSource(dataSource => dataSource
+                              .Ajax()
+                              .Sort(s => s.Add("Id").Descending())
+                              .Model(model => model.Id(m => m.Id))
+                              .ServerOperation(true)
+                              .Read(read => read.Action("GetRAMaterialCostListAsync", "Pricing", new { isToReturnInactiveData = true }))))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();
+
+         if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+		}
+    });
+
+    //Method to data bound event for dealer List
+    function onMaterialCostListDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+    function fromDateChange() {
+        setToDateRange("StartDate", "EndDate", emamiGlobal.constant.IndentDateRange);
+    }
+
+    function dateValidate(validTo) {
+
+        var toDate = new Date(validTo);
+        var currDate = new Date();
+
+        currDate = new Date(currDate.getFullYear(), currDate.getMonth(), currDate.getDate());
+        toDate = new Date(toDate.getFullYear(), toDate.getMonth(), toDate.getDate());
+
+        if (toDate >= currDate) {
+            return true;
+        }
+        return false;
+    }
+
+    function excelExport() {
+
+        window.kendo.ui.progress($("#div_Progress"), true);
+        var data = {  StartDate: $("#StartDate").val(),
+            EndDate: $("#EndDate").val(),
+            IsActiveStatus : $('#ddlActiveStatus').data("kendoDropDownList").value()
+        };
+        $.ajax({
+            type: 'Post',
+            url: '@Url.Action("RAExportMaterialCost", "Pricing")',
+            data: { inputDto: data },
+            success: function (responce) {
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Pricing")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+</script>
+
+
+
+
+
+
+
+
+

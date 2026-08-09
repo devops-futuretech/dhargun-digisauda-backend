@@ -1,0 +1,149 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model TrackingViewDto
+@{
+    ViewBag.Title = "VehicleTrackViewData";
+}
+
+
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="transactionvehicletrackinglist" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Delivery Order Detail</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="div_Progress">
+                <div class="col-md-12">
+
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right clsBold">
+                            @Helper.GetResourceString("lbl_DealerName")
+                        </div>
+                        <div class="col-md-3">
+                            @Model.DealerName
+                        </div>
+                        <div class="col-md-2 text-right clsBold">
+                            Delivery Order Number
+                        </div>
+                        <div class="col-md-3">
+                            @Model.DeliveryDetail.do_number
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right clsBold">
+                            Driver Name
+                        </div>
+                        <div class="col-md-3">
+                            @Model.DeliveryDetail.driver_name
+                        </div>
+                        <div class="col-md-2 text-right clsBold">
+                            Driver Mobile Number
+                        </div>
+                        <div class="col-md-3">
+                            @Model.DeliveryDetail.driver_phone_number
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right clsBold">
+                            Status
+                        </div>
+                        <div class="col-md-3">
+                            @Model.DeliveryDetail.status_body.current_status
+                        </div>
+                        <div class="col-md-2 text-right clsBold">
+                            Estimated ArrivalDate
+                        </div>
+                        <div class="col-md-3">
+                            @Model.DeliveryDetail.status_body.eta
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right clsBold">
+                            Total Distance
+                        </div>
+                        <div class="col-md-3">
+                            @Model.DeliveryDetail.status_body.distance_covered
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-2 text-right clsBold">
+                           ShipToParty
+                        </div>
+                        <div class="col-md-3">
+                            @Model.ShipToParty
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div>
+                            <div class="text-right">
+                            </div>
+                            @(Html.Kendo().Grid<TrackSkuDto>().Name("SkuDetails")
+                                              .Columns(columns =>
+                                              {
+                                                  columns.Bound(c => c.SkuName).Title(@Helper.GetResourceString("lbl_SkuName")).Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(c => c.OilTypeName).Title(@Helper.GetResourceString("lbl_OilType")).Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(c => c.Quantity).Title("Quantity").Width(Settings.GridColumnMaxWidth);
+                                                  columns.Bound(c => c.QuantityCase).Title("Quantity Case").Width(Settings.GridColumnMaxWidth);
+                                              })
+                                              .BindTo(Model.SkuList)
+                                              .EnableCustomBinding(true)
+                                                  .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                              .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                              .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                              .Scrollable(s => s.Enabled(true).Height("auto"))
+                                              .Events(events => events.DataBound("onDataBound"))
+                                              .Reorderable(reorder => reorder.Columns(true))
+                                              .DataSource(dataSource => dataSource
+                                              .Ajax()
+                                              .Model(model => model.Id(m => m.SkuId))
+                                              ))
+
+                        </div>
+                    </div>
+
+
+                    <div class="row form-group" id="divSave">
+                        <div class="text-center">
+                            <button type="button" id="btnVehicleTrackingMap" class="k-primary k-button custom-btns" onclick="LoadVehicleTrackingMap('@Model.DeliveryDetail.tracking_link')">View Map </button>
+                        </div>
+                        <div class="col-md-12 text-right">
+                            <button type="button" id="btnCancel" class="k-primary k-button custom-btns">Back</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        // kendo grid filter contains
+        FilterContains();
+        $("#btnCancel").click(function(){
+
+        window.location.href = '@Url.Action("VehicleTrackingList", "Vehicle", new { Donumber = @Model.DeliveryDetail.do_number })';
+    });
+
+    });
+    function LoadVehicleTrackingMap(vehicleTrackingLink) {
+        var url = "/Vehicle/VehicleTrackingView?VehicleTrackingLink=" + vehicleTrackingLink;
+        window.location.href = url;
+    }
+    function onDataBound(e) {
+        SetEmptyRow(e);
+    }
+</script>

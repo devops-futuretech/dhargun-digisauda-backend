@@ -1,0 +1,97 @@
+﻿@using Adani.Solution.MVC.Helpers;
+@model Adani.Solution.MVC.Models.SaudaConversionTypeViewModel
+@{
+    ViewBag.Title = "SaudaConversionType";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<input type="hidden" class="currentMenu" value="mastersaudaextensiontype" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title"> @Helper.GetResourceString("lbl_SaudaConversionType")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Masters</a><span class="icon-right"></span></li>
+        <li class="active"> @Helper.GetResourceString("lbl_SaudaConversionType") <span class="icon-right"></span></li>
+    </ol>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("SaudaConversionType", "Lookup", FormMethod.Post, new { id = "frmsaudaCOnversionType", @class = "form-validate-jquery" }))
+                    {
+                        if (Model != null && Model.ConversionTypes.Any())
+                        {
+                            <div class="row form-group">
+                                <div class="col-md-6 col-sm-6 text-right control-label">
+                                    <b>Type</b>
+                                </div>
+                                <div class="col-md-6 col-sm-6 control-link">
+                                    <b>Isactive</b>
+                                </div>
+                            </div>
+                            for (int i = 0; i < Model.ConversionTypes.Count; i++)
+                            {
+                                @Html.HiddenFor(m => m.ConversionTypes[i].Id, new { id = "hdnId" })
+                                <div class="row form-group">
+                                    <div class="col-md-6 col-sm-6 text-right control-label">
+                                                @Html.HiddenFor(m => m.ConversionTypes[i].Name)
+                                                <span id="labelKey">@Model.ConversionTypes[i].Name</span>
+                                        </div>
+                                    <div class="col-md-6 col-sm-6">
+                                        <div class="custom_checkbox_main">
+                                            <label class="custom_checkbox">
+                                                @Html.CheckBoxFor(m => m.ConversionTypes[i].IsActive)
+                                                <span class="checkmark check_tick"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                        }
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+                                <button type="button" tabindex="6" id="btnCancel" onclick="location.href = '@Url.Action("SaudaConversionType", "Lookup")'" class="k-button k-cancel custom-btns">@Helper.GetResourceString("btn_Cancel")</button>
+                                <button type="button" tabindex="5" id="btnSave" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Save") </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+	$(document).ready(function () {
+		if ('@Model.PostMessage' !== "") {
+			if ('@Model.PostStatus' === '@true') {
+				ShowSuccessMessage('@Model.PostMessage');
+			} else {
+				ShowErrorMessage('@Model.PostMessage');
+			}
+		}
+
+		$('#btnSave').on('click', function (e) {		
+			@*var selectedCheckboxCount = 0;
+			for (var i = 0; i < '@Model.ConversionTypes.Count'; i++) {								
+				selectedCheckboxCount += $("#ConversionTypes_" + i + "__IsActive").is(':checked') == true ? 1 : 0;
+			}*@			
+			@*if (selectedCheckboxCount <= 0) {
+				ShowErrorMessage('@Helper.GetResourceString("msg_SaudaConversionRequired")');
+			}
+			else {*@
+				var isValidForm = $("#frmsaudaCOnversionType").valid();
+				if (isValidForm) {
+					window.kendo.ui.progress($("#div_Progress"), true);
+					$("#frmsaudaCOnversionType").submit();
+				}
+			//}
+		});
+	});
+
+</script>

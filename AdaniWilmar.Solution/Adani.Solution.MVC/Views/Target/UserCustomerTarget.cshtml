@@ -1,0 +1,465 @@
+﻿@using Kendo.Mvc.UI;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.DTO;
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@model Adani.Solution.DTO.UserCustomerTargetDto
+@{
+    ViewBag.Title = "UserCustomerTarget";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="tptargetUserCustomerTarget" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_UserCustomerTarget")</h2>
+    <div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat" id="dvSalesTarget">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <p class="content-group-lg"></p>
+            @using (Html.BeginForm("AddOrUpdateUserCustomerSalesTarget", "Target", FormMethod.Post, new { id = "frmUserCustomerSalesTarget", @class = "form-validate-jquery" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.Id)
+                @Html.HiddenFor(m => m.LoginUserId, new { id = "hdnLoginUserId" })
+                @Html.HiddenFor(m => m.LoginUserName, new { id = "hdnLoginUserName" })
+                <fieldset class="content-group">
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            @Helper.GetResourceString("lbl_AssignedTo") <span class="text-danger">*</span>
+                        </div>
+                        <div class="col-md-4">
+                            @(Html.Kendo().DropDownListFor(m => m.AssignedToId)
+                                                  .OptionLabel(@Helper.GetResourceString("plho_SelectUser"))
+                                                  .DataTextField("Name")
+                                                  .DataValueField("Id")
+                                                  .Events(e => e.Change("onAssignedToChange"))
+                                                  .DataSource(source => source.Read(read => read.Action("GetSalesReportingToUsersByLoggedInUserId", "Role"))
+                                                  .ServerFiltering(true))
+                                                  .HtmlAttributes(new { id = "ddlAssignedTo", tabindex = "1", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_AssignedTo"), @style = "width:100%" }))
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            @Helper.GetResourceString("lbl_CalendarDuaration") <span class="text-danger">*</span>
+                        </div>
+                        <div class="col-md-4">
+                            @(Html.Kendo().DropDownListFor(m => m.FinancialYearId)
+                                                  .OptionLabel(@Helper.GetPlaceHolderSelectMsg("lbl_Year"))
+                                                  .DataTextField("Year")
+                                                  .DataValueField("Id")
+                                                  .DataSource(source => source.Read(read => read.Action("GetActiveFinancialYearListAsync", "SalesTourPlan"))
+                                                  .ServerFiltering(true))
+                                                  .HtmlAttributes(new { id = "ddlFinancialYear", tabindex = "2", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Year"), onchange = "onchangeFinancialYear();", @class = "", @style = "width:100%" }))
+                        </div>
+                    </div>
+                    <div id="dv_detail">
+                    </div>
+                    @{
+                        if (Model.UserTargetDetail.Any())
+                        {
+                            if (Model.UserTargetDetail.Count > 0)
+                            {
+                                <div id="dv_detailpartial">
+                                    @Html.Partial("_userCustomerTargetPartial", Model)
+                                </div>
+                            }
+                        }
+                    }
+                </fieldset>
+                <div class="row form-group"> </div>
+                <div class="row form-group">
+                    <div class="col-md-12 text-center">
+                        @if (Helper.CheckClaims(Claims.ManageCustomerTarget))
+                        {
+                        <button type="button" tabindex="5" id="btnAddTargetToGrid" class="k-primary k-button">Save User Customer Target</button>
+                        }
+                    </div>
+                </div>
+                <div class="panel-heading">
+                    <h3 class="panel-title">@Helper.GetResourceString("lbl_MappedSalesTargetList")</h3>
+                </div>
+                <div class="panel-body" style="display: none;">
+                    <div class="row" id="dvtable">
+                        <table id="tblTarget" border="1">
+                            <thead>
+                                <tr></tr>
+                            </thead>
+                            <tbody> <tr></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="panel-body" style="display:none;">
+                    <div class="row" id="dvDealers" hidden>
+                        <div class="col-md-12">
+                            @(Html.Kendo().Grid<MapSalesTargetDetailDto>()
+                                                  .Name("ViewTargets")
+                                                  .Columns(columns =>
+                                                  {
+                                                      columns.Bound(c => c.AssignedFromId).Visible(false);
+                                                      columns.Bound(c => c.AssignedToId).Visible(false);
+                                                      columns.Bound(c => c.FinancialYearId).Visible(false);
+                                                      columns.Bound(c => c.VerticalId).Visible(false);
+                                                      columns.Bound(c => c.OilTypeId).Visible(false);
+                                                      columns.Bound(c => c.MonthId).Visible(false);
+                                                      columns.Bound(c => c.Id).Visible(false);
+                                                      columns.Bound(c => c.AssignedFromUser).Title(Helper.GetResourceString("lbl_AssignedFrom")).Width(Settings.GridOtherColumnWidth);
+                                                      columns.Bound(c => c.AssignedToUser).Title(Helper.GetResourceString("lbl_AssignedTo")).Width(Settings.GridOtherColumnWidth);
+                                                      columns.Bound(c => c.FinancialYear).Title(Helper.GetResourceString("lbl_FinancialYear")).Width(Settings.GridOtherColumnWidth);
+                                                      columns.Bound(c => c.Vertical).Title(Helper.GetResourceString("lbl_Vertical")).Width(Settings.GridOtherColumnWidth);
+                                                      columns.Bound(c => c.OilType).Title(Helper.GetResourceString("lbl_OilType")).Width(Settings.GridOtherColumnWidth);
+                                                      columns.Bound(c => c.Month).Title(Helper.GetResourceString("lbl_Month")).Width(Settings.GridOtherColumnWidth);
+                                                      columns.Bound(c => c.MonthAndYear).Visible(false);
+                                                      columns.Bound(c => c.Year).Title(Helper.GetResourceString("lbl_Year")).Width(Settings.GridOtherColumnWidth);
+                                                      columns.Bound(c => c.Target).Title(Helper.GetResourceString("lbl_Target")).Width(Settings.GridOtherColumnWidth);
+                                                              //columns.Template(c => c.DealerId).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Action")).ClientTemplate("<div style='text-align: center;'><a class='icon-eye cursor-pointer' onclick=\"openMappedDetails(this)\"></a><a style='padding-left: 4px;' class='icon-cross cursor-pointer' onclick='RemoveDataFromGrid(this)'></a></div>").Width(Settings.GridOtherColumnWidth);
+                                                          })
+                                                  .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                                  .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                                  .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                                  .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                                  .Selectable(selectable => selectable
+                                                  .Mode(GridSelectionMode.Multiple)
+                                                  .Type(GridSelectionType.Row))
+                                                  .Scrollable(s => s.Enabled(true).Height("auto"))
+                                                  .Events(events => events.DataBound("onListDataBound"))
+                                                  .Reorderable(reorder => reorder.Columns(true))
+                                                  .DataSource(dataSource => dataSource
+                                                  .Ajax()
+                                                  .ServerOperation(false)
+                                                  .Sort(sort => sort.Add("OilTypeId").Descending())
+                                                  .Model(model => model.Id(m => m.OilTypeId))
+                                                  .Read(read => read.Action("GetSalesTargetEmptyListAsync", "Target"))))
+                        </div>
+                    </div>
+                    <div class="row form-group"></div>
+                    <div class="row form-group" id="dvSaveTarget">
+                        <div class="col-md-12 text-center">
+                            <button type="button" id="btnCancel" onclick="location.href = '@Url.Action("UserCustomerSalesTargetList", "Target")'" class="k-button">Cancel</button>
+                            <button type="button" id="btnSaveTarget" class="k-primary k-button">@Helper.GetResourceString("btn_SaveUserCustomerSalesTarget") <i class="icon-arrow-right14 position-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        $('#dvSaveTarget').hide();
+
+        if ($("#ViewTargets").data("kendoGrid").dataSource.data().length > 0) {
+            $('#dvSaveTarget').show();
+        }
+
+        $('#btnAddTargetToGrid').on('click', function (e) {
+            var isValid = $('#frmUserCustomerSalesTarget').valid();
+            $('input[type="text"].dynamicTarget').each(function () {
+                if (!CheckValueIsZero(this.value)) {
+                    ShowErrorMessage('@Helper.GetResourceString("msg_TargetShouldNotBeZero")');
+                    isValid = false;
+                }
+            });
+            if (isValid) {
+                // Animate loader
+                window.kendo.ui.progress($("#dvSalesTarget"), true);
+
+                AddDataToGrid();
+                window.kendo.ui.progress($("#dvSalesTarget"), false);
+
+            }
+        });
+
+        $('#btnSaveTarget').click(function () {
+            if ($("#ViewTargets").data("kendoGrid").dataSource.data().length > 0) {
+                window.kendo.ui.progress($("#dvSalesTarget"), true);
+                $.ajax(
+                    {
+                        url: "/Target/SaveUserCustomerTarget",
+                        type: 'POST',
+                        data: {
+                            inputDtoList: JSON.parse(JSON.stringify($("#ViewTargets").data("kendoGrid").dataSource.data()))
+                        },
+                        success: function (result) {
+
+                            if (result.IsSuccess)
+                                window.location.href = result.redirectUrl;
+                            else
+                                if (result.Message != "")
+                                    ShowErrorMessage(result.Message);
+                                else
+                                    ShowErrorMessage('@Helper.GetResourceString("msg_AddTargetError")');
+                            window.kendo.ui.progress($("#dvSalesTarget"), false);
+                        }
+                    });
+            }
+            else {
+                ShowErrorMessage('@Helper.GetResourceString("msg_TargetNoDataSaveError")');
+            }
+        });
+    });
+
+    function AddHeaderDataToTable() {
+        $('#tblTarget').find('thead tr').append('<th style="padding-right: 20px;"> Target </th>');
+        var k = 0;
+        $('input[type="text"].dynamicTarget').each(function () {
+            var hdnMonthAndYear;
+            if (typeof $('#SalesTarget' + (k + 1)).val() !== 'undefined' &&
+                $('#SalesTarget' + (k + 1)).val() !== '') {
+                hdnMonthAndYear = $('#hdnMonthAndYear' + (k + 1)).val();
+                $('#tblTarget').find('thead tr').append('<th style="padding-right: 20px;">' + hdnMonthAndYear + '</th>');
+            }
+            k++;
+        });
+    }
+
+    function AddRowDataToTable() {
+        var m = 0;
+        var jj = m + 1;
+        var $tblBody = $('#tblTarget tbody');
+        var $tblRow = $('<tr id="row_' + jj + '">');
+        $tblRow.append('' + '<td style="padding-right: 20px;">SalesTarget</td>');
+        //var ddlOilType = $("#ddlOilType").data("kendoDropDownList").text();
+        //$tblRow.append('' + '<td style="padding-right: 20px;">' + ddlOilType + '</td>');
+        $('input[type="text"].dynamicTarget').each(function () {
+            var txtSalesTarget;
+            if (typeof $('#SalesTarget' + (m + 1)).val() !== 'undefined' &&
+                $('#SalesTarget' + (m + 1)).val() !== '') {
+                txtSalesTarget = $('#SalesTarget' + (m + 1)).val();
+                $tblRow.append('' +
+                    '<td style="padding-right: 20px;">' + txtSalesTarget + '</td>'
+                );
+            }
+            m++;
+        });
+        $tblBody.append($tblRow);
+    }
+
+    function onListDataBound(e) {
+        SetEmptyRow(e);
+
+        if ($("#ViewTargets").data("kendoGrid").dataSource.data().length > 0) {
+            $('#dvSaveTarget').show();
+        }
+    }
+
+    function RemoveDataFromGrid(e) {
+        var grid = $("#ViewTargets").data("kendoGrid");
+        var row = $(e).closest("tr");
+        windowDelete.center().open();
+
+        $("#yes").click(function () {
+            grid.removeRow(row);
+            windowDelete.close();
+        });
+
+        $("#no").click(function () {
+            windowDelete.close();
+        });
+    }
+
+    function AddDataToGrid() {
+        @*var grid = $("#ViewTargets").data("kendoGrid");
+        var ddlOilTypeValue = $("#ddlOilType").data("kendoDropDownList").value(),
+            viewOilType = grid.dataSource.view();
+        var ddlVerticalValue = $("#ddlVertical").data("kendoDropDownList").value(),
+            viewVertical = grid.dataSource.view();
+        var gridDataItem = grid.dataSource.data().filter(function (item) {
+            return item.OilTypeId === ddlOilTypeValue && item.VerticalId === ddlVerticalValue;
+        });
+
+        if (gridDataItem.length > 0) {
+            ShowErrorMessage('@Helper.GetResourceString("msg_TargetAlreadyAddedForSelectedOiltype")');
+        }
+        else {*@
+        var grid = $("#ViewTargets").data("kendoGrid");
+            AddRowDataToTable();
+            var k = 0;
+            $('input[type="text"].dynamicTarget').each(function () {
+                var ddlAssignedTo = $("#ddlAssignedTo").data("kendoDropDownList").text();
+                var ddlAssignedToId = $("#ddlAssignedTo").data("kendoDropDownList").value();
+                var ddlFinancialYear = $("#ddlFinancialYear").data("kendoDropDownList").text();
+                var ddlFinancialYearId = $("#ddlFinancialYear").data("kendoDropDownList").value();
+                //var ddlVertical = $("#ddlVertical").data("kendoDropDownList").text();
+                //var ddlVerticalId = $("#ddlVertical").data("kendoDropDownList").value();
+                //var ddlOilType = $("#ddlOilType").data("kendoDropDownList").text();
+                //var ddlOilTypeId = $("#ddlOilType").data("kendoDropDownList").value();
+                var hdnLoginUserId = $('#hdnLoginUserId').val();
+                var hdnLoginUserName = $('#hdnLoginUserName').val();
+
+                var txtSalesTarget; var hdnMonthName;
+                var hdnMonthAndYear; var hdnMonthId;
+                var hdnYear; var hdnId;
+
+                if (typeof $('#SalesTarget' + (k + 1)).val() !== 'undefined' &&
+                    $('#SalesTarget' + (k + 1)).val() !== '') {
+                    txtSalesTarget = $('#SalesTarget' + (k + 1)).val();
+                    hdnMonthName = $('#hdnMonthName' + (k + 1)).val();
+                    hdnMonthAndYear = $('#hdnMonthAndYear' + (k + 1)).val();
+                    hdnMonthId = $('#hdnMonthId' + (k + 1)).val();
+                    hdnYear = $('#hdnYear' + (k + 1)).val();
+                    hdnId = $('#hdnId' + (k + 1)).val();
+                }
+
+                var datasource = grid.dataSource;
+                var total = datasource.data().length;
+
+                datasource.insert(total, {
+                    AssignedFromId: hdnLoginUserId,
+                    AssignedToId: ddlAssignedToId,
+                    FinancialYearId: ddlFinancialYearId,
+                    //VerticalId: ddlVerticalId,
+                    //OilTypeId: ddlOilTypeId,
+                    MonthId: hdnMonthId,
+                    AssignedFromUser: hdnLoginUserName,
+                    AssignedToUser: ddlAssignedTo,
+                    FinancialYear: ddlFinancialYear,
+                    //Vertical: ddlVertical,
+                    //OilType: ddlOilType,
+                    Month: hdnMonthName,
+                    MonthAndYear: hdnMonthAndYear,
+                    Year: hdnYear,
+                    Target: txtSalesTarget,
+                    Id: hdnId
+                });
+                k++;
+            });
+        
+
+        if ($("#ViewTargets").data("kendoGrid").dataSource.data().length > 0) {
+                window.kendo.ui.progress($("#dvSalesTarget"), true);
+                $.ajax(
+                    {
+                        url: "/Target/SaveUserCustomerTarget",
+                        type: 'POST',
+                        data: {
+                            inputDtoList: JSON.parse(JSON.stringify($("#ViewTargets").data("kendoGrid").dataSource.data()))
+                        },
+                        success: function (result) {
+
+                            if (result.IsSuccess)
+                                window.location.href = result.redirectUrl;
+                            else
+                                if (result.Message != "")
+                                    ShowErrorMessage(result.Message);
+                                else
+                                    ShowErrorMessage('@Helper.GetResourceString("msg_AddTargetError")');
+                            window.kendo.ui.progress($("#dvSalesTarget"), false);
+                        }
+                    });
+            }
+            else {
+                ShowErrorMessage('@Helper.GetResourceString("msg_TargetNoDataSaveError")');
+        }
+        ResetFields();
+        //}
+    }
+
+    function ResetFields() {
+        $('.dynamicTarget').val('');
+        //$("#ddlOilType").data("kendoDropDownList").select(-1);
+        //var ddlAssignedTo = $("#ddlAssignedTo").data("kendoDropDownList");
+        //ddlAssignedTo.readonly();
+        var ddlFinancialYear = $("#ddlFinancialYear").data("kendoDropDownList");
+        ddlFinancialYear.readonly();
+        //var ddlVertical = $("#ddlVertical").data("kendoDropDownList");
+        //ddlVertical.readonly();
+    }
+
+    function onAssignedToChange() {
+        if (Number($("#ddlAssignedTo").data("kendoDropDownList").value()) > 0 && Number($("#ddlFinancialYear").data("kendoDropDownList").value())>0) {
+            onchangeFinancialYear();
+        }
+    }
+    function onchangeFinancialYear() {
+        var errorFlag = false;
+        var errorMessage = "";
+        //$("#ddlOilType").data("kendoDropDownList").dataSource.read();
+
+        if ($("#ddlAssignedTo").data("kendoDropDownList").value() === "") {
+            errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_AssignedTo")');
+            errorFlag = true;
+        }
+        if ($("#ddlFinancialYear").data("kendoDropDownList").value() === "") {
+            errorMessage = ErrorSuccessMessageBind(errorMessage, '@Helper.GetSelectMsgRequired("lbl_CalendarDuaration")');
+            errorFlag = true;
+        }
+        if (errorFlag) {
+            ShowErrorMessageLeftAlign(errorMessage);
+        } else {
+            var FinancialYearId = $("#ddlFinancialYear").data("kendoDropDownList").value();
+
+            $.ajax({
+                url: "/Target/GetUserCustomerTargetMonthsByFinancialYear",
+                type: 'POST',
+                data: { financialYearId: FinancialYearId },
+                success: function (result) {
+                    if (result !== null) {
+                        $("#dv_detail").html(result);
+                        AddHeaderDataToTable();
+                    }
+                }
+            });
+        }
+    }
+
+    @*function onVerticalTypeChange() {
+        $("#ddlOilType").data("kendoDropDownList").dataSource.read();
+    }
+
+    //Verticle data onBound events
+    function verticleDataBound() {
+        if ('@Model.Id' > 0) {
+            $("#ddlOilType").data("kendoDropDownList").dataSource.read();
+        }
+    }*@
+
+    //function oilTypeAdditionalInfo() {
+    //    var verticalId = $("#ddlVertical").data("kendoDropDownList").value();
+    //    //return {
+    //    //    verticalId: Number(verticalId)
+    //    //};
+
+    //    var ddlFinancialYear = $("#ddlFinancialYear").data("kendoDropDownList").value();
+    //    return {
+    //        financialYearId: Number(ddlFinancialYear),
+    //        verticalId: Number(verticalId)
+    //    };
+
+    //}
+
+</script>
+
+
+<style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+</style>

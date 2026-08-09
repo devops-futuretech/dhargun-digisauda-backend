@@ -1,0 +1,94 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Models;
+@using Adani.Solution.DTO;
+@{
+    ViewBag.Title = Helper.GetResourceString("lbl_Target");
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="salestourplanTarget" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_Target")</h2>
+    <div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            <a href="@Url.Action("TargetEditRedirect", "SalesTourPlan")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("msg_CreateTarget")</a>
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="text-right">
+                        <button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ViewTarget")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    </div>
+                    @(Html.Kendo().Grid<UserTargetDto>()
+                        .Name("ViewTarget")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.Id).Visible(false);
+                            columns.Bound(c => c.AssignedTo).ClientTemplate(@"<div><a style='text-decoration: underline;' href='" + Url.Action("TargetEditRedirect", "SalesTourPlan", new { targetId = "#=Id#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=AssignedTo#</a>  </div>").Title(@Helper.GetResourceString("lbl_AssignedTo")).Width(Settings.GridOtherColumnWidth);
+                            columns.Bound(c => c.FromDate).Title(@Helper.GetResourceString("lbl_FromDate")).Format(Settings.GridDateFormat).Width(Settings.GridOtherColumnWidth);
+                            columns.Bound(c => c.ToDate).Title(@Helper.GetResourceString("lbl_ToDate")).Format(Settings.GridDateFormat).Width(Settings.GridOtherColumnWidth);
+                            columns.Bound(c => c.OilTypeId).Visible(false);
+                            columns.Bound(c => c.OilType).Title(@Helper.GetResourceString("lbl_OilType")).Width(Settings.GridOtherColumnWidth);
+                            columns.Bound(c => c.SkuId).Visible(false);
+                            columns.Bound(c => c.Sku).Title(@Helper.GetResourceString("lbl_Sku")).Width(Settings.GridOtherColumnWidth);
+                            columns.Bound(c => c.TargetQuanity).Title(@Helper.GetResourceString("lbl_TargetQuantity")).Width(Settings.GridOtherColumnWidth);
+                            columns.Bound(c => c.SchemeQuanity).Title(@Helper.GetResourceString("lbl_SchemeQuantity")).Width(Settings.GridOtherColumnWidth);
+                            columns.Template(t => t.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Active")).ClientTemplate(@"<div style='text-align: center;'> #if(IsActive == false) { #"
+                            + " <a href='javascript: void(0)' title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a href='javascript: void(0)' title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Title(@Helper.GetResourceString("msg_Status")).Width(Settings.GridButtonColumnWidth);
+                        })
+                        .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                        .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                        .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                        .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                        .Scrollable(s => s.Enabled(true).Height("auto"))
+                        .Excel(excel => excel.FileName(@Helper.GetResourceString("lbl_Target") + " " + DateTime.Now + ".xlsx").AllPages(true))
+                        .Reorderable(reorder => reorder.Columns(true))
+                        .Resizable(resize => resize.Columns(true))
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .Model(model => model.Id(m => m.Id))
+                            .ServerOperation(true)
+                            .Read(read => read.Action("GetAllTargetListAsync", "SalesTourPlan"))))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+		$(document).ready(function () {
+			 if ('@Model.PostMessage' !== ""){
+			   if ('@Model.PostStatus' === '@true') {
+					ShowSuccessMessage('@Model.PostMessage');
+				} else {
+				   ShowErrorMessage('@Model.PostMessage');
+				}
+		}
+            // kendo grid filter contains
+			 FilterContains();
+
+
+        });
+
+
+
+        //Method to data bound event for owner
+        function OnCategoryListDataBound(e) {
+			SetEmptyRow(e);
+        }
+
+</script>
+
+

@@ -1,0 +1,428 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model SaudaListDto
+@{
+    ViewBag.Title = "SaudhaDetails";
+}
+
+@{
+    string btnDisabled = "";
+    btnDisabled = (Model.StatusId == (int)Status.Pending && !string.IsNullOrEmpty(Model.SaudaNumber)) ? "" : "disabled";
+
+    bool isEditSaudaDetail = (Model.StatusId == (int)Status.Pending && string.IsNullOrEmpty(Model.SaudaNumber))  ? true : false;
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="transactionSaudaList" />
+
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Sauda Details</h2>
+    <div style="clear:both;"></div>
+</div>
+
+@using (Html.BeginForm("SaudaDetailsUpdate", "ReverseAuction", FormMethod.Post, new { id = "frmSaudhaDetails", @class = "form-validate-jquery" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.SaudaOrderId, new { id = "hdnSaudaOrderId" })
+    <div class="content main-section-content row">
+        <div class="panel panel-flat">
+            <div class="panel-heading">
+            </div>
+            <div id="addPopoup" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close model-header-color" data-dismiss="modal">&times;</button>
+                            <h6 class="panel-title model-header-color"><span class="text-semibold">Are you sure want to update?</span></h6>
+                        </div>
+                        <div class="modal-body">
+                        </div>
+                        <div class="modal-footer">
+                            <button id="btnSave" type="button" class=" k-button" data-dismiss="modal">Yes</button>
+                            <button id="btnDirtyCancel" type="button" onclick="popupClose();" class="k-button" data-dismiss="modal">No</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body" style="display: block;">
+                <div class="row" id="div_Progress">
+                    <div class="col-md-12">
+                        <div class="row form-group">
+                            @*<div class="col-md-2 text-right clsBold">
+                @Helper.GetResourceString("lbl_TradeTicketNumber")
+            </div>*@
+                            @*<div class="col-md-3">
+                @Model.TradeTicketNumber
+            </div>*@
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_SaudaNumber")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.SaudaNumber
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_BookedNo")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.SaudaBookedNumber
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_BiddingDate")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.BiddingDate
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_DealerName")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.DealerName
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_Zone")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.Zones
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_State")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.States
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_District")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.Districts
+                            </div>
+
+
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_City")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.Cities
+                            </div>
+                            <div class="col-md-2 text-right clsBold">
+                                @Helper.GetResourceString("lbl_CreatedBy")
+                            </div>
+                            <div class="col-md-3">
+                                @Model.CreatedBy
+                            </div>
+                            
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right clsBold">
+                                Attachments
+                            </div>
+                            <div class="col-md-3">
+                                <i onclick='downloadAudioFile(@Model.SaudaId)' style='cursor: pointer;' class='icon-attachment'></i>
+                            </div>
+                        </div>
+
+                            <input type="hidden" name="SaudaListString" value="" id="SaudaListString" />
+                            @*@if (Model.RoleId != (int)Role.StateTrader)
+            {*@
+                            @(Html.Kendo().Grid<SaudaListDto>()
+                          .Name("ViewSaudaList")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.StatusId).Visible(false);
+                              columns.Bound(c => c.SaudaOrderId).Visible(false);
+                              columns.Bound(c => c.SalesOrganizationId).Visible(false);
+                              columns.Bound(c => c.DistributionChannelId).Visible(false);
+                              columns.Bound(c => c.DivisionId).Visible(false);
+                              columns.Bound(c => c.DealerId).Visible(false);
+                              columns.Bound(c => c.SkuId).Visible(false);
+                              columns.Bound(c => c.BasePricePerCase).Visible(false);
+                              columns.Bound(c => c.DiscountType).Visible(false);
+                              columns.Bound(c => c.DiscountAmount).Visible(false);
+                              columns.Bound(c => c.PlantName).HtmlAttributes(new { @title = "#=PlantName#" }).Title(@Helper.GetResourceString("lbl_Plant")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(c => c.OiltypeCode).HtmlAttributes(new { @title = "#=OiltypeCode#" }).Title(@Helper.GetResourceString("lbl_OilTypeCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.OiltypeName).HtmlAttributes(new { @title = "#=OiltypeName#" }).Title(@Helper.GetResourceString("lbl_OilType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.SkuName).HtmlAttributes(new { @title = "#=SkuName#" }).Title(@Helper.GetResourceString("lbl_SkuName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.ValidFromDate).Title("Valid From").Format(Settings.GridDateTimeFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.ValidToDate).Title("Valid To").Format(Settings.GridDateTimeFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.BidQuantity).Title(@Helper.GetResourceString("lbl_QuantityPerMT")).Format(Settings.DecimalFormat4).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.BidQuantityCase).Title(@Helper.GetResourceString("lbl_QuantityPerCase")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.QuotedPrice).Title("Price Before Discount/Premium Applied").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.BidPrice).Title(@Helper.GetResourceString("lbl_FinalPrice")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.BidPricePerCase).Title(@Helper.GetResourceString("lbl_SaudaBidPricePerCase")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.Incoterms1).Title(@Helper.GetResourceString("lbl_IncoTerms")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.StateName).HtmlAttributes(new { @title = "#=StateName#" }).Title(@Helper.GetResourceString("lbl_State")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.BDOName).HtmlAttributes(new { @title = "#=BDOName#" }).Title(@Helper.GetResourceString("lbl_BDOName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.BDOCode).Title(@Helper.GetResourceString("lbl_BDOCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.DealerCode).Title(@Helper.GetResourceString("lbl_DealerCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.Status).Title(@Helper.GetResourceString("lbl_Status")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.Remarks).Title(@Helper.GetResourceString("lbl_Remarks")).HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { @title = "#=Remarks#" }).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                          })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .EnableCustomBinding(true)
+                          .BindTo(Model.SaudaLists)
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Editable(edit => edit.Mode(GridEditMode.InCell))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Selectable(selectable => selectable
+                          .Mode(GridSelectionMode.Multiple)
+                          .Type(GridSelectionType.Row))
+                          .Events(events => events.Edit("onGridEdit"))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Resizable(resize => resize.Columns(true))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Model(model =>
+                          {
+                              model.Field(m => m.StatusId).Editable(false);
+                              model.Id(m => m.SaudaOrderId);
+                              model.Field(m => m.PlantName).Editable(false);
+                              model.Field(m => m.OiltypeName).Editable(false);
+                              model.Field(m => m.OiltypeCode).Editable(false);
+                              model.Field(m => m.SkuName).Editable(false);
+                              model.Field(m => m.SkuCode).Editable(false);
+                              model.Field(m => m.ValidFromDate).Editable(false);
+                              model.Field(m => m.ValidToDate).Editable(false);
+                              model.Field(m => m.BidQuantity).Editable(false);
+                              model.Field(m => m.BidQuantityCase).Editable(true);
+                              model.Field(m => m.QuotedPrice).Editable(false);
+                              model.Field(m => m.BidPrice).Editable(false);
+                              model.Field(m => m.BidPricePerCase).Editable(true);
+                              model.Field(m => m.Incoterms1).Editable(false);
+                              model.Field(m => m.StateName).Editable(false);
+                              model.Field(m => m.BDOName).Editable(false);
+                              model.Field(m => m.BDOCode).Editable(false);
+                              model.Field(m => m.DealerCode).Editable(false);
+                              model.Field(m => m.Status).Editable(false);
+                              model.Field(m => m.Remarks).Editable(false);
+                          })
+                          .ServerOperation(true)
+                          .Read(read => read.Action("SaudaDetailsById", "ReverseAuction", new { SaudaId = Model.SaudaId }))))
+
+
+                            @if ((Model.SaudaNumber == null || Model.SaudaNumber == string.Empty)@*&& (Model.RoleId != (int)Role.StateTrader)*@)
+{
+                    <div class="row"></div>
+                    <div class="row form-group" id="divSave">
+                        <div class="col-lg-12" id="divRemarks">
+                            <div class="text-center" style="margin-top:20px;">
+                                <button type="button" id="btnpopup" class="k-primary k-button">@Helper.GetResourceString("btn_Save")</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+
+
+
+
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+
+    $(document).ready(function () {
+        FilterContains();
+        $("#ViewSaudaList").data("kendoGrid").dataSource.read();
+        @*if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }*@
+        if ('@TempData["ErrorMessage"]'.length) {
+            ShowErrorMessage('@TempData["ErrorMessage"]');
+		}
+        // kendo grid filter contains
+        //FilterContains();
+
+        $("#btnApproved").val(emamiGlobal.Status.Approved);
+        $("#btnRejected").val(emamiGlobal.Status.Rejected);
+        //$("#btnHold").val(emamiGlobal.Status.Hold);
+
+
+        $("#btnpopup").click(function () {
+            $('#addPopoup').modal('show');
+        });
+        $("#btnSave").click(function () {
+            debugger;
+            var isValid = $('#frmSaudhaDetails').valid();
+            var gridData = $("#ViewSaudaList").data("kendoGrid").dataSource.data();
+            var items = [];
+            if (isValid) {
+
+                if (gridData.length > 0)
+                {
+
+                    for (var i = 0; i < gridData.length; i += 1) {
+                        if (gridData[i].IsEdited == true) {
+                            items.push(gridData[i]);
+                        }
+                    }
+                    window.kendo.ui.progress($("#dvMaterialCost"), true);
+                    $("#SaudaListString").val(JSON.stringify(items));
+                    var frm = $("#frmSaudhaDetails").serialize();
+                    $('#frmSaudhaDetails').submit();
+                    window.kendo.ui.progress($("#dvMaterialCost"), false);
+                    //ConfirmDialog("Are you sure,You want to update?");
+
+                } else {
+                    ShowErrorMessage('@Helper.GetResourceString("msg_divReq")');
+                }
+
+            }
+        });
+
+        @*$("#btnSave").click(function () {
+
+            var gridData = $("#ViewSaudaList").data("kendoGrid").dataSource.data();
+            var items = [];
+            console.log(gridData.length);
+            for (var i = 0; i < gridData.length; i += 1) {
+                if (gridData[i].IsEdited == true) {
+                    items.push(gridData[i]);
+
+                }
+
+            }
+            var inputDto = JSON.stringify(items);
+            console.log(items);
+            //var editedGridData = JSLINQ(gridData).Where(function (item) { return (item.IsEdited == true) }).items;
+            //console.log(editedGridData);
+            if (items.length > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaudaDetailsUpdate", "ReverseAuction")',
+                    data: inputDto ,
+                    success: function (responce) {
+
+                        if (responce.IsSuccess) {
+                            //window.location.href = ;
+                        } else {
+                            ShowErrorMessage("Cannot Updated");
+
+                        }
+                        window.kendo.ui.progress($("#dvMaterialCost"), false);
+                    },
+                    error: function (responce) {
+                        ShowErrorMessage("Update Get Errors");
+                        window.kendo.ui.progress($("#dvMaterialCost"), false);
+                    }
+                });
+            } else {
+                ShowErrorMessage("Grid Not Edited");
+            }
+            });*@
+
+        $("#btnApproved,#btnRejected,#btnHold").click(function (e) {
+
+            var form = $('#frmSaudhaDetails')
+            var token = $('input[name="__RequestVerificationToken"]', form).val();
+            var statusId = parseInt($(this).val());
+            var selectedOrders = [];
+
+            if ((statusId == emamiGlobal.Status.Rejected || statusId == emamiGlobal.Status.Hold) && !$("#txtReason").val()) {
+                ShowErrorMessage("Please enter the reason");
+                return false;
+            }
+
+            selectedOrders.push(Number($("#hdnSaudaOrderId").val()));
+
+            var model = {
+                StatusId: statusId,
+                Remarks: $("#txtReason").val(),
+                SaudaOrderIds: selectedOrders
+            };
+
+            window.kendo.ui.progress($("#div_Progress"), true);
+            moduleCommon.Common.AjaxCall({
+                url: '@Url.Action("UpdateSaudhaStatus", "ReverseAuction")',
+				type: 'POST',
+                data: { __RequestVerificationToken: token, saudaUpdateDto: model },
+                success: function (result) {
+                    if (result.PostStatus) {
+                        ShowSuccessMessage(result.PostMessage);
+                        setTimeout(function () { window.location.href = '@Url.Action("SaudaList", "ReverseAuction")'; }, 1300);
+					} else {
+						ShowErrorMessage(result.PostMessage);
+                    }
+                    window.kendo.ui.progress($("#div_Progress"), false);
+				}
+			});
+        });
+
+        //$("#dateValidFrom").data("kendoDatePicker").readonly(true);
+        //$("#dateValidTo").data("kendoDatePicker").readonly(true);
+        setMinDate();
+
+    });
+
+     function downloadAudioFile(SaudaId) {
+        $('#myModal').modal('show');
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetCallRecordedBasedOnSauda", "Report")',
+            data: { saudaId : SaudaId },
+            success: function (responce) {
+                debugger;
+                    $("#myModal").html(responce);
+                    $("#popupCallRecordingAttachmentDetails").modal('show');
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+            },
+            complete: function (res) {
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+   function onGridEdit(e) {
+    debugger;
+    if (e.model.StatusId !== 1) {
+        // not Pending — don't allow editing
+        var grid = $("#ViewSaudaList").data("kendoGrid");
+        grid.closeCell();
+        return;
+    }
+    // Pending — allow editing
+    e.model.IsEdited = true;
+}
+    function fromChange() {
+        var startDatePicker = $("#dateValidFrom").data("kendoDatePicker");
+        //var startDate = new Date(startDatePicker.value());
+        //startDate.setDate(startDate.getDate() + parseInt($("#hdnSaudaValidityDays").val()));
+
+        //if (startDate) {
+        //    $("#dateValidTo").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+        //}
+    }
+
+    function setMinDate() {
+        //var startDatePicker = $("#dateValidFrom").data("kendoDatePicker");
+        //var startDate = new Date(startDatePicker.value());
+        //startDatePicker.min(startDate);
+    }
+
+
+</script>

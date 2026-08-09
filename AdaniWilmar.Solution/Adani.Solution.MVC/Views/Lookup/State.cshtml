@@ -1,0 +1,96 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@model Adani.Solution.DTO.StateDto
+@{
+    ViewBag.Title = "State";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="masterState" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_AddOrUpdateState")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Masters</a><span class="icon-right"></span></li>
+        <li><a href="States">@Helper.GetResourceString("lbl_State")</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_AddOrUpdateState")<span class="icon-right"></span></li>
+    </ol>
+    <div style="clear:both;"></div>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="dvState">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("State", "Lookup", FormMethod.Post, new { id = "frmstate", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.EncryptedId)
+
+                        
+                            <div class="row form-group">
+
+                                <div class="col-lg-4 col-sm-6 mb-3">
+                                    <label class="custom_label"> @Helper.GetResourceString("lbl_State") <span class="text-danger">*</span> </label>
+                                    @Html.TextBoxFor(m => m.StateName, new { id = "txtSkuName", @class = "form-control", tabindex = "1", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_State"), @maxlength = (int)InputMaxLength.String })
+                                </div>
+                            
+                                <div class="col-lg-4 col-sm-6 mb-3">
+                                    <label class="custom_label">Status</label>
+                                    <div class="custom_checkbox_main">
+                                        <label class="custom_checkbox">
+                                            @Html.CheckBoxFor(m => m.IsActive, new { id = "cbActiveInactive", tabindex = "2" })
+                                            <span class="checkmark check_tick"></span>
+                                            <span class="label-title">@Helper.GetResourceString("lbl_Active")</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                            </div>
+                        
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+                                <button type="button" id="btnCancel" tabindex = "4" onclick="location.href = '@Url.Action("States", "Lookup")'" class="k-button k-cancel custom-btns">@Helper.GetResourceString("btn_Cancel")</button>
+                                @if (Helper.CheckClaims(Claims.ManageMaster))
+                                {
+                                    <button type="button" id="btnSave" tabindex = "3" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Save") </button>
+                                }
+                            </div>
+                        </div>
+                    }
+                    <!---end of form input-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function ()
+    {
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        $('#btnSave').on('click', function (e)
+        {
+            var isValid = $('#frmstate').valid();
+            if (isValid)
+            {
+                window.kendo.ui.progress($("#dvState"), true);
+                $('#frmstate').submit();
+                window.kendo.ui.progress($("#dvState"), false);
+            }
+        });
+    });
+</script>
+
+
+
+

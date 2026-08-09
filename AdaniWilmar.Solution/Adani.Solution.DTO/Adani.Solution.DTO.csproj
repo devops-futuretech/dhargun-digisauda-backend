@@ -1,0 +1,826 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D64CBBE6-FCD5-401A-B313-AC7ADCB00F03}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Adani.Solution.DTO</RootNamespace>
+    <AssemblyName>Adani.Solution.DTO</AssemblyName>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="GMCore.Helper">
+      <HintPath>..\GMCoreComponents\GMCore.Helper.dll</HintPath>
+    </Reference>
+    <Reference Include="Kendo.Mvc">
+      <HintPath>..\GMCoreComponents\Kendo.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.IO, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.4.3.0\lib\net462\System.IO.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Net" />
+    <Reference Include="System.Net.Http, Version=4.1.1.3, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.4.3.4\lib\net46\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Extensions, Version=2.2.29.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.Formatting.Extension.5.2.3.0\lib\System.Net.Http.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.Formatting.Extension.5.2.3.0\lib\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Primitives, Version=4.2.29.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.Formatting.Extension.5.2.3.0\lib\System.Net.Http.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.4.3.0\lib\net462\System.Runtime.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Algorithms, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Algorithms.4.3.0\lib\net463\System.Security.Cryptography.Algorithms.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Encoding, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Encoding.4.3.0\lib\net46\System.Security.Cryptography.Encoding.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Primitives, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Primitives.4.3.0\lib\net46\System.Security.Cryptography.Primitives.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.X509Certificates, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.X509Certificates.4.3.0\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AcceptanceStatusDto.cs" />
+    <Compile Include="CrossAndUpsellConfigurationDto.cs" />
+    <Compile Include="CrossAndUpsellConfigurationReportDto.cs" />
+    <Compile Include="CustomerAccountStatementDto.cs" />
+    <Compile Include="Enums\SAPEmailStatementDocumentType.cs" />
+    <Compile Include="QuantityLimitDTO.cs" />
+    <Compile Include="GeographyDiscountExportDto.cs" />
+    <Compile Include="SAPAccountStatementDto.cs" />
+    <Compile Include="AccountStatementDto.cs" />
+    <Compile Include="AchievmentDetailsDto.cs" />
+    <Compile Include="AddCityDto.cs" />
+    <Compile Include="AddDealerVisitDto.cs" />
+    <Compile Include="AddDistrictDto.cs" />
+    <Compile Include="AddMarketScenarioDto.cs" />
+    <Compile Include="AddMonthlyPlanDeviationDto.cs" />
+    <Compile Include="AddPendingSaudaRemarksDto.cs" />
+    <Compile Include="AddStateDto.cs" />
+    <Compile Include="AddSurpriseDiscountDto.cs" />
+    <Compile Include="AddUserTargetDto.cs" />
+    <Compile Include="AddWholeSellerVisitDto.cs" />
+    <Compile Include="AnswerOptionDto.cs" />
+    <Compile Include="AuthorizeInputDto.cs" />
+    <Compile Include="AuthorizeOutputDto.cs" />
+    <Compile Include="AutoAllocationDetailDto.cs" />
+    <Compile Include="AutoAllocationDto.cs" />
+    <Compile Include="AutoAllocationInputDto.cs" />
+    <Compile Include="AvailableBidQuantityDto.cs" />
+    <Compile Include="AvailableBidQuantityOilType.cs" />
+    <Compile Include="BaseGroupMarginDto.cs" />
+    <Compile Include="BdoCompetitorAddDto.cs" />
+    <Compile Include="BdoCompetitorSkuDto.cs" />
+    <Compile Include="BenefitsDto.cs" />
+    <Compile Include="BiddingCartSkuOutputDto.cs" />
+    <Compile Include="BiddingWindowInputDto.cs" />
+    <Compile Include="BiddingWindowListDto.cs" />
+    <Compile Include="BiddWindowStopNotificationDto.cs" />
+    <Compile Include="BidWindowDto.cs" />
+    <Compile Include="BookedSaudaDto.cs" />
+    <Compile Include="BrokerDto.cs" />
+    <Compile Include="BrokerUploadDto.cs" />
+    <Compile Include="BulletinDto.cs" />
+    <Compile Include="BulletinInputDto.cs" />
+    <Compile Include="ChatBotPendingSaudaAndDueDto.cs" />
+    <Compile Include="ChatBotSpecialRateApprovalDto.cs" />
+    <Compile Include="CityDto.cs" />
+    <Compile Include="CityUploadDto.cs" />
+    <Compile Include="ClaimDto.cs" />
+    <Compile Include="CommonResultDto.cs" />
+    <Compile Include="Common\Utility.cs" />
+    <Compile Include="CompetitorAnalysisAddDto.cs" />
+    <Compile Include="CompetitorAnalysisApprovalDto.cs" />
+    <Compile Include="CompetitorAnalysisDetailsAddDto.cs" />
+    <Compile Include="CompetitorAnalysisDetailsDto.cs" />
+    <Compile Include="CompetitorAnalysisDetailsViewDto.cs" />
+    <Compile Include="CompetitorAnalysisDto.cs" />
+    <Compile Include="CompetitorAnalysisInputDto.cs" />
+    <Compile Include="CompetitorAnalysisViewDto.cs" />
+    <Compile Include="CompetitorDto.cs" />
+    <Compile Include="CompetitorListDto.cs" />
+    <Compile Include="ContractOpenBalanceRequestDto.cs" />
+    <Compile Include="ContractOpenRequestRaiseDto.cs" />
+    <Compile Include="CustomerLedgerDetailsDto.cs" />
+    <Compile Include="CustomerLedgerUDTDto.cs" />
+    <Compile Include="DateRangeDTO.cs" />
+    <Compile Include="DealerListDto.cs" />
+    <Compile Include="DealerListInputDto.cs" />
+    <Compile Include="DealerOrderDetailsDto.cs" />
+    <Compile Include="DemandPlanBillingReportDto.cs" />
+    <Compile Include="DistributionChannelDto.cs" />
+    <Compile Include="DivisionDetails.cs" />
+    <Compile Include="DynamicFormReportFilterInputDto.cs" />
+    <Compile Include="Enums\BpCpType.cs" />
+    <Compile Include="Enums\ConfigurationForVerticalsAndEmails.cs" />
+    <Compile Include="Enums\CreditId.cs" />
+    <Compile Include="Enums\DashboardOption.cs" />
+    <Compile Include="Enums\DemoSchedulerStatus.cs" />
+    <Compile Include="Enums\FormRemarksType.cs" />
+    <Compile Include="Enums\IsActiveStatus.cs" />
+    <Compile Include="Enums\LooseVertical.cs" />
+    <Compile Include="Enums\NotificationType.cs" />
+    <Compile Include="Enums\NotificationTypeForms.cs" />
+    <Compile Include="Enums\PackTypes.cs" />
+    <Compile Include="Enums\QuestionType.cs" />
+    <Compile Include="Enums\SaudaFunctionTypes.cs" />
+    <Compile Include="Enums\SaudaType.cs" />
+    <Compile Include="Enums\TransactionType.cs" />
+    <Compile Include="FileOutputDto.cs" />
+    <Compile Include="FillerSkuOutputDto.cs" />
+    <Compile Include="FillerSkuInputDto.cs" />
+    <Compile Include="FormInputDto.cs" />
+    <Compile Include="FormRemarksDto.cs" />
+    <Compile Include="FormSubmitInputDto.cs" />
+    <Compile Include="FormWithQuestionsDto.cs" />
+    <Compile Include="GamificationDashboardDto.cs" />
+    <Compile Include="GoogleAnalyticsDataDto.cs" />
+    <Compile Include="GPSTrackingDto.cs" />
+    <Compile Include="HANAEmailAttachmentFileDetails.cs" />
+    <Compile Include="HBCDisocuntInputDto.cs" />
+    <Compile Include="HBCLooseDiscountDto.cs" />
+    <Compile Include="IndentReportDto.cs" />
+    <Compile Include="LabelListDto.cs" />
+    <Compile Include="LiftingRequestMobileListDto.cs" />
+    <Compile Include="LiftingRequestMobileOutputDto.cs" />
+    <Compile Include="AddAndUpdateLineDto.cs" />
+    <Compile Include="LineDto.cs" />
+    <Compile Include="LineUploadDto.cs" />
+    <Compile Include="MaterialTypeDto.cs" />
+    <Compile Include="OpenContractDto.cs" />
+    <Compile Include="OpenCreditMaster.cs" />
+    <Compile Include="PlantDDLDto.cs" />
+    <Compile Include="PriceDownloadInputDto.cs" />
+    <Compile Include="PriceScreenInputDto.cs" />
+    <Compile Include="QPSDiscountImportDto.cs" />
+    <Compile Include="QPSDiscountSkuMappingDto.cs" />
+    <Compile Include="QPSDiscount\SkuQpsDiscountDto.cs" />
+    <Compile Include="QPSOilTypeListDto.cs" />
+    <Compile Include="QPSSchemeDiscountDto.cs" />
+    <Compile Include="QpsDiscountUploadDto.cs" />
+    <Compile Include="QPSSlabDetailsDto.cs" />
+    <Compile Include="RAMaterialCostDto.cs" />
+    <Compile Include="RAMaterialCostUploadDto.cs" />
+    <Compile Include="SaleReportDto.cs" />
+    <Compile Include="SalesDocumentTypeDto.cs" />
+    <Compile Include="SalesOrderInputDto.cs" />
+    <Compile Include="SalesOrganizationDto.cs" />
+    <Compile Include="SAPEmailStatementInputDto.cs" />
+    <Compile Include="SAPFileMoveDto.cs" />
+    <Compile Include="SapPricingDTO.cs" />
+    <Compile Include="SAPSaudaExtensionDto.cs" />
+    <Compile Include="SAPStatementDto.cs" />
+    <Compile Include="SaudaAgingReportDto.cs" />
+    <Compile Include="SaudaBookingConfigurationListDto.cs" />
+    <Compile Include="SaudaConditionalBookingConfigurationImportDto.cs" />
+    <Compile Include="SaudaConditionalBookingConfigurationListDto.cs" />
+    <Compile Include="SaudaConditionalBookingReportInputDto.cs" />
+    <Compile Include="SaudaConditionalBookingSkuMappingDto.cs" />
+    <Compile Include="SaudaCondtionalBookingReportOutputDto.cs" />
+    <Compile Include="SaudaConversionInputDto.cs" />
+    <Compile Include="SaudaConversionMobileListDTO.cs" />
+    <Compile Include="SaudaConversionMobileOutputDTO.cs" />
+    <Compile Include="SaudaExpiredNotificationDto.cs" />
+    <Compile Include="SaudaExtensionDaysDto.cs" />
+    <Compile Include="SaudaLimitHistoryDto.cs" />
+    <Compile Include="SaudaModificaitonFromSkuInfoDTO.cs" />
+    <Compile Include="SaudaModificationInputDTO.cs" />
+    <Compile Include="SaudaModificationDetailsDto.cs" />
+    <Compile Include="SaudaModificationStatusListDto.cs" />
+    <Compile Include="SaudaModificationApprovalListDto.cs" />
+    <Compile Include="SaudaReportBasedOnVerticalsDTO.cs" />
+    <Compile Include="SaudaReleaseDto.cs" />
+    <Compile Include="SaudaSalesAreaRestrictionListDto.cs" />
+    <Compile Include="SaudaSkuDetailsDto.cs" />
+    <Compile Include="SchemeGeographyReportDto.cs" />
+    <Compile Include="SKUPremiumAmountReportDto.cs" />
+    <Compile Include="SkuUomMappingDto.cs" />
+    <Compile Include="SubmitFormAddDto.cs" />
+    <Compile Include="SubmitFormAnswerOptionAddDto.cs" />
+    <Compile Include="SubmitFormQuestionAddDto.cs" />
+    <Compile Include="SubmittedAttachmentViewDto.cs" />
+    <Compile Include="SubmittedDependentFormDto.cs" />
+    <Compile Include="SubmittedFormQuestionViewDto.cs" />
+    <Compile Include="SubmittedFormReportQuestionsViewDto.cs" />
+    <Compile Include="SubmittedFormReportViewDto.cs" />
+    <Compile Include="SubmittedFormShortViewDto.cs" />
+    <Compile Include="SubmittedFormsListViewDto.cs" />
+    <Compile Include="SubmittedFormsPaginationOutputDto.cs" />
+    <Compile Include="SubmittedFormViewDto.cs" />
+    <Compile Include="SubmittedFormIdDto.cs" />
+    <Compile Include="SubmittedFormMultiAnswerViewDto.cs" />
+    <Compile Include="SubmittedTextAnswerViewDto.cs" />
+    <Compile Include="SubmittedYesNoAnswerViewDto.cs" />
+    <Compile Include="SubmittedFormsInputDto.cs" />
+    <Compile Include="ComplaintApprovalDto.cs" />
+    <Compile Include="ConfigurationDto.cs" />
+    <Compile Include="ContentDto.cs" />
+    <Compile Include="ConversionFormulaDto.cs" />
+    <Compile Include="ConversionFormulaOutputDto.cs" />
+    <Compile Include="CounterBidInputDto.cs" />
+    <Compile Include="CounterBidJumpDto.cs" />
+    <Compile Include="CountryDto.cs" />
+    <Compile Include="CreditLimitDto.cs" />
+    <Compile Include="CreditLimitTotalDto.cs" />
+    <Compile Include="CreditNoteDto.cs" />
+    <Compile Include="CushionMarginUploadDto.cs" />
+    <Compile Include="CustomerDeleteInputDto.cs" />
+    <Compile Include="CustomerGroupDetailDto.cs" />
+    <Compile Include="CustomerGroupDto.cs" />
+    <Compile Include="CustomerGroupInputDto.cs" />
+    <Compile Include="CustomerGroupUploadDto.cs" />
+    <Compile Include="CustomerInputDto.cs" />
+    <Compile Include="CustomerLedgerDto.cs" />
+    <Compile Include="DailyBookedSaudaInputDto.cs" />
+    <Compile Include="DailyBookedSaudaOutputDto.cs" />
+    <Compile Include="DailyRateInputDto.cs" />
+    <Compile Include="DailyRateOutputDto.cs" />
+    <Compile Include="DashboardOverallSaudaInputDto.cs" />
+    <Compile Include="DashboardOverallsaudaOutpuDto.cs" />
+    <Compile Include="DashboardWeekwiseOverallSaudaDto.cs" />
+    <Compile Include="DataUploadDto.cs" />
+    <Compile Include="DateFilterDto.cs" />
+    <Compile Include="DayOfWeekNameDto.cs" />
+    <Compile Include="CushionMarginDto.cs" />
+    <Compile Include="DealerAndBrokersInputDto.cs" />
+    <Compile Include="DealerHubDetailDto.cs" />
+    <Compile Include="DealerListAllFilterDto.cs" />
+    <Compile Include="DealerLocationDto.cs" />
+    <Compile Include="DealerSaudaDetailsDto.cs" />
+    <Compile Include="DealersLiftingRequestInputDto.cs" />
+    <Compile Include="DealersLiftingRequestOutputDto.cs" />
+    <Compile Include="DealerUploadDto.cs" />
+    <Compile Include="DeleteListCreateDto.cs" />
+    <Compile Include="DemoUserDto.cs" />
+    <Compile Include="DepotCostUploadDto.cs" />
+    <Compile Include="DepotDto.cs" />
+    <Compile Include="DealerDto.cs" />
+    <Compile Include="DepotCostDto.cs" />
+    <Compile Include="DepotIdDto.cs" />
+    <Compile Include="DetentionCostDto.cs" />
+    <Compile Include="DetentionCostUploadDto.cs" />
+    <Compile Include="DistributorStockDto.cs" />
+    <Compile Include="DistrictUploadDto.cs" />
+    <Compile Include="DistrictDto.cs" />
+    <Compile Include="DistrictInputDto.cs" />
+    <Compile Include="DropDownDto.cs" />
+    <Compile Include="DropDownInputDto.cs" />
+    <Compile Include="DSRReport.cs" />
+    <Compile Include="EmployeeDto.cs" />
+    <Compile Include="EntityDto.cs" />
+    <Compile Include="Enums\BenefitCategory.cs" />
+    <Compile Include="Enums\BenefitType.cs" />
+    <Compile Include="Enums\BiddWindowStatus.cs" />
+    <Compile Include="Enums\Claim.cs" />
+    <Compile Include="Enums\Configuration.cs" />
+    <Compile Include="Enums\ContentType.cs" />
+    <Compile Include="Enums\DeleteListCreation.cs" />
+    <Compile Include="Enums\Device.cs" />
+    <Compile Include="Enums\DSRReportType.cs" />
+    <Compile Include="Enums\DueStatus.cs" />
+    <Compile Include="Enums\Entity.cs" />
+    <Compile Include="Enums\IssueRaisedUser.cs" />
+    <Compile Include="Enums\IssueType.cs" />
+    <Compile Include="Enums\LTDSR.cs" />
+    <Compile Include="Enums\MarginReport.cs" />
+    <Compile Include="Enums\MediaType.cs" />
+    <Compile Include="Enums\Module.cs" />
+    <Compile Include="Enums\MonthlyReport.cs" />
+    <Compile Include="Enums\NotificationActionTP.cs" />
+    <Compile Include="Enums\NotificationAction.cs" />
+    <Compile Include="Enums\NotificationRequest.cs" />
+    <Compile Include="Enums\PackGroupType.cs" />
+    <Compile Include="Enums\PageType.cs" />
+    <Compile Include="Enums\PublishStatus.cs" />
+    <Compile Include="Enums\RegistrationType.cs" />
+    <Compile Include="Enums\Role_CMS.cs" />
+    <Compile Include="Enums\SAPDataSync.cs" />
+    <Compile Include="Enums\SaudaConversionType.cs" />
+    <Compile Include="Enums\SaudaDiscountType.cs" />
+    <Compile Include="Enums\SeederDataType.cs" />
+    <Compile Include="Enums\Country.cs" />
+    <Compile Include="Enums\CustomerDiscountType.cs" />
+    <Compile Include="Enums\CustomerGroup.cs" />
+    <Compile Include="Enums\DayOfWeekName.cs" />
+    <Compile Include="Enums\DealerType.cs" />
+    <Compile Include="Enums\MasterDataTypes.cs" />
+    <Compile Include="Enums\DiscountTypes.cs" />
+    <Compile Include="Enums\HierarchyProcess.cs" />
+    <Compile Include="Enums\IncoTerms.cs" />
+    <Compile Include="Enums\DiscountStatus.cs" />
+    <Compile Include="Enums\InputMaxLength.cs" />
+    <Compile Include="Enums\LiftingFlag.cs" />
+    <Compile Include="Enums\LiftingRequestStatus.cs" />
+    <Compile Include="Enums\Month.cs" />
+    <Compile Include="Enums\MonthlyPlanDeviationStatus.cs" />
+    <Compile Include="Enums\MonthlyTourPlanStatus.cs" />
+    <Compile Include="Enums\PermanentJourneyPlanStatus.cs" />
+    <Compile Include="Enums\Role.cs" />
+    <Compile Include="Enums\RoleType.cs" />
+    <Compile Include="Enums\SaudaBookingTypes.cs" />
+    <Compile Include="Enums\SaudaStatus.cs" />
+    <Compile Include="Enums\SeverityType.cs" />
+    <Compile Include="Enums\Status.cs" />
+    <Compile Include="Enums\StorageType.cs" />
+    <Compile Include="Enums\DataType.cs" />
+    <Compile Include="Enums\STPVisitType.cs" />
+    <Compile Include="Enums\SupportStatus.cs" />
+    <Compile Include="Enums\TransportMode.cs" />
+    <Compile Include="Enums\TypeMaster.cs" />
+    <Compile Include="Enums\Uom.cs" />
+    <Compile Include="Enums\UserType.cs" />
+    <Compile Include="Enums\Division.cs" />
+    <Compile Include="ErrorDto.cs" />
+    <Compile Include="ErrorMessageDto.cs" />
+    <Compile Include="ExcelReportFilterDto.cs" />
+    <Compile Include="FeedbackInputDto.cs" />
+    <Compile Include="FeedbackRequestDto.cs" />
+    <Compile Include="FeedbackRequestInputDto.cs" />
+    <Compile Include="FeedbackTypeDto.cs" />
+    <Compile Include="FinalPriceInputDto.cs" />
+    <Compile Include="FinalPriceOutputDto.cs" />
+    <Compile Include="FinalPricePublishDto.cs" />
+    <Compile Include="FinalPriceSkuInputDto.cs" />
+    <Compile Include="FinalPriceSkuOutputDto.cs" />
+    <Compile Include="FinalPrincingDto.cs" />
+    <Compile Include="FinancialYearAddDto.cs" />
+    <Compile Include="FinancialYearDto.cs" />
+    <Compile Include="FinancialYearIdDto.cs" />
+    <Compile Include="ForgotPasswordDto.cs" />
+    <Compile Include="FormAddDto.cs" />
+    <Compile Include="FormDto.cs" />
+    <Compile Include="FormIdDto.cs" />
+    <Compile Include="FormQuestionsViewDto.cs" />
+    <Compile Include="FormUpdateDto.cs" />
+    <Compile Include="FreightRouteDto.cs" />
+    <Compile Include="FreightRouteUploadDto.cs" />
+    <Compile Include="FreightZoneDto.cs" />
+    <Compile Include="FreightZoneInputDto.cs" />
+    <Compile Include="FreightZoneUploadDto.cs" />
+    <Compile Include="GPBenefitGeographyDto.cs" />
+    <Compile Include="GPBenefitGeographyExportDto.cs" />
+    <Compile Include="GPBenefitUserExportDto.cs" />
+    <Compile Include="ListInputDto.cs" />
+    <Compile Include="SaleRateDto.cs" />
+    <Compile Include="SaudaQuantityIncreaseDto.cs" />
+    <Compile Include="SchemeDiscountGeographyDto.cs" />
+    <Compile Include="SchemeDiscountGeographyExportDto.cs" />
+    <Compile Include="SchemeDiscountUserExportDto.cs" />
+    <Compile Include="SkuDiscountGeographyDto.cs" />
+    <Compile Include="SkuDiscountGeographyExportDto.cs" />
+    <Compile Include="SkuDiscountUserExportDto.cs" />
+    <Compile Include="SurpriseBenefitGeographyDto.cs" />
+    <Compile Include="SurpriseBenefitGeographyExportDto.cs" />
+    <Compile Include="SurpriseBenefitUserExportDto.cs" />
+    <Compile Include="TruckPlacementTrackerAPPDto.cs" />
+    <Compile Include="TruckPlacementTrackerDto.cs" />
+    <Compile Include="TruckReportInputDto.cs" />
+    <Compile Include="UserDealerListDto.cs" />
+    <Compile Include="UserDiscount.cs" />
+    <Compile Include="UserDivisionUploadDto.cs" />
+    <Compile Include="UserLoginHistoryDto.cs" />
+    <Compile Include="UserLoginHistoryOutDto.cs" />
+    <Compile Include="UserMobileNumberDetails.cs" />
+    <Compile Include="VehicleStatusDto.cs" />
+    <Compile Include="VehicleTrackingDataDto.cs" />
+    <Compile Include="VerticalPermissionCheckDto.cs" />
+    <Compile Include="VolumeDiscountGeographyDto.cs" />
+    <Compile Include="GeographyUploadDto.cs" />
+    <Compile Include="SurpriseBenefitDownloadInputDto.cs" />
+    <Compile Include="SurpriseBenefitMailDto.cs" />
+    <Compile Include="SurpriseBenefitSaudaDetailDto.cs" />
+    <Compile Include="SurpriseBenefitUserMappingDto.cs" />
+    <Compile Include="UserAndGeographyBenefitDto.cs" />
+    <Compile Include="GPJumpDto.cs" />
+    <Compile Include="GPBenefitGeographyMappingDto.cs" />
+    <Compile Include="GPBenefitUserMappingDto.cs" />
+    <Compile Include="HeadquartersAddDto.cs" />
+    <Compile Include="HeadquartersDto.cs" />
+    <Compile Include="HeadquartersIdDto.cs" />
+    <Compile Include="HeadquartersUpdateDto.cs" />
+    <Compile Include="HolidayDto.cs" />
+    <Compile Include="HoneycombCostDto.cs" />
+    <Compile Include="HoneyCombCostUploadDto.cs" />
+    <Compile Include="ImageNameAddDto.cs" />
+    <Compile Include="IncoTermsDto.cs" />
+    <Compile Include="IndentReportInputDto.cs" />
+    <Compile Include="IngredientsDto.cs" />
+    <Compile Include="IssueCommentsDto.cs" />
+    <Compile Include="IssueDetailInputDto.cs" />
+    <Compile Include="IssueFilterDto.cs" />
+    <Compile Include="IssueListDto.cs" />
+    <Compile Include="IssueRegisterDto.cs" />
+    <Compile Include="IssueStatusUpdateDto.cs" />
+    <Compile Include="KeyInputDto.cs" />
+    <Compile Include="KeyPerformanceIndicatorDto.cs" />
+    <Compile Include="LiftingDetailGroupingDto.cs" />
+    <Compile Include="LiftingDetailViewDto.cs" />
+    <Compile Include="LiftingListReportDto.cs" />
+    <Compile Include="LiftingRequestDeliveryOrderNumberDto.cs" />
+    <Compile Include="LiftingRequestCountDto.cs" />
+    <Compile Include="LiftingRequestDetailDto.cs" />
+    <Compile Include="LiftingRequestDetailInputDto.cs" />
+    <Compile Include="LiftingRequestDetailsOutputDto.cs" />
+    <Compile Include="LiftingRequestDto.cs" />
+    <Compile Include="LiftingRequestExportDto.cs" />
+    <Compile Include="LiftingRequestInputDto.cs" />
+    <Compile Include="LiftingRequestListDto.cs" />
+    <Compile Include="LiftingRequestListInputDto.cs" />
+    <Compile Include="LiftingRequestOutputDto.cs" />
+    <Compile Include="LiftingRequestStatusChangeDto.cs" />
+    <Compile Include="LiftingRequestWebDto.cs" />
+    <Compile Include="LoadCapacityConversionUploadDto.cs" />
+    <Compile Include="LoginDealerIdDto.cs" />
+    <Compile Include="LoginNHId.cs" />
+    <Compile Include="LoginZHId.cs" />
+    <Compile Include="MapSaudaTargetDetailDto.cs" />
+    <Compile Include="MapSalesTargetDetailDto.cs" />
+    <Compile Include="DepotCostReportDto.cs" />
+    <Compile Include="MaterialCostUploadDto.cs" />
+    <Compile Include="MediaResultDto.cs" />
+    <Compile Include="MonthlyTourPlanReportInputDto.cs" />
+    <Compile Include="MonthWiseInvoiceExportDto.cs" />
+    <Compile Include="MonthWiseLiftingRequestExportDto.cs" />
+    <Compile Include="MonthwiseSaudaExportDto.cs" />
+    <Compile Include="MTPDateWiseCitiesDto.cs" />
+    <Compile Include="MTPDateWiseDealersDto.cs" />
+    <Compile Include="MTPDateWiseDetailsDto.cs" />
+    <Compile Include="MTPDateWiseDetailsInputDto.cs" />
+    <Compile Include="MTPDateWiseDetailsOutputDto.cs" />
+    <Compile Include="MTPInputDto.cs" />
+    <Compile Include="NewIndentSkuListDto.cs" />
+    <Compile Include="NotificationDto.cs" />
+    <Compile Include="OilPriceReportDto.cs" />
+    <Compile Include="OilTypesPendingContractReportDto.cs" />
+    <Compile Include="OilTypeUploadDto.cs" />
+    <Compile Include="OverallSaudaWeekWiseAchievementDto.cs" />
+    <Compile Include="PackingCostUploadDto.cs" />
+    <Compile Include="MTPVsDSRDeviationReportDto.cs" />
+    <Compile Include="PendingContractDto.cs" />
+    <Compile Include="PendingContractOutputDto.cs" />
+    <Compile Include="PendingContractReportDto.cs" />
+    <Compile Include="PendingContractReportInputDto.cs" />
+    <Compile Include="PendingSaudaDto.cs" />
+    <Compile Include="PendingSaudaInputDto.cs" />
+    <Compile Include="PendingSaudaReportInput.cs" />
+    <Compile Include="PendingSaudaReportOutputDto.cs" />
+    <Compile Include="PendingSaudaUploadDto.cs" />
+    <Compile Include="PermanentCoveragePlanReportInputDto.cs" />
+    <Compile Include="PercentileNumbersUploadDto.cs" />
+    <Compile Include="PercetileNumberDto.cs" />
+    <Compile Include="PlantDepotMappingUploadDto.cs" />
+    <Compile Include="PlantUploadDto.cs" />
+    <Compile Include="PriceReleaseAuditReportDto.cs" />
+    <Compile Include="PrimaryFreightUploadDto.cs" />
+    <Compile Include="PricingDto.cs" />
+    <Compile Include="ProfitMarginUploadDto.cs" />
+    <Compile Include="PushNotificationDto.cs" />
+    <Compile Include="QuantityAllocationInputDto.cs" />
+    <Compile Include="QuantityAllocationOutputDto.cs" />
+    <Compile Include="QuestionAddDto.cs" />
+    <Compile Include="QuestionDto.cs" />
+    <Compile Include="QuestionIdDto.cs" />
+    <Compile Include="QuestionMasterDto.cs" />
+    <Compile Include="QuestionRemoveDto.cs" />
+    <Compile Include="QuestionSurveyDto.cs" />
+    <Compile Include="QuestionSurveyViewDto.cs" />
+    <Compile Include="GstDto.cs" />
+    <Compile Include="RADiscountsAndBenefitsDto.cs" />
+    <Compile Include="RaFinalPriceDto.cs" />
+    <Compile Include="QuestionsViewDto.cs" />
+    <Compile Include="QuestionTypeDto.cs" />
+    <Compile Include="RAMarginUploadDto.cs" />
+    <Compile Include="PushNotificationInputDto.cs" />
+    <Compile Include="RANotificationDto.cs" />
+    <Compile Include="ReportDto.cs" />
+    <Compile Include="ReportFilterDto.cs" />
+    <Compile Include="ReportPlantwiseSaudaOuputDto.cs" />
+    <Compile Include="RetailerUploadDto.cs" />
+    <Compile Include="SalesReportInputDto.cs" />
+    <Compile Include="SalesReportOutputDto.cs" />
+    <Compile Include="SalesTourPlanDto.cs" />
+    <Compile Include="SAPChequeStatusDto.cs" />
+    <Compile Include="SAPCreditMasterDto.cs" />
+    <Compile Include="SAPCustomerLedgerDto.cs" />
+    <Compile Include="SAPDataSyncInputDto.cs" />
+    <Compile Include="SAPDepotDto.cs" />
+    <Compile Include="SAPDoDeleteDto.cs" />
+    <Compile Include="SAPDoUpdateDto.cs" />
+    <Compile Include="SAPfileMove.cs" />
+    <Compile Include="SAPLiftingRequestViewDto.cs" />
+    <Compile Include="LoadCapacityConversionDto.cs" />
+    <Compile Include="LoginUserIdDto.cs" />
+    <Compile Include="MonthDto.cs" />
+    <Compile Include="MonthlyPlanDeviationListDto.cs" />
+    <Compile Include="MonthlyPlanDeviationUpdateDto.cs" />
+    <Compile Include="MonthlyTourPlanDeviationDto.cs" />
+    <Compile Include="OilPackingTypeDto.cs" />
+    <Compile Include="OutstandingSaudaDto.cs" />
+    <Compile Include="PendingSaudaChartOutputDto.cs" />
+    <Compile Include="PremiumDisocuntDto.cs" />
+    <Compile Include="PremiumRequestDisocuntDto.cs" />
+    <Compile Include="PriceNotifyConfigurationDto.cs" />
+    <Compile Include="PrimaryDiscountUserDto.cs" />
+    <Compile Include="ProfitMarginDto.cs" />
+    <Compile Include="MaterialCostDto.cs" />
+    <Compile Include="MediaDto.cs" />
+    <Compile Include="MonthlyTourPlanAddDto.cs" />
+    <Compile Include="MonthlyTourPlanDetailsDto.cs" />
+    <Compile Include="MonthlyTourPlanDto.cs" />
+    <Compile Include="MonthlyTourPlanUpdateDto.cs" />
+    <Compile Include="MTPIdDto.cs" />
+    <Compile Include="OilTypeDto.cs" />
+    <Compile Include="PackTypeDto.cs" />
+    <Compile Include="PermanentJouneyPlanAddDto.cs" />
+    <Compile Include="PermanentJourneyPlanDetailsDto.cs" />
+    <Compile Include="PermanentJourneyPlanDto.cs" />
+    <Compile Include="PermanentJourneyPlansDto.cs" />
+    <Compile Include="PermanentJourneyPlanUpdateDto.cs" />
+    <Compile Include="PincodeAddressDto.cs" />
+    <Compile Include="PincodeInputDto.cs" />
+    <Compile Include="PJPApprovalInformationDto.cs" />
+    <Compile Include="PJPIdDto.cs" />
+    <Compile Include="PackingCostDto.cs" />
+    <Compile Include="PrimaryFreightDto.cs" />
+    <Compile Include="OrganizationHierarchyDto.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ProspectiveDealerAddDto.cs" />
+    <Compile Include="ProspectiveDealerDto.cs" />
+    <Compile Include="PushTokenInputDto.cs" />
+    <Compile Include="RaMarginDto.cs" />
+    <Compile Include="ReasonAddDto.cs" />
+    <Compile Include="ReasonDto.cs" />
+    <Compile Include="ReasonIdDto.cs" />
+    <Compile Include="ReasonUpdateDto.cs" />
+    <Compile Include="ReportingUsersInputDto.cs" />
+    <Compile Include="RequestDisocuntDto.cs" />
+    <Compile Include="ResetPasswordDto.cs" />
+    <Compile Include="ResultDto.cs" />
+    <Compile Include="RetailerDto.cs" />
+    <Compile Include="RetailerViewDto.cs" />
+    <Compile Include="RoleClaimViewDto.cs" />
+    <Compile Include="RoleDiscountDto.cs" />
+    <Compile Include="RoleDisocuntDto.cs" />
+    <Compile Include="RoleDto.cs" />
+    <Compile Include="RoleHierarchyDto.cs" />
+    <Compile Include="RoleHierarchyProcessDto.cs" />
+    <Compile Include="RoleIdDto.cs" />
+    <Compile Include="RoleTypeIdsDto.cs" />
+    <Compile Include="SAPCustomerDto.cs" />
+    <Compile Include="SAPDataResponseDto.cs" />
+    <Compile Include="SapDataSyncResultDto.cs" />
+    <Compile Include="SAPSaudaConversionDto.cs" />
+    <Compile Include="SAPSaudaExtension.cs" />
+    <Compile Include="SAPSaudaLimitDto.cs" />
+    <Compile Include="SAPSkuDto.cs" />
+    <Compile Include="SAPTradeTicketDetailsDto.cs" />
+    <Compile Include="SAPTradeTicketViewDto.cs" />
+    <Compile Include="SAPSaudaAmendmentDto.cs" />
+    <Compile Include="SaudaAllocatedListDto.cs" />
+    <Compile Include="SaudaAllocationDetailsDto.cs" />
+    <Compile Include="SaudaAllocationDto.cs" />
+    <Compile Include="SaudaAllocationInputDto.cs" />
+    <Compile Include="SaudaAmendmentInputDto.cs" />
+    <Compile Include="SAPInvoiceDto.cs" />
+    <Compile Include="SaudaApprovedDto.cs" />
+    <Compile Include="SaudaCounterBidOfferDetailsDto.cs" />
+    <Compile Include="SaudaBiddingCreationInputDto.cs" />
+    <Compile Include="SaudaBiddingListOutputDto.cs" />
+    <Compile Include="SaudaBiddingQuantityEditInputDto.cs" />
+    <Compile Include="SaudaConversionAddDto.cs" />
+    <Compile Include="SaudaConversionDetailDto.cs" />
+    <Compile Include="SaudaConversionDetailInputDto.cs" />
+    <Compile Include="SaudaConversionDetailsBySkuId.cs" />
+    <Compile Include="SaudaConversionHistoryDto.cs" />
+    <Compile Include="SaudaConversionListDto.cs" />
+    <Compile Include="SaudaConversionSKUStatusListDto.cs" />
+    <Compile Include="SaudaConversionTypeDto.cs" />
+    <Compile Include="SaudaConversionSKUInputDto.cs" />
+    <Compile Include="SaudaConversionSKUOutputDto.cs" />
+    <Compile Include="SaudaConversionUnitAndDifferenceRateAddDto.cs" />
+    <Compile Include="SaudaConversionUnitAndDifferenceRateDetailsDto.cs" />
+    <Compile Include="SaudaConversionUnitAndDiffRateDto.cs" />
+    <Compile Include="SaudaConversionViewDto.cs" />
+    <Compile Include="SaudaExecutionReportDto.cs" />
+    <Compile Include="SaudaExtensionDto.cs" />
+    <Compile Include="SaudaExtensionListDto.cs" />
+    <Compile Include="SaudaConversionOrderAddDto.cs" />
+    <Compile Include="SaudaDetailInputDto.cs" />
+    <Compile Include="SaudaDetailOutputDto.cs" />
+    <Compile Include="SaudaExtensionAddDto.cs" />
+    <Compile Include="SaudaExtensionPolicyAddDto.cs" />
+    <Compile Include="SaudaExtensionNewAddDto.cs" />
+    <Compile Include="SaudaFilterDto.cs" />
+    <Compile Include="SaudaInputDto.cs" />
+    <Compile Include="SaudaLimitDto.cs" />
+    <Compile Include="SaudaLimitInputDto.cs" />
+    <Compile Include="SaudaLimitRequestDto.cs" />
+    <Compile Include="SaudaLimitRequestHistoryDto.cs" />
+    <Compile Include="SaudaListDto.cs" />
+    <Compile Include="SaudaListForAllocationDto.cs" />
+    <Compile Include="SaudaNumberDto.cs" />
+    <Compile Include="SaudaOrderDetails.cs" />
+    <Compile Include="SaudaOrderDto.cs" />
+    <Compile Include="SaudaOrderInputDto.cs" />
+    <Compile Include="SaudaListOutputDto.cs" />
+    <Compile Include="SaudaOrderListDto.cs" />
+    <Compile Include="SaudaOutstandingChartOutputDto.cs" />
+    <Compile Include="SaudaReportFilterDto.cs" />
+    <Compile Include="SaudaReportOutputDto.cs" />
+    <Compile Include="SaudaShortViewDto.cs" />
+    <Compile Include="SaudaShortViewOutputDto.cs" />
+    <Compile Include="SaudaStatusDto.cs" />
+    <Compile Include="SaudaStatusInputDto.cs" />
+    <Compile Include="SaudaTypeDto.cs" />
+    <Compile Include="SaudaUpdateDto.cs" />
+    <Compile Include="SaudaViewDto.cs" />
+    <Compile Include="ScheduleDemoInputDto.cs" />
+    <Compile Include="ScheduleDemoOutputDto.cs" />
+    <Compile Include="SchemeCostDto.cs" />
+    <Compile Include="SchemeCostUploadDto.cs" />
+    <Compile Include="SchemeDiscountGeographyMappingDto.cs" />
+    <Compile Include="SchemeDiscountUserMappingDto.cs" />
+    <Compile Include="SecondaryFreightDto.cs" />
+    <Compile Include="SecondaryFreightUploadDto.cs" />
+    <Compile Include="SectionDto.cs" />
+    <Compile Include="SectionQuestionsViewDto.cs" />
+    <Compile Include="SftpDataResult.cs" />
+    <Compile Include="ShipToPartyDto.cs" />
+    <Compile Include="ShipToPartyUploadDto.cs" />
+    <Compile Include="SkuDiscountGeographyMappingDto.cs" />
+    <Compile Include="SkuDiscountUserMappingDto.cs" />
+    <Compile Include="SkuDto.cs" />
+    <Compile Include="SkuFinalpriceInputDto.cs" />
+    <Compile Include="SkuFinalpriceListOutputDto.cs" />
+    <Compile Include="SkuIngredientsExportDto.cs" />
+    <Compile Include="SkuIngredientsInputDto.cs" />
+    <Compile Include="SkuSalesDto.cs" />
+    <Compile Include="SkuSalesFilterDto.cs" />
+    <Compile Include="SkuShortViewOutputDto.cs" />
+    <Compile Include="SkuUploadDto.cs" />
+    <Compile Include="SpecialRateAddInputDto.cs" />
+    <Compile Include="SpecialRateApprovalAddDto.cs" />
+    <Compile Include="SpecialRateApprovalDto.cs" />
+    <Compile Include="SpecialRateDetailInputDto.cs" />
+    <Compile Include="SpecialRateDetailsDto.cs" />
+    <Compile Include="SpecialRateInputDto.cs" />
+    <Compile Include="SpecialRateOutputDto.cs" />
+    <Compile Include="SpecialRateOilTypeDto.cs" />
+    <Compile Include="SpecialRateApprovalOutputDto.cs" />
+    <Compile Include="SpecialRateRequestDto.cs" />
+    <Compile Include="SpecialRateSaudaDto.cs" />
+    <Compile Include="SpecialtyFatQuantityRequestDto.cs" />
+    <Compile Include="SpecialtyFatQuantityRequestSearchDto.cs" />
+    <Compile Include="StateUploadDto.cs" />
+    <Compile Include="StateDto.cs" />
+    <Compile Include="ImportAddressDto.cs" />
+    <Compile Include="SubCategoryDto.cs" />
+    <Compile Include="SuccessDto.cs" />
+    <Compile Include="SupportAddInputDto.cs" />
+    <Compile Include="SupportAttachmentDto.cs" />
+    <Compile Include="SupportCategoryDto.cs" />
+    <Compile Include="SupportFilterInputDto.cs" />
+    <Compile Include="SurpriseBenefitApplyDto.cs" />
+    <Compile Include="SurpriseBenefitGeographyMappingDto.cs" />
+    <Compile Include="SurpriseBenefitInputDto.cs" />
+    <Compile Include="SurpriseBenefitOutputDto.cs" />
+    <Compile Include="SurpriseDiscountDto.cs" />
+    <Compile Include="SyncDataResult.cs" />
+    <Compile Include="SystemRoleTypeClaimsDto.cs" />
+    <Compile Include="TalukDto.cs" />
+    <Compile Include="TargetVsAchievementReportDto.cs" />
+    <Compile Include="TerritoryUploadDto.cs" />
+    <Compile Include="TickerDto.cs" />
+    <Compile Include="TodayActivitiesInputDto.cs" />
+    <Compile Include="TodayTickerListDto.cs" />
+    <Compile Include="TotalPCPDto.cs" />
+    <Compile Include="TradeTicketExportAllDto.cs" />
+    <Compile Include="TradeTicketExportDto.cs" />
+    <Compile Include="TradeTicketSearchDto.cs" />
+    <Compile Include="TradeTicketStatusSearchDto.cs" />
+    <Compile Include="TradeTicketDetailInputDto.cs" />
+    <Compile Include="TradeTicketDetailsDto.cs" />
+    <Compile Include="TradeTicketInputDto.cs" />
+    <Compile Include="TradeTicketNumberDto.cs" />
+    <Compile Include="TradeTicketSaudaMappingDto.cs" />
+    <Compile Include="TradeTicketSaudaSearchDto.cs" />
+    <Compile Include="TradeTicketStatusList.cs" />
+    <Compile Include="TradeTicketUploadDto.cs" />
+    <Compile Include="TradeTicketViewDto.cs" />
+    <Compile Include="TransportModeDto.cs" />
+    <Compile Include="UomDto.cs" />
+    <Compile Include="UpdateCityDto.cs" />
+    <Compile Include="UpdateDistrictDto.cs" />
+    <Compile Include="UpdateMonthlyPlanDto.cs" />
+    <Compile Include="UpdateStateDto.cs" />
+    <Compile Include="UpdateSurpriseDiscountDto.cs" />
+    <Compile Include="UpdateUserTargetDto.cs" />
+    <Compile Include="UserAttendenceDto.cs" />
+    <Compile Include="GPBenefitUserDto.cs" />
+    <Compile Include="SchemeDiscountUserDto.cs" />
+    <Compile Include="SkuDiscountUserDto.cs" />
+    <Compile Include="SurpriseBenefitUserDto.cs" />
+    <Compile Include="VolumeDiscountGeographyExportDto.cs" />
+    <Compile Include="VolumeDiscountUserDto.cs" />
+    <Compile Include="UserClaimsDto.cs" />
+    <Compile Include="UserCustomerMappingUploadDto.cs" />
+    <Compile Include="UserCustomerSalesTargetUploadDto.cs" />
+    <Compile Include="UserCustomerSaudaTargetDto.cs" />
+    <Compile Include="UserCustomerSaudaTargetUploadDto.cs" />
+    <Compile Include="UserCustomerTargetDto.cs" />
+    <Compile Include="UserDepotMappingUploadDto.cs" />
+    <Compile Include="UserDto.cs" />
+    <Compile Include="UserIdDto.cs" />
+    <Compile Include="UserInputDto.cs" />
+    <Compile Include="UserMasterDto.cs" />
+    <Compile Include="UserTargetDetailDto.cs" />
+    <Compile Include="UserOilTypeTargetDto.cs" />
+    <Compile Include="UserTargetIdDto.cs" />
+    <Compile Include="UserOilTypeTargetUploadDto.cs" />
+    <Compile Include="UserSalesSaudaTargetDto.cs" />
+    <Compile Include="UserSalesSaudaTargetDetailDto.cs" />
+    <Compile Include="UserSalesSaudaTargetUploadDto.cs" />
+    <Compile Include="UserCustomerSalesTargetDto.cs" />
+    <Compile Include="UserStatisticsOutputDto.cs" />
+    <Compile Include="UserTargetDto.cs" />
+    <Compile Include="UserUploadDto.cs" />
+    <Compile Include="UserViewDto.cs" />
+    <Compile Include="VehicleLoadabilitiesDto.cs" />
+    <Compile Include="VehicleLoadabilitiesGridDataDto.cs" />
+    <Compile Include="VerticalDto.cs" />
+    <Compile Include="IdInputDto.cs" />
+    <Compile Include="VolumeDiscountDto.cs" />
+    <Compile Include="VolumeDiscountGeographyMappingDto.cs" />
+    <Compile Include="VolumeDiscountInputDto.cs" />
+    <Compile Include="VolumeDiscountUserExportDto.cs" />
+    <Compile Include="VolumeDiscountUserMappingDto.cs" />
+    <Compile Include="VolumeDiscountSlabDto.cs" />
+    <Compile Include="VolumeLoadability.cs" />
+    <Compile Include="VolumeSlabInputDto.cs" />
+    <Compile Include="WebNotificationDto.cs" />
+    <Compile Include="WholesellerDto.cs" />
+    <Compile Include="ZonalHeadDto.cs" />
+    <Compile Include="ZoneDto.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

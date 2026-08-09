@@ -1,0 +1,145 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@model Adani.Solution.DTO.DepotDto
+
+@{
+    ViewBag.Title = "RouteAreaMaster";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="masterCompetitorMaster" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_AddOrUpdateCompetitor")</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="DepotMasterLoader">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("CompetitorMaster", "Lookup", FormMethod.Post, new { id = "frmDepotMaster", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        @Html.HiddenFor(m => m.Id, new { id = "Id" })
+                    <div class="row form-group">
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Name") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(m => m.Name, new { id = "txtDepotName", tabindex = "2", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_DepotName"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_State") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownList().Name("ddlState")
+                                                                                 .OptionLabel(@Helper.GetResourceString("plho_SelectState"))
+                                                                                 .DataTextField("StateName")
+                                                                                 .DataValueField("StateId")
+                                                                                 .DataSource(source => source.Read(read => read.Action("GetStateListAsync", "Lookup"))
+                                                                                 .ServerFiltering(false))
+                                                                                 .HtmlAttributes(new { id = "ddlState", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_State"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_District") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownList().Name("ddlDistrict")
+                                                                                        .OptionLabel(@Helper.GetResourceString("plho_SelectDistrict"))
+                                                                                        .DataTextField("StateName")
+                                                                                        .DataValueField("StateId")
+                                                                                        .DataSource(source => source.Read(read => read.Action("GetStateListAsync", "Lookup"))
+                                                                                        .ServerFiltering(false))
+                                                                                        .HtmlAttributes(new { id = "ddlDistrict", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_State"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_City") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @(Html.Kendo().DropDownList().Name("ddlCity")
+                                                                                                .OptionLabel(@Helper.GetResourceString("plho_SelectCity"))
+                                                                                                .DataTextField("StateName")
+                                                                                                .DataValueField("StateId")
+                                                                                                .DataSource(source => source.Read(read => read.Action("GetStateListAsync", "Lookup"))
+                                                                                                .ServerFiltering(false))
+                                                                                                .HtmlAttributes(new { id = "ddlCity", @class = "", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_State"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Area") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @Html.HiddenFor(m => m.Area, new { id = "hdnArea" })
+
+                                @(Html.Kendo().DropDownListFor(m => m.AreaId)
+                                                                            .DataTextField("AreaName")
+                                                                            .DataValueField("AreaId")
+                                                                            .OptionLabel(@Helper.GetResourceString("plho_SelectArea"))
+                                                                            .HtmlAttributes(new { id = "ddlArea", @class = "", tabindex = "8", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Area"), @style = "width:100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Address") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @Html.TextAreaFor(m => m.PinCode, new { id = "txtAddress", required = "required", @class = "k-textarea", data_msg_required = Helper.GetMsgRequired("lbl_Address"), @maxlength = (int)InputMaxLength.MaxTextLength })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="control-label col-lg-4"></label>
+                            <div class="col-lg-3">
+                                @(Html.Kendo().CheckBoxFor(m => m.IsToReturnActiveData).Name("IsDistributor").HtmlAttributes(new { id = "cbIsDistributor" }).Label(@Helper.GetResourceString("msg_Distributor")))
+                                <br />
+                                <a id="aDistributor">
+                                    <label id="lblDistributorSelectedCount">1</label> @Helper.GetResourceString("msg_ItemsSelected")
+                                </a>
+                                @Html.HiddenFor(m => m.Email, new { id = "hdSelectedDistributorIds" })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_ActiveInactive")
+                            </div>
+                            <div class="col-md-4">
+                                @Html.CheckBoxFor(m => m.IsActive, new { id = "cbActiveInactive", tabindex = "10", })
+                            </div>
+                        </div>
+                    </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+                                <button type="button" id="btnCancel" class="k-button">@Helper.GetResourceString("btn_Cancel")</button>
+                                <button type="button" id="btnSave" class="k-primary k-button">@Helper.GetResourceString("btn_Save")<i class="icon-arrow-right14 position-right"></i></button>
+                            </div>
+                        </div>
+                    }
+                    <!---end of form input-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+    });
+
+
+
+
+
+</script>

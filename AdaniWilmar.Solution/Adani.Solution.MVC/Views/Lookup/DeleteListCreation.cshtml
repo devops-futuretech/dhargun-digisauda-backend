@@ -1,0 +1,188 @@
+﻿@using Adani.Solution.DTO.Enums
+@using Adani.Solution.MVC.Common
+@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO
+@{
+    ViewBag.Title = "Delete List Creation";
+}
+<input type="hidden" class="currentMenu" value="masterdeletelistcreation" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_DeleteListCreation")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Masters</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_DeleteListCreation")<span class="icon-right"></span></li>
+    </ol>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="dvUser">
+                <div class="col-md-12">
+                    <div class="row form-group">
+                        <div class="col-lg-4 col-sm-6 mb-3">
+                            <label class="custom_label"> @Helper.GetResourceString("lbl_RemarksGroup") <span class="text-danger">*</span> </label>
+                            @(Html.Kendo().DropDownList()
+                                            .Name("RemarksGroup")
+                                          .OptionLabel(@Helper.GetResourceString("plho_RemarksGroup"))
+                                          .DataTextField("Name")
+                                          .DataValueField("Id")
+                                          .Events(e => e.Change("onRemarkGroupChange"))
+                                          .DataSource(source => source.Read(read => read.Action("GetRemarksGroup", "Lookup"))
+                                          .ServerFiltering(false))
+                                          .HtmlAttributes(new { id = "ddlRemarkGroup", @class = "", tabindex = "1", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_SaudaBookingType"), @style = "width:100%" }))
+                        </div>
+
+                        <div class="col-lg-4 col-sm-6 mb-3">
+                            <label class="custom_label"> @Helper.GetResourceString("lbl_Remarks") <span class="text-danger">*</span> </label>
+                            @Html.TextBox("Remarks", null, new { id = "txtRemarks", tabindex = "2", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_DirectPartyCode"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                        </div>
+
+                    </div>
+
+                    <div class="row form-group">
+                        <div class="col-md-12 text-center">
+                            <button type="button" id="btnAdd" tabindex="3" class="k-primary k-button custom-btns">@Helper.GetResourceString("lbl_Add")</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div>
+                        @(Html.Kendo().Grid<DeleteListCreateDto>()
+                                  .Name("ViewRemarks")
+                                  .Columns(columns =>
+                                  {
+                                      columns.Bound(c => c.Id).Visible(false);
+                                      columns.Bound(c => c.DeleteListId).Visible(false);
+                                      columns.Bound(c => c.DeleteListName).Title(Helper.GetResourceString("lbl_RemarksGroup")).Width(Settings.GridOtherColumnWidth);
+                                      columns.Bound(c => c.Remarks).Title(Helper.GetResourceString("lbl_Remarks")).Width(Settings.GridOtherColumnWidth);
+                                      //columns.Bound(c => c.IsActive).Title(Helper.GetResourceString("lbl_Active")).Width(Settings.GridOtherColumnWidth);
+                                      columns.Template(c => c.Id).Title(@Helper.GetResourceString("lbl_Delete")).ClientTemplate(@"<div style='text-align: center;'><i onclick='deleteconversionrow(this)' class='glyphicon glyphicon-remove'></i></div>").Width(Settings.GridFilterColumnWidth);
+                                  })
+                                   .Resizable(resize => resize.Columns(true))
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Selectable(selectable => selectable
+                          .Mode(GridSelectionMode.Multiple)
+                          .Type(GridSelectionType.Row))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          //.Events(events => events.DataBound("onBrokerListDataBound"))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Model(model => model.Id(m => m.Id))
+                          .ServerOperation(true)
+                                    .Read(read => read.Action("GetRemarks", "Lookup").Data("additionalInfo"))
+                                    ))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-12 text-right buttons-align">
+                        <button type="button" tabindex="4" id="btnCancel" onclick="location.href = '@Url.Action("DeleteListCreation", "Lookup")'" class="k-button k-cancel custom-btns">@Helper.GetResourceString("btn_Cancel")</button>
+                        <button type="button" id="btnSave" tabindex="5" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Save")</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();
+
+        $("#btnAdd").click(function () {
+            AddToList();
+        });
+        $("#btnSave").click(function () {
+            AddDeleteListRemarks();
+        });
+    });
+    //Method to data bound event for to Sku List List
+    function onDeleteListDataBound(e) {
+        SetEmptyRow(e);
+    }
+    function additionalInfo() {
+        return { Id : $('#ddlRemarkGroup').val() }
+    }
+    function AddToList() {
+        if ($("#ddlRemarkGroup").val() == '') {
+            ShowErrorMessage('@Helper.GetResourceString("plho_RemarksGroup")');
+        }
+        else if ($("#txtRemarks").val() == 0) {
+            ShowErrorMessage('@Helper.GetResourceString("msg_RemarksMisssing")');
+        }
+        else {
+            var grid = $("#ViewRemarks").data("kendoGrid");
+            //Insertion
+            var isDuplicate = false;
+
+            var RemarkGroupId = $("#ddlRemarkGroup").val();
+            var RemarkGroupName = $("#ddlRemarkGroup").data("kendoDropDownList").text();
+            var RemarksText = $("#txtRemarks").val();
+
+            var datasource = grid.dataSource;
+            var total = datasource.data().length;
+
+            for (var i = 0; i < datasource.data().length; i += 1) {
+                if (datasource.data()[i].DeleteListId == RemarkGroupId && datasource.data()[i].Remarks == RemarksText) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+            if (!isDuplicate) {
+                datasource.insert(total, {
+                    DeleteListId: RemarkGroupId,
+                    DeleteListName: RemarkGroupName,
+                    Remarks: RemarksText,
+                    Id : 0,
+                    //IsActive: 'true',
+                });
+                total = datasource.data().length;
+            }
+            else {
+                ShowErrorMessage('@Helper.GetResourceString("msg_RemarkAlreadyExists")');
+            }
+        }
+    }
+    function deleteconversionrow(arg) {
+        if ($("#ViewRemarks").data("kendoGrid").dataSource)
+            $("#ViewRemarks").data("kendoGrid").removeRow($(arg).closest("tr"));
+    }
+    function onRemarkGroupChange() {
+        $("#ViewRemarks").data("kendoGrid").dataSource.read();
+    }
+    function AddDeleteListRemarks()
+    {
+        if ($("#ViewRemarks").data("kendoGrid").dataSource.data().length > 0) {
+                $.ajax(
+                    {
+                        url: "/lookup/AddDeleteListRemarks",
+                        type: 'POST',
+                        data: {
+                            DeleteListRemark: JSON.parse(JSON.stringify($("#ViewRemarks").data("kendoGrid").dataSource.data()))
+                        },
+                        success: function (data) {
+                            if (data.PostStatus) {
+                                var url = '@Url.Action("DeleteListCreation", "Lookup")';
+					            window.location.href = url;
+                                ShowSuccessMessage('@Helper.GetResourceString("msg_SaveSuccess")');
+                            }
+                            else
+                                if (data.Message != "")
+                                    ShowErrorMessage(data.PostMessage);
+                                else
+                                    ShowErrorMessage('@Helper.GetResourceString("msg_InactiveRemarkUpdationError")');
+                        }
+                    });
+            }
+            else {
+                ShowErrorMessage('@Helper.GetResourceString("msg_RemarksGridEmpty")');
+            }
+    }
+</script>

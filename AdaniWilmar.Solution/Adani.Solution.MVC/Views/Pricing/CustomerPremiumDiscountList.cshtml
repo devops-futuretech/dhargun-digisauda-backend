@@ -1,0 +1,135 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO
+@using Adani.Solution.DTO.Enums
+
+@{
+    ViewBag.Title = "CustomerPrimaryDiscountList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="premiumCustomer" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_CustomerPrimaryDiscount")</h2>
+    <div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            @if (Helper.CheckClaims(Claims.ManagePremiums))
+            {
+                <a href="@Url.Action("CustomerPrimaryDiscountEdit", "Pricing")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_CreatePrimaryDiscount")</a>
+            }
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+
+            <div class="row form-group">
+                <div class="col-md-4 text-right">
+                    Discount Type <span class="text-danger">*</span>
+                </div>
+                <div class="col-md-4">
+                    @(Html.Kendo().DropDownList()
+                                 .Name("DiscountType")
+                                 .DataTextField("Text")
+                                 .DataValueField("Value")
+                                 .BindTo(new List<SelectListItem>() {
+                                        new SelectListItem() {
+                                            Text = "Customer",
+                                            Value = "1"
+                                        },
+                                        new SelectListItem() {
+                                            Text = "Product",
+                                            Value = "2"
+                                        }
+                                   })
+                                 .SelectedIndex(1)
+                                 .Events(e => e.Change("onDiscountTypeChange"))
+                                 .OptionLabel("Select Type")
+                                 .HtmlAttributes(new { id = "ddlDiscounyType", @class = "form-control", tabindex = "6", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Sku"), @style = "width:100%" }))
+
+                </div>
+            </div>
+
+            <div class="row" id="dvDealers">
+                <div class="col-md-12">
+                    <div class="text-right">
+                        <button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ViewDepots")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    </div>
+                    @(Html.Kendo().Grid<PrimaryDiscountUserDto>()
+                          .Name("GridCustomerDiscount")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.Id).Visible(false);
+                              columns.Bound(c => c.DiscountType).Visible(false);
+                              columns.Bound(c => c.OilTypeName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Oil Type").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.SkuName).ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("CustomerPrimaryDiscountEdit", "Pricing", new { discountId = "#=Id#", discountType = "#=DiscountType#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=SkuName#</a> </div>").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Sku Name").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.DepotName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Location (Depot)").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.CustomerName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Customer").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.ActualDiscount).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_DiscountRs")).Width(Settings.GridColumnMaxWidth);
+                              //columns.Template(c => c.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_Active")).ClientTemplate(@"<div style='text-align: center;'>#if(IsActive){#<i class='icon-checkbox-checked2 faicon-green'></i>#}else{#<i class='icon-cancel-square2 faicon-red'></i>#}#</div>").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.ValidFrom).Format(Settings.GridDateFormat).Title(@Helper.GetResourceString("lbl_ValidFrom")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.ValidTo).Format(Settings.GridDateFormat).Title(@Helper.GetResourceString("lbl_ValidTo")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                          })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Resizable(resize => resize.Columns(true))
+                          .Events(events => events.DataBound("onCustomerDiscountDataBound"))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Sort(sort => sort.Add("Id").Ascending())
+                          .Model(model => { model.Id(p => p.Id); })
+                          .ServerOperation(true)
+                          .Read(read => read.Action("GetCustomerPrimaryDiscountListAsync", "Pricing").Data("additionalInfo"))))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        // kendo grid filter contains
+        FilterContains();
+
+        if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+
+    });
+
+    //Method to data bound event for owner
+    function onCustomerDiscountDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+
+    function onDiscountTypeChange() {
+        $("#GridCustomerDiscount").data("kendoGrid").dataSource.read();
+    }
+
+    function additionalInfo() {
+        var seletedType = $("#ddlDiscounyType").data("kendoDropDownList").value();
+        return {
+            isToReturnInactiveData: true,
+            discountType: Number(seletedType)
+        }
+    }
+</script>
+
+
+
+

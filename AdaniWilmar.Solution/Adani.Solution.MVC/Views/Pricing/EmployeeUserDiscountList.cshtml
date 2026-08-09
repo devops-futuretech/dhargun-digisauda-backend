@@ -1,0 +1,143 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@model LoginUserIdDto
+@{
+    ViewBag.Title = "EmployeeUserDiscountList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="tpdiscountEmployee" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">Assigned Discount List</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Discounts</a><span class="icon-right"></span></li>
+        <li class="active">Assigned Discount List<span class="icon-right"></span></li>
+    </ol>
+    <div id="dateFilter" class="col-xs-9">
+        @*<div class="period-wrapper">
+                @if (Helper.CheckClaims(Claims.ManageDiscounts))
+                {
+                    <a href="@Url.Action("DiscountUserEditRedirect", "Pricing")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateDiscount")</a>
+                }
+            </div>*@
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        @*<div class="panel-heading">
+        </div>*@
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvSecondaryFreights">
+                <div class="row form-group">
+                    <div class="col-lg-3 col-sm-6 mb-3 mt-3">
+                        <label class="custom_label">
+                            Date
+                        </label>
+                        @(Html.Kendo().DatePickerFor(m => m.Date)
+                                          .Value(DateTime.Now)
+                                          .Format(Settings.DateFormat)
+                                          //.Events(e => e.Change("fromChange"))
+                                          .HtmlAttributes(new { id = "StartDate", onkeydown = "return isFocus(event);", tabindex = "1", style = "width: 100%" }))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    @*<div class="col-md-5">
+                </div>*@
+                    <div class="col-md-12 text-right">
+                        <button type="button" tabindex="4" id="btnDiscount" class="k-primary k-button custom-btns">@Helper.GetResourceString("btn_Search") </button>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="row" id="dvDealers">
+                <div class="col-md-12">
+                    <div class="text-right right-buttons">
+                        <div class="export_as">
+                            <span>Export as</span>
+                            <div class="export-btns">
+                                <span class="export-link" onclick='ExportToExcel("GridCustomerDiscount")' type="button">Excel</span>
+                            </div>
+                        </div>
+                        @*<button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ViewDepots")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;*@
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    </div>
+                    @(Html.Kendo().Grid<DiscountUserDto>()
+                          .Name("GridCustomerDiscount")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.Id).Visible(false);
+                              //columns.Bound(c => c.OilTypeName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_OilType")).Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(c => c.OilTypeCode).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("OilType Code").Width(Settings.GridColumnMaxWidth);
+                              //columns.Bound(c => c.SkuName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_Sku")).Width(Settings.GridColumnMaxWidth);
+
+                              if (Model.RoleId == (int)Role.ZonalTrader || Model.RoleId == (int)Role.StateTrader)
+                              {
+                                  columns.Bound(c => c.StateName).HtmlAttributes(new { @title = "#=StateName#" }).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("State Name").Width(Settings.GridColumnMaxWidth);
+                              }
+                              columns.Bound(c => c.SkuName).HtmlAttributes(new { @title = "#=SkuName#" }).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Sku Name").Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.SkuCode).HtmlAttributes(new { @title = "#=SkuCode#" }).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.ActualDiscount).ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("EUDEditRed", "Pricing", new { EncryptedId = "#=EncryptedId#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=ActualDiscount#</a> </div>").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_Discount")).Width(Settings.GridColumnMaxWidth);
+                              columns.Bound(c => c.ValidFrom).Format(Settings.GridDateTimeFormat).Title(@Helper.GetResourceString("lbl_ValidFrom")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                              columns.Bound(c => c.ValidTo).Format(Settings.GridDateTimeFormat).Title(@Helper.GetResourceString("lbl_ValidTo")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                          })
+                          .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                          .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                          .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                          .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                          .Scrollable(s => s.Enabled(true).Height("auto"))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .Resizable(resize => resize.Columns(true))
+                          .Events(events => events.DataBound("onCustomerDiscountDataBound"))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Sort(sort => sort.Add("Id").Descending())
+                          .Model(model => { model.Id(p => p.Id); })
+                          .ServerOperation(true)
+                          .Read(read => read.Action("EmployeeUserDiscountListAsync", "Pricing").Data("additionalParam"))))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();
+
+        $("#btnDiscount").click(function () {
+            //$("#TodayPricing").data("kendoGrid").dataSource.read();
+            GetDiscount()
+        });
+
+        if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+    });
+
+    function GetDiscount() {
+        $("#GridCustomerDiscount").data("kendoGrid").dataSource.read();
+    }
+
+    function additionalParam() {
+        return {
+            Date: ($("#StartDate").val() === "" ? "" : $("#StartDate").val()),
+            isToReturnInactiveData: true
+        };
+    }
+
+    //Method to data bound event for owner
+    function onCustomerDiscountDataBound(e) {
+        SetEmptyRow(e);        
+    }
+ 
+</script>
+
+

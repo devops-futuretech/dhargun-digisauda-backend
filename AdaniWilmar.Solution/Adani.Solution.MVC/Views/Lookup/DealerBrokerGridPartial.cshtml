@@ -1,0 +1,57 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common
+@model Adani.Solution.DTO.UserDetailsViewModel
+
+@{
+    Layout = null;
+}
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvDealers">
+                <div class="col-md-12">
+                    <div class="text-right">
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    </div>
+                    @(Html.Kendo().Grid<Adani.Solution.DTO.DealerBrokerDto>()
+                                         .Name("ViewDealerBrokers")
+                                         .Columns(columns =>
+                                         {
+                                             columns.Bound(c => c.Id).Visible(false);
+                                             columns.Template(@<text></text>).ClientTemplate("<div class='text-center'><input type='checkbox' #=IsChecked ? checked='checked' :'' # class='chkbxAllDealer' value=#=Id# onclick=\"findCheckedItemsSaveItToHidden(this,'#=Id#','hdSelectedDealerIds','masterCBAllDealer','chkbxAllDealer','lblDealerSelectedCount','');\" /></div>").HeaderTemplate("<div class='text-center'><input type='checkbox' id='masterCBAllDealer' onclick=\"masterfindCheckedItemsSaveItToHidden(this,'hdSelectedDealerIds','chkbxAllDealer','lblDealerSelectedCount','')\" /></div>").Width("40px");
+                                             columns.Bound(c => c.Name).Title(@Helper.GetResourceString("lbl_Name")).ClientTemplate(@"<div> <a style='text-decoration: underline;' href='" + Url.Action("DealerorBrokerEditRedirect", "Lookup", new { brokerIdOrDealerId = "#=Id#",role ="#=RoleName#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=Name#</a> </div>").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                             columns.Bound(c => c.RoleName).Title(@Helper.GetResourceString("lbl_Role")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                             columns.Bound(c => c.MobileNumber).Title(@Helper.GetResourceString("lbl_MobileNumber")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                             columns.Bound(c => c.Email).Title(@Helper.GetResourceString("lbl_Email")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                             columns.Bound(c => c.State).Title(@Helper.GetResourceString("lbl_State")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                             columns.Bound(c => c.District).Title(@Helper.GetResourceString("lbl_District")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                             columns.Bound(c => c.Address).Title(@Helper.GetResourceString("lbl_Address")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                         })
+                                .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                .Selectable(selectable => selectable
+                                .Mode(GridSelectionMode.Multiple)
+                                .Type(GridSelectionType.Row))
+                                .Scrollable(s => s.Enabled(true).Height("auto"))
+                                //.Events(events => events.DataBound("onBrokerListDataBound"))
+                                .Reorderable(reorder => reorder.Columns(true))
+                                .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Model(model => model.Id(m => m.Id))
+                                .ServerOperation(true)
+                                .Read(read => read.Action("GetDealerBrokerListForBDOAsync", "Lookup", new { verticalId = Model.VerticalIdString, SalesOrg=Model.SalesOrg, DistChannel=Model.DistChannel/*, saudaBookingTypeId = Model.SaudaBookingTypeId*/, userId = Model.Id }))))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

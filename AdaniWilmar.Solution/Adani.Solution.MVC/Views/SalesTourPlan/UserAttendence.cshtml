@@ -1,0 +1,110 @@
+﻿@using Kendo.Mvc.UI;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.MVC.Models;
+@model Adani.Solution.DTO.UserTargetDto
+@{
+    ViewBag.Title = Helper.GetResourceString("lbl_Target");
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .content {
+        padding: 0 20px 0px 20px !important;
+    }
+
+    th > div {
+        font-size: 14px;
+        font-weight: 500;
+        font-weight: bold;
+    }
+</style>
+<input type="hidden" class="currentMenu" value="salestourplanUserAttendence" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">USER ATTENDENCE</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Sales Tour Plan</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_TodayActivities")<span class="icon-right"></span></li>
+    </ol>
+    <div id="dateFilter" class="col-xs-9">
+
+        <div class="period-wrapper">
+
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+            @*<h6 class="panel-title"><span class="text-semibold">@Helper.GetResourceString("msg_UnitOfSale")</span></h6>*@
+        </div>
+        <div class="panel-body" style="display: block;">
+            <p class="content-group-lg"></p>
+
+
+            @Html.AntiForgeryToken()
+            @*<fieldset class="content-group">*@
+            <div class="row form-group">
+                <div class="col-lg-3 col-sm-6 mb-3">
+                    <label class="custom_label">Financial Year </label>
+                    @(Html.Kendo().DropDownList().Name("FinancialYear")
+                                                        .OptionLabel(@Helper.GetResourceString("lbl_FinancialYear"))
+                                                        .DataTextField("Year")
+                                                        .DataValueField("Id")
+                                                        .Events(e => e.Change("onFinancialYearChage"))
+                                                        .DataSource(source => source.Read(read => read.Action("GetFinancialYearList", "SalesTourPlan"))
+                                                        .ServerFiltering(true))
+                                                        .HtmlAttributes(new { id = "ddlFinalcialYear", tabindex = "1", @class = "", required = "required", @style = "width:100%" }))
+                </div>
+                <div class="col-lg-3 col-sm-6 mb-3">
+                    <label class="custom_label">Months</label>
+                    @(Html.Kendo().DropDownList().Name("Months")
+                                                   .OptionLabel("Months")
+                                                   .DataTextField("Name")
+                                                   .DataValueField("Id")
+                                                   .DataSource(source => source.Read(read => read.Action("GetFinalYearMonths", "SalesTourPlan"))
+                                                   .ServerFiltering(true))
+                                                   .HtmlAttributes(new { id = "ddlMonths", tabindex = "2", @class = "", required = "required", @style = "width:100%" }))
+                </div>
+
+                @*  </fieldset>*@
+                <div class="text-right">
+                    @if (Helper.CheckClaims(Claims.ManageAttendance))
+                    {
+                        <button type="button" tabindex="3" id="btnGetReport" class="k-primary k-button custom-btns">Get User Attendence</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content main-section-content row" id="rptcontainer">
+
+</div>
+<script>
+    function onFinancialYearChage() {
+
+        $.ajax(
+            {
+                url: "/SalesTourPlan/GetMonthsByFinancialYear",
+                type: 'POST',
+                data: {
+                    financialYearId: $("#ddlFinalcialYear").data("kendoDropDownList").value()
+                },
+                success: function (result) {
+                    var dropdownlist = $("#ddlMonths").data("kendoDropDownList");
+                    dropdownlist.setDataSource(result);
+                }
+            });
+    }
+    $(document).ready(function () {
+
+        $("#btnGetReport").on("click",function (e) {
+            var financialYear = $("#ddlFinalcialYear").data("kendoDropDownList").value();
+            var rptMonth = $("#ddlMonths").data("kendoDropDownList").value();
+            $("#rptcontainer").load("@Url.Action("GetUserAttendence", "SalesTourPlan")", { FinancialYear: financialYear, Month: rptMonth });
+        });
+    });
+</script>

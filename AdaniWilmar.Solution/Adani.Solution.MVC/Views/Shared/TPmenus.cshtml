@@ -1,0 +1,162 @@
+﻿@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.DTO.Enums;
+@using System.Security.Claims
+
+<body class="pace-done">
+    @{
+        //var verticalId = 0;
+
+        if (HttpContext.Current.User != null)
+        {
+            var identity = (ClaimsIdentity)HttpContext.Current.User.Identity;
+            //verticalId = Convert.ToInt32(identity.FindFirst("VerticalId")?.Value);
+
+        }
+    }
+    <ul class="navigation navigation-main navigation-accordion">
+        @if ((Helper.CheckClaims(Claims.ManageTPFinalPrice))
+            || (Helper.CheckClaims(Claims.ManageSpecialityFat) || Helper.CheckClaims(Claims.ViewSpecialityFat))
+            || ((Helper.CheckClaims(Claims.ManageSpecialtyFatQuantityGeography)
+                    || Helper.CheckClaims(Claims.ManageSpecialtyFatQuantityUser)
+                    || Helper.CheckClaims(Claims.ViewSpecialtyFatAssignedQuantity)
+                    || Helper.CheckClaims(Claims.ViewSpecialtyFatQtyRequestStatus)))
+            || (!Helper.CheckClaims(Claims.ManageOrganization) && (Helper.CheckClaims(Claims.ManageDiscounts) || Helper.CheckClaims(Claims.ViewDiscounts) || Helper.CheckClaims(Claims.ManageGeographyDiscount) || Helper.CheckClaims(Claims.ViewGeographyDiscount) || Helper.CheckClaims(Claims.ViewAssignedDiscount)))
+            || (!Helper.CheckClaims(Claims.ManageOrganization))
+            || (Helper.CheckClaims(Claims.ManageTarget) || Helper.CheckClaims(Claims.ViewTarget))
+                    )
+        {
+
+
+            if (Helper.CheckClaims(Claims.ManagePricing))
+            {
+                <li id="finalprice">
+                    <a href="#" data-toggle="collapse" class="collapsed"><i class="icon-user_mang"></i> <span>Pricing</span><i class="icon-submenu lnr lnr-chevron-left"></i></a>
+
+                    <ul class="nav">
+                        <li class="finalpricePriceDetails"><a href="@Url.Action("TodayPricingDetails", "Pricing")"><span class="nav-label">Pricing details</span></a></li>
+
+                    </ul>
+                </li>
+            }
+
+
+
+
+            if ((Helper.CheckClaims(Claims.ManageSpecialtyFatQuantityGeography)
+            || Helper.CheckClaims(Claims.ManageSpecialtyFatQuantityUser)
+            || Helper.CheckClaims(Claims.ViewSpecialtyFatAssignedQuantity)
+            || Helper.CheckClaims(Claims.ViewSpecialtyFatQtyRequestStatus)))
+            {
+                <li id="sfquantitylimit">
+                    @*@if (verticalId > 0)
+                    {
+                        if (verticalId == (int)Division.Hbc)
+                        {
+                            <a href="#" data-toggle="collapse" class="collapsed"><i class="icon-direction"></i> <span>HBC Qty Limit </span><i class="icon-hbc_qty"></i></a>
+                        }
+                        else if (verticalId == (int)Division.SpecialityFat)
+                        {
+                            <a href="#" data-toggle="collapse" class="collapsed"><i class="icon-direction"></i> <span>Speciality Fat Qty Limit </span><i class="icon-hbc_qty"></i></a>
+                        }
+                    }
+                    else
+                    {*@
+                    <a href="#" data-toggle="collapse" class="collapsed"><span>Qty Limit </span><i class="icon-hbc_qty"></i></a>
+                    @*}*@
+
+                    <ul class="nav">
+                        @if (Helper.CheckClaims(Claims.ManageSpecialtyFatQuantityUser))
+                        {
+                            <li class="tpsfquantitylimitUser"><a href="@Url.Action("SpecialityFatDiscountUserList", "Pricing")"><span class="nav-label">User Qty Limit</span></a></li>
+                        }
+                        @if (Helper.CheckClaims(Claims.ViewSpecialtyFatAssignedQuantity))
+                        {
+                            <li class="tpsfquantitylimitUserAssigned"><a href="@Url.Action("SpecialityFatEmployeeDiscountList", "Pricing")"><span class="nav-label">Assigned Qty Limit</span></a></li>
+                        }
+                        @if (Helper.CheckClaims(Claims.ViewSpecialtyFatQtyRequestStatus))
+                        {
+                            <li class="tpsfquantitylimitRequest"><a href="@Url.Action("SpecalityFatQuantityRequestList", "Pricing")"><span class="nav-label">Qty Request</span></a></li>
+                        }
+                        <li class="tpsfquantitylimitRequestStatus"><a href="@Url.Action("SpecialtyFatQuantityRequestStatus", "Pricing")"><span class="nav-label">Qty Request Status</span></a></li>
+                        @if (Helper.CheckClaims(Claims.AutoAllocation))
+                        {
+                            <li class="tpsfquantitylimitAutoAllocation"><a href="@Url.Action("AutoAllocation", "Pricing")"><span class="nav-label">Auto Allocation</span></a></li>
+                        }
+                    </ul>
+                </li>
+            }
+            //!Helper.CheckClaims(Claims.ManageOrganization)
+            if ((Helper.CheckClaims(Claims.ManageDiscounts) || Helper.CheckClaims(Claims.ViewDiscounts) || Helper.CheckClaims(Claims.ManageGeographyDiscount) || Helper.CheckClaims(Claims.ViewGeographyDiscount) || Helper.CheckClaims(Claims.ViewAssignedDiscount)))
+            {
+                <li id="tpdiscount">
+                    <a href="#" data-toggle="collapse" class="collapsed"><i class="icon-discounts"></i> <span>Discounts</span></a>
+                    <ul class="nav">
+                        @if (Helper.CheckClaims(Claims.ManageGeographyDiscount) || Helper.CheckClaims(Claims.ViewGeographyDiscount))
+                        {
+                            <li class="tpdiscountGeography"><a href="@Url.Action("GeographyDiscountList", "Pricing")"><span class="nav-label">@Helper.GetResourceString("lbl_GeographyDiscount")</span></a></li>
+                        }
+                        @if (Helper.CheckClaims(Claims.ManageDiscounts) || Helper.CheckClaims(Claims.ViewDiscounts))
+                        {
+                            <li class="tpdiscountUser"><a href="@Url.Action("DiscountUserList", "Pricing")"><span class="nav-label">User Discount</span></a></li>
+                        }
+                        @if (Helper.CheckClaims(Claims.ViewAssignedDiscount))
+                        {
+                            <li class="tpdiscountEmployee"><a href="@Url.Action("EmployeeUserDiscountList", "Pricing")"><span class="nav-label">Assigned Discount</span></a></li>
+                        }
+                        @if (Helper.CheckClaims(Claims.QPSDiscount))
+                        {
+                            <li id="QPSScheDiscount" class="tpdiscountQPSScheme"><a href="@Url.Action("QPSDiscountList", "QPSDiscount")"><span class="nav-label">QPS Discount</span></a></li>
+                        }
+                    </ul>
+                </li>
+            }
+
+
+            if (Helper.CheckClaims(Claims.ManageDiscounts) || Helper.CheckClaims(Claims.ViewDiscounts))
+            {
+                <li id="raschemediscount">
+                    <a href="#" data-toggle="collapse" class="collapsed"><i class="icon-stats-bars2"></i><span>@Helper.GetResourceString("lbl_SchemeDiscount")</span><i class="icon-submenu lnr lnr-chevron-left"></i></a>
+                    <ul class="nav">
+                        <li class="raschemediscountGeographyBased"><a href="@Url.Action("SchemeDiscountGeographyList", "RAVersionTwo")"><span class="nav-label">@Helper.GetResourceString("lbl_GeographyBasedSchemeDiscount")</span>  </a></li>
+                        @*<li class="ra2SchemeDiscountHistory"><a href="@Url.Action("SchemeDiscountHistory", "RAVersionTwo")"><span class="nav-label">@Helper.GetResourceString("lbl_AuditLog")</span></a></li>*@
+                    </ul>
+                </li>
+            }
+
+            if (Helper.CheckClaims(Claims.ManageTarget) || Helper.CheckClaims(Claims.ViewTarget))
+            {
+                <li id="target">
+                    <a href="#" data-toggle="collapse" class="collapsed"><span>@Helper.GetResourceString("lbl_Target")</span><i class="icon-complaint_mng"></i></a>
+                    <ul class="nav">
+                        <li class="tptargetAssignedSalesTarget"><a href="@Url.Action("UserAssignedSalesTargetList", "Target")"><span class="nav-label">@Helper.GetResourceString("lbl_AssignedSalesTarget")</span></a></li>
+                        <li class="tptargetUserCustomerSalesTarget"><a href="@Url.Action("UserCustomerSalesTargetList", "Target")"><span class="nav-label">@Helper.GetResourceString("lbl_SalesTarget")</span></a></li>
+                        <li class="tptargetAssignedSaudaTarget"><a href="@Url.Action("UserAssignedSaudaTargetList", "Target")"><span class="nav-label">@Helper.GetResourceString("lbl_AssignedSaudaTarget")</span></a></li>
+                        <li class="tptargetUserCustomerSaudaTarget"><a href="@Url.Action("UserCustomerSaudaTargetList", "Target")"><span class="nav-label">@Helper.GetResourceString("lbl_SaudaTarget")</span></a></li>
+                        @*@if (verticalId == (int)Adani.Solution.DTO.Enums.Division.SpecialityFat)
+                        {*@
+                        @*@if (Helper.CheckClaims(Claims.ManageCustomerTarget) || Helper.CheckClaims(Claims.ViewCustomerTarget))
+                        {
+                            <li class="targetUserCustomerTarget"><a href="@Url.Action("UserCustomerTargetList", "Target")"><span class="nav-label">@Helper.GetResourceString("lbl_UserCustomerTarget")</span></a></li>
+                            <li class="targetUserassignedCustomerTarget"><a href="@Url.Action("UserAssignedTargetList", "Target")"><span class="nav-label">@Helper.GetResourceString("lbl_AssignedCustomerTarget")</span></a></li>
+                        }*@
+                        @*}*@
+                    </ul>
+                </li>
+            }
+
+            if (Helper.CheckClaims(Claims.ManageDiscounts) || Helper.CheckClaims(Claims.ViewDiscounts))
+            {
+                <li id="cms">
+                    <a href="#" data-toggle="collapse" class="collapsed"><i class="icon-stats-bars2"></i><span>@Helper.GetResourceString("lbl_cms")</span><i class="icon-submenu lnr lnr-chevron-left"></i></a>
+                    <ul class="nav">
+                        @* <li class="cmssection"><a href="@Url.Action("SectionList", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_Section")</span></a></li>*@
+                        <li class="cmsquestion"><a href="@Url.Action("QuestionList", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_Questions")</span></a></li>
+                        <li class="cmsdynamicform"><a href="@Url.Action("DynamicFormList", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_DynamicForms")</span></a></li>
+                        <li class="cmssubmittedform"><a href="@Url.Action("ViewSubmittedForms", "Lookup")"><span class="nav-label">@Helper.GetResourceString("lbl_SubmittedForms")</span></a></li>
+                        @*<li class="ra2SchemeDiscountHistory"><a href="@Url.Action("SchemeDiscountHistory", "RAVersionTwo")"><span class="nav-label">@Helper.GetResourceString("lbl_AuditLog")</span></a></li>*@
+                    </ul>
+                </li>
+            }
+        }
+    </ul>
+</body>

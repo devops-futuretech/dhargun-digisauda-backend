@@ -1,0 +1,88 @@
+﻿@model Adani.Solution.DTO.CallRecordingDto
+@using Kendo.Mvc.UI;
+@using Adani.Solution.MVC.Common;
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.DTO;
+@using Adani.Solution.DTO.Enums;
+@{
+    Layout = "";
+    var index = 0;
+}
+<style>
+    .attachement-title {
+        font-size: 18px;
+        font-weight: 600;
+        padding: 10px;
+    }
+</style>
+
+<div id="popupCallRecordingAttachmentDetails" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" onclick="popupClose();" class="close closeButton" data-dismiss="modal">&times;</button>
+                <h6 class="panel-title"><span class="text-semibold" style="color: white;">@Helper.GetResourceString("lbl_Attachments")</span></h6>
+            </div>
+            <div class="modal-body" id="dvModalBody">
+                <div>
+                    @{
+                        var images = Model.CallRecordingListOutput.Where(s => s.MediaTypeId == (int)MediaType.Image);
+                        var audios = Model.CallRecordingListOutput.Where(s => s.MediaTypeId == (int)MediaType.Audio);
+                        var mediaDivId = "media" + index++;
+
+                    }
+                    @if (images.Any())
+                    {
+                        <div style="display:inline-block;width:100%;">
+                            <div> <p class="attachement-title">Images</p> </div>
+                            @foreach (var mediaItem in images)
+                            {
+                                var mediaFilename = mediaItem.CallRecordedFileName;
+                                var mediaPath = Settings.GetMediaPathForCallRecordingImage((int)PageType.ImagesSaudaMappingwithCallRecording, mediaItem.CallRecordedFileName);
+                                <div id="@mediaDivId" class="col-md-2 media-box">
+                                    <a class="Info" data-popup="lightbox" target="_blank" href="@mediaPath" rel="gallery"> <i class="icon-eye cursor-pointer faicon-red"></i> </a>
+                                    <img src="@mediaPath" width="200" height="200" />
+                                    <div style="margin-top:10px"><a class="VideoInfo" href="@Url.Action("ImageFilesDownload", "Report", new { filename = mediaItem.CallRecordedFileName })" download>Download File</a></div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div style="display:inline-block;width:100%;margin-top:10px">
+                            <div> <p class="attachement-title">Images</p></div>
+                            <div> <p >No Image File Found</p></div>
+                        </div>
+
+                    }
+                    @if (audios.Any())
+                    {
+                        <div style="display:inline-block;width:100%;margin-top:10px">
+                            <div> <p class="attachement-title">Audios</p></div>
+                            @foreach (var mediaItem in audios)
+                            {
+                                var AudioFilename = mediaItem.FileDownloadName + "_" + mediaItem.CallRecordedDate.ToString(Settings.DateTimeFormat);
+                                <div id="@mediaDivId" class="col-md-2">
+                                    <div style="margin-top:10px"><a href="@Url.Action("AudioFileDownload", "Report", new { filename = mediaItem.CallRecordedFileName, fileDownloadName = AudioFilename })">@AudioFilename</a></div>
+                                </div>
+                            }
+
+
+
+                        </div>
+                    }
+                    else
+                    {
+                <div style="display:inline-block;width:100%;margin-top:10px">
+                    <div> <p class="attachement-title">Audios</p></div>
+                    <div> <p>No Audio File Found</p></div>
+                </div>
+
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

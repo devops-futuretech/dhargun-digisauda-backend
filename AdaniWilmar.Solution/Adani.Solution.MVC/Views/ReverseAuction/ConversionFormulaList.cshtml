@@ -1,0 +1,141 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using System.Security.Claims
+
+@{
+    ViewBag.Title = "ConversionFormulaList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="RA2ConversionFormulaList" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_ConversionFormulaList")</h2>
+    <div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+            @if (Helper.CheckClaims(Claims.ManageRAMasters))
+            {
+                <a href="@Url.Action("ConversionFormulaEdit", "ReverseAuction")" class="k-primary k-button"><b><i class="icon-plus-circle2"></i></b>&ensp;@Helper.GetResourceString("lbl_CreateConversionFormula")</a>
+            }
+            </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;"> 
+            <div class="row" id="dvDealers">
+                <div class="col-md-12">
+                    <div class="text-right">
+                        @*<button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("BiddingWindowList")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;*@
+                        <button class="k-button k-button-icontext k-grid-excel" onclick='excelExport()' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    </div>
+                    @(Html.Kendo().Grid<ConversionFormulaGridDto>()
+                        .Name("ConversionFormulaList")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.Id).Visible(false);
+                            columns.Bound(c => c.SkuName).ClientTemplate(@" #if(IsActive) { # <div> <a style='text-decoration: underline;' href='" + Url.Action("ConversionFormulaEdit", "ReverseAuction", new { conversionId = "#=Id#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=SkuName#</a></div>  #}else{#"+ "<div>#=SkuName#</div>" + "#} #").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_BaseSku")).Width(Settings.GridOtherColumnWidth);
+                            columns.Bound(c => c.Vertical).Format(Settings.GridDateFormat).Title(@Helper.GetResourceString("lbl_Vertical")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                            columns.Bound(c => c.OilType).Format(Settings.GridTimeFormat24).Title(@Helper.GetResourceString("lbl_OilType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                            columns.Bound(c => c.PackGroup).Format(Settings.GridTimeFormat24).Title(@Helper.GetResourceString("lbl_PackGroup")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridOtherColumnWidth);
+                            columns.Bound(c => c.IsActive).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_IsActive")).ClientTemplate(@"<div style='text-align: center;'> #if(IsActive == false) { #"
+                                                                                   + " <a  title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Width(Settings.GridOtherColumnWidth);
+                        })
+                        .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                        .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                        .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                        .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                        .Scrollable(s => s.Enabled(true).Height("auto"))
+                        .Reorderable(reorder => reorder.Columns(true))
+                        .Resizable(resize => resize.Columns(true))
+                        .Events(events => events.DataBound("onConversionDataBound"))
+                        .ClientDetailTemplateId("conversionFormulaDetails")
+                        .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Sort(sort => sort.Add("Id").Descending())
+                        .Model(model => { model.Id(p => p.Id); })
+                        .Sort(s => s.Add("Id").Descending())
+                        .ServerOperation(true)
+                        .Read(read => read.Action("GetConversionFormulaListAsync", "ReverseAuction", new { isToReturnInactiveData = true }))))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="conversionFormulaDetails" type="text/kendo-tmpl">
+
+    @(Html.Kendo().Grid<Adani.Solution.DTO.ConversionFormulaDetailsGridDto>()
+        .Name("grid_#=Id#")
+        .Columns(columns =>
+        {
+            columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+            columns.Bound(c => c.SkuName).Title(@Helper.GetResourceString("lbl_DerivedSku")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+            columns.Bound(c => c.Formula).Title(@Helper.GetResourceString("lbl_Formula")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+        })
+        .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(10)
+            .Read(read => read.Action("GetConversionFormulaDetailsAsync", "ReverseAuction", new { conversionFormulaId = "#=Id#" }))
+        )
+        .Pageable()
+        .Sortable()
+        .Scrollable(s => s.Enabled(true).Height("auto"))
+        .Reorderable(reorder => reorder.Columns(true))
+        .Resizable(resize => resize.Columns(true))
+        .ToClientTemplate())
+</script>
+
+<script>
+
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();        
+
+        if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+    });
+
+    //Method to data bound event for owner
+    function onConversionDataBound(e) {
+        SetEmptyRow(e);
+        //this.expandRow(this.tbody.find("tr.k-master-row").first());
+    }
+
+    function excelExport() {
+        debugger;
+        window.kendo.ui.progress($("#div_Progress"), true);   
+        searchDate: ($("#SearchDate").val() === "" ? new Date().toDateString() : $("#SearchDate").val());
+        statusId: Number($("#ddlBidWindowStatus").val());
+        $.ajax({
+            type: 'Post',
+            url: '@Url.Action("ExportConversionFormulaList", "ReverseAuction")',
+            data: {
+                isToReturnInactiveData: true
+            },
+            success: function (responce) {               
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Pricing")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });        
+    }
+</script>
+
+

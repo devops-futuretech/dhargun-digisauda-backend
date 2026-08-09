@@ -1,0 +1,286 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@model SpecialtyFatQuantityRequestDto
+
+@{
+    ViewBag.Title = "SpecialityFatEmployeeDiscountList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ss = false;
+}
+
+<input type="hidden" class="currentMenu" value="tpsfquantitylimitUserAssigned" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">Assigned Qty Limit</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Qty Limit </a><span class="icon-right"></span></li>
+        <li class="active">Assigned Qty Limit<span class="icon-right"></span></li>
+    </ol>
+    @*<div id="dateFilter" class="col-xs-9">
+        </div>*@
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        @*<div class="panel-heading">
+        </div>*@
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvDealers">
+                <div class="col-md-12">
+                    <div class="text-right right-buttons">
+                        <div class="export_as">
+                            <span>Export as</span>
+                            <div class="export-btns">
+                                @*<span class="export-link" onclick='ExportToExcel("ViewDepots")' type="button">Excel</span>*@
+                                <span class="export-link" onclick='downloadSaudhaList()' type="button">Excel</span>
+                            </div>
+                        </div>
+                        @*<button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ViewDepots")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;*@
+                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                    </div>
+                    @(Html.Kendo().Grid<SpecialityFatDiscountUserDto>()
+                        .Name("GridCustomerDiscount")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.Id).Visible(false);
+                            columns.Bound(c => c.OilTypeId).Visible(false);
+                            columns.Bound(c => c.SkuId).Visible(false);
+                            columns.Bound(c => c.VerticleId).Visible(false);
+                            columns.Bound(c => c.OilTypeName)
+                            .ClientTemplate(@"
+                            #if(claimCheck()){# " +
+                            "<div> <a style='text-decoration: underline;' href='" + Url.Action("SpeEDEdit", "Pricing", new { EncryptedId = "#=EncryptedId#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'>#=OilTypeName#</a> </div>" +
+                            "#}" + "else{#" + "<div>#=OilTypeName#</div>" + "#}#")
+                            .Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_OilType")).Width(Settings.GridColumnMaxWidth);
+                            //columns.Bound(c => c.SkuName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_Sku")).Width(Settings.GridColumnMaxWidth);
+                            //columns.Bound(c => c.SkuName)
+                            //.Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Sku Name").Width(Settings.GridColumnMaxWidth);
+                            //columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                            //columns.Bound(c => c.QuantityLimit).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Quantity Limit (MT)").Width(Settings.GridColumnMaxWidth);
+                            //columns.Bound(c => c.RemainingQuantity).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Remaining Quantity (MT)").Width(Settings.GridColumnMaxWidth);
+                            //columns.Bound(c => c.OilTypeCode).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("OilType Code").Width(Settings.GridColumnMaxWidth);
+                            columns.Bound(c => c.EmployeeName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_EmployeeName")).Width(Settings.GridColumnMaxWidth);
+                           columns.Bound(c => c.QuantityLimit).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Quantity Limit (MT)").Width(Settings.GridColumnMaxWidth);
+                            columns.Bound(c => c.ValidFrom).Format(Settings.GridDateTimeFormat).Title(@Helper.GetResourceString("lbl_ValidFrom")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                            columns.Bound(c => c.ValidTo).Format(Settings.GridDateTimeFormat).Title(@Helper.GetResourceString("lbl_ValidTo")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                            columns.Bound("").ClientTemplate(@"<div style='text-align: center;cursor:pointer'><span style='cursor:pointer' onclick='openPopup(this,#=Id#)' class='glyphicon glyphicon-eye-open'></span></div>").Title("Request").Width(Settings.GridColumnMaxWidth);            
+                    })
+                        .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                        .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                        .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                        .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                        .Scrollable(s => s.Enabled(true).Height("auto"))
+                        .Reorderable(reorder => reorder.Columns(true))
+                        .Resizable(resize => resize.Columns(true))
+                        .ClientDetailTemplateId("usertemplate")
+                        .Events(events => events.DataBound("onCustomerDiscountDataBound"))
+                        .DataSource(dataSource => dataSource
+                        .Ajax() 
+                        .Sort(sort => sort.Add("Id").Descending())
+                        .Model(model => { model.Id(p => p.Id); })
+                        .ServerOperation(true)
+                        .Read(read => read.Action("SpecialityFatEmployeeDiscountListAsync", "Pricing", new { isToReturnInactiveData = true }))))
+                </div>
+            </div>
+        </div>
+    </div>
+    <script id="usertemplate" type="text/kendo-tmpl">
+
+        @(Html.Kendo().Grid<Adani.Solution.DTO.SpecialityFatDiscountUserDto>()
+                        .Name("grid#=Id#") //template expression, to be evaluated in the master context
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.Id).Visible(false);
+                            columns.Bound(c => c.OilTypeId).Visible(false);
+                            columns.Bound(c => c.SkuId).Visible(false);
+                            columns.Bound(c => c.VerticleId).Visible(false);
+                            columns.Bound(c => c.OilTypeName).Visible(false);
+                            columns.Bound(c => c.SkuName).Title(@Helper.GetResourceString("lbl_SkuName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                            columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                            //columns.Bound(c => c.QuantityLimit).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title("Quantity Limit (MT)").Width(Settings.GridColumnMaxWidth);
+                            //columns.Bound(c => c.EmployeeName).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Title(@Helper.GetResourceString("lbl_EmployeeName")).Width(Settings.GridColumnMaxWidth);
+                             })
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(10)
+                            .Read(read => read.Action("GetSpecialityFatDiscountEmployeeDetailListAsynx", "Pricing", new { discountId = "#=Id#" }))
+                        )
+                        .Pageable()
+                        .Sortable()
+                        .Scrollable(s => s.Enabled(true).Height("auto"))
+                        .ToClientTemplate()
+    )
+    </script>
+
+
+    @*----------------------------------Popup----------------------------------------------*@
+
+    <div id="addQuantityLimitPopoup" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            @using (Html.BeginForm("SaveRequestQuantityLimit", "Pricing", FormMethod.Post, new { id = "frmRequestQuantityLimit", @class = "form-validate-jquery" }))
+            {
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close model-header-color" data-dismiss="modal">&times;</button>
+                        <h6 class="panel-title model-header-color"><span class="text-semibold">Request Quantity</span></h6>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row form-group">
+                            @Html.HiddenFor(m => m.Id, new { id = "txtId" })
+                            @Html.HiddenFor(m => m.OiltypeId, new { id = "txtOilTypeId" })
+                            @Html.HiddenFor(m => m.SkuId, new { id = "txtSkuId" })
+                            @Html.HiddenFor(m => m.VerticleId, new { id = "txtVerticalId" })
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_OilType")
+                            </div>
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(m => m.OilTypeName, new { id = "txtOilTypeName", @class = "form-control" })
+                            </div>
+                            <label></label>
+                        </div>
+                        @*<div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                @Helper.GetResourceString("lbl_Sku") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(m => m.SkuName, new { id = "txtSkuName", @class = "form-control" })
+                            </div>
+                        </div>*@
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                Quantity
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="txtQuantityLimit" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                Request Quantity <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(m => m.Quantity, new { id = "txtRequestedQuantityLimit", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Name"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btnSaveQtyLimit" type="button" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Save")</button>
+                        <button id="btnCancel" type="button" onclick="popupClose();" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Cancel")</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script>
+
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();
+
+        if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+
+        $("#btnSaveQtyLimit").click(function () {
+
+            var quantityLimit = $("#txtRequestedQuantityLimit").val();
+            if (!quantityLimit) {
+                ShowErrorMessage("Please enter the Request Quantity");
+                return false;
+            }
+
+            var form = $('#frmRequestQuantityLimit')
+            var token = $('input[name="__RequestVerificationToken"]', form).val();
+
+            var data = {
+                SpecialtyFatQuantityLimitId: $("#txtId").val(),
+                OiltypeId: $("#txtOilTypeId").val(),
+                SkuId: $("#txtSkuId").val(),
+                Quantity: $("#txtRequestedQuantityLimit").val(),
+                VerticleId: $("#txtVerticalId").val()
+            };
+
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("SaveRequestQuantityLimit", "Pricing")',
+                data: { __RequestVerificationToken: token,inputDto: data },
+                success: function (responce) {
+                    if ((responce) && (responce.PostStatus)) {
+                        ShowSuccessMessage(responce.PostMessage);
+                    } else {
+                        ShowErrorMessage(responce.PostMessage);
+                    }
+                }
+            });
+
+        });
+    });
+     function downloadSaudhaList() {
+        
+         $.ajax({
+            type: "POST",
+            url: '@Url.Action("SpecialityFatEmployeeDiscountExportAsync", "Pricing")',
+            data: {
+             },
+            success: function (responce) {
+
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Report")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+    //Method to data bound event for owner
+    function onCustomerDiscountDataBound(e) {
+        SetEmptyRow(e);
+    }
+
+    function openPopup(event,Id) {
+        debugger;
+        var grid = $(event).closest(".k-grid").data("kendoGrid");
+        var rowData = grid.dataSource._data;
+
+
+
+        var data = $.grep(rowData, function (p) { return p.Id == Id; })
+            .map(function (p) { return p; });
+
+        $("#txtId").val(data[0].Id);
+        $("#txtOilTypeId").val(data[0].OilTypeId);
+        $("#txtSkuId").val(data[0].SkuId);
+        $("#txtQuantityLimit").val(data[0].QuantityLimit);
+        $("#txtOilTypeName").val(data[0].OilTypeName);
+        $("#txtSkuName").val(data[0].SkuName);
+        $("#txtRequestedQuantityLimit").val("");
+
+        $("#txtQuantityLimit").prop("readonly", true);
+        $("#txtOilTypeName").prop("readonly", true);
+        $("#txtSkuName").prop("readonly", true);
+
+        $("#addQuantityLimitPopoup").modal("show");
+    }
+
+    function claimCheck() {
+        if ('@Helper.CheckClaims(Claims.SpecialtyFatQuantityAssign)' == 'True') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+</script>
+
+

@@ -1,0 +1,174 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@model Adani.Solution.DTO.QuestionDto
+@{
+    ViewBag.Title = "Question";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" class="currentMenu" value="updatesQuestion" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_AddOrUpdateQuestion")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Updates</a><span class="icon-right"></span></li>
+        <li><a href="QuestionList">@Helper.GetResourceString("lbl_Question")</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_AddOrUpdateQuestion")<span class="icon-right"></span></li>
+    </ol>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="dvQuestion">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("AddOrUpdateQuestion", "SurveyUpdates", FormMethod.Post, new { id = "frmQuestion", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.Id)
+
+                        <div class="row form-group">
+                            <div class="col-sm-12 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_Question") <span class="text-danger">*</span> </label>
+                                @Html.TextAreaFor(m => m.Question, new { id = "txtQuestion", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Question"), @maxlength = (int)InputMaxLength.TextAreaString })
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_ValidFrom") <span class="text-danger">*</span> </label>
+                                @(Html.Kendo().DatePickerFor(m => m.ValidFrom)
+                                      .Format(Settings.DateFormat)
+                                      .Events(e => e.Change("fromChange"))
+                                      .HtmlAttributes(new { id = "dpFromDate", tabindex = "2", onkeydown = "return isFocus(event);",  style = "width: 100%" }))
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label"> @Helper.GetResourceString("lbl_ValidTo") <span class="text-danger">*</span> </label>
+                                @(Html.Kendo().DatePickerFor(m => m.ValidTo)
+                                      .Format(Settings.DateFormat)
+                                      .HtmlAttributes(new { id = "dpToDate", tabindex = "3", onkeydown = "return isFocus(event);", style = "width: 100%" }))
+                            </div>
+
+                            <div class="col-lg-3 col-sm-6 mb-3">
+                                <label class="custom_label">Status</label>
+
+                                <div class="custom_checkbox_main">
+                                    @(Html.Kendo().CheckBoxFor(m => m.IsActive).Name("IsActive").HtmlAttributes(new { id = "cbIsActive", tabindex = "4" }))
+                                    <span class="label-title">@Helper.GetResourceString("lbl_Active")</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-12 text-right">
+                                <button type="button" id="btnCancel" tabindex="6" onclick="location.href = '@Url.Action("QuestionList", "SurveyUpdates")'" class="k-button k-cancel custom-btns">Cancel</button>
+                                <button type="button" id="btnSave" tabindex="5" class="k-primary k-button custom-btns">@(Model != null && Model.Id == 0 ? @Helper.GetResourceString("btn_SaveQuestion") : @Helper.GetResourceString("btn_UpdateQuestion"))</button>
+                            </div>
+                        </div>
+                    }
+                    <!---end of form input-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        $('input[type="text"]').keypress(function (e) {
+            var code = e.keyCode || e.which;
+            if (code === 13) {
+                e.preventDefault();
+            }
+        });
+
+        $('#btnSave').on('click', function (e) {
+            var isValid = $('#frmQuestion').valid();
+            if (isValid) {
+                window.kendo.ui.progress($("#dvQuestion"), true);
+                $('#frmQuestion').submit();
+                window.kendo.ui.progress($("#dvQuestion"), false);
+            }
+        });
+
+        if ('@Model.Id' === '0') {
+            $("#gridHide").hide();
+
+            StartDateRange();
+        } else {
+            //var datepicker = $("#dpFromDate").data("kendoDatePicker");
+            //datepicker.readonly();
+            //datepicker = $("#dpToDate").data("kendoDatePicker");
+            //datepicker.readonly();
+        }
+
+    });
+
+   function ValidateDate() {
+       $("#dvAlert").css("display", "none");
+       var sDate = $("#dpFromDate").val();
+       var eDate = $("#dpToDate").val();
+       var endDate = new Date(eDate);
+       var startDate = new Date(sDate);
+       if (sDate !== '' && eDate !== '' && startDate > endDate) {
+           ShowErrorMessage('@Helper.GetResourceString("msg_DateValidation")');
+           return false;
+       }
+       else if (sDate === '') {
+           ShowErrorMessage('@Helper.GetResourceString("msg_DateValidation")');
+           return false;
+       }
+       else if (eDate === '') {
+           ShowErrorMessage('@Helper.GetResourceString("msg_DateValidation")');
+           return false;
+       }
+       return true;
+   }
+
+   function fromChange() {
+       var endPicker = $("#dpToDate").data("kendoDatePicker"),
+           startDate = this.value();
+
+       if (startDate) {
+           startDate = new Date(startDate);
+           $("#dpToDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+           endPicker.min(startDate);
+       }
+    }
+
+    function StartDateRange() {
+        //var endPicker = $("#dpToDate").data("kendoDatePicker"),
+        //    startDate = $("#dpToDate").val();
+
+        //if (startDate) {
+        //    startDate = new Date(startDate);
+        //    $("#dpToDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+        //    endPicker.min(startDate);
+        //}
+        var dates = new Date();
+        dates.setDate(dates.getDate());
+
+        $("#dpFromDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+        $("#dpToDate").val(kendo.toString(kendo.parseDate(dates), emamiGlobal.constant.DateFormat));
+
+        var endPicker = $("#dpToDate").data("kendoDatePicker");
+        endPicker.min(dates);
+    }
+
+</script>
+

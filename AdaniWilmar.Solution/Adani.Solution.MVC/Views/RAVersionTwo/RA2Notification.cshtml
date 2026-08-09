@@ -1,0 +1,288 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@model Adani.Solution.DTO.RANotificationDto
+@{
+    /**/
+
+    ViewBag.Title = "RA2 Notification";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var message = "A maximum select option is " + ConfigHelper.MaxSelectedOneItemForMultiselect;
+}
+
+
+<style>
+    a.my-tool-tip, a.my-tool-tip:hover, a.my-tool-tip:visited {
+        color: black;
+    }
+</style>
+
+
+<input type="hidden" class="currentMenu" value="RA2Notification" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_AddOrUpdateRANotification")</h2>
+    <div style="clear:both;"></div>
+</div>
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <p class="content-group-lg"></p>
+            @using (Html.BeginForm("RA2Notification", "RAVersionTwo", FormMethod.Post, new { id = "frmRANotification", @class = "form-validate-jquery" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.Id, new { id = "hdnRaNotificationId" })
+                @Html.HiddenFor(m => m.LoginUserId, new { id = "hdnLoginUserId" })
+                <input type="hidden" name="RaNotificationDetailDtoList" value="" id="RaNotificationDetailDtoList" />
+                <fieldset class="content-group">
+
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            @Helper.GetResourceString("lbl_NotificationAction") <span class="text-danger">*</span>
+                        </div>
+                        <div class="col-md-4">
+                            @(Html.Kendo().MultiSelectFor(m => m.NotificationActionIds)
+                               .Placeholder(@Helper.GetResourceString("plho_SelectNotificationAction"))
+                               .DataTextField("Name")
+                               .DataValueField("Id")
+                               .AutoClose(true)
+                               .TagMode(TagMode.Multiple)
+                               .MaxSelectedItems(ConfigHelper.MaxSelectedOneItemForMultiselect)
+                               .Events(events => events.Change("onNotificationActionChange").DataBound("onNotificationDatatBound"))
+                               .DataSource(source => source.Read(resd => resd.Action("GetNotificationActionList", "RALookup"))
+                               .ServerFiltering(false))
+                               //HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='notificationSelectAll'> Select All</label>")
+                               .HtmlAttributes(new { id = "ddlNotificationAction", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_NotificationAction"), @style = "width:100%" }))
+                        </div>
+                         <a class='my-tool-tip' data-toggle="tooltip" data-placement="left" title="@message"> <!-- The class CANNOT be tooltip... -->
+                            <i class='glyphicon glyphicon-info-sign'></i>
+                        </a>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            SMS
+                        </div>
+                        <div class="col-md-4">
+                            @(Html.Kendo().CheckBoxFor(m => m.SMS).HtmlAttributes(new { id = "cbIsSMS", tabindex = "2" }))
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            Email
+                        </div>
+                        <div class="col-md-4">
+                            @(Html.Kendo().CheckBoxFor(m => m.IsEmail).HtmlAttributes(new { id = "cbIsActive", tabindex = "3" }))
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            App Notification
+                        </div>
+                        <div class="col-md-4">
+                            @(Html.Kendo().CheckBoxFor(m => m.InAppNotification).HtmlAttributes(new { id = "cbIsInAppNotification", tabindex = "4" }))
+                        </div>
+                    </div>
+                    <div class="row form-group" id="CautionNotificationTimes">
+                        <div class="col-md-4 text-right">
+                           @Helper.GetResourceString("lbl_CautionNotificationTimes") <span class="text-danger">*</span>
+                        </div>
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(m => m.CautionNotificationTimes, new { id = "txtDiscount", tabindex = "4", @class = "form-control", data_msg_required = Helper.GetMsgRequired("lbl_Discount"), @maxlength = (int)InputMaxLength.String })
+                            </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            @Helper.GetResourceString("lbl_ValidFrom") <span class="text-danger">*</span>
+                        </div>
+                        <div class="col-md-4">
+                            @(Html.Kendo().DatePickerFor(m => m.ValidFrom)
+                                           .Format(Settings.DateFormat)
+                                           .Events(e => e.Change("fromChange"))
+                                           .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "8", style = "width: 100%" }))
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            @Helper.GetResourceString("lbl_ValidTo") <span class="text-danger">*</span>
+                        </div>
+                        <div class="col-md-4">
+                            @(Html.Kendo().DatePickerFor(m => m.ValidTo)
+                                           .Format(Settings.DateFormat)
+                                           .HtmlAttributes(new { onkeydown = "return isFocus(event);", tabindex = "9", style = "width: 100%" }))
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            @Helper.GetResourceString("lbl_CustomerGroup") <span class="text-danger">*</span>
+                        </div>
+                        <div class="col-md-4">
+                            @(Html.Kendo().MultiSelectFor(f => f.CustomerGroupIds)
+                                                        .Placeholder(@Helper.GetResourceString("plho_SelectCustomer"))
+                                                        .DataTextField("Name")
+                                                        .DataValueField("Id")
+                                                        .AutoClose(false)
+                                                        .MaxSelectedItems(ConfigHelper.MaxSelectedOneItemForMultiselect)
+                                                        .TagMode(TagMode.Single)
+                                                        .Events(events => events.Change("onCustomerGroupChange").DataBound("onCustomerGroupDataBound"))
+                                                        .DataSource(source => source.Read(resd => resd.Action("GetCustomerGroupddl", "RALookup"))
+                                                        .ServerFiltering(false))
+                                                        .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='customerGroupSelectAll'> Select All</label>")
+                                                        .HtmlAttributes(new { id = "ddlCustomerGroup", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_CustomerGroup"), @style = "width:100%" }))
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 text-right">
+                            @Helper.GetResourceString("lbl_Customer") <span class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            @(Html.Kendo().MultiSelectFor(f => f.CustomerIds)
+                                  .Placeholder(@Helper.GetResourceString("plho_SelectCustomer"))
+                                  .DataTextField("Name")
+                                  .DataValueField("Id")
+                                  .AutoClose(false)
+                                  .TagMode(TagMode.Single)
+                                  .Events(e => e.Change("onCustomerChange").DataBound("onCustomerDataBound"))
+                                  .DataSource(source => source.Read(resd => resd.Action("GetCustomerListByCustomerGroupIdsAndBDOsForDropdown", "RAVersionTwo").Data("CustomerAdditionalInfo"))
+                                  .ServerFiltering(false))
+                                  .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='customerSelectAll'> Select All</label>")
+                                  .HtmlAttributes(new { id = "ddlCustomer", tabindex = "1", @class = "form-control", @style = "width:100%" }))
+                        </div>
+                    </div>
+                    <div class="row form-group" id="dvSaveTarget">
+                        <div class="col-md-12 text-center">
+                            <button type="button" tabindex="6" id="btnCancel" onclick="location.href = '@Url.Action("RA2NotificationList", "RAVersionTwo")'" class="k-button">@Helper.GetResourceString("btn_Cancel")</button>
+                            @if (Helper.CheckClaims(Claims.ManageRAMasters))
+                            {
+                                <button type="button" tabindex="7" id="btnCustomerSave" class="k-primary k-button">@Helper.GetResourceString("btn_Save") <i class="icon-arrow-right14 position-right"></i></button>
+                            }
+                        </div>
+                    </div>
+                </fieldset>
+              }
+            <!---end of form input-->
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+
+
+    $(document).ready(function () {
+
+        StartDateRange();
+
+         $("#customerGroupSelectAll").click(function () {
+             MultiSelectCheckUnCheck("ddlCustomerGroup", "customerGroupSelectAll");
+             onCustomerGroupChange();
+         });
+
+        $("#customerSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlCustomer", "customerSelectAll");
+            onCustomerChange();
+        });
+
+        $("#notificationSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlNotificationAction", "notificationSelectAll");
+            onNotificationActionChange();
+        });
+
+        $('#btnCustomerSave').on('click', function (e) {
+            debugger;
+            var isValid = $('#frmRANotification').valid();
+            if (isValid) {
+                window.kendo.ui.progress($("#div_Progress"), true);
+                var frm = $("frmRANotification").serialize();
+                $('#frmRANotification').submit();
+                //window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+
+        $("#CautionNotificationTimes").hide();
+        
+     });
+
+    function onCustomerChange() {
+        MultiSelectEvents("ddlCustomer", "customerSelectAll");
+       
+    }
+
+    function onCustomerDataBound() {
+        MultiSelectEvents("ddlCustomer", "customerSelectAll");
+    }
+
+    function CustomerAdditionalInfo() {
+      return {
+           customerGroupIds: $("#ddlCustomerGroup").data("kendoMultiSelect").value().join()
+        };
+    }
+
+    function onCustomerGroupChange(e) {
+        MultiSelectEvents("ddlCustomerGroup", "customerGroupSelectAll");
+         $("#ddlCustomer").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function onCustomerGroupDataBound() {
+        MultiSelectEvents("ddlCustomerGroup", "customerGroupSelectAll");
+    }
+
+    function onNotificationActionChange(e) {
+        MultiSelectEvents("ddlNotificationAction", "notificationSelectAll");
+        $("#CautionNotificationTimes").hide();
+        if (this.value() == @Convert.ToInt32(NotificationActions.AboutWindowEnd) || this.value() == @Convert.ToInt32(NotificationActions.CustomerCounterBidoffer)) {
+            $("#CautionNotificationTimes").show();
+      }
+    }
+
+     function onNotificationDatatBound(e) {
+       MultiSelectEvents("ddlNotificationAction", "notificationSelectAll");
+    }
+
+    function fromChange() {
+        var endPicker = $("#ValidTo").data("kendoDatePicker"),
+           startDate = this.value();
+
+       if (startDate) {
+           startDate = new Date(startDate);
+           $("#ValidTo").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+           endPicker.min(startDate);
+       }
+    }
+
+    function StartDateRangeOnUpdate() {
+        var endPicker = $("#ValidTo").data("kendoDatePicker"),
+            startDate = $("#ValidFrom").data("kendoDatePicker").value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate());
+
+            $("#ValidFrom").val(kendo.toString(startDate, emamiGlobal.constant.DateFormat));
+            var startPicker = $("#ValidFrom").data("kendoDatePicker");
+            startPicker.min(startDate);
+            endPicker.min(startDate);
+        }
+    }
+
+    function StartDateRange() {
+        var startDate = new Date();
+        startDate.setDate(startDate.getDate());
+
+        $("#ValidFrom").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+        var startPicker = $("#ValidFrom").data("kendoDatePicker");
+        startPicker.min(startDate);
+
+        var endPicker = $("#ValidTo").data("kendoDatePicker");                                             //Set min date
+         $("#ValidTo").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+         endPicker.min(startDate);
+        }
+
+</script>
+
+
+

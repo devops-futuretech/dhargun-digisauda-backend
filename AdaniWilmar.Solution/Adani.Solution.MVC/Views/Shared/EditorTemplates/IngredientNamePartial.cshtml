@@ -1,0 +1,13 @@
+﻿@using Kendo.Mvc.UI
+@model Adani.Solution.DTO.IngredientDownDto
+
+
+@(Html.Kendo().DropDownListFor(m => m)
+                .OptionLabel("Select Ingredients")
+                .DataValueField("IngredientId")
+                .DataTextField("IngredientName")
+                .DataSource(source => source.Read(read => read.Action("GetIngredientCostddl", "Lookup").Data("IngredientCostAdditionalInfo"))
+                .ServerFiltering(true))
+                .HtmlAttributes(new { id = "ddlIngredientName" })
+
+)

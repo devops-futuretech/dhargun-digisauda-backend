@@ -1,0 +1,942 @@
+﻿@using Kendo.Mvc.UI;
+@using Adani.Solution.DTO.Enums;
+@using Adani.Solution.DTO;
+@using Adani.Solution.MVC.Helpers;
+@using Adani.Solution.MVC.Common;
+@model Adani.Solution.DTO.CustomerGroupDto
+@{
+    ViewBag.Title = "UpdateCustomerGroup";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" class="currentMenu" value="raCustomerGroupList" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">@Helper.GetResourceString("lbl_CustomerGroup")</h2>
+    <div id="dateFilter" class="col-xs-9">
+        <div class="period-wrapper">
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat" id="dvSalesTarget">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <p class="content-group-lg"></p>
+            @using (Html.BeginForm("AddOrUpdateCustomerGroup", "RAVersionTwo", FormMethod.Post, new { id = "frmCustomerGroup", @class = "form-validate-jquery" }))
+            {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.Id, new { id = "hdnCustomerGroupId" })
+            @Html.HiddenFor(m => m.LoginUserId, new { id = "hdnLoginUserId" })
+            <input type="hidden" name="CustomerGroupDetailDtoList" value="" id="CustomerGroupDetailDtoList" />
+            <fieldset class="content-group">
+                <div class="row form-group">
+                    <div class="col-md-4 text-right">
+                        @Helper.GetResourceString("lbl_CustomerGroupName") <span class="text-danger">*</span>
+                    </div>
+                    <div class="col-md-4">
+                        @Html.TextBoxFor(m => m.Name, new { id = "txtCustomerGroupName", tabindex = "1", @class = "form-control", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_CustomerGroupName"), @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-4 text-right">
+                        @Helper.GetResourceString("lbl_Vertical") <span class="text-danger">*</span>
+                    </div>
+                    <div class="col-md-4">
+                        @(Html.Kendo().DropDownListFor(m => m.VerticalId)
+                               .OptionLabel(@Helper.GetResourceString("plho_SelectVertical"))
+                               .DataTextField("Name")
+                               .DataValueField("Id")
+                               .DataSource(source => source.Read(read => read.Action("GetVerticalListAsync", "Lookup", new { isToReturnInactiveData = true }))
+                               .ServerFiltering(false))
+                               .HtmlAttributes(new { id = "ddlVertical", @class = "", tabindex = "7", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Vertical"), @style = "width:100%" }))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-4 text-right">
+                        @Helper.GetResourceString("lbl_IsBaseGroup")
+                    </div>
+                    <div class="col-md-4">
+                        @(Html.Kendo().CheckBoxFor(m => m.IsBaseGroup).HtmlAttributes(new { id = "cbIsBaseGroup" }))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-4 text-right">
+                        @Helper.GetResourceString("lbl_IsActive")
+                    </div>
+                    <div class="col-md-4">
+                        @(Html.Kendo().CheckBoxFor(m => m.IsActive).HtmlAttributes(new { id = "cbActiveInactive" }))
+                    </div>
+                </div>
+            </fieldset>
+            <div class="row form-group">
+                @Html.HiddenFor(m => m.SelecteDealerIdsString, new { id = "hdSelectedDealerIds" })
+                @Html.HiddenFor(m => m.SelectedDealerIds, new { id = "hdSelectedIds" })
+                @Html.HiddenFor(m => m.SelectedCustomerIdsToRemove, new { id = "hdSelectedIdsToRemove" })
+                @Html.HiddenFor(m => m.SelectedCustomerIdsToRemoveString, new { id = "hdSelectedCustomerIds" })
+            </div>
+            <div class="row form-group">
+                <div class="col-md-12 text-center">
+                    <button type="button" tabindex="5" id="btnAddCustomer" class="k-primary k-button">@Helper.GetResourceString("Btn_AddCustomer")</button>
+                </div>
+            </div>
+            <div class="panel-heading">
+                <h3 class="panel-title">@Helper.GetResourceString("lbl_CustomerList")</h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="text-right">
+                            <button type="button" id="btnRemoveCustomers" class="k-button">Remove Customer</button>
+                            @*@(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))*@
+                        </div>
+                        @(Html.Kendo().Grid<CustomerGroupDetailDto>()
+                              .Name("ViewMappedCustomers")
+                              .Columns(columns =>
+                              {
+                                  columns.Bound(c => c.CustomerId).Visible(false);
+                                  columns.Bound(c => c.CustomerGroupDetailId).Visible(false);
+                                  columns.Bound(c => c.CustomerGroupId).Visible(false);
+                                  columns.Bound(c => c.VerticalId).Visible(false);
+                                  columns.Template(@<text></text>).ClientTemplate("<div class='text-center'><input type='checkbox' class='chkbxAllCustomer' value=#=CustomerId# onclick=\"findCheckedItemsSaveItToHidden(this,'#=CustomerId#','hdSelectedCustomerIds','masterCBAllCustomer','chkbxAllCustomer','lblDealerSelectedCount','');\" /></div>")
+                                  .HeaderTemplate("<div class='text-center'> Select Customer to Remove <input type='checkbox' id='masterCBAllCustomer' onclick=\"masterfindCheckedItemsSaveItToHidden(this,'hdSelectedCustomerIds','chkbxAllCustomer','lblDealerSelectedCount','')\" /></div>").Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.CustomerName).Title(@Helper.GetResourceString("lbl_CustomerName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                  columns.Bound(c => c.Code).Title(@Helper.GetResourceString("lbl_Code")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                  columns.Bound(c => c.Vertical).Title(@Helper.GetResourceString("lbl_Vertical")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.SaudaBookingType).Title(@Helper.GetResourceString("lbl_BookingType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.MobileNumber).Title(@Helper.GetResourceString("lbl_MobileNumber")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.Email).Title(@Helper.GetResourceString("lbl_Email")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.Zone).Title(@Helper.GetResourceString("lbl_Zone")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.State).Title(@Helper.GetResourceString("lbl_State")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.Territory).Title(@Helper.GetResourceString("lbl_Territory")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.District).Title(@Helper.GetResourceString("lbl_District")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                  columns.Bound(c => c.City).Title(@Helper.GetResourceString("lbl_City")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                              })
+                              .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                              .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                              .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                              .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                              .Selectable(selectable => selectable
+                              .Mode(GridSelectionMode.Multiple)
+                              .Type(GridSelectionType.Row))
+                              .Scrollable(s => s.Enabled(true).Height("auto"))
+                              .Events(events => events.DataBound("onCustomerGroupListDataBound"))
+                              .Reorderable(reorder => reorder.Columns(true))
+                              .DataSource(dataSource => dataSource
+                              .Ajax()
+                              .Model(model => { model.Id(p => p.CustomerId); })
+                              .ServerOperation(true)
+                              .Read(read => read.Action("GetMappedCustomerListByCustomerGroupId", "RAVersionTwo").Data("additionalGridParam"))))
+                    </div>
+                </div>
+                <div class="row form-group"></div>
+                <div class="row form-group" id="dvSaveTarget">
+                    <div class="col-md-12 text-center">
+                        <button type="button" tabindex="7" id="btnCancel" onclick="location.href = '@Url.Action("CustomerGroupList", "RAVersionTwo" )'" class="k-button">Cancel</button>
+                        @if (Helper.CheckClaims(Claims.ManageRAMasters))
+                        {
+                            <button type="button" tabindex="6" id="btnSaveCustomerGroup" class="k-primary k-button">@Helper.GetResourceString("btn_UpdateCustomerGroup") <i class="icon-arrow-right14 position-right"></i></button>
+                        }
+                        </div>
+                </div>
+            </div>
+            }
+        </div>
+        <div id="dvBindPartial" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h6 class="panel-title"><span class="text-semibold">Customer</span></h6>
+                    </div>
+                    <div class="modal-body">
+                        @*<div id="dvCustomerGroupDetailPopup">
+        </div>*@
+                        <div class="row form-group">
+                            <div class="row form-group">
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_Zone")
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().MultiSelect()
+               .Name("ZoneId")
+               .DataTextField("Name")
+               .DataValueField("Id")
+               .AutoClose(false)
+               .TagMode(TagMode.Single)
+               .Events(e => e.Change("onZoneChange").DataBound("onZoneDataBound"))
+               .DataSource(source => source.Read(read => read.Action("GetZoneListddl", "Lookup", new { isToReturnInactiveData = true }))
+               .ServerFiltering(false))
+               .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='zoneSelectAll'> Select All</label>")
+               .HtmlAttributes(new { id = "ddlZone", @class = "", tabindex = "10", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Zone"), @style = "width:100%" }))
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_State")
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().MultiSelect()
+                 .Name("StateId")
+                 .DataTextField("Name")
+                 .DataValueField("Id")
+                 .AutoClose(false)
+                 .TagMode(TagMode.Single)
+                 .Events(events => events.Change("onStateChange").DataBound("OnStateDataBound"))
+                 .DataSource(source => source.Read(read => read.Action("GetStatesBasedOnZoneIds", "Lookup").Data("stateLoadParam"))
+                 .ServerFiltering(false))
+                 .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='stateSelectAll'> Select All</label>")
+                 .HtmlAttributes(new { id = "ddlState", @class = "", tabindex = "10", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_State"), @style = "width:100%" }))
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_Territory")
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().MultiSelect()
+                 .Name("TerritoryId")
+                 .DataTextField("Name")
+                 .DataValueField("Id")
+                 .AutoClose(false)
+                 .TagMode(TagMode.Single)
+                 .Events(e => e.Change("territoryChange").DataBound("territoryDataBound"))
+                 .DataSource(source => source.Read(read => read.Action("GerTerritoryBasedOnState", "Lookup").Data("territoryLoadParam"))
+                 .ServerFiltering(false))
+                 .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='territorySelectAll'> Select All</label>")
+                 .HtmlAttributes(new { id = "ddlTerritory", @class = "", tabindex = "12", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Territory"), @style = "width:100%" }))
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_District")
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().MultiSelect()
+              .Name("DistrictId")
+              .DataTextField("Name")
+              .DataValueField("Id")
+              .AutoClose(false)
+              .TagMode(TagMode.Single)
+              .MaxSelectedItems(ConfigHelper.MaxSelectedItemForDistrict)
+              .Events(events => events.Change("onDistrictChange").DataBound("OnDistrictDataBound"))
+              .DataSource(source => source.Read(read => read.Action("GerDistrictBasedOnTerritory", "Lookup").Data("districtLoadParam"))
+              .ServerFiltering(false))
+              //.HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='districtSelectAll'> Select All</label>")
+              .HtmlAttributes(new { id = "ddlDistrict", @class = "", tabindex = "12", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_District"), @style = "width:100%" }))
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_City")
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().MultiSelect()
+              .Name("CityId")
+              .ValuePrimitive(false)
+              .DataTextField("Name")
+              .DataValueField("Id")
+              .AutoClose(false)
+              .TagMode(TagMode.Single)
+              .Events(events => events.Change("onCityChange").DataBound("onCityDataBound"))
+              .DataSource(source => source.Read(read => read.Action("GetCityListBasedOnDistrict", "Lookup").Data("cityLoadParam"))
+              .ServerFiltering(false))
+              .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='citySelectAll'> Select All</label>")
+              .HtmlAttributes(new { id = "ddlCity", @class = "", tabindex = "12", required = "required", data_msg_required = Helper.GetSelectMsgRequired("ddlCity"), @style = "width:100%" }))
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-12 text-center">
+                                    <button type="button" tabindex="7" onclick="SearchCustomer()" class="k-primary k-button">Search</button>
+                                </div>
+                            </div>
+                            <div class="row" id="dvDealers">
+                                <div class="col-md-12">
+                                    <div class="text-right">
+                                        @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+                                    </div>
+                                    @(Html.Kendo().Grid<CustomerGroupDetailDto>()
+                  .Name("ViewCustomers")
+                  .Columns(columns =>
+                  {
+                      columns.Bound(c => c.CustomerId).Visible(false);
+                      columns.Bound(c => c.CustomerGroupDetailId).Visible(false);
+                      columns.Template(@<text></text>).ClientTemplate("<div class='text-center'><input type='checkbox' #=IsChecked ? checked='checked' :'' # class='chkbxAllDealer' value=#=CustomerId# onclick=\"findCheckedItemsSaveItToHidden(this,'#=CustomerId#','hdSelectedDealerIds','masterCBAllDealer','chkbxAllDealer','lblDealerSelectedCount','');\" /></div>")
+.HeaderTemplate("<div class='text-center'><input type='checkbox' id='masterCBAllDealer' onclick=\"masterfindCheckedItemsSaveItToHidden(this,'hdSelectedDealerIds','chkbxAllDealer','lblDealerSelectedCount','')\" /></div>").Width("40px");
+columns.Bound(c => c.CustomerName).Title(@Helper.GetResourceString("lbl_CustomerName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+columns.Bound(c => c.Code).Title(@Helper.GetResourceString("lbl_Code")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+columns.Bound(c => c.Vertical).Title(@Helper.GetResourceString("lbl_Vertical")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+columns.Bound(c => c.SaudaBookingType).Title(@Helper.GetResourceString("lbl_BookingType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+columns.Bound(c => c.MobileNumber).Title(@Helper.GetResourceString("lbl_MobileNumber")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+columns.Bound(c => c.Email).Title(@Helper.GetResourceString("lbl_Email")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+columns.Bound(c => c.RoleName).Title(@Helper.GetResourceString("lbl_Role")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+columns.Bound(c => c.Zone).Title(@Helper.GetResourceString("lbl_Zone")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+columns.Bound(c => c.State).Title(@Helper.GetResourceString("lbl_State")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+columns.Bound(c => c.Territory).Title(@Helper.GetResourceString("lbl_Territory")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+columns.Bound(c => c.District).Title(@Helper.GetResourceString("lbl_District")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+columns.Bound(c => c.City).Title(@Helper.GetResourceString("lbl_City")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+})
+.NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+.Filterable(filter => filter.Mode(GridFilterMode.Row))
+.Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+.Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+.Selectable(selectable => selectable
+.Mode(GridSelectionMode.Multiple)
+.Type(GridSelectionType.Row))
+.Scrollable(s => s.Enabled(true).Height("auto"))
+.Events(events => events.DataBound("onDealerListDataBound"))
+.Reorderable(reorder => reorder.Columns(true))
+.Resizable(resize => resize.Columns(true))
+.DataSource(dataSource => dataSource
+.Ajax()
+.Model(model => model.Id(p => p.CustomerId))
+.ServerOperation(true)
+.Read(read => read.Action("GetCustomerList", "RAVersionTwo").Data("additionalParams"))))
+                                </div>
+                            </div>
+                            @*<div class="row" id="dvDealers">
+                <div class="col-md-12">
+                    <button id="btnClose" type="button" tabindex="6" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Close")</button>
+                    <button id="btnAddCustomersToGrid" type="button" tabindex="6" class="k-primary k-button">@Helper.GetResourceString("Btn_AddCustomersToGrid")</button>
+                </div>
+            </div>*@
+                            @*<div class="row form-group"></div>
+            <div class="row form-group" id="dvSaveTarget">
+                <div class="col-md-12 text-center">
+                    <button id="btnClose" type="button" tabindex="6" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Close")</button>
+                    <button id="btnAddCustomersToGrid" type="button" tabindex="6" class="k-primary k-button">@Helper.GetResourceString("Btn_AddCustomersToGrid")</button>
+                </div>
+            </div>*@
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="col-md-12 text-center">
+                            <button id="btnClose" type="button" tabindex="6" class="k-button" data-dismiss="modal">@Helper.GetResourceString("btn_Close")</button>
+                            <button id="btnAddCustomersToGrid" type="button" tabindex="6" class="k-primary k-button">@Helper.GetResourceString("Btn_AddCustomersToGrid")</button>
+
+                        </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="kWindow">
+    <h2>@Helper.GetResourceString("msg_CustomerDeleteConfirmation")</h2>
+    <div class="col-md-12 text-center">
+        <button id="yes" class="k-primary k-button">Yes</button>
+        <button id="no" class="k-primary k-button">No</button>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var selectedDealerIds = [];
+    var selectedCustomerIds = [];
+    var windowDelete;
+    $(document).ready(function () {
+        // kendo grid filter contains
+        FilterContains();
+
+        windowDelete = $("#kWindow").kendoWindow({
+            title: "Delete confirmation",
+            modal: true,
+            visible: false,
+            resizable: false,
+            width: 300
+        }).data("kendoWindow");
+
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        $('#btnAddCustomer').on('click', function (e) {
+            var isValid = $('#frmCustomerGroup').valid();
+            $("#ddlZone").data("kendoMultiSelect").dataSource.data([]);
+
+            if (isValid) {
+                $('#dvBindPartial').modal('show');
+                //loadDealerGrid(true);
+                $("#ViewCustomers").data("kendoGrid").dataSource.read();
+                $("#hdSelectedDealerIds").val("");
+
+                $("#ddlZone").data("kendoMultiSelect").dataSource.read();
+                $("#ddlState").data("kendoMultiSelect").dataSource.data([]);
+                $("#ddlTerritory").data("kendoMultiSelect").dataSource.data([]);
+                $("#ddlDistrict").data("kendoMultiSelect").dataSource.data([]);
+                $("#ddlCity").data("kendoMultiSelect").dataSource.data([]);
+            }
+        });
+
+        $("#btnAddCustomersToGrid").click(function (e) {
+            var hdSelectedDealerIds = $("#hdSelectedDealerIds").val();
+            if (hdSelectedDealerIds) {
+                selectedDealerIds = $("#hdSelectedDealerIds").val().split(",");
+                $('#hdSelectedIds').val(selectedDealerIds);
+            }
+            if (selectedDealerIds.length>0) {
+                window.kendo.ui.progress($("#div_Progress"), true);
+                AddDataToGrid();
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+            else {
+                ShowErrorMessage('@Helper.GetResourceString("msg_PleaseSelectCustomer")');
+            }
+        });
+
+        $("#btnRemoveCustomers").click(function (e) {
+            var hdSelectedCustomerIds = $("#hdSelectedCustomerIds").val();
+            if (hdSelectedCustomerIds) {
+                selectedCustomerIds = $("#hdSelectedCustomerIds").val().split(",");
+                $('#hdSelectedIdsToRemove').val(selectedCustomerIds);
+            }
+            var addedCustomerCount = $("#ViewMappedCustomers").data("kendoGrid").dataSource.data().length;
+
+           // if (addedCustomerCount > 1) {
+                if (selectedCustomerIds.length > 0) {
+
+                    window.kendo.ui.progress($("#div_Progress"), true);
+                    RemoveDataFromGrid();
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                }
+                else {
+                    ShowErrorMessage('@Helper.GetResourceString("msg_PleaseSelectCustomer")');
+                }
+            //}
+        });
+
+        $('#btnSaveCustomerGroup').on('click', function (e) {
+            var isValid = $('#frmCustomerGroup').valid();
+            if (isValid) {
+                if ($("#ViewMappedCustomers").data("kendoGrid").dataSource.data().length > 0) {
+                    window.kendo.ui.progress($("#div_Progress"), true);
+                    $("#CustomerGroupDetailDtoList").val(JSON.stringify($("#ViewMappedCustomers").data("kendoGrid").dataSource.data()));
+                    var frm = $("frmCustomerGroup").serialize();
+                    $('#frmCustomerGroup').submit();
+                    window.kendo.ui.progress($("#div_Progress"), false);
+                }
+                else {
+                    ShowErrorMessage('@Helper.GetResourceString("msg_CustomerNotAdded")');
+                }
+            }
+        });
+
+        if ('@Model.VerticalId' > 0) {
+            $("#ddlVertical").data("kendoDropDownList").readonly(true);
+        }
+
+        //Popup Events Start
+
+        $('#chkKendoFilterShowHide').change(function () {
+            filterShowHide();
+        });
+
+        $("#zoneSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlZone", "zoneSelectAll");
+            $("#ddlState").data("kendoMultiSelect").dataSource.read();
+        });
+
+        $("#stateSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlState", "stateSelectAll");
+            $("#ddlTerritory").data("kendoMultiSelect").dataSource.read();
+        });
+
+        $("#territorySelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlTerritory", "territorySelectAll");
+            $("#ddlDistrict").data("kendoMultiSelect").dataSource.read();
+        });
+
+        $("#districtSelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlDistrict", "districtSelectAll");
+            $("#ddlCity").data("kendoMultiSelect").dataSource.read();
+        });
+
+        $("#citySelectAll").click(function () {
+            MultiSelectCheckUnCheck("ddlCity", "citySelectAll");
+        });
+
+        //Popup Events End
+
+    });
+
+    function SearchCustomer() {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        $("#ViewCustomers").data("kendoGrid").dataSource.read();
+        window.kendo.ui.progress($("#div_Progress"), false);
+    }
+
+    //function additionalParams() {
+    //    return {
+    //        VerticalId: $("#ddlVertical").data("kendoDropDownList").value(),
+    //        ZoneId: $("#ddlZone").data("kendoDropDownList").value(),
+    //        StateId: $("#ddlState").data("kendoDropDownList").value(),
+    //        TerritoryId: $("#ddlTerritory").data("kendoDropDownList").value(),
+    //        DistrictId: $("#ddlDistrict").data("kendoDropDownList").value(),
+    //        CityId: $("#ddlCity").data("kendoDropDownList").value()
+    //    };
+    //}
+
+    function additionalParams() {
+        return {
+            VerticalId: $("#ddlVertical").data("kendoDropDownList").value(),
+            ZoneIds: $("#ddlZone").data("kendoMultiSelect").value().join(),
+            StateIds: $("#ddlState").data("kendoMultiSelect").value().join(),
+            TerritoryIds: $("#ddlTerritory").data("kendoMultiSelect").value().join(),
+            DistrictIds: $("#ddlDistrict").data("kendoMultiSelect").value().join(),
+            CityIds: $("#ddlCity").data("kendoMultiSelect").value().join()
+        };
+    }
+
+    function loadDealerGrid(isRemoveDealerId) {
+        window.kendo.ui.progress($("#div_Progress"), true);
+        moduleCommon.Common.AjaxCall({
+            url: '@Url.Action("CustomerGridPartial", "RAVersionTwo")',
+            type: 'Get',
+            data: { IsRemoveSelectedDealerIdsFromSession: isRemoveDealerId },
+            contentType: 'application/json; charset=utf-8',
+            success: function (result) {
+                $("#dvCustomerGroupDetailPopup").html(result);
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+    function RemoveSelectedItemsFromGrid() {
+        var grid = $("#ViewMappedCustomers").data("kendoGrid");
+        $("#ViewMappedCustomers").find("input:checked").each(function () {
+            grid.removeRow($(this).closest('tr'));
+        });
+    }
+
+    function DeleteCustomer() {
+        var selectedIds = [];
+        var selectedCustomerIds = [];
+        var selectedCustomerDetailIds = [];
+
+        if ($("#hdSelectedCustomerIds").val()) {
+            selectedIds = $("#hdSelectedCustomerIds").val().split(",");
+        }
+
+        if (!(selectedIds.length > 0)) {
+            ShowErrorMessage("Please select any customer");
+            return false;
+        }
+
+        var grid = $("#ViewMappedCustomers").data("kendoGrid");
+        var selectedItems = $("input:checked", grid.tbody).closest("tr");
+        var gridDataItems = [];
+
+        $.each(selectedItems, function (idx, row) {
+            var gridItem = grid.dataItem(row);
+            if (gridItem.CustomerGroupDetailId !== undefined && gridItem.CustomerGroupDetailId > 0) {
+                selectedCustomerIds.push(gridItem.CustomerId);
+                selectedCustomerDetailIds.push(gridItem.CustomerGroupDetailId);
+                gridDataItems.push(gridItem);
+            }
+        });
+
+        if (gridDataItems.length > 0) {
+            var model = {
+                CustomerGroupId: $("#hdnCustomerGroupId").val(),
+                CustomerIds: selectedCustomerIds,
+                CustomerGroupDetailIds: selectedCustomerDetailIds
+            };
+
+
+            window.kendo.ui.progress($("#div_Progress"), true);
+            moduleCommon.Common.AjaxCall({
+                url: '@Url.Action("RemoveCustomersFromCustomerGroup", "RAVersionTwo")',
+                type: 'POST',
+                data: { inputDto: model },
+                success: function (result) {
+                    if (result.PostStatus) {
+                        ShowSuccessMessage(result.PostMessage);
+                    } else {
+                        ShowErrorMessage(result.PostMessage);
+                    }
+                }
+            });
+            window.kendo.ui.progress($("#div_Progress"), false);
+        }
+        RemoveSelectedItemsFromGrid();
+        var hiddenId = 'hdSelectedCustomerIds';
+        UnCheckeRemovedItemsSaveItToHidden(selectedIds, hiddenId);
+    }
+
+    function RemoveDataFromGrid(e) {
+        windowDelete.center().open();
+        $("#yes").click(function () {
+            DeleteCustomer();
+            windowDelete.close();
+        });
+
+        $("#no").click(function () {
+            windowDelete.close();
+        });
+    }
+
+    function AddDataToGrid() {
+        var grid = $("#ViewCustomers").data("kendoGrid");
+        var mappedGrid = $("#ViewMappedCustomers").data("kendoGrid");
+
+        var ddlVerticalValue = $("#ddlVertical").data("kendoDropDownList").value(),
+            viewVertical = grid.dataSource.view();
+
+        var selectedItems = $("input:checked", grid.tbody).closest("tr");
+        var items = [];
+        var alreadyAddedCustomers=[];
+        var gridDataItems = [];
+
+        $.each(selectedItems, function (idx, row) {
+            var gridItem = grid.dataItem(row);
+            items.push(gridItem);
+            var gridDataItem = mappedGrid.dataSource.data().filter(function (item) {
+                return item.CustomerId === gridItem.CustomerId && item.VerticalId === ddlVerticalValue;
+            });
+            if (gridDataItem.length > 0) {
+                gridDataItems.push(gridDataItem);
+                alreadyAddedCustomers.push(gridItem.CustomerName);
+            }
+            else {
+                var ddlVertical = $("#ddlVertical").data("kendoDropDownList").text();
+                var ddlVerticalId = $("#ddlVertical").data("kendoDropDownList").value();
+                var datasource = mappedGrid.dataSource;
+                var total = datasource.data().length;
+
+                datasource.insert(total, {
+                    CustomerId: gridItem.CustomerId,
+                    VerticalId: ddlVerticalId,
+                    Vertical: ddlVertical,
+                    CustomerName: gridItem.CustomerName,
+                    Code: gridItem.Code,
+                    MobileNumber: gridItem.MobileNumber,
+                    Email: gridItem.Email,
+                    Zone: gridItem.Zone,
+                    State: gridItem.State,
+                    District: gridItem.District,
+                    Territory: gridItem.Territory,
+                    City: gridItem.City,
+                    CustomerGroupDetailId: gridItem.CustomerGroupDetailId,
+                    SaudaBookingType: gridItem.SaudaBookingType
+                });
+            }
+        });
+
+        if ($("#ViewMappedCustomers").data("kendoGrid").dataSource.data().length > 0) {
+            ResetFields();
+        }
+
+        if (gridDataItems.length > 0) {
+            ShowErrorMessage('@Helper.GetResourceString("msg_CustomerAlreadyAddedInCustomerGroup")' + ": " + alreadyAddedCustomers.join(','));
+        }
+    }
+
+    function ResetFields() {
+        var ddlVertical = $("#ddlVertical").data("kendoDropDownList");
+        ddlVertical.readonly();
+    }
+
+    function onZoneChange() {
+      
+          MultiSelectEvents("ddlZone", "zoneSelectAll");
+        $("#ddlState").data("kendoMultiSelect").dataSource.read();
+    }
+
+    //State
+    function onStateChange(e) {
+         MultiSelectEvents("ddlState", "stateSelectAll");
+        $("#ddlTerritory").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function OnStateDataBound(e) {
+
+        var stateId = $("#ddlState").data("kendoMultiSelect").value();
+        if (stateId > 0) {
+            $("#ddlTerritory").data("kendoMultiSelect").dataSource.read();
+        }
+    }
+
+    function stateLoadParam() {
+        var ids = $("#ddlZone").data("kendoMultiSelect").value();
+        return {
+            SelectedIds: ids.join()
+        };
+    }
+
+    function territoryAdditionalInfo() {
+        return {
+            stateId: Number($("#ddlState").val())
+        };
+    }
+
+    //Territory
+    function territoryChange() {
+        MultiSelectEvents("ddlTerritory", "territorySelectAll");
+        $("#ddlDistrict").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function territoryDataBound() {
+        var TerritoryId = $("#ddlTerritory").data("kendoMultiSelect").value();
+        //if (TerritoryId > 0) {
+        $("#ddlDistrict").data("kendoMultiSelect").dataSource.read();
+        //}
+    }
+
+    function territoryLoadParam() {
+        var ids = $("#ddlState").data("kendoMultiSelect").value();
+        return {
+            SelectedIds: ids.join()
+        };
+    }
+
+    function districtLoadParam() {
+        var ids = $("#ddlTerritory").data("kendoMultiSelect").value();
+        return {
+            territoryId: ids.join()
+        };
+    }
+
+    function onDistrictChange(e) {
+         MultiSelectEvents("ddlDistrict", "districtSelectAll");
+        $("#ddlCity").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function OnDistrictDataBound(e) {
+        var districtId = $("#ddlDistrict").data("kendoMultiSelect").value();
+        if (districtId > 0) {
+            $("#ddlCity").data("kendoMultiSelect").dataSource.read();
+        }
+    }
+
+     function onCityChange(e) {
+         MultiSelectEvents("ddlCity", "citySelectAll");
+       
+    }
+
+    function cityLoadParam() {
+        var ids = $("#ddlDistrict").data("kendoMultiSelect").value();
+        return {
+            districtId: ids.join()
+        };
+    }
+
+    function additionalDistrictByStateInfo() {
+        return {
+            territoryId: Number($("#ddlTerritory").val())
+        };
+    }
+
+    function additionalCityByDistrictInfo() {
+        var districtId = $("#ddlDistrict").data("kendoMultiSelect").value();
+        if (districtId > 0) {
+            $("#ddlCity").data("kendoMultiSelect").dataSource.read();
+        }
+    }
+
+    function onDealerListDataBound(e) {
+        selectedDealerIds = [];
+        SetEmptyRow(e);
+        var items = e.sender.items();
+        items.each(function () {
+            var row = $(this);
+            var dataItem = e.sender.dataItem(row);
+            if (dataItem !== undefined && !dataItem.HasChildren) {
+                row.find(".k-hierarchy-cell").html("");
+            }
+        });
+
+        if ($("#hdSelectedDealerIds").val()) {
+            selectedDealerIds = $("#hdSelectedDealerIds").val().split(",");
+        }
+
+        $("#masterCBAllDealer").prop('checked', false);
+        $('input:checkbox.' + 'chkbxAllDealer').each(function () {
+            if ($.inArray(this.value, selectedDealerIds) > -1) {
+                this.checked = true;
+            }
+            else {
+                this.checked = false;
+            }
+        });
+    }
+
+    function onCustomerGroupListDataBound(e) {
+
+        selectedCustomerIds = [];
+        SetEmptyRow(e);
+        var items = e.sender.items();
+        items.each(function () {
+            var row = $(this);
+            var dataItem = e.sender.dataItem(row);
+            if (dataItem != undefined && !dataItem.HasChildren) {
+                row.find(".k-hierarchy-cell").html("");
+            }
+        });
+
+        var selectedOrders = [];
+        if ($("#hdSelectedCustomerIds").val()) {
+            selectedOrders = $("#hdSelectedCustomerIds").val().split(",");
+        }
+
+        $("#masterCBAllCustomer").prop('checked', false);
+        $('input:checkbox.' + 'chkbxAllCustomer').each(function () {
+            if ($.inArray(this.value, selectedOrders) > -1) {
+                this.checked = true;
+            }
+            else {
+                this.checked = false;
+            }
+        });
+    }
+
+    function findCheckedItemsSaveItToHidden(ele, id, hiddenId, masterCheckBoxId, checkBoxClass, lblSelectedCount, gridId) {
+        var idList = [];
+        var removeIdList = [];
+        if ($("#" + hiddenId).val() != "") {
+            idList = $("#" + hiddenId).val().split(",");
+        }
+        var masterCheckBox = $(ele).is(':checked');
+        var selectedCount = Number($("#" + lblSelectedCount).html());
+
+        if (masterCheckBox) {
+            idList.push(id);
+            $("#" + lblSelectedCount).html(selectedCount + 1);
+
+        }
+        else {
+            idList = jQuery.grep(idList, function (value) {
+                return value != id;
+            });
+            if (selectedCount > 0)
+                $("#" + lblSelectedCount).html(selectedCount - 1);
+
+        }
+        if (idList) {
+            $("#" + hiddenId).val(idList.join(","));
+        }
+        else {
+            $("#" + hiddenId).val("");
+        }
+
+    }
+
+    function additionalGridParam() {
+        return {
+            customerGroupId: $("#hdnCustomerGroupId").val()
+        };
+    }
+
+    function UnCheckeRemovedItemsSaveItToHidden(selectedCustomerIds, hiddenId) {
+        var idList = [];
+        if ($("#" + hiddenId).val() !== "") {
+            idList = $("#" + hiddenId).val().split(",");
+        }
+        idList = $.grep(idList, function (e) {
+            return selectedCustomerIds.indexOf(e) === -1;
+        });
+        if (idList) {
+            $("#" + hiddenId).val(idList.join(","));
+        }
+        else {
+            $("#" + hiddenId).val("");
+        }
+    }
+
+
+    //Popup Functions Start
+
+    //Zone
+    function onZoneChange() {
+        MultiSelectEvents("ddlZone", "zoneSelectAll");
+        $("#ddlState").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function onZoneDataBound() {
+        MultiSelectEvents("ddlZone", "zoneSelectAll");
+    }
+
+    //State
+    function onStateChange(e) {
+        MultiSelectEvents("ddlState", "stateSelectAll");
+        $("#ddlTerritory").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function OnStateDataBound(e) {
+        MultiSelectEvents("ddlState", "stateSelectAll");
+        $("#ddlTerritory").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function stateLoadParam() {
+        var ids = $("#ddlZone").data("kendoMultiSelect").value();
+        return {
+            SelectedIds: ids.join()
+        };
+    }
+
+    //Territory
+    function territoryChange() {
+        MultiSelectEvents("ddlTerritory", "territorySelectAll");
+        $("#ddlDistrict").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function territoryDataBound() {
+        MultiSelectEvents("ddlTerritory", "territorySelectAll");
+        $("#ddlDistrict").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function territoryLoadParam() {
+        var ids = $("#ddlState").data("kendoMultiSelect").value();
+        return {
+            SelectedIds: ids.join()
+        };
+    }
+
+    //District
+    function districtLoadParam() {
+        var ids = $("#ddlTerritory").data("kendoMultiSelect").value();
+        return {
+            territoryId: ids.join()
+        };
+    }
+
+    function onDistrictChange(e) {
+        //MultiSelectEvents("ddlTerritory", "territorySelectAll");
+        $("#ddlCity").data("kendoMultiSelect").dataSource.read();
+    }
+
+    function OnDistrictDataBound(e) {
+        $("#ddlCity").data("kendoMultiSelect").dataSource.read();
+    }
+
+    //City
+    function onCityChange(e) {
+        MultiSelectEvents("ddlCity", "citySelectAll");
+    }
+
+    function cityLoadParam() {
+        var ids = $("#ddlDistrict").data("kendoMultiSelect").value();
+        return {
+            districtId: ids.join()
+        };
+    }
+
+    function onCityDataBound() {
+        MultiSelectEvents("ddlCity", "citySelectAll");
+    }
+
+    //Popup Functions End
+
+</script>
+
+<style>
+    .k-grid-header .k-header > .k-link {
+        padding: 19px 12px !important;
+    }
+
+    .k-grid th {
+        white-space: pre-wrap !important;
+    }
+</style>
+

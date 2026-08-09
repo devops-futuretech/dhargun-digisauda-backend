@@ -1,0 +1,171 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.MVC.Common
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@{
+    ViewBag.Title = "Feedback";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="dvAlert" class="alert-margin-left-right"></div>
+<input type="hidden" class="currentMenu" value="updatesFeedback" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">@Helper.GetResourceString("lbl_Feedback")</h2>
+    <ol class="breadcrumb custom_breadcrumb">
+        <li><a href="#">Updates</a><span class="icon-right"></span></li>
+        <li class="active">@Helper.GetResourceString("lbl_Question")<span class="icon-right"></span></li>
+    </ol>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body" style="display: block;">
+            <div class="row" id="dvFeedback">
+                <div class="row form-group">
+                    <div class="col-lg-4 col-sm-6 mb-3 ">
+                        <label class="custom_label"> @Helper.GetResourceString("lbl_FeedbackType") </label>
+                        @(Html.Kendo().DropDownList()
+                                      .Name("FeedbackType")
+                                      .DataTextField("FeedbackTypeName")
+                                      .DataValueField("FeedbackTypeId")
+                                      .Value("1")
+                                      .DataSource(source => source.Read(read => read.Action("GetFeedbackTypeddl", "SurveyUpdates", new { isToReturnInactiveData = true }))
+                                      .ServerFiltering(false))
+                                      .HtmlAttributes(new { id = "ddlFeedbackType", tabindex = "1", @class = "form-control", @style = "width:100%" }))
+                    </div>
+                    <div class="col-lg-4 col-sm-6 mb-3 ">
+                        <label class="custom_label">  @Helper.GetResourceString("lbl_CreatedDate") </label>
+                        @(Html.Kendo().DatePicker()
+                                      .Name("EndDate")
+                                      .Value(Settings.DefaultDashboardEndDate)
+                                      .Format(Settings.DateFormat)
+                                      .HtmlAttributes(new { id = "CreatedDate", tabindex = "2", onkeydown = "return isFocus(event);", style = "width: 100%" }))
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="text-right">
+                        <button type="button" tabindex="3" id="btnGenerateFeedback" class="k-primary custom-btns k-button">@Helper.GetResourceString("btn_Search") </button>
+                    </div>
+                </div>
+                    <div class="row form-group">
+                        <div class="col-md-12">
+                            <div class="demo-section k-content wide">
+                                @(Html.Kendo().ListView<FeedbackRequestDto>()
+                                          .Name("ViewFeedback")
+                                          .TagName("div")
+                                          .ClientTemplateId("template")
+                                          .DataSource(dataSource => dataSource
+                                          .Read(read => read.Action("GetFeedbackListAsync", "SurveyUpdates").Data("AdditionalInfo"))
+                                          .PageSize(4)
+                                          .Model(model => { model.Id(p => p.FeedbackId); })
+                                          .Batch(true)
+                                          )
+                                          .Pageable()
+                                          .Editable()
+                            )
+                                <script type="text/x-kendo-tmpl" id="template">
+                                    <div class="product-view k-widget">
+
+                                        <dl>
+                                            <dt>Details</dt>
+                                            <dd>#:Details#</dd>
+                                            <dt>CreatedBy </dt>
+                                            <dd>#:CreatedBy#</dd>
+                                            <dt>CreatedDate</dt>
+                                            <dd >#:CreatedDate#</dd>
+                                        </dl>
+                                    </div>
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>
+
+<style>
+        .product-view dl
+    {
+        margin: 10px 10px 0;
+        padding: 0;
+        overflow: hidden;
+    }
+    .product-view dt, dd
+    {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        line-height: 24px;
+        font-size: 18px;
+    }
+    .product-view dt
+    {
+        font-size: 11px;
+        height: 16px;
+        line-height: 16px;
+        text-transform: uppercase;
+        opacity: 0.5;
+    }
+    
+    .product-view dd
+    {
+        height: 46px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+
+    }
+    
+    .product-view dd .k-widget,
+    .product-view dd .k-textbox {
+        font-size: 14px;
+    }
+    .k-listview
+    {
+        border-width: 1px 0 0;
+        padding: 0;
+        overflow: hidden;
+        min-height: 298px;
+    }
+    
+</style>
+
+<script>
+    $(document).ready(function () {
+        // kendo grid filter contains
+
+         if ('@TempData["SuccessMessage"]'.length) {
+			ShowSuccessMessage('@TempData["SuccessMessage"]');
+        }
+        $("#btnGenerateFeedback").on('click', function () {
+            onDateChange();
+        });
+
+    });
+
+    function onDateChange() {
+        var ViewFeedback = $("#ViewFeedback").data("kendoListView");
+        ViewFeedback.dataSource.read();
+        if (ViewFeedback.dataSource.page() != 1) {
+            $('#ViewFeedback').data('kendoGrid').dataSource.page(1);
+        }
+    }
+
+    function AdditionalInfo() {
+        var date = new Date();
+
+        if ($("#CreatedDate").val().length > 0)
+            date = $("#CreatedDate").val()
+
+        return {
+            CreatedDate: date,
+            FeedbackTypeId: Number($("#ddlFeedbackType").val())
+        }
+    }
+
+
+</script>

@@ -1,0 +1,89 @@
+﻿@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@model Adani.Solution.MVC.Models.BiddingWindowDashboardViewModel
+
+@if (Model != null && Model.BiddingWindowDahboard.Any())
+{
+    for (int i = 0; i < Model.BiddingWindowDahboard.Count; i++)
+    {
+        <div class="col-md-6" id="div1">
+            <div class="card" style="width:35rem; margin-left : 40px; height:25rem;">
+                <div class="card-body">
+
+                    <div class="row form-group" style=" margin-top : 10px; ">
+
+                        @Html.HiddenFor(m => m.BiddingWindowDahboard[i].BiddingWindowId, new { id = "hdnId" })
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                <b> @Helper.GetResourceString("lbl_WindowName")</b>
+                            </div>
+                            <div class="col-md-4">
+                                @Html.DisplayFor(m => m.BiddingWindowDahboard[i].WindowName, new { id = "WindowName", tabindex = "3", @class = "form-control", @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                <b> @Helper.GetResourceString("lbl_CustomerGroup") </b>
+                            </div>
+                            <div class="col-md-4">
+                                @Html.DisplayFor(m => m.BiddingWindowDahboard[i].CustomerGroups, new { id = "CustomerGroup", tabindex = "3", @class = "form-control", @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                <b> @Helper.GetResourceString("lbl_OilType")</b>
+                            </div>
+                            <div class="col-md-4">
+                                @Html.DisplayFor(m => m.BiddingWindowDahboard[i].Oiltypes, new { id = "OilType", tabindex = "3", @class = "form-control", @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                <b> @Helper.GetResourceString("lbl_StartandEndTime")</b>
+                            </div>
+                            <div class="col-md-4">
+                                @Html.DisplayFor(m => m.BiddingWindowDahboard[i].WindowStartAndEndTime, new { id = "WindowStartAndEndTime", tabindex = "3", @class = "form-control", @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+                        </div>
+
+                        @*<div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                <b> Sauda Allocation Time</b>
+                            </div>
+                            <div class="col-md-4">
+                                @Html.DisplayFor(m => m.BiddingWindowDahboard[i].SaudaAllocationStartAndEndTime, new { id = "SaudaAllocationStartAndEndTime", tabindex = "3", @class = "form-control", @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+                        </div>*@
+
+                        <div class="row form-group">
+                            <div class="col-md-4 text-right">
+                                <b> Sauda Booked</b>
+                            </div>
+                            <div class="col-md-4">
+                                @Html.DisplayFor(m => m.BiddingWindowDahboard[i].SaudaBooked, new { id = "SaudaBooked", tabindex = "3", @class = "form-control", @onkeydown = "return AllowOnlyAlphaNumeric(event);", @maxlength = (int)InputMaxLength.String })
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+                                @if (Helper.CheckClaims(Claims.ManageRABiddingWindow))
+                                {
+                                    <button type="button" tabindex="8" id="btnReport" value='@Model.BiddingWindowDahboard[i].BiddingWindowId' onclick="BiddingWindowDashboardDetailsReport(this)" class="k-button">Download Report</button>
+                                }
+                                    <button type="button" tabindex="8" id="btnDetails" value='@Model.BiddingWindowDahboard[i].BiddingWindowId' onclick="RedirectToBiddingWindowDashboardDetails(this)" class="k-primary k-button">View Details</button>
+                                </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <p style="text-align:center">No Bidding Windows</p>
+}

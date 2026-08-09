@@ -1,0 +1,11 @@
+﻿
+
+@using Kendo.Mvc.UI
+
+@(Html.Kendo().DropDownList()
+      .Name("ReasonId")
+      .DataSource(d => d.Read(r => r.Action
+      ("GetActiveReasonsListAsync", "SalesTourPlan").Data("getReasonId()")))
+      .DataValueField("Id")
+      .DataTextField("Reason")
+      .AutoBind(true))

@@ -1,0 +1,531 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.MVC.Common
+@using System.Security.Claims
+@model Adani.Solution.DTO.SpecialityFatEmployeeDiscountDto
+
+@{
+    ViewBag.Title = "SpecialityFatEmployeeDiscount";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{ 
+    var disable = Model.RemainingQuantity == 0 ? "disabled" : "";
+}
+
+<input type="hidden" class="currentMenu" value="tpsfquantitylimitUserAssigned" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="col-xs-3">Assigned Qty Limit</h2>
+    <div style="clear:both;"></div>
+</div>
+
+<div class="content main-section-content row">
+    <div class="panel panel-flat">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+            <div class="row" id="pageLoader">
+                <div class="col-md-12">
+                    @using (Html.BeginForm("AddOrUpdateSpecialityFatEmployeeDiscount", "Pricing", FormMethod.Post, new { id = "frmSFEmployeeUserDiscount", @class = "form-validate-jquery" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.EncryptedId, new { id = "Id" })
+                        @Html.HiddenFor(m => m.HiddenVerticleId, new { id = "HiddenVerticleId" })
+                        
+
+                    <div class="row form-group">
+                        <h3><b>Assigned Qty Limit</b></h3>
+                        <hr />
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right">
+                                @Helper.GetResourceString("lbl_SalesOrganization") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-3">
+                                @(Html.Kendo().DropDownListFor(m=>m.SalesOrganizationId)
+                    .OptionLabel("Select Sales Organization")
+                    .DataTextField("SalesOrganizationName")
+                    .Events(e => e.Change("onSaleChange"))
+                    .DataValueField("Id")
+                    .DataSource(source => source.Read(read => read.Action("GetSalesOrganizationddl", "Lookup"))
+                    ).HtmlAttributes(new { id = "ddlSalesOrganization", tabindex = "5", @class = "form-control", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_SalesOrganization"), @style = "width:100%" })
+                )
+                            </div>
+                            <div class="col-md-2 text-right">
+                                @Helper.GetResourceString("lbl_DistributionChannel") <span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-3">
+                                @(Html.Kendo().DropDownListFor(m=>m.DistributionChannelId)
+                          .OptionLabel("Select Distribution")
+                          .Events(events => events.Change("onDistributionChange").DataBound("OnDistributionDataBound"))
+                          .DataTextField("DistributionChannelName")
+                          .DataValueField("Id")
+                          .DataSource(source => source.Read(read => read.Action("GetDistributionChannelddl", "Lookup").Data("distParam"))
+                          .ServerFiltering(true))
+                          .HtmlAttributes(new { id = "ddlDistributionChannel", @class = "", tabindex = "6", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_DistributionChannel"), @style = "width:100%" }))
+
+                            </div>
+
+
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right">
+                                @Helper.GetResourceString("lbl_VerticleType")
+                            </div>
+                            <div class="col-md-3">
+                                @(Html.Kendo().DropDownListFor(m=>m.VerticleId)
+                                              .OptionLabel(@Helper.GetResourceString("plho_All"))
+                                              .DataTextField("Name")
+                                              .DataValueField("Id")
+                                              .DataSource(source => source.Read(resd => resd.Action("GetVerticalDetailsdd", "Lookup").Data("verticalParam"))
+                                              .ServerFiltering(false))
+                                              .HtmlAttributes(new { id = "ddVerticalType", tabindex = "5", @class = "", @style = "width:100%" }))
+                            </div>
+                            <div class="col-md-2 text-right">
+                                @Helper.GetResourceString("lbl_OilType")
+                            </div>
+                            <div class="col-md-3">
+                                @Html.HiddenFor(m => m.OilTypeId, new { id = "hdnOilTypeId" })
+
+                                @(Html.Kendo().DropDownListFor(m => m.OilTypeId)
+                                      .DataTextField("Name")
+                                      .DataValueField("Id")
+                                      .OptionLabel(@Helper.GetResourceString("plho_SelectOilType"))
+                                      .Events(e => e.Change("onOilTypeChange"))
+                                      .DataSource(source => source.Read(read => read.Action("GetOilTypesBasedOnVerticalId", "Lookup", new { isToReturnInactiveData = false }).Data("oilTypeAdditionalInfo"))
+                                      .ServerFiltering(true))
+                                      .HtmlAttributes(new { id = "ddlOilType", @class = "", tabindex = "6", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_OilType"), @style = "width:100%" }))
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            @*<div class="col-md-2 text-right">
+                @Helper.GetResourceString("lbl_Sku")
+            </div>
+            <div class="col-md-3">
+                @Html.HiddenFor(m => m.SkuName, new { id = "hdnSkuName" })
+                @(Html.Kendo().DropDownListFor(m => m.SkuId)
+              .DataTextField("SkuName")
+              .DataValueField("SkuId")
+              .OptionLabel("Select Sku")
+              .DataSource(source => source.Read(read => read.Action("GetSkusBasedOnOilType", "Lookup").Data("skuAdditionalInfoForDll"))
+              .ServerFiltering(true))
+              .HtmlAttributes(new { id = "ddlSkuNameforSF", @class = "form-control", tabindex = "7", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Sku"), @style = "width:100%" }))
+            </div>*@
+
+                            <div class="col-md-2 text-right">
+                                Quantity Limit <span>(MT)</span>
+                            </div>
+                            <div class="col-md-3">
+                                @Html.TextBoxFor(m => m.ActualDiscount, new { id = "txtDiscount", @class = "form-control decimalValue", tabindex = "10", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Discount"), @maxlength = (int)InputMaxLength.Discount })
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right">
+                                @Helper.GetResourceString("lbl_ValidFrom")
+                            </div>
+                            <div class="col-md-3">
+                                @(Html.Kendo().DatePickerFor(m => m.ValidFrom)
+                                       .Format(Settings.DateFormat)
+                                       //.Events(e => e.Change("fromChange"))
+                                       .HtmlAttributes(new { id = "dpFromDate", onkeydown = "return isFocus(event);", tabindex = "3", style = "width: 100%" }))
+                            </div>
+                            <div class="col-md-2 text-right">
+                                @Helper.GetResourceString("lbl_ValidTo")
+                            </div>
+                            <div class="col-md-3">
+                                @(Html.Kendo().DatePickerFor(m => m.ValidTo)
+                                       .Format(Settings.DateFormat)
+                                       .HtmlAttributes(new { id = "dpToDate", onkeydown = "return isFocus(event);", tabindex = "4", style = "width: 100%" }))
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-2 text-right">
+                                Remaining Quantity (MT)
+                            </div>
+                            <div class="col-md-3">
+                                @Html.TextBoxFor(m => m.RemainingQuantity, new { id = "txtRemainingQuantity", @class = "form-control decimalValue", tabindex = "10", @maxlength = (int)InputMaxLength.Discount, @readonly = "readonly" })
+                            </div>
+                        </div>
+                        @Html.HiddenFor(m => m.RemainingQuantityHidden, new { id = "finalRemainingQuantity" })
+                        @if (Model.RoleId != (int)Role.StateTrader)
+                        {
+                            <h3><b>Assign Qty Limit</b></h3>
+                            <hr>
+
+                            <div class="row form-group">
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_Employees") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @Html.HiddenFor(m => m.CustomerName, new { id = "hdnCustomerId" })
+
+                                    @(Html.Kendo().MultiSelect()
+                                     .Name("CustomerId")
+                                     .DataTextField("EmployeeName")
+                                     .DataValueField("Id")
+                                     .TagMode(TagMode.Single)
+                                     .AutoClose(false)
+                                     .Events(e => e.Change("onEmployeeChange"))
+                                     //.DataSource(source => source.Read(read => read.Action("GetUserDetailsddlAsync", "Pricing", new { isToReturnInactiveData = true }))
+                                     .DataSource(source => source.Read(read => read.Action("GetUserAssignedToAsync", "SalesTourPlan").Data("customerParam"))
+                                     .ServerFiltering(true))
+                                     .HeaderTemplate("<label style='padding:10px 10px 5px 10px;color:white'><input type='checkbox' id='employeeSelectAll'> Select All</label>")
+                                     .HtmlAttributes(new { id = "ddlCustomerName", @class = "", tabindex = "9", required = "required", data_msg_required = Helper.GetSelectMsgRequired("lbl_Employees"), @style = "width:100%" }))
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    <span>Quantity Limit <span>(MT)</span> <br /> Per User </span> <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @Html.TextBoxFor(m => m.EmpActualDiscount, new { id = "txtEmpActualDiscount", @class = "form-control decimalValue", tabindex = "10", required = "required", data_msg_required = Helper.GetMsgRequired("lbl_Discount"), @maxlength = (int)InputMaxLength.Price })&nbsp <div style="display:inline"><span>Remaining Qty : </span><span id="spanRemainingQuantity"></span></div>
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_ValidFrom") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DateTimePickerFor(m => m.EmpValidFrom)
+                                       .Format(Settings.DateTimeFormat)
+                                       .Interval(1)
+                                       .Events(e => e.Change("empFromChange"))
+                                       .HtmlAttributes(new { id = "dpEmpFromDate", onkeydown = "return isFocus(event);", tabindex = "3", style = "width: 100%" }))
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    @Helper.GetResourceString("lbl_ValidTo") <span class="text-danger">*</span>
+                                </div>
+                                <div class="col-md-3">
+                                    @(Html.Kendo().DateTimePickerFor(m => m.EmpValidTo)
+                                      .Format(Settings.DateTimeFormat)
+                                      .Interval(1)
+                                      .HtmlAttributes(new { id = "dpEmpToDate", onkeydown = "return isFocus(event);", tabindex = "4", style = "width: 100%" }))
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+                                @if (Model.RoleId != (int)Role.StateTrader)
+                                {
+                                    <button type="button" onclick="location.href = '@Url.Action("SpecialityFatEmployeeDiscountList", "Pricing")'" class="k-button">@Helper.GetResourceString("btn_Cancel")</button>
+
+                                    <button type="button" @disable id="btnSave" class="k-primary k-button">@Helper.GetResourceString("btn_Save")<i class="icon-arrow-right14 position-right"></i></button>
+                                }
+                                else
+                                {
+                                    <button type="button" onclick="location.href = '@Url.Action("SpecialityFatEmployeeDiscountList", "Pricing")'" class="k-primary k-button"><i class="icon-arrow-left13 position-right"></i> Back</button>
+                                }
+                            </div>
+                        </div>
+                    }
+                    <!---end of form input-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+
+    $(document).ready(function () {
+
+        var dropdown = $("#ddVerticalType").data("kendoDropDownList");
+        dropdown.readonly();
+        dropdown = $("#ddlSalesOrganization").data("kendoDropDownList");
+        dropdown.readonly();
+        dropdown = $("#ddlDistributionChannel").data("kendoDropDownList");
+        dropdown.readonly();
+        dropdown = $("#ddlOilType").data("kendoDropDownList");
+        dropdown.readonly();
+        $("#ddVerticalType").prop("readonly", true);
+       /* $("#ddlSkuNameforSF").data("kendoDropDownList").readonly();*/
+        dropdown.readonly();
+        
+
+        //dropdown = $("#ddlSkuName").data("kendoDropDownList");
+        //dropdown.readonly();
+
+        $("#txtDiscount").prop("readonly", true);
+        var datePicker = $("#dpFromDate").data("kendoDatePicker");
+        datePicker.readonly();
+        datePicker = $("#dpToDate").data("kendoDatePicker");
+        datePicker.readonly();
+        $("#txtEmpActualDiscount").val('');
+
+        StartDateRange();
+        setEmployeeDefaultDate();
+
+        if ('@Model.PostMessage' !== "") {
+            if ('@Model.PostStatus' === '@true') {
+                ShowSuccessMessage('@Model.PostMessage');
+            } else {
+                ShowErrorMessage('@Model.PostMessage');
+            }
+        }
+
+        //Save the form data
+        $("#btnSave").click(function () {
+
+            var isValidForm = $("#frmSFEmployeeUserDiscount").valid();
+            var remainingQty = Number($("#spanRemainingQuantity").text());
+            if (!(0 <= remainingQty)) {
+                ShowErrorMessage("Quantity limit error");
+                return false;
+            }
+
+            $("#finalRemainingQuantity").val(remainingQty);
+
+            if (isValidForm) {
+                window.kendo.ui.progress($("#div_Progress"), true);
+                $("#frmSFEmployeeUserDiscount").submit();
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+
+
+        $("#txtEmpActualDiscount").focusout(function (e) {
+            calculateRemainingQuantity($(this).val() , '@Model.HiddenVerticleId');
+        });
+
+        $("#employeeSelectAll").click(function () {
+            MultiSelectSelectAll("ddlCustomerName", "employeeSelectAll");
+            calculateRemainingQuantity($("#txtEmpActualDiscount").val() , '@Model.HiddenVerticleId');
+        });
+
+        $("#skuSelectAll").click(function () {
+           MultiSelectSelectAll("ddlSkuName", "skuSelectAll");
+        });
+
+    });
+    function onSaleChange() {
+        $("#ddlDistributionChannel").data("kendoDropDownList").dataSource.read();
+    }
+    function onDistributionChange(e) {
+        $("#ddVerticalType").data("kendoDropDownList").dataSource.read();
+    }
+
+    function OnDistributionDataBound(e) {
+        var distId = $("#ddlDistributionChannel").data("kendoDropDownList").value();
+        if (distId > 0) {
+            $("#ddVerticalType").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    function customerParam() {
+        var verticalId = 0;
+        if ($("#ddVerticalType").data("kendoDropDownList").value()) {
+            verticalId = $("#ddVerticalType").data("kendoDropDownList").value();
+        }
+        var SalesOrganizationId = 0;
+        if ($("#ddlSalesOrganization").data("kendoDropDownList").value()) {
+            SalesOrganizationId = $("#ddlSalesOrganization").data("kendoDropDownList").value();
+        }
+        var DistributionChannelId = 0;
+        if ($("#ddlDistributionChannel").data("kendoDropDownList").value()) {
+            DistributionChannelId = $("#ddlDistributionChannel").data("kendoDropDownList").value();
+        }
+        return {
+            verticalId: Number(verticalId),
+            SalesOrganizationId: SalesOrganizationId,
+            DistributionChannelId: DistributionChannelId,
+            StateId:0
+        };
+
+    }
+    function verticalParam() {
+        var distId = $("#ddlDistributionChannel").data("kendoDropDownList").value();
+        return {
+            distId: Number(distId)
+        };
+    }
+
+    function distParam() {
+        var saleId = $("#ddlSalesOrganization").data("kendoDropDownList").value();
+        return {
+            saleId: Number(saleId)
+        };
+    }
+    function onSkuChange() {
+        MultiSelectIndividualSelect("ddlSkuName", "skuSelectAll");
+        calculateRemainingQuantity($("#txtEmpActualDiscount").val() ,'@Model.HiddenVerticleId');
+    }
+
+    function onEmployeeChange() {
+        MultiSelectIndividualSelect("ddlCustomerName", "employeeSelectAll");
+        calculateRemainingQuantity($("#txtEmpActualDiscount").val() , '@Model.HiddenVerticleId');
+    }
+
+    function calculateRemainingQuantity(qtyAmount,verticalId) {
+        if (verticalId == 1) {
+            var selectedUserCount = $("#ddlCustomerName").data("kendoMultiSelect").value().length;
+            var selectedSkuCount = $("#ddlSkuName").data("kendoMultiSelect").value().length;
+            var userAndSkuTotalCount = selectedSkuCount * selectedUserCount;
+            var assignedQuantity = $("#txtRemainingQuantity").val();
+            var qtySum = (Number(qtyAmount) * userAndSkuTotalCount);
+            var remainingQty = (Number(assignedQuantity) - qtySum);
+            $("#spanRemainingQuantity").text(remainingQty);
+        }
+        else
+        {
+                var selectedUserCount = $("#ddlCustomerName").data("kendoMultiSelect").value().length;
+                var assignedQuantity = $("#txtRemainingQuantity").val();
+                var qtySum = (Number(qtyAmount) * selectedUserCount);
+                var remainingQty = (Number(assignedQuantity) - qtySum);
+                $("#spanRemainingQuantity").text(remainingQty);
+           
+        }
+        
+    }
+
+    //Verticle Type Change Events
+    function onVerticalTypeChange() {
+        //clear
+        @*if ('@Model.VerticleId' == 1) {
+            $("#ddlSkuName").data("kendoMultiSelect").dataSource.read();
+        }
+        else {
+            $("#ddlSkuNameforSF").data("kendoDropDownList").dataSource.read();
+        }*@
+        $("#ddlOilType").data("kendoDropDownList").dataSource.data([]);
+        $("#ddlOilType").data("kendoDropDownList").dataSource.read();
+    }
+
+    //Oiltype Change Events
+    function onOilTypeChange() {
+        if ('@Model.VerticleId' == 1) {
+            $("#ddlSkuName").data("kendoMultiSelect").dataSource.read();
+        }
+        else {
+            //$("#ddlSkuNameforSF").data("kendoDropDownList").dataSource.read();
+        }
+    }
+
+    //OilType loading additional parameters
+    function oilTypeAdditionalInfo() {
+        var verticleId = $("#ddVerticalType").data("kendoDropDownList").value();
+        if (!verticleId) {
+             if ('@Model.Id' != 0) {
+                verticalId = '@Model.VerticleId';
+            }
+        }
+        return {
+            verticalId: Number(verticleId)
+        }
+    }
+
+    //SkuName loading additional parameters
+    function skuAdditionalInfo() {
+      //var oilTypeId = $("#ddlOilType").data("kendoDropDownList").value();
+       // if (!oilTypeId) {
+        //    if ('@Model.Id' != 0) {
+          //      oilTypeId = '@Model.OilTypeId';
+           // }
+        //}
+        var Id = $("#Id").val();
+        return {
+           id: Number(Id)
+        }
+    }
+
+    //SkuNameFordll loading additional parameters
+    function skuAdditionalInfoForDll() {
+        var oilTypeId = $("#ddlOilType").data("kendoDropDownList").value();
+        if (!oilTypeId) {
+            if ('@Model.Id' != 0) {
+                oilTypeId = '@Model.OilTypeId';
+            }
+        }
+        return {
+            oiltypeId: Number(oilTypeId)
+        }
+    }
+
+
+
+    function fromChange() {
+        var endPicker = $("#dpEmpToDate").data("kendoDateTimePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            $("#dpEmpToDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateTimeFormat));
+            endPicker.min(startDate);
+        }
+    }
+
+    function empFromChange() {
+        var endPicker = $("#dpEmpToDate").data("kendoDateTimePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            $("#dpEmpToDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateTimeFormat));
+            endPicker.min(startDate);
+        }
+    }
+
+    function StartDateRange() {
+        //var endPicker = $("#dpEmpToDate").data("kendoDatePicker"),
+        //    startDate = $("#dpEmpToDate").val();
+
+        //if (startDate) {
+        //    startDate = new Date(startDate);
+        //    $("#dpEmpToDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateFormat));
+        //    endPicker.min(startDate);
+        //}
+
+        var startDate = new Date();
+        startDate.setDate(startDate.getDate());
+
+        $("#dpEmpFromDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateTimeFormat));   //Set default date
+        $("#dpEmpToDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateTimeFormat));
+
+        var endPicker = $("#dpEmpToDate").data("kendoDateTimePicker");                                             //Set min date
+        $("#dpEmpToDate").val(kendo.toString(kendo.parseDate(startDate), emamiGlobal.constant.DateTimeFormat));
+        endPicker.min(startDate);
+
+        var endPicker = $("#dpEmpFromDate").data("kendoDateTimePicker");
+        endPicker.min(startDate);
+    }
+
+    function setEmployeeDefaultDate() {
+
+        var fromDate = $("#dpFromDate").data("kendoDatePicker").value();
+        var toDate = $("#dpToDate").data("kendoDatePicker").value();
+
+        var defaultFromValue = null;
+        var defaultToValue = null;
+
+        if (fromDate) {
+            fromDate = new Date(fromDate);
+            fromDate.setHours(0, 0, 0, 0);
+
+            // Default From uses current time on parent's first allowed day (matches SpecialityFatDiscountUser default behavior)
+            var now = new Date();
+            defaultFromValue = new Date(fromDate);
+            defaultFromValue.setHours(now.getHours(), now.getMinutes(), 0, 0);
+        }
+        if (toDate) {
+            toDate = new Date(toDate);
+            toDate.setHours(23, 59, 0, 0);
+            defaultToValue = new Date(toDate);
+        }
+
+        var empFromPicker = $("#dpEmpFromDate").data("kendoDateTimePicker");
+        var empToPicker = $("#dpEmpToDate").data("kendoDateTimePicker");
+
+        //Set min and max first so the value assignment below is not clipped
+        empFromPicker.min(fromDate);
+        empFromPicker.max(toDate);
+        empToPicker.min(fromDate);
+        empToPicker.max(toDate);
+
+        //Set default value via widget API so internal Date state is updated
+        empFromPicker.value(defaultFromValue);
+        empToPicker.value(defaultToValue);
+    }
+
+</script>

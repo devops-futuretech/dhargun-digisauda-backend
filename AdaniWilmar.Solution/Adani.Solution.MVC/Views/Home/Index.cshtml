@@ -1,0 +1,443 @@
+﻿@using Kendo.Mvc.UI
+@using Adani.Solution.MVC.Helpers
+@using Adani.Solution.DTO.Enums
+@using Adani.Solution.DTO
+@using Adani.Solution.MVC.Common;
+@model Adani.Solution.DTO.DashboardDetailsDto
+@{
+    ViewBag.Title = "Home";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<input type="hidden" class="currentMenu" value="home" />
+<div id="main-section-header" class="row">
+    <h2 id="team-efficiency" class="main-title">Home</h2>
+    <div style="clear:both;"></div>
+</div>
+
+
+
+<div class="content main-section-content row">
+    @*<div class="panel panel-flat">
+            <div class="panel-heading">
+                <h6 class="panel-title"><span class="text-semibold"> Home</span></h6>
+            </div>
+            <div class="panel-body" style="display: block;">
+                <div class="row">
+                    <div class="col-md-12">
+
+                        <p style="line-height : 20px; font-size: 13px;">
+                            Emami Agrotech Limited is the edible oil and bio-diesel arm of Emami Group of Companies, the Rs. 10,000 crore, business conglomerate based in Kolkata. Emami Agrotech Ltd has diverse business interests in segments such as production and distribution of Edible Oil, Specialty Fats and Bio-diesel. The company is also involved in cultivation of crops that are commercially viable through contract farming
+                        </p>
+
+                        <p style="padding-top : 20px;line-height : 20px; font-size: 13px;">Emami Agrotech Ltd. (formerly Emami Biotech Ltd.) has created from the very beginning, a strong foothold in the Edible Oil industry with its brands 'Healthy & Tasty' and 'Himani Best Choice'. It is also one of the largest manufacturers of Biodiesel (Palm Methyl Ester) in Eastern India and a key exporter of biodiesel to Europe and other South East Asian Countries.</p>
+
+                        <p style="padding-top : 20px;line-height : 20px; font-size: 13px;">Emami Agrotech is backed by sound infrastructure that includes state-of-the-art refineries in Haldia, West Bengal and Krishnapatnam, Andhra Pradesh with a total manufacturing capacity of 3,600 TPD. The factories also house well-equipped R&D centres with advanced testing facilities to ensure the products are compliant with FSSAI, EN and BIS quality standards.</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>*@
+    <div class="dashboard-panel">
+        <div class="row tiles">
+            <div class="tile-box">
+                <div class="tile-item tile_green_bg">
+                    <div class="tile-left">
+                        <div class="t-title">Total Contract (MT)</div>
+                        <div class="tile-value">@Model.TodayContract </div>
+                    </div>
+                    <div class="tile-right">
+                        <img src="/images/SaudaOFF.svg" alt="icon" />
+                    </div>
+                </div>
+            </div>
+            @*<div class="tile-box" >
+            <div class="tile-item tile_lightblue_bg">
+                <div class="tile-left">
+                    <div class="t-title">Total Sales Order (MT)</div>
+                    <div class="tile-value">@Model.TodaySalesOrder </div>
+                </div>
+                <div class="tile-right">
+                    <img src="/images/SalesOFF.svg" alt="icon" />
+                </div>
+            </div>
+        </div>*@
+            @*<div class="tile-box" >
+            <div class="tile-item tile_naviblue_bg">
+                <div class="tile-left">
+                    <div class="t-title">Total Sale</div>
+                    <div class="tile-value">@Model.TodayInvoice</div>
+                </div>
+                <div class="tile-right">
+                    <img src="/images/depot.svg" alt="icon" />
+                </div>
+            </div>
+        </div>*@
+            <div class="tile-box">
+                <div class="tile-item tile_purple_bg">
+                    <div class="tile-left">
+                        <div class="t-title">Over Due(In Lakhs)</div>
+                        <div class="tile-value">@Model.OverDue</div>
+                    </div>
+                    <div class="tile-right">
+                        <img src="/images/ratings.svg" alt="icon" />
+                    </div>
+                </div>
+            </div>
+            <div class="tile-box">
+                <div class="tile-item tile_lightblue_bg">
+                    <div class="tile-left">
+                        <div class="t-title">Tomorrow's Due(In Lakhs)</div>
+                        <div class="tile-value">@Model.TomorrowDue</div>
+                    </div>
+                    <div class="tile-right">
+                        <img src="/images/ratings.svg" alt="icon" />
+                    </div>
+                </div>
+            </div>
+            <div class="tile-box">
+                <div class="tile-item tile_orange_bg">
+                    <div class="tile-left">
+                        <div class="t-title">Total login by Distributor</div>
+                        <div class="tile-value" id="WebtotalLoginDistri">@Model.GoogleAnalyticsData.TotalLoginsByDistributor</div>
+                    </div>
+                    <div class="tile-right">
+                        <img src="/images/ratings.svg" alt="icon" />
+                    </div>
+                </div>
+            </div>
+            <div class="tile-box">
+                <div class="tile-item tile_naviblue_bg">
+                    <div class="tile-left">
+                        <div class="t-title">Total login by sales</div>
+                        <div class="tile-value" id="totalLoginSales">@Model.GoogleAnalyticsData.TotalLoginsBySales</div>
+                    </div>
+                    <div class="tile-right">
+                        <img src="/images/ratings.svg" alt="icon" />
+                    </div>
+                </div>
+            </div>
+            @*<div class="tile-box">
+                <div class="tile-item tile_purple_bg">
+                    <div class="tile-left">
+                        <div class="t-title">How many employee logged in</div>
+                        <div class="tile-value" id="WebtotalLoginUsers">@Model.GoogleAnalyticsData.TotalEmployeesLoggedIn</div>
+                    </div>
+                    <div class="tile-right">
+                        <img src="/images/ratings.svg" alt="icon" />
+                    </div>
+                </div>
+            </div>*@
+            @*<div class="tile-box">
+                <div class="tile-item tile_purple_bg">
+                    <div class="tile-left">
+                        <div class="t-title">Total number of users</div>
+                        <div class="tile-value" id="totalEmpLoggedIn">@Model.GoogleAnalyticsData.TotalNumberOfUsers</div>
+                    </div>
+                    <div class="tile-right">
+                        <img src="/images/ratings.svg" alt="icon" />
+                    </div>
+                </div>
+            </div>*@
+        </div>
+
+    </div>
+    <div class="col-md-12" id="ViewSauda">
+        <div>
+            <div class="text-right right-buttons">
+                <div class="export_as">
+                    <span>Export as</span>
+                    <div class="export-btns">
+                        <span class="export-link" onclick='downloadSaudhaList()' type="button">Excel</span>
+                        @*<span class="export-link" onclick='ExportToExcel("ViewSaudaList")' type="button">Excel</span>*@
+                    </div>
+                </div>
+                @*<button class="k-button k-button-icontext k-grid-excel" onclick='ExportToExcel("ViewSaudaList")' type="button"><span class="k-icon k-i-excel"></span>@Helper.GetResourceString("lbl_ExcelExport")</button>&ensp;*@
+                @(Html.Kendo().CheckBox().Name("chkKendoFilterShowHide").HtmlAttributes(new { id = "chkKendoFilterShowHide" }).Label(@Helper.GetResourceString("msg_ShowFilter")))
+            </div>
+
+            @(Html.Kendo().Grid<SaudaListDto>().Name("ViewSaudaList")
+                                  .Columns(columns =>
+                                  {
+                                  columns.Bound(c => c.Id).Visible(false);
+                                  columns.Bound(c => c.StatusId).Visible(false);
+                                  columns.Bound(c => c.SaudaId).Visible(false);
+                                  columns.Bound(c => c.DataFilter).Visible(false);
+                                  columns.Bound(c => c.IsSAPDataSyncApproval).Visible(false);
+                                    @*columns.Template(@<text></text>).ClientTemplate("#if(StatusId == emamiGlobal.Status.Pending && (SaudaNumber != null && SaudaNumber != ''))" +
+                                        "{# <input type='checkbox' class='chkbxAllPaymentReceived'  value=#=Id# onclick=\"findCheckedItemsSaveItToHidden(this,'#=Id#','hdSelectedIds','masterCBAllPaymentReceived','chkbxAllPaymentReceived','lblPaymentReceivedSelectedCount');\"/> #}#")
+                                        .HeaderTemplate("<div class='text-center'><input type='checkbox' id='masterCBAllPaymentReceived' onclick=\"masterfindCheckedItemsSaveItToHidden(this,'hdSelectedIds','chkbxAllPaymentReceived','lblPaymentReceivedSelectedCount')\"/></div>").Width("40px");*@
+                                            @*columns.Template(@<text></text>).ClientTemplate(
+                                             "#if(DataFilter != 3)" +
+                                            "{#" +
+                                            "<input type='checkbox' class='chkbxAllPaymentReceived'  value=#=Id# onclick=\"findCheckedItemsSaveItToHidden(this,'#=SaudaId#','hdSelectedIds','masterCBAllPaymentReceived','chkbxAllPaymentReceived','lblPaymentReceivedSelectedCount');\"/>"
+                                            +
+                                            "#}#"
+                                            //"else if((SaudaNumber == null || SaudaNumber == '') && (IsSAPDataSync) && (IsActiveRemarks))" +
+                                            //"{#" +
+                                            //"<input type='checkbox' class='chkbxAllPaymentReceived'  value=#=Id# onclick=\"findCheckedItemsSaveItToHidden(this,'#=SaudaId#','hdSelectedIds','masterCBAllPaymentReceived','chkbxAllPaymentReceived','lblPaymentReceivedSelectedCount');\"/>" +
+                                            //"#}" +
+                                            //"else if(IsSapSyncNotReceivedForSaudaNumber)" +
+                                            //"{#" +
+                                            //"<input type='checkbox' class='chkbxAllPaymentReceived'  value=#=Id# onclick=\"findCheckedItemsSaveItToHidden(this,'#=Id#','hdSelectedIds','masterCBAllPaymentReceived','chkbxAllPaymentReceived','lblPaymentReceivedSelectedCount');\"/>" +
+                                            //"#}#"
+                                            )
+                                            .HeaderTemplate("<div class='text-center'><input type='checkbox' id='masterCBAllPaymentReceived' onclick=\"masterfindCheckedItemsSaveItToHidden(this,'hdSelectedIds','chkbxAllPaymentReceived','lblPaymentReceivedSelectedCount')\"/></div>").Width(Settings.GridFilterColumnWidth);*@
+                                          // columns.Bound(c => c.TradeTicketNumber).Title(@Helper.GetResourceString("lbl_TradeTicketNumber")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                      //columns.Bound(c => c.CreatedDate).Format(Settings.GridDateTimeFormat).Title(@Helper.GetResourceString("lbl_SaudaNumber")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                      columns.Bound(c => c.SaudaNumber).Title(@Helper.GetResourceString("lbl_SaudaNumber")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                      columns.Bound(c => c.SaudaId).Title(@Helper.GetResourceString("lbl_BookedNo")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                      columns.Bound(c => c.BiddingDate).Title(@Helper.GetResourceString("lbl_BiddingDate")).Format(Settings.GridDateFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                      columns.Bound(c => c.DealerName).HtmlAttributes(new { @title = "#=DealerName#" }).Title(@Helper.GetResourceString("lbl_DealerName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+
+                                      columns.Bound(c => c.CreatedBy).HtmlAttributes(new { @title = "#=CreatedBy#" }).Title(@Helper.GetResourceString("lbl_CreatedBy")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                      columns.Bound("").ClientTemplate(@"<div style='text-align: center;'> <a style='text-decoration: underline;' href='" + Url.Action("SaudhaDetailsEdit", "ReverseAuction", new { EncryptedId = "#=EncryptedId#" }) + "' title='" + @Helper.GetResourceString("msg_Edit") + "'><span class='glyphicon glyphicon-eye-open'></span></a> </div>").Title("Action").Width(Settings.GridColumnMaxWidth);
+                                  })
+                                  .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                    .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                    .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                    .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                    .Selectable(selectable => selectable
+                                    .Mode(GridSelectionMode.Multiple)
+                                    .Type(GridSelectionType.Row))
+                                    .ClientDetailTemplateId("template")
+                                    .Scrollable(s => s.Enabled(true).Height("auto"))
+                                    //.Events(e => e.ExcelExport("employees_excelExport").DetailInit("detailInit"))
+                                    .Events(events => events.DataBound("onFinalPricingtDataBound"))
+                                    .Reorderable(reorder => reorder.Columns(true))
+                                    .Resizable(resize => resize.Columns(true))
+                                  //.Excel(excel => excel.AllPages(true).FileName(@Helper.GetResourceString("lbl_IndentList") + " " + DateTime.Now + ".xlsx").Filterable(true))
+                                  .DataSource(dataSource => dataSource
+                                  .Ajax()
+                                  .Model(model => model.Id(p => p.SaudaId))
+                                  .Sort(s => s.Add("Id").Descending())
+                                  .ServerOperation(true)
+                                  .Read(read => read.Action("GetSaudaListForAdmin", "ReverseAuction").Data("additionalParams"))))
+            <script id="template" type="text/kendo-tmpl">
+                                    @(Html.Kendo().Grid<SaudaListDto>()
+                                       .Name("gridChild_#=SaudaId#")
+                                       .Columns(columns =>
+                                       {
+                                           columns.Bound(c => c.PlantName).HtmlAttributes(new { @title = "\\#= PlantName \\#" }).Title(@Helper.GetResourceString("lbl_Plant")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           //columns.Bound(c => c.OiltypeCode).HtmlAttributes(new { @title = "\\#= OiltypeCode \\#" }).Title(@Helper.GetResourceString("lbl_OilTypeCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           columns.Bound(c => c.OiltypeName).HtmlAttributes(new { @title = "\\#= OiltypeName \\#" }).Title(@Helper.GetResourceString("lbl_OilType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           columns.Bound(c => c.SkuName).HtmlAttributes(new { @title = "\\#= SkuName \\#" }).Title(@Helper.GetResourceString("lbl_SkuName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           columns.Bound(c => c.SkuCode).Title(@Helper.GetResourceString("lbl_SkuCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           columns.Bound(c => c.ValidFromDate).Title("Valid From").Format(Settings.GridDateFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                           columns.Bound(c => c.ValidToDate).Title("Valid To").Format(Settings.GridDateFormat).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth250);
+                                           columns.Bound(c => c.BidQuantity).Title(@Helper.GetResourceString("lbl_QuantityPerMT")).Format(Settings.DecimalFormat4).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           columns.Bound(c => c.BidQuantityCase).Title(@Helper.GetResourceString("lbl_QuantityPerCase")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           columns.Bound(c => c.QuotedPrice).Title("Price Before Discount/Premium Applied").Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           columns.Bound(c => c.BidPrice).Title(@Helper.GetResourceString("lbl_FinalPrice")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           columns.Bound(c => c.BidPricePerCase).Title(@Helper.GetResourceString("lbl_SaudaBidPricePerCase")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           //columns.Bound(c => c.BidPricePerSku).Title(@Helper.GetResourceString("lbl_SaudaBidPricePerSku")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           //columns.Bound(c => c.BasePricePerSku).Title(@Helper.GetResourceString("lbl_SaudaBasePricePerSku")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           //columns.Bound(c => c.BasePricePerCase).Title(@Helper.GetResourceString("lbl_SaudaBasePricePerCase")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           columns.Bound(c => c.DiscountType).Title(@Helper.GetResourceString("lbl_DiscountType")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           columns.Bound(c => c.DiscountAmount).Title(@Helper.GetResourceString("lbl_DiscountAmount")).Format(Settings.DecimalFormat4).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           // columns.Bound(c => c.DiscountAmount).ClientTemplate("# if(DiscountType!='') { # #: DiscountAmount # # } #").Title(@Helper.GetResourceString("lbl_DiscountAmount")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           columns.Bound(c => c.Incoterms1).Title(@Helper.GetResourceString("lbl_IncoTerms")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           columns.Bound(c => c.StateName).HtmlAttributes(new { @title = "\\#= StateName \\#" }).Title(@Helper.GetResourceString("lbl_State")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           columns.Bound(c => c.BDOName).HtmlAttributes(new { @title = "\\#= BDOName \\#" }).Title(@Helper.GetResourceString("lbl_BDOName")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           columns.Bound(c => c.BDOCode).Title(@Helper.GetResourceString("lbl_BDOCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           columns.Bound(c => c.DealerCode).Title(@Helper.GetResourceString("lbl_DealerCode")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           columns.Bound(c => c.Status).Title(@Helper.GetResourceString("lbl_Status")).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           columns.Bound(c => c.Remarks).Title("SAP Remarks").HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { @title = "\\#= Remarks \\#" }).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           columns.Bound(c => c.ApproverRemarks).Title(@Helper.GetResourceString("lbl_Remarks")).HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { @title = "\\#= ApproverRemarks \\#" }).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           //columns.Bound(c => c.Remarks).Title(@Helper.GetResourceString("lbl_Remarks")).HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { title = "#=Remarks #" }).Filterable(ftb => ftb.Cell(cell => cell.Operator(Settings.FilterOperator).SuggestionOperator(Settings.FilterSuggestion))).Width(Settings.GridColumnMaxWidth);
+                                           //columns.Bound(c => c.IsSapSauda).HeaderTemplate("").Title(@Helper.GetResourceString("lbl_IsDirectSauda")).ClientTemplate(@"<div style='text-align: center;'> #if(IsSapSauda == false) { #"
+                                           //                               + " <a  title='" + @Helper.GetResourceString("msg_Inactive") + "'><i class='icon-cancel-square2 faicon-red' ></i></a>   #}else{#<a title='" + @Helper.GetResourceString("msg_Active") + "'><i  class='icon-checkbox-checked2 faicon-green' ></i></a> #}# </div>").Width(Settings.GridColumnMaxWidth);
+
+                                       })
+                                       .NoRecords(e => e.Template(@Helper.GetResourceString("msg_NoRecordsFound")))
+                                       //.Events(events => events.DataBound("onLiftingRequestDetailListDataBound"))
+                                       .Selectable(selectable => selectable
+                                       .Type(GridSelectionType.Row))
+                                       .Filterable(filter => filter.Mode(GridFilterMode.Row))
+                                       .Sortable(sort => sort.SortMode(GridSortMode.MultipleColumn))
+                                       .Pageable(pageable => pageable.Refresh(true).PageSizes(Settings.GridPageSizes))
+                                       .Scrollable(s => s.Enabled(true).Height("auto"))
+                                       .Reorderable(reorder => reorder.Columns(true))
+                                       .Resizable(resize => resize.Columns(true))
+                                       .DataSource(dataSource => dataSource
+                                       .Ajax()
+                                       .PageSize(Settings.DefaultPageSize)
+                                       .Read(read => read.Action("SaudaDetailsById", "ReverseAuction", new { SaudaId = "#=SaudaId#" }))
+                                       ).ToClientTemplate())
+
+                                 @*@(Html.Kendo().Tooltip()
+                                  .For("#gridChild_#=SaudaId#")
+                                  .Filter(".forTooltips")
+                                  .ContentHandler("getRatingTooltip")
+                                  .Position(TooltipPosition.Right)
+                                  .AutoHide(false)*@
+                                    @*)*@
+            </script>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        FilterContains();
+
+        $("#ViewSaudaList").data("kendoGrid").dataSource.read();
+
+
+        if ('ConfigHelper.IsEnabledRefreshGoogleAnalyticsData' == 'True') {
+            var intervalTimeMin = parseInt('ConfigHelper.GoogleAnalyticsIntervalTimeInMin');
+            setTimeout(function () {
+            GetGoogleAnalyticsData();
+        }, intervalTimeMin * 60000);
+}
+
+    });
+
+    function downloadSaudhaList() {
+
+         $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetSaudaListExport", "ReverseAuction")',
+             data: additionalParams(),
+            success: function (responce) {
+
+                if (responce.FileGuid) {
+                    window.location.href = '@Url.Action("ExcelDownload", "Report")?fileGuid=' + responce.FileGuid + "&fileName=" + responce.FileName;
+                } else {
+                    ShowErrorMessage("No records found");
+
+                }
+                window.kendo.ui.progress($("#div_Progress"), false);
+            },
+            error: function (responce) {
+                ShowErrorMessage("File download failed");
+                window.kendo.ui.progress($("#div_Progress"), false);
+            }
+        });
+    }
+
+    function GetGoogleAnalyticsData()
+{
+        moduleCommon.Common.AjaxCall({
+            url: '/Home/GetGoogleAnalyticsData',
+            type: 'Get',
+            contentType: 'application/json; charset=utf-8',
+            success: function (result) {
+                debugger;
+                if (result != null) {
+                    //$("#WebtotalLoginDistri").text(result.ActiveUserCount);
+                    $("#WebtotalLoginUsers").text(result.TotalUserCount);
+                    $("#totalLoginSales").text(result.TotalLoginsBySales);
+                    $("#WebtotalLoginDistri").text(result.TotalLoginsByDistributor);
+                    $("#totalEmpLoggedIn").text(result.TotalEmployeesLoggedIn);
+                    //$("#MobileActiveUserCount").text(result.ActiveMobileUserCount);
+                    //$("#MobileRecentUserCount").text(result.RecentMobileUsersCount);
+                }
+            }
+      });
+
+    if ('ConfigHelper.IsEnabledRefreshGoogleAnalyticsData' == 'True') {
+        var intervalTimeMin = parseInt('ConfigHelper.GoogleAnalyticsIntervalTimeInMin');
+        setTimeout(function () {
+            GetGoogleAnalyticsData();
+        }, intervalTimeMin * 60000);
+    }
+}
+
+    function additionalParams() {
+        var statusId = 0;
+        var checkedValDataFilter = 3;
+        var divisionId = 0;
+        var oiltypeId = 0;
+        var skuId = 0;
+        var DistributionChannelId = 0;
+        var salesOrganizationId = 0;
+        var zoneId = 0;
+        var stateId = 0;
+        var cityId = 0;
+        var district = 0;
+        var data = {
+            fromDate: new Date().toDateString(),
+            todate: new Date().toDateString(),
+            statusId: statusId,
+            dataFilter: checkedValDataFilter,
+            divisionId: divisionId,
+            salesOrganizationId: salesOrganizationId,
+            DistributionChannelId: DistributionChannelId,
+            OilTypeId: oiltypeId,
+            SkuId: skuId,
+            ZoneId: zoneId,
+            StateId: stateId,
+            DistrictId: district,
+            CityId: cityId
+        };
+        return data;
+    }
+    function onFinalPricingtDataBound(e) {
+        SetEmptyRow(e);
+
+        var selectedOrders = [];
+        if ($("#hdSelectedIds").val()) {
+            selectedOrders = $("#hdSelectedIds").val().split(",");
+        }
+
+        $("#masterCBAllPaymentReceived").prop('checked', false);
+        $('input:checkbox.' + 'chkbxAllPaymentReceived').each(function () {
+            if ($.inArray(this.value, selectedOrders) > -1) {
+                this.checked = true;
+            }
+            else {
+                this.checked = false;
+            }
+        });
+    }
+</script>
+
+@{
+    if (Session["UserClaims"] != null && (Session["UserClaims"] as System.Collections.Generic.List<Adani.Solution.DTO.UserClaimsDto>).FirstOrDefault(s => s.Name == "Manage Organization").IsApplied && TempData["SuccessMessage"] != null)
+    {
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header" style="font-size:16px;color:#fff;">
+                        <button type="button" class="close" data-dismiss="modal" style="font-size: 26px;color:#fff;">&times;</button>
+                        <h4 class="modal-title">Precautionary Steps before booking Sauda:</h4>
+                    </div>
+                    <div class="modal-body" style="font-size: 14px;line-break: normal;line-height: 2.5;">
+                        <p>1. Need to create or import the geographical data (Zone,State,Territory,District and City).</p>
+                        <p>2. Need to create or import the freight zone and freight route.</p>
+                        <p>3. Need to create the Headquarters for EAL user creation.</p>
+                        <p>4. After plant & depot integrated from SAP, Need to map the plant and Depot in DS portal</p>
+                        <p>5. After SKU integrated from SAP, Need to update the  following fields : Pack Size, Pack Size Quantity, Sub Category, Pack Group,Process cost (Required for Specialty fat)</p>
+                        <p>6. Ingredient master for specialty fat to be included and mapped with SKU</p>
+                        <p>7. After Customer and broker integrated from SAP, Need to update the following fields:  SaudaValidityPeriod,Incoterms,TransportModeId,SaudaBookingTypeId,SaudaLimit, Plant, Depot, freight Zone freight Route</p>
+                        <p>8. After update the customer and Broker, Need to map the dealer/broker with plant/Depot.</p>
+                        <p>9. Create the EAL user and map the StateTrader with respective dealer/broker.</p>
+                        <p>10. Need to update the density for liter conversion in oil type.</p>
+                        <p>11. Configure the Role Hierarchy.</p>
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <script>
+            $(document).ready(function () {
+                //$('#myModal').modal({
+                //    show: 'true'
+                //});
+            });
+        </script>
+    }
+
+
+}
+
