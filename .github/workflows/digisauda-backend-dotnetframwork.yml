@@ -93,25 +93,24 @@ jobs:
       # Testing structure:
       #
       # vije-digitalsauda/
-      # └── adaniwilmar/
-      #     └── DigitalSauda.sln
+      # └── adaniwilmar.solution/
+      #     └── adaniwilmar.Solution.sln
       #
       # CHANGE ONLY THIS VALUE if your actual testing path is different.
       # ------------------------------------------------------------------------------------
-      # solution-path: "adaniwilmar/DigitalSauda.sln"
       solution-path: "AdaniWilmar.Solution/AdaniWilmar.Solution.sln"
 
       # ------------------------------------------------------------------------------------
       # [APPLICATION REPO PATH]
       # Testing structure:
-      # adaniwilmar/
-      # └── src/
-      #     └── DigitalSauda.Web/
-      #         └── DigitalSauda.Web.csproj
+      # adaniwilmar.solution/
+      # └── Adani.Solution.mvc/
+      #     └── Adani.Solution.mvc.csproj
       #
       # CHANGE ONLY THIS VALUE if your actual testing path is different.
       # ------------------------------------------------------------------------------------
-      project-path: "adaniwilmar/src/DigitalSauda.Web/DigitalSauda.Web.csproj"
+  
+      project-path: "AdaniWilmar.Solution/Adani.Solution.MVC/Adani.Solution.MVC.csproj"
 
       configuration: Release
 
