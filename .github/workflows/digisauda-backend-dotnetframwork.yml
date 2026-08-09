@@ -35,7 +35,7 @@ on:
       target-environment:
         required: false
         type: choice
-        options: [DEV, UAT, PROD]
+        options: [dev, UAT, PROD]
 
 # concurrency:
 #   group: digital-sauda-backend-${{ github.ref }}
@@ -63,11 +63,11 @@ jobs:
               echo "environment=${{ inputs.target-environment }}" >> "$GITHUB_OUTPUT"; exit 0
             fi
             case "${GITHUB_REF_NAME}" in
-              develop)   echo "environment=DEV" >> "$GITHUB_OUTPUT" ;;
+              develop)   echo "environment=dev" >> "$GITHUB_OUTPUT" ;;
               uat)       echo "environment=UAT" >> "$GITHUB_OUTPUT" ;;
               release/*) echo "environment=STAGING" >> "$GITHUB_OUTPUT" ;;
               main)      echo "environment=PROD" >> "$GITHUB_OUTPUT" ;;
-              *)          echo "environment=DEV" >> "$GITHUB_OUTPUT" ;;
+              *)          echo "environment=dev" >> "$GITHUB_OUTPUT" ;;
             esac
 
   validate:
@@ -76,7 +76,7 @@ jobs:
     if: always() && !failure()
     uses: devops-futuretech/dhargun-ghactions-reusable-workflows/.github/workflows/awl-common-validation.yml@main
     with:
-      environment: ${{ needs.determine-environment.outputs.environment || 'DEV' }}
+      environment: ${{ needs.determine-environment.outputs.environment || 'dev' }}
       runner-label: windows-build       # override if the default label targets Linux
 
   # ------------------------------------------------------------------------------------
@@ -103,7 +103,15 @@ jobs:
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: high
+      
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
 
+      - name: Restore NuGet Packages
+        shell: pwsh
+        run: |
+          nuget restore "${{ inputs.solution-path }}"
+          
       # CodeQL — GitHub-native SAST. Findings appear under the repo's Security tab, not in
       # workflow logs only. Language below must match this repo's primary source language.
       - name: Initialize CodeQL
@@ -113,8 +121,30 @@ jobs:
 
       # If autobuild fails for this project type, replace with explicit build commands
       # (dotnet build / msbuild / ./gradlew build etc.) matching the awl-build-*.yml step.
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+      - name: Build for CodeQL
+        shell: pwsh
+        run: |
+          & "C:\Program Files\Microsoft Visual Studio\18\Enterprise\MSBuild\Current\Bin\MSBuild.exe" `
+            "AdaniWilmar.Solution\AdaniWilmar.Solution.sln" `
+            /t:Build `
+            /p:Configuration=Release `
+            /p:Platform="Any CPU" `
+            /p:SkipInvalidConfigurations=true
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+
+      - name: Build for CodeQL
+        shell: pwsh
+        run: |
+          & "C:\Program Files\Microsoft Visual Studio\18\Enterprise\MSBuild\Current\Bin\MSBuild.exe" `
+            "AdaniWilmar.Solution\AdaniWilmar.Solution.sln" `
+            /t:Build `
+            /p:Configuration=Release `
+            /p:Platform="Any CPU" `
+            /p:SkipInvalidConfigurations=true
 
       - name: CodeQL Analyze
         uses: github/codeql-action/analyze@v3
@@ -144,11 +174,11 @@ jobs:
   # ========================================================================================
   build-mvc:
     name: Build ASP.NET MVC
-    needs: [determine-environment, validate, security-scan]
+    needs: [determine-environment, validate]
     uses: devops-futuretech/dhargun-ghactions-reusable-workflows/.github/workflows/reusable-build-dotnet-framework-iis.yml@main
 
     with:
-      environment: ${{ needs.determine-environment.outputs.environment || 'DEV' }}
+      environment: ${{ needs.determine-environment.outputs.environment || 'dev' }}
       # ------------------------------------------------------------------------------------
       # [APPLICATION REPO PATH]
       # This path is inside THIS application repository.
@@ -173,14 +203,15 @@ jobs:
       artifact-name: digital-sauda-mvc-${{ github.sha }}
       artifact-path: publish
 
+    secrets: inherit
 
-  
+ 
   build-api:
     name: Build ASP.NET API
-    needs: [determine-environment, validate, security-scan]
+    needs: [determine-environment, validate]
     uses: devops-futuretech/dhargun-ghactions-reusable-workflows/.github/workflows/reusable-build-dotnet-framework-iis.yml@main
     with:
-      environment: ${{ needs.determine-environment.outputs.environment || 'DEV' }}
+      environment: ${{ needs.determine-environment.outputs.environment || 'dev' }}
         # ------------------------------------------------------------------------------------
       # [APPLICATION REPO PATH]
       # This path is inside THIS application repository.
@@ -207,6 +238,7 @@ jobs:
       artifact-name: digital-sauda-api-${{ github.sha }}   # Artifact name visible under: # GitHub Actions → Workflow run → Artifacts
       artifact-path: publish # [BUILD OUTPUT] # This folder is generated by the reusable workflow # It is NOT an application source path.
  
+    secrets: inherit
   # ========================================================================================
   # APPROVAL
   #
@@ -252,11 +284,12 @@ jobs:
 
   deploy:
     name: Deploy to IIS
-    needs: [determine-environment, security-scan]
+    needs: [ approval]
     if: github.event_name == 'push'
     uses: devops-futuretech/dhargun-ghactions-reusable-workflows/.github/workflows/awl-reusable-deploy-iis.yml@main
     with:
-      environment: ${{ needs.determine-environment.outputs.environment }}
+      environment: ${{ needs.determine-environment.outputs.environment || 'dev' }}
+      # artifact-path: publish
       artifact-name: digital-sauda-web-${{ github.run_number }}
       site-name: ${{ vars.IIS_SITE_NAME }}   # [ENV var] Target IIS website name on the Windows deploy runner
       app-pool: ${{ vars.IIS_APP_POOL }}   # [ENV var] IIS application pool name
