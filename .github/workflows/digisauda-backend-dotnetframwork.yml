@@ -48,6 +48,36 @@ jobs:
   #
   # We therefore do NOT call those actions directly from this caller.
   # ========================================================================================
+  
+  determine-environment:
+      name: Determine Environment
+      if: github.event_name != 'pull_request'
+      runs-on: [self-hosted, build, windows-latest]
+      outputs:
+        environment: ${{ steps.map.outputs.environment }}
+      steps:
+        - id: map
+          shell: bash
+          run: |
+            if [ -n "${{ inputs.target-environment }}" ]; then
+              echo "environment=${{ inputs.target-environment }}" >> "$GITHUB_OUTPUT"; exit 0
+            fi
+            case "${GITHUB_REF_NAME}" in
+              develop)   echo "environment=DEV" >> "$GITHUB_OUTPUT" ;;
+              uat)       echo "environment=UAT" >> "$GITHUB_OUTPUT" ;;
+              release/*) echo "environment=STAGING" >> "$GITHUB_OUTPUT" ;;
+              main)      echo "environment=PROD" >> "$GITHUB_OUTPUT" ;;
+              *)          echo "environment=DEV" >> "$GITHUB_OUTPUT" ;;
+            esac
+
+  validate:
+    name: Common Validation
+    needs: [determine-environment]
+    if: always() && !failure()
+    uses: devops-futuretech/dhargun-ghactions-reusable-workflows/.github/workflows/awl-common-validation.yml@main
+    with:
+      environment: ${{ needs.determine-environment.outputs.environment || 'DEV' }}
+      runner-label: windows-build       # override if the default label targets Linux
 
   build:
     name: Build .NET Framework IIS
@@ -67,7 +97,8 @@ jobs:
       #
       # CHANGE ONLY THIS VALUE if your actual testing path is different.
       # ------------------------------------------------------------------------------------
-      solution-path: "adaniwilmar/DigitalSauda.sln"
+      # solution-path: "adaniwilmar/DigitalSauda.sln"
+      solution-path: "AdaniWilmar.Solution/AdaniWilmar.Solution.sln"
 
       # ------------------------------------------------------------------------------------
       # [APPLICATION REPO PATH]
@@ -115,12 +146,9 @@ jobs:
 
   approval:
     name: Build Approval
-
     needs:
       - build
-
     runs-on: windows-latest
-
     # --------------------------------------------------------------------------------------
     # [GITHUB ENVIRONMENT]
     #
@@ -131,13 +159,10 @@ jobs:
     #       → BUILD-APPROVAL
     #
     # Configure Required Reviewers there.
-    # --------------------------------------------------------------------------------------
-
+    # --------------------------------------------------------------------------------------     
     environment:
-      name: BUILD-APPROVAL
-
+      name: ${{ needs.determine-environment.outputs.environment }}
     steps:
-
       - name: Approval Completed
         shell: pwsh
         run: |
@@ -145,3 +170,85 @@ jobs:
           Write-Host "Artifact has been uploaded by the reusable workflow."
           Write-Host "Manual approval completed."
           Write-Host "Deployment is intentionally not configured for this test."
+  # ------------------------------------------------------------------------------------
+  # Security Scan — GitHub-native tooling only (GitHub Advanced Security), per current decision.
+  # No third-party scanning actions (gitleaks/npm-audit/etc.) are used here.
+  # ------------------------------------------------------------------------------------
+  security-scan:
+    name: Security Scan (GitHub Advanced Security)
+    needs: [build]
+    runs-on: [self-hosted, build, windows-latest]
+    permissions:
+      contents: read
+      security-events: write   # required so CodeQL can upload SARIF results to the Security tab
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      # Dependency Review — GitHub-native, PR-time only. Flags newly introduced vulnerable
+      # or license-flagged dependencies using the repo's Dependency Graph. Requires
+      # Settings > Code security > Dependency graph to be enabled (org-level default setup).
+      - name: Dependency Review
+        if: github.event_name == 'pull_request'
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+
+      # CodeQL — GitHub-native SAST. Findings appear under the repo's Security tab, not in
+      # workflow logs only. Language below must match this repo's primary source language.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+
+      # If autobuild fails for this project type, replace with explicit build commands
+      # (dotnet build / msbuild / ./gradlew build etc.) matching the awl-build-*.yml step.
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: CodeQL Analyze
+        uses: github/codeql-action/analyze@v3
+
+      # Secret scanning + push protection are GitHub-native, ORG-level features
+      # (Org Settings > Code security > Secret scanning). They run automatically on every
+      # push — no workflow step required. Confirm both are ON for this repo before go-live.
+
+  deploy:
+    name: Deploy to IIS
+    needs: [determine-environment, security-scan]
+    if: github.event_name == 'push'
+    uses: devops-futuretech/dhargun-ghactions-reusable-workflows/.github/workflows/awl-reusable-deploy-iis.yml@main
+    with:
+      environment: ${{ needs.determine-environment.outputs.environment }}
+      artifact-name: digital-sauda-web-${{ github.run_number }}
+      site-name: ${{ vars.IIS_SITE_NAME }}   # [ENV var] Target IIS website name on the Windows deploy runner
+      app-pool: ${{ vars.IIS_APP_POOL }}   # [ENV var] IIS application pool name
+      physical-path: ${{ vars.IIS_PHYSICAL_PATH }}   # [ENV var] Physical folder path on the IIS server for this environment
+      backup-enabled: true
+      enable-health-check: true
+      health-url: ${{ vars.HEALTH_CHECK_URL }}   # [ENV var] Post-deploy health endpoint used by the health-check step
+
+  release:
+    name: Create Release
+    needs: [deploy]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: [self-hosted, build, windows-latest]
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Tag Release
+        shell: bash
+        run: |
+          VERSION="v$(date +'%Y.%m.%d')-${GITHUB_RUN_NUMBER}-backend"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          git tag "$VERSION"
+          git push origin "$VERSION"
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.VERSION }}
+          generate_release_notes: true
