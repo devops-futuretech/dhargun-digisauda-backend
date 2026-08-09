@@ -81,6 +81,7 @@ jobs:
 
   build:
     name: Build .NET Framework IIS
+    needs: [validate]
     uses: devops-futuretech/dhargun-ghactions-reusable-workflows/.github/workflows/reusable-build-dotnet-framework-iis.yml@main
     with:
 
