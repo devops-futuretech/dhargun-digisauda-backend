@@ -52,7 +52,7 @@ jobs:
   determine-environment:
       name: Determine Environment
       if: github.event_name != 'pull_request'
-      runs-on: [self-hosted, build, windows-latest]
+      runs-on: [windows-latest]
       outputs:
         environment: ${{ steps.map.outputs.environment }}
       steps:
@@ -178,7 +178,7 @@ jobs:
   security-scan:
     name: Security Scan (GitHub Advanced Security)
     needs: [build]
-    runs-on: [self-hosted, build, windows-latest]
+    runs-on: [windows-latest]
     permissions:
       contents: read
       security-events: write   # required so CodeQL can upload SARIF results to the Security tab
@@ -234,7 +234,7 @@ jobs:
     name: Create Release
     needs: [deploy]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    runs-on: [self-hosted, build, windows-latest]
+    runs-on: [windows-latest]
     permissions:
       contents: write
     steps:
